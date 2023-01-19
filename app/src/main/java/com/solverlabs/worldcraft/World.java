@@ -58,7 +58,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 
-import android2.util.FloatMath;
+import com.solverlabs.droid.rugl.util.FloatMath;
 
 /**
  * Manages loading chunks, decides which chunklets to render

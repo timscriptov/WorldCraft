@@ -80,9 +80,7 @@ public class WorldUtils {
 
     @NonNull
     public static ArrayList<File> getWorldList() {
-        ArrayList<File> result = new ArrayList<>();
-        result.addAll(mWorlds);
-        return result;
+        return new ArrayList<>(mWorlds);
     }
 
     public static ArrayList<File> getmCreativeModeWorlds() {
@@ -207,7 +205,7 @@ public class WorldUtils {
             this.mName = file.getName();
         }
 
-        public boolean ismIsCreative() {
+        public boolean isCreative() {
             return this.mIsCreative;
         }
 

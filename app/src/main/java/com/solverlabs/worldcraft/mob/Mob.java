@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.vecmath.Point3d;
 
-import android2.util.FloatMath;
+import com.solverlabs.droid.rugl.util.FloatMath;
 
 
 public abstract class Mob implements Damagable {

@@ -8,7 +8,7 @@ import com.solverlabs.droid.rugl.util.geom.Vector3i;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
-import android2.util.FloatMath;
+import com.solverlabs.droid.rugl.util.FloatMath;
 
 
 public class Distance {

@@ -1,5 +1,7 @@
 package com.solverlabs.droid.rugl.util;
 
+import com.solverlabs.worldcraft.math.MathUtils;
+
 /**
  * Fast trigonometric operations
  *
@@ -62,8 +64,8 @@ public class Trig {
         cos = new float[SIN_COUNT];
 
         for (int i = 0; i < SIN_COUNT; i++) {
-            sin[i] = (float) Math.sin((i + 0.5f) / SIN_COUNT * radFull);
-            cos[i] = (float) Math.cos((i + 0.5f) / SIN_COUNT * radFull);
+            sin[i] = (float) MathUtils.sin((i + 0.5f) / SIN_COUNT * radFull);
+            cos[i] = (float) MathUtils.cos((i + 0.5f) / SIN_COUNT * radFull);
         }
     }
 

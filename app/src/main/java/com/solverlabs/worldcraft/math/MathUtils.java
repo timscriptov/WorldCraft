@@ -6,7 +6,7 @@ import com.solverlabs.droid.rugl.util.geom.Vector3f;
 
 import java.util.Random;
 
-import android2.util.FloatMath;
+import com.solverlabs.droid.rugl.util.FloatMath;
 
 
 public class MathUtils {

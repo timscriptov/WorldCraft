@@ -30,7 +30,7 @@ import com.solverlabs.worldcraft.util.GameTime;
 
 import java.util.ArrayList;
 
-import android2.util.FloatMath;
+import com.solverlabs.droid.rugl.util.FloatMath;
 
 
 public class Player implements Damagable {

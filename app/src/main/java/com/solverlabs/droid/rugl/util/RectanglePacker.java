@@ -1,64 +1,163 @@
 package com.solverlabs.droid.rugl.util;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.util.List;
 
-
+/**
+ * Tries to pack rectangles as tightly as possible. An implementation
+ * of the algorithm described at
+ * http://www.blackpawn.com/texts/lightmaps/default.html
+ *
+ * @param <P> The type of items to be held
+ * @author ryanm
+ */
 public class RectanglePacker<P> {
-    private int border;
-    private RectanglePacker<P>.Node root;
 
+    private Node root;
+
+    ;
+    /**
+     * The border to leave around rectangles
+     */
+    private int border = 0;
+
+    /**
+     * Builds a new {@link RectanglePacker}
+     *
+     * @param width  The width of the space available to pack into
+     * @param height The height of the space available to pack into
+     * @param border The border to preserve between packed items
+     */
     public RectanglePacker(int width, int height, int border) {
-        this.border = 0;
-        this.root = new Node(new Rectangle(0, 0, width, height));
+        root = new Node(new Rectangle(0, 0, width, height));
         this.border = border;
     }
 
+    /**
+     * Builds a list of all {@link Rectangle}s in the tree, for
+     * debugging purposes
+     *
+     * @param rectangles The list to add the tree's {@link Rectangle}s to
+     */
     public void inspectRectangles(List<Rectangle> rectangles) {
-        this.root.getRectangles(rectangles);
+        root.getRectangles(rectangles);
     }
 
+    /**
+     * Finds the {@link Rectangle} where an item is stored
+     *
+     * @param item The item to search for
+     * @return The {@link Rectangle} where that item resides, or null
+     * if not found
+     */
     public Rectangle findRectangle(P item) {
-        return this.root.findRectange(item);
+        return root.findRectange(item);
     }
 
+    /**
+     * Clears the packer of all items
+     */
     public void clear() {
-        this.root = new Node(((Node) this.root).rect);
+        root = new Node(root.rect);
     }
 
+    /**
+     * Attempts to pack an item of the supplied dimensions
+     *
+     * @param width  The width of the item
+     * @param height The height of the item
+     * @param o      The item to pack
+     * @return The packed location, or null if it will not fit.
+     */
     public Rectangle insert(int width, int height, P o) {
-        RectanglePacker<P>.Node n = this.root.insert((this.border * 2) + width, (this.border * 2) + height, o);
+        Node n = root.insert(width + 2 * border, height + 2 * border, o);
+
         if (n != null) {
-            return new Rectangle(((Node) n).rect.x + this.border, ((Node) n).rect.y + this.border, ((Node) n).rect.width - (this.border * 2), ((Node) n).rect.height - (this.border * 2));
+            return new Rectangle(n.rect.x + border, n.rect.y + border, n.rect.width - 2
+                    * border, n.rect.height - 2 * border);
+        } else {
+            return null;
         }
-        return null;
     }
 
+    /**
+     * Removes an item from the tree, consolidating the space if
+     * possible. The space can easily become fragmented, so don't rely
+     * on this to work as cleverly as you would like.
+     *
+     * @param o the item to remove
+     * @return <code>true</code> if the item was found, false otherwise
+     */
     public boolean remove(P o) {
-        return this.root.remove(o);
+        return root.remove(o);
     }
 
+    /**
+     * Gets the width of this packer
+     *
+     * @return the width of this packer
+     */
     public int getWidth() {
-        return ((Node) this.root).rect.width;
+        return root.rect.width;
     }
 
+    /**
+     * Gets the height of this packer
+     *
+     * @return The height of this packer
+     */
     public int getHeight() {
-        return ((Node) this.root).rect.height;
+        return root.rect.height;
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-
-    public enum Fit {
+    /**
+     * Determines the outcome of a rectangle-fitting test
+     *
+     * @author ryanm
+     */
+    private static enum Fit {
+        /**
+         * Indicates that the rectangle did not fit
+         */
         FAIL,
+        /**
+         * Indicates that the rectangle fitted perfectly
+         */
         PERFECT,
+        /**
+         * Indicates that the rectangle fitted with room to spare
+         */
         FIT
     }
 
-
+    /**
+     * Yet another Rectangle class. Only here to remove dependencies on
+     * awt/lwjgl/etc
+     *
+     * @author ryanm
+     */
     public static class Rectangle {
-        public final int height;
-        public final int width;
+        /**
+         *
+         */
         public final int x;
+
+        /**
+         *
+         */
         public final int y;
+
+        /**
+         *
+         */
+        public final int width;
+
+        /**
+         *
+         */
+        public final int height;
 
         private Rectangle(int x, int y, int width, int height) {
             this.x = x;
@@ -67,143 +166,171 @@ public class RectanglePacker<P> {
             this.height = height;
         }
 
-        private Rectangle(Rectangle r) {
+        private Rectangle(@NonNull Rectangle r) {
             this.x = r.x;
             this.y = r.y;
             this.width = r.width;
             this.height = r.height;
         }
 
+        @NonNull
+        @Override
         public String toString() {
-            return "[ " + this.x + ", " + this.y + ", " + this.width + ", " + this.height + " ]";
+            return "[ " + x + ", " + y + ", " + width + ", " + height + " ]";
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-
-    public class Node {
-        private final boolean $assertionsDisabled = !RectanglePacker.class.desiredAssertionStatus();
-        ;
+    private class Node {
         private final Rectangle rect;
-        private RectanglePacker<P>.Node left;
-        private P occupier;
-        private RectanglePacker<P>.Node right;
 
+        private P occupier = null;
+
+        private Node left = null;
+
+        private Node right = null;
 
         private Node(Rectangle r) {
-            this.occupier = null;
-            this.left = null;
-            this.right = null;
             this.rect = r;
         }
 
-        /* JADX INFO: Access modifiers changed from: private */
-        public Rectangle findRectange(P item) {
+        @Nullable
+        private Rectangle findRectange(P item) {
             if (isLeaf()) {
-                if (item == this.occupier) {
-                    return this.rect;
+                if (item == occupier) {
+                    return rect;
+                } else {
+                    return null;
                 }
-                return null;
+            } else {
+                Rectangle l = left.findRectange(item);
+
+                if (l != null) {
+                    return l;
+                } else {
+                    return right.findRectange(item);
+                }
             }
-            Rectangle l = this.left.findRectange(item);
-            return l == null ? this.right.findRectange(item) : l;
         }
 
-        /* JADX INFO: Access modifiers changed from: private */
-        /* JADX WARN: Can't fix incorrect switch cases order, some code will duplicate */
-        public RectanglePacker<P>.Node insert(int width, int height, P o) {
+        @Nullable
+        private Node insert(int width, int height, P o) {
             if (!isLeaf()) {
-                RectanglePacker<P>.Node r = this.left.insert(width, height, o);
+                Node r = left.insert(width, height, o);
+
                 if (r == null) {
-                    return this.right.insert(width, height, o);
+                    r = right.insert(width, height, o);
                 }
+
                 return r;
-            } else if (this.occupier != null) {
-                return null;
             } else {
+                if (occupier != null) {
+                    return null;
+                }
+
                 Fit fit = fits(width, height);
+
                 switch (fit) {
                     case FAIL:
                         return null;
                     case PERFECT:
-                        this.occupier = o;
+                        occupier = o;
                         return this;
                     case FIT:
                         split(width, height);
                         break;
                 }
-                return this.left.insert(width, height, o);
+
+                return left.insert(width, height, o);
             }
         }
 
         private boolean isLeaf() {
-            return this.left == null;
+            return left == null;
         }
 
+        /**
+         * Determines if this node contains an item, even many levels
+         * below
+         *
+         * @return <code>true</code> if this node or any of it's
+         * descendants holds an item
+         */
         private boolean isOccupied() {
-            return this.occupier != null || !isLeaf();
+            return occupier != null || !isLeaf();
         }
 
-        /* JADX INFO: Access modifiers changed from: private */
-        public boolean remove(P o) {
+        /**
+         * Removes an item, and consolidates the tree if possible
+         *
+         * @param o the item to remove
+         * @return <code>true</code> if the item was found,
+         * <code>false</code> otherwise
+         */
+        private boolean remove(P o) {
             if (isLeaf()) {
-                if (this.occupier == o) {
-                    this.occupier = null;
+                if (occupier == o) {
+                    occupier = null;
+
                     return true;
                 }
                 return false;
-            }
-            boolean found = this.left.remove(o);
-            if (!found) {
-                found = this.right.remove(o);
-            }
-            if (found && !this.left.isOccupied() && !this.right.isOccupied()) {
-                this.left = null;
-                this.right = null;
+            } else {
+                boolean found = left.remove(o);
+                if (!found) {
+                    found = right.remove(o);
+                }
+
+                if (found) {
+                    if (!left.isOccupied() && !right.isOccupied()) {
+                        left = null;
+                        right = null;
+                    }
+                }
+
                 return found;
             }
-            return found;
         }
 
         private void split(int width, int height) {
-            Rectangle l;
-            Rectangle r;
-            int dw = this.rect.width - width;
-            int dh = this.rect.height - height;
-            if ($assertionsDisabled || dw >= 0) {
-                if (!$assertionsDisabled && dh < 0) {
-                    throw new AssertionError();
-                }
-                if (dw > dh) {
-                    l = new Rectangle(this.rect.x, this.rect.y, width, this.rect.height);
-                    r = new Rectangle(l.x + width, this.rect.y, this.rect.width - width, this.rect.height);
-                } else {
-                    l = new Rectangle(this.rect.x, this.rect.y, this.rect.width, height);
-                    r = new Rectangle(this.rect.x, l.y + height, this.rect.width, this.rect.height - height);
-                }
-                this.left = new Node(l);
-                this.right = new Node(r);
-                return;
+            int dw = rect.width - width;
+            int dh = rect.height - height;
+
+            assert dw >= 0;
+            assert dh >= 0;
+
+            Rectangle r, l;
+            if (dw > dh) {
+                l = new Rectangle(rect.x, rect.y, width, rect.height);
+
+                r = new Rectangle(l.x + width, rect.y, rect.width - width, rect.height);
+            } else {
+                l = new Rectangle(rect.x, rect.y, rect.width, height);
+
+                r = new Rectangle(rect.x, l.y + height, rect.width, rect.height - height);
             }
-            throw new AssertionError();
+
+            left = new Node(l);
+            right = new Node(r);
         }
 
         private Fit fits(int width, int height) {
-            if (width <= this.rect.width && height <= this.rect.height) {
-                if (width == this.rect.width && height == this.rect.height) {
+            if (width <= rect.width && height <= rect.height) {
+                if (width == rect.width && height == rect.height) {
                     return Fit.PERFECT;
+                } else {
+                    return Fit.FIT;
                 }
-                return Fit.FIT;
             }
+
             return Fit.FAIL;
         }
 
-        /* JADX INFO: Access modifiers changed from: private */
-        public void getRectangles(List<Rectangle> rectangles) {
-            rectangles.add(this.rect);
+        private void getRectangles(@NonNull List<Rectangle> rectangles) {
+            rectangles.add(rect);
+
             if (!isLeaf()) {
-                this.left.getRectangles(rectangles);
-                this.right.getRectangles(rectangles);
+                left.getRectangles(rectangles);
+                right.getRectangles(rectangles);
             }
         }
     }

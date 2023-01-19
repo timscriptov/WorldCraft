@@ -1,20 +1,65 @@
 package com.solverlabs.droid.rugl.util.io;
 
-
+/**
+ * A write-only interface for a data sink
+ *
+ * @author ryanm
+ */
 public interface DataSink {
-    void putBoolean(boolean z);
+    /**
+     * Puts a boolean into the sink
+     *
+     * @param b
+     */
+    public void putBoolean(boolean b);
 
-    void putByte(byte b);
+    /**
+     * Puts a byte into the sink
+     *
+     * @param b
+     */
+    public void putByte(byte b);
 
-    void putChar(char c);
+    /**
+     * Puts a char into the sink
+     *
+     * @param c
+     */
+    public void putChar(char c);
 
-    void putDouble(double d);
+    /**
+     * Puts a double into the sink
+     *
+     * @param d
+     */
+    public void putDouble(double d);
 
-    void putFloat(float f);
+    /**
+     * Puts a float into the sink
+     *
+     * @param f
+     */
+    public void putFloat(float f);
 
-    void putInt(int i);
+    /**
+     * Puts a int into the sink
+     *
+     * @param i
+     */
+    public void putInt(int i);
 
-    void putLong(long j);
+    /**
+     * Puts a long into the sink
+     *
+     * @param l
+     */
+    public void putLong(long l);
 
-    void putShort(short s);
+    /**
+     * Puts a short into the sink
+     *
+     * @param s
+     */
+    public void putShort(short s);
+
 }

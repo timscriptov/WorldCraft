@@ -2,93 +2,107 @@ package com.solverlabs.droid.rugl.util.io;
 
 import java.nio.ByteBuffer;
 
-
+/**
+ * Wraps a {@link ByteBuffer} to restrict people monkeying with the
+ * position, data that don't concern 'em, etc
+ *
+ * @author ryanm
+ */
 public class DataBuffer implements DataSource, DataSink {
-    private static final byte FALSE = 0;
-    private static final byte TRUE = 1;
+    /**
+     * byte constant for <code>false</code>
+     */
+    private static final byte FALSE = (byte) 0;
+    /**
+     * byte constant for <code>true</code>
+     */
+    private static final byte TRUE = (byte) 1;
     private final ByteBuffer delegate;
 
+    /**
+     * @param buffy
+     */
     public DataBuffer(ByteBuffer buffy) {
-        this.delegate = buffy;
+        delegate = buffy;
     }
 
     @Override
     public boolean getBoolean() {
-        return this.delegate.get() == 1;
+        return delegate.get() == TRUE;
     }
 
     @Override
     public byte getByte() {
-        return this.delegate.get();
+        return delegate.get();
     }
 
     @Override
     public char getChar() {
-        return this.delegate.getChar();
+        return delegate.getChar();
     }
 
     @Override
     public double getDouble() {
-        return this.delegate.getDouble();
+        return delegate.getDouble();
     }
 
     @Override
     public float getFloat() {
-        return this.delegate.getFloat();
+        return delegate.getFloat();
     }
 
     @Override
     public int getInt() {
-        return this.delegate.getInt();
+        return delegate.getInt();
     }
 
     @Override
     public long getLong() {
-        return this.delegate.getLong();
+        return delegate.getLong();
     }
 
     @Override
     public short getShort() {
-        return this.delegate.getShort();
+        return delegate.getShort();
     }
 
     @Override
     public void putBoolean(boolean b) {
-        this.delegate.put(b ? (byte) 1 : (byte) 0);
+        delegate.put(b ? TRUE : FALSE);
     }
 
     @Override
     public void putByte(byte b) {
-        this.delegate.put(b);
+        delegate.put(b);
     }
 
     @Override
     public void putChar(char value) {
-        this.delegate.putChar(value);
+        delegate.putChar(value);
     }
 
     @Override
     public void putDouble(double value) {
-        this.delegate.putDouble(value);
+        delegate.putDouble(value);
     }
 
     @Override
     public void putFloat(float value) {
-        this.delegate.putFloat(value);
+        delegate.putFloat(value);
     }
 
     @Override
     public void putInt(int value) {
-        this.delegate.putInt(value);
+        delegate.putInt(value);
     }
 
     @Override
     public void putLong(long value) {
-        this.delegate.putLong(value);
+        delegate.putLong(value);
     }
 
     @Override
     public void putShort(short value) {
-        this.delegate.putShort(value);
+        delegate.putShort(value);
     }
 }

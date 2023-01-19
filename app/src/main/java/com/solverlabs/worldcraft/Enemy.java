@@ -19,7 +19,7 @@ import com.solverlabs.worldcraft.srv.domain.Camera;
 
 import java.util.Comparator;
 
-import android2.util.FloatMath;
+import com.solverlabs.droid.rugl.util.FloatMath;
 
 
 public class Enemy implements Comparable<Enemy> {

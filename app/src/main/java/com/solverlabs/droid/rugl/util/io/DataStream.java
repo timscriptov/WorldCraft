@@ -6,137 +6,186 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-
+/**
+ * Wraps streams as a {@link DataSource} and {@link DataSink}. Any
+ * {@link IOException}s that occur may be printed to stderr, and saved
+ * for later retrieval, see {@link #printErrors},
+ * {@link #checkError()} and {@link #clearError()}
+ *
+ * @author ryanm
+ */
 public class DataStream implements DataSource, DataSink {
-    public boolean printErrors;
-    private DataInputStream dis;
+    /**
+     * Determines if {@link IOException}s are printed to stderr when
+     * they occur. Defaults to <code>true</code>.
+     */
+    public boolean printErrors = true;
     private DataOutputStream dos;
-    private IOException[] errors;
+    private DataInputStream dis;
+    private IOException[] errors = new IOException[2];
 
+    /**
+     * Wraps an {@link OutputStream}. Any attempt to read data from
+     * this {@link DataStream} will result in a
+     * {@link NullPointerException}
+     *
+     * @param os
+     */
     public DataStream(OutputStream os) {
-        this.errors = new IOException[2];
-        this.printErrors = true;
-        this.dos = new DataOutputStream(os);
+        dos = new DataOutputStream(os);
     }
 
+    /**
+     * Wraps an {@link InputStream}. Any attempt to write data to this
+     * {@link DataStream} will result in a {@link NullPointerException}
+     *
+     * @param is
+     */
     public DataStream(InputStream is) {
-        this.errors = new IOException[2];
-        this.printErrors = true;
-        this.dis = new DataInputStream(is);
+        dis = new DataInputStream(is);
     }
 
+    /**
+     * Wraps an {@link InputStream} and an {@link OutputStream}
+     *
+     * @param is
+     * @param os
+     */
     public DataStream(InputStream is, OutputStream os) {
-        this.errors = new IOException[2];
-        this.printErrors = true;
-        this.dis = new DataInputStream(is);
-        this.dos = new DataOutputStream(os);
+        dis = new DataInputStream(is);
+        dos = new DataOutputStream(os);
     }
 
+    /**
+     * Checks if an error has occurred since the last time
+     * {@link #clearError()} was called
+     *
+     * @return <code>true</code> if a new error has occurred,
+     * <code>false</code> otherwise
+     */
     public boolean checkError() {
-        return this.errors[0] != null;
+        return errors[0] != null;
     }
 
+    /**
+     * Clears and retrieves the error status
+     *
+     * @return An array containing the earliest and latest exceptions
+     * to occur.
+     */
     public IOException[] clearError() {
-        IOException[] e = {this.errors[0], this.errors[1]};
-        this.errors[0] = null;
-        this.errors[1] = null;
+        IOException[] e = new IOException[]{errors[0], errors[1]};
+
+        errors[0] = null;
+        errors[1] = null;
+
         return e;
     }
 
     private void logError(IOException ioe) {
-        if (this.printErrors) {
+        if (printErrors) {
             ioe.printStackTrace();
         }
-        if (this.errors[0] == null) {
-            this.errors[0] = ioe;
+
+        if (errors[0] == null) {
+            errors[0] = ioe;
         }
-        this.errors[1] = ioe;
+
+        errors[1] = ioe;
     }
 
     @Override
     public boolean getBoolean() {
         try {
-            return this.dis.readBoolean();
+            return dis.readBoolean();
         } catch (IOException e) {
             logError(e);
-            return false;
         }
+
+        return false;
     }
 
     @Override
     public byte getByte() {
         try {
-            return this.dis.readByte();
+            return dis.readByte();
         } catch (IOException e) {
             logError(e);
-            return (byte) 0;
         }
+
+        return 0;
     }
 
     @Override
     public char getChar() {
         try {
-            return this.dis.readChar();
+            return dis.readChar();
         } catch (IOException e) {
             logError(e);
-            return (char) 0;
         }
+
+        return 0;
     }
 
     @Override
     public double getDouble() {
         try {
-            return this.dis.readDouble();
+            return dis.readDouble();
         } catch (IOException e) {
             logError(e);
-            return 0.0d;
         }
+
+        return 0;
     }
 
     @Override
     public float getFloat() {
         try {
-            return this.dis.readFloat();
+            return dis.readFloat();
         } catch (IOException e) {
             logError(e);
-            return 0.0f;
         }
+
+        return 0;
     }
 
     @Override
     public int getInt() {
         try {
-            return this.dis.readInt();
+            return dis.readInt();
         } catch (IOException e) {
             logError(e);
-            return 0;
         }
+
+        return 0;
     }
 
     @Override
     public long getLong() {
         try {
-            return this.dis.readLong();
+            return dis.readLong();
         } catch (IOException e) {
             logError(e);
-            return 0L;
         }
+
+        return 0;
     }
 
     @Override
     public short getShort() {
         try {
-            return this.dis.readShort();
+            return dis.readShort();
         } catch (IOException e) {
             logError(e);
-            return (short) 0;
         }
+
+        return 0;
     }
 
     @Override
     public void putBoolean(boolean b) {
         try {
-            this.dos.writeBoolean(b);
+            dos.writeBoolean(b);
         } catch (IOException e) {
             logError(e);
         }
@@ -145,7 +194,7 @@ public class DataStream implements DataSource, DataSink {
     @Override
     public void putByte(byte b) {
         try {
-            this.dos.writeByte(b);
+            dos.writeByte(b);
         } catch (IOException e) {
             logError(e);
         }
@@ -154,7 +203,7 @@ public class DataStream implements DataSource, DataSink {
     @Override
     public void putChar(char c) {
         try {
-            this.dos.writeChar(c);
+            dos.writeChar(c);
         } catch (IOException e) {
             logError(e);
         }
@@ -163,7 +212,7 @@ public class DataStream implements DataSource, DataSink {
     @Override
     public void putDouble(double d) {
         try {
-            this.dos.writeDouble(d);
+            dos.writeDouble(d);
         } catch (IOException e) {
             logError(e);
         }
@@ -172,7 +221,7 @@ public class DataStream implements DataSource, DataSink {
     @Override
     public void putFloat(float f) {
         try {
-            this.dos.writeFloat(f);
+            dos.writeFloat(f);
         } catch (IOException e) {
             logError(e);
         }
@@ -181,7 +230,7 @@ public class DataStream implements DataSource, DataSink {
     @Override
     public void putInt(int i) {
         try {
-            this.dos.writeInt(i);
+            dos.writeInt(i);
         } catch (IOException e) {
             logError(e);
         }
@@ -190,7 +239,7 @@ public class DataStream implements DataSource, DataSink {
     @Override
     public void putLong(long l) {
         try {
-            this.dos.writeLong(l);
+            dos.writeLong(l);
         } catch (IOException e) {
             logError(e);
         }
@@ -199,7 +248,7 @@ public class DataStream implements DataSource, DataSink {
     @Override
     public void putShort(short s) {
         try {
-            this.dos.writeShort(s);
+            dos.writeShort(s);
         } catch (IOException e) {
             logError(e);
         }

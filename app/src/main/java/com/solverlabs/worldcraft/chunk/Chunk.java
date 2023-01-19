@@ -1,5 +1,7 @@
 package com.solverlabs.worldcraft.chunk;
 
+import androidx.annotation.Nullable;
+
 import com.solverlabs.droid.rugl.util.geom.Vector3f;
 import com.solverlabs.droid.rugl.util.geom.Vector3i;
 import com.solverlabs.worldcraft.GameMode;
@@ -26,7 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import android2.util.FloatMath;
+import com.solverlabs.droid.rugl.util.FloatMath;
 
 
 public class Chunk {
@@ -893,12 +895,13 @@ public class Chunk {
             }
         } while (tryCount < 10);
         if (!spawnLocation.isZeroVector() && (yPos = getPassiveMobSpawnLocationY(spawnLocation)) != null) {
-            spawnLocation.y = yPos.floatValue();
+            spawnLocation.y = yPos;
             return spawnLocation;
         }
         return null;
     }
 
+    @Nullable
     private Float getPassiveMobSpawnLocationY(Vector3f spawnLocation) {
         float y = 126.0f;
         while (y > 0.0f && this.world.blockType(spawnLocation.x, y, spawnLocation.z) == 0) {
@@ -907,7 +910,7 @@ public class Chunk {
         if (y <= 0.0f) {
             return null;
         }
-        return Float.valueOf(y + 1.0f);
+        return y + 1.0f;
     }
 
     private Vector3f getRandomSpawnCenter() {

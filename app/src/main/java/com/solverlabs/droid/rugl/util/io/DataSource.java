@@ -1,20 +1,64 @@
 package com.solverlabs.droid.rugl.util.io;
 
-
+/**
+ * A read-only interface for a source of data
+ *
+ * @author ryanm
+ */
 public interface DataSource {
-    boolean getBoolean();
+    /**
+     * Gets a boolean from the source
+     *
+     * @return The next byte of the source, as a boolean
+     */
+    public boolean getBoolean();
 
-    byte getByte();
+    /**
+     * Gets a byte from the source
+     *
+     * @return the next byte from the source
+     */
+    public byte getByte();
 
-    char getChar();
+    /**
+     * Gets a char from the source
+     *
+     * @return the next two bytes of the source, as a char
+     */
+    public char getChar();
 
-    double getDouble();
+    /**
+     * Gets a double from the source
+     *
+     * @return the next eight bytes of the source, as a double
+     */
+    public double getDouble();
 
-    float getFloat();
+    /**
+     * Gets a float from the source
+     *
+     * @return the next four bytes of the source, as a float
+     */
+    public float getFloat();
 
-    int getInt();
+    /**
+     * Gets an int from the source
+     *
+     * @return the next four bytes of the source, as an int
+     */
+    public int getInt();
 
-    long getLong();
+    /**
+     * Gets a long from the source
+     *
+     * @return the next eight bytes of the source, as a long
+     */
+    public long getLong();
 
-    short getShort();
+    /**
+     * Gets a short from the source
+     *
+     * @return The next two bytes of the source, as a short
+     */
+    public short getShort();
 }

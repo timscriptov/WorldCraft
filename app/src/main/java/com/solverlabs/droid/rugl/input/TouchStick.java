@@ -10,7 +10,7 @@ import com.solverlabs.droid.rugl.util.math.Range;
 
 import org.apache.commons.compress.archivers.cpio.CpioConstants;
 
-import android2.util.FloatMath;
+import com.solverlabs.droid.rugl.util.FloatMath;
 
 
 public class TouchStick extends AbstractTouchStick {

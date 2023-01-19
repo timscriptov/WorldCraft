@@ -46,7 +46,7 @@ import java.util.concurrent.TimeUnit;
 
 public class MultiplayerActivityHelper implements AndroidClient.MultiplayerListener, MovementHandler.MovementHandlerListener {
     private Activity activity;
-    private Map<List<Short>, Room.BlockData> blocks = new HashMap();
+    private Map<List<Short>, Room.BlockData> blocks = new HashMap<>();
     private String createRoomName;
     private String createWorldName;
     private ObjectCodec.RoomPack currentRoomPack;

@@ -1,4 +1,4 @@
-package android2.util;
+package com.solverlabs.droid.rugl.util;
 
 public class FloatMath {
     /** Prevents instantiation. */

@@ -1,99 +1,187 @@
 package com.solverlabs.droid.rugl.util;
 
-import java.lang.ref.WeakReference;
+import androidx.annotation.NonNull;
+
+import java.lang.ref.SoftReference;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 
+/**
+ * Convenient work-around for poor {@link FloatBuffer#put(float[])}
+ * performance. This should become unnecessary in gingerbread, @see <a
+ * href
+ * ="http://code.google.com/p/android/issues/detail?id=11078">Issue
+ * 11078</a>
+ *
+ * @author ryanm
+ */
 public class FastFloatBuffer {
-    private static WeakReference<int[]> intArray = new WeakReference<>(new int[0]);
-    public ByteBuffer bytes;
-    private FloatBuffer floats;
-    private IntBuffer ints;
+    /**
+     * Use a {@link SoftReference} so that the array can be collected
+     * if necessary
+     */
+    private static SoftReference<int[]> intArray = new SoftReference<>(new int[0]);
+    private final FloatBuffer floats;
 
+    private final IntBuffer ints;
+    /**
+     * Underlying data - give this to OpenGL
+     */
+    public ByteBuffer bytes;
+
+    /**
+     * Constructs a new direct native-ordered buffer
+     *
+     * @param capacity the number of floats
+     */
     public FastFloatBuffer(int capacity) {
-        this.bytes = ByteBuffer.allocateDirect(capacity * 4).order(ByteOrder.nativeOrder());
-        this.floats = this.bytes.asFloatBuffer();
-        this.ints = this.bytes.asIntBuffer();
+        bytes =
+                ByteBuffer.allocateDirect((capacity * 4)).order(ByteOrder.nativeOrder());
+        floats = bytes.asFloatBuffer();
+        ints = bytes.asIntBuffer();
     }
 
-    public static int[] convert(float... data) {
+    /**
+     * Converts float data to a format that can be quickly added to the
+     * buffer with {@link #put(int[])}
+     *
+     * @param data
+     * @return the int-formatted data
+     */
+    @NonNull
+    public static int[] convert(@NonNull float... data) {
         int[] id = new int[data.length];
         for (int i = 0; i < data.length; i++) {
             id[i] = Float.floatToRawIntBits(data[i]);
         }
+
         return id;
     }
 
+    /**
+     * See {@link FloatBuffer#flip()}
+     */
     public void flip() {
-        this.bytes.flip();
-        this.floats.flip();
-        this.ints.flip();
+        bytes.flip();
+        floats.flip();
+        ints.flip();
     }
 
+    /**
+     * See {@link FloatBuffer#put(float)}
+     *
+     * @param f
+     */
     public void put(float f) {
-        this.bytes.position(this.bytes.position() + 4);
-        this.floats.put(f);
-        this.ints.position(this.ints.position() + 1);
+        bytes.position(bytes.position() + 4);
+        floats.put(f);
+        ints.position(ints.position() + 1);
     }
 
+    /**
+     * It's like {@link FloatBuffer#put(float[])}, but about 10 times
+     * faster
+     *
+     * @param data
+     */
     public void put(float[] data) {
         int[] ia = intArray.get();
         if (ia == null || ia.length < data.length) {
             ia = new int[data.length];
-            intArray = new WeakReference<>(ia);
+            intArray = new SoftReference<int[]>(ia);
         }
+
         for (int i = 0; i < data.length; i++) {
             ia[i] = Float.floatToRawIntBits(data[i]);
         }
-        this.bytes.position(this.bytes.position() + (data.length * 4));
-        this.floats.position(this.floats.position() + data.length);
-        this.ints.put(ia, 0, data.length);
+
+        bytes.position(bytes.position() + 4 * data.length);
+        floats.position(floats.position() + data.length);
+        ints.put(ia, 0, data.length);
     }
 
-    public void put(int[] data) {
-        this.bytes.position(this.bytes.position() + (data.length * 4));
-        this.floats.position(this.floats.position() + data.length);
-        this.ints.put(data, 0, data.length);
+    /**
+     * For use with pre-converted data. This is 50x faster than
+     * {@link #put(float[])}, and 500x faster than
+     * {@link FloatBuffer#put(float[])}, so if you've got float[] data
+     * that won't change, {@link #convert(float...)} it to an int[]
+     * once and use this method to put it in the buffer
+     *
+     * @param data floats that have been converted with
+     *             {@link Float#floatToIntBits(float)}
+     */
+    public void put(@NonNull int[] data) {
+        bytes.position(bytes.position() + 4 * data.length);
+        floats.position(floats.position() + data.length);
+        ints.put(data, 0, data.length);
     }
 
-    public void put(FastFloatBuffer b) {
-        this.bytes.put(b.bytes);
-        this.floats.position(this.bytes.position() >> 2);
-        this.ints.position(this.bytes.position() >> 2);
+    /**
+     * See {@link FloatBuffer#put(FloatBuffer)}
+     *
+     * @param b
+     */
+    public void put(@NonNull FastFloatBuffer b) {
+        bytes.put(b.bytes);
+        floats.position(bytes.position() >> 2);
+        ints.position(bytes.position() >> 2);
     }
 
+    /**
+     * @return See {@link FloatBuffer#capacity()}
+     */
     public int capacity() {
-        return this.floats.capacity();
+        return floats.capacity();
     }
 
+    /**
+     * @return See {@link FloatBuffer#position()}
+     */
     public int position() {
-        return this.floats.position();
+        return floats.position();
     }
 
+    /**
+     * See {@link FloatBuffer#position(int)}
+     *
+     * @param p
+     */
     public void position(int p) {
-        this.bytes.position(p * 4);
-        this.floats.position(p);
-        this.ints.position(p);
+        bytes.position(4 * p);
+        floats.position(p);
+        ints.position(p);
     }
 
+    /**
+     * @return See {@link FloatBuffer#slice()}
+     */
     public FloatBuffer slice() {
-        return this.floats.slice();
+        return floats.slice();
     }
 
+    /**
+     * @return See {@link FloatBuffer#remaining()}
+     */
     public int remaining() {
-        return this.floats.remaining();
+        return floats.remaining();
     }
 
+    /**
+     * @return See {@link FloatBuffer#limit()}
+     */
     public int limit() {
-        return this.floats.limit();
+        return floats.limit();
     }
 
+    /**
+     * See {@link FloatBuffer#clear()}
+     */
     public void clear() {
-        this.bytes.clear();
-        this.floats.clear();
-        this.ints.clear();
+        bytes.clear();
+        floats.clear();
+        ints.clear();
     }
 }

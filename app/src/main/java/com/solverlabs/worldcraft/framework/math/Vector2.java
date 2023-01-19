@@ -2,7 +2,7 @@ package com.solverlabs.worldcraft.framework.math;
 
 import androidx.annotation.NonNull;
 
-import android2.util.FloatMath;
+import com.solverlabs.droid.rugl.util.FloatMath;
 
 
 public class Vector2 {
