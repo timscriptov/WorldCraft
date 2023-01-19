@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="10dp"
+    android:layout_marginTop="6dp"
+    android:layout_marginRight="6dp"
+    android:layout_marginBottom="6dp"
+    android:gravity="center_vertical"
+    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:paddingRight="?android:attr/scrollbarSize">
+
+    <ImageView
+        android:id="@+id/join_room_lock_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:contentDescription="@string/lock_image"
+        android:fadingEdge="horizontal" />
+
+    <com.solverlabs.worldcraft.dialog.component.MolotTextView
+        android:id="@+id/join_room_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:ellipsize="end"
+        android:textColor="@color/room_name_text_color"
+        android:textSize="@dimen/room_name_text_size" />
+
+    <com.solverlabs.worldcraft.dialog.component.MolotTextView
+        android:id="@+id/join_room_user_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/join_room_name"
+        android:layout_alignParentLeft="true"
+        android:text="@string/user_count"
+        android:textColor="@color/room_info_text_color"
+        android:textSize="@dimen/room_info_text_size" />
+
+    <com.solverlabs.worldcraft.dialog.component.MolotTextView
+        android:id="@+id/join_room_raiting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/join_room_name"
+        android:layout_marginLeft="3dp"
+        android:layout_toRightOf="@+id/join_room_user_count"
+        android:textColor="@color/room_info_text_color"
+        android:textSize="@dimen/room_info_text_size" />
+</RelativeLayout>

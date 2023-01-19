@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="400dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.04"
+            android:gravity="center_vertical"
+            android:text="Invert Y"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textSize="25dp" />
+
+        <ToggleButton
+            android:id="@+id/inverToggleButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.04"
+            android:text="ToggleButton" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp">
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="249dp"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:text="Fog distance"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textSize="25dp" />
+
+        <EditText
+            android:id="@+id/fogDistance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:inputType="numberDecimal">
+
+            <requestFocus />
+        </EditText>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp">
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="249dp"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:text="Chunk load radius"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textSize="25dp" />
+
+        <EditText
+            android:id="@+id/loadRadius"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:inputType="numberDecimal" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp">
+
+        <Button
+            android:id="@+id/applyButton"
+            android:layout_width="133dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Apply" />
+
+        <Button
+            android:id="@+id/okButton"
+            android:layout_width="133dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="OK" />
+
+        <Button
+            android:id="@+id/cancelButton"
+            android:layout_width="133dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Cancel" />
+    </LinearLayout>
+</LinearLayout>

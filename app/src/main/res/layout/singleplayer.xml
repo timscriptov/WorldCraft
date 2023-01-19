@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center_vertical">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/dialog_background" />
+
+    <RelativeLayout
+        android:id="@+id/title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="bottom|center_horizontal">
+
+        <com.solverlabs.worldcraft.dialog.component.MolotTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/main_menu_margin"
+            android:text="@string/select_world"
+            android:textColor="@color/title_color"
+            android:textSize="@dimen/title_text_size" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/button_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:baselineAligned="false"
+        android:orientation="horizontal"
+        android:weightSum="6">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="4"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <com.solverlabs.worldcraft.dialog.component.MolotButton
+                android:id="@+id/back_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/main_menu_margin"
+                android:layout_weight="1"
+                android:background="@drawable/ic_button_selector"
+                android:text="@string/back"
+                android:textSize="@dimen/main_menu_button_text_size" />
+
+            <com.solverlabs.worldcraft.dialog.component.MolotButton
+                android:id="@+id/create_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/main_menu_margin"
+                android:layout_weight="1"
+                android:background="@drawable/ic_button_selector"
+                android:text="@string/create"
+                android:textSize="@dimen/main_menu_button_text_size" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/loading_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/button_bar"
+        android:layout_below="@+id/title_bar"
+        android:layout_centerInParent="true"
+        android:visibility="gone" />
+
+    <com.solverlabs.worldcraft.dialog.tools.ui.SwipeView
+        android:id="@+id/level_swipe"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/button_bar"
+        android:layout_below="@+id/title_bar" />
+</RelativeLayout>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="244dp"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/its_all_over_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="20dp"
+        android:gravity="center_horizontal"
+        android:text="@string/its_all_over" />
+
+    <Button
+        android:id="@+id/respawn_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/its_all_over_view"
+        android:text="@string/respawn" />
+
+    <Button
+        android:id="@+id/quit_to_title_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/respawn_button"
+        android:text="@string/quit_to_title" />
+</RelativeLayout>

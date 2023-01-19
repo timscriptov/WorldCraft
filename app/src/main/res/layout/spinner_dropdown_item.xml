@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.solverlabs.worldcraft.dialog.component.MolotTextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/text1"
+    style="?android:attr/spinnerDropDownItemStyle"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/map_type_text_view_height"
+    android:ellipsize="marquee"
+    android:singleLine="true"
+    android:textColor="@android:color/black"
+    android:textSize="@dimen/create_game_text_size" />
