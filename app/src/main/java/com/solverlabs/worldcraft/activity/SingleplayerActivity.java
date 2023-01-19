@@ -57,14 +57,13 @@ public class SingleplayerActivity extends CommonActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1 && resultCode == -1 && data.getBooleanExtra(SHOULD_FINISH, false)) {
+        if (requestCode == 1 && resultCode == RESULT_OK && data.getBooleanExtra(SHOULD_FINISH, false)) {
             finish();
         }
     }
 
     public void onItemClick(@NonNull WorldUtils.WorldInfo worldInfo) {
-        GameStarter.startGame((MyApplication) getApplication(), this, worldInfo.mFile.getAbsolutePath(), false, 0, worldInfo.mIsCreative ? WorldGenerator.Mode.CREATIVE : WorldGenerator.Mode.SURVIVAL);
-        finish();
+        GameStarter.startGame(this, worldInfo.mFile.getAbsolutePath(), false, 0, worldInfo.mIsCreative ? WorldGenerator.Mode.CREATIVE : WorldGenerator.Mode.SURVIVAL);
     }
 
     public void onDeleteClick(WorldUtils.WorldInfo worldInfo) {

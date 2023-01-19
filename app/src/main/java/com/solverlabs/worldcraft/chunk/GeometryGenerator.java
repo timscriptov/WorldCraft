@@ -1,5 +1,7 @@
 package com.solverlabs.worldcraft.chunk;
 
+import androidx.annotation.NonNull;
+
 import com.solverlabs.droid.rugl.Game;
 import com.solverlabs.droid.rugl.geom.BedBlock;
 import com.solverlabs.droid.rugl.geom.CompiledShape;
@@ -17,12 +19,12 @@ import java.util.LinkedList;
 
 public class GeometryGenerator {
     private static final Object synVBOBuilderObject;
-    private static ShapeBuilder queuedOpaqueVBOBuilder = new ShapeBuilder();
-    private static ShapeBuilder queuedTransVBOBuilder = new ShapeBuilder();
-    private static ShapeBuilder immediateOpaqueVBOBuilder = new ShapeBuilder();
-    private static ShapeBuilder immediateTransVBOBuilder = new ShapeBuilder();
+    private static final ShapeBuilder queuedOpaqueVBOBuilder = new ShapeBuilder();
+    private static final ShapeBuilder queuedTransVBOBuilder = new ShapeBuilder();
+    private static final ShapeBuilder immediateOpaqueVBOBuilder = new ShapeBuilder();
+    private static final ShapeBuilder immediateTransVBOBuilder = new ShapeBuilder();
     private static int queueSize = 0;
-    private static GeomService geomService = new GeomService();
+    private static final GeomService geomService = new GeomService();
 
     static {
         geomService.start();
@@ -40,81 +42,78 @@ public class GeometryGenerator {
     }
 
     public static void generate(final Chunklet c, final boolean synchronous) {
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                synchronized (GeometryGenerator.synVBOBuilderObject) {
-                    ShapeBuilder opaqueVBOBuilder = synchronous ? GeometryGenerator.immediateOpaqueVBOBuilder : GeometryGenerator.queuedOpaqueVBOBuilder;
-                    ShapeBuilder transVBOBuilder = synchronous ? GeometryGenerator.immediateTransVBOBuilder : GeometryGenerator.queuedTransVBOBuilder;
-                    transVBOBuilder.clear();
-                    opaqueVBOBuilder.clear();
-                    for (int xi = 0; xi < 16; xi++) {
-                        for (int yi = 0; yi < 16; yi++) {
-                            for (int zi = 0; zi < 16; zi++) {
-                                BlockFactory.Block b = BlockFactory.getBlock(c.blockType(xi, yi, zi));
-                                float light = c.light(xi, yi, zi);
-                                if (b == BlockFactory.Block.Slab) {
-                                    light = c.light(xi, yi + 1, zi);
-                                }
-                                int colour = Colour.packFloat(light, light, light, 1.0f);
-                                if (DoorBlock.isDoor(b)) {
-                                    DoorBlock.generateGeometry(c, opaqueVBOBuilder, xi, yi, zi, b.id, colour, c.blockData(xi, yi, zi));
-                                } else if (BedBlock.isBed(b)) {
-                                    BedBlock.generateGeometry(c, opaqueVBOBuilder, xi, yi, zi, c.blockData(xi, yi, zi), colour);
-                                } else if (LadderBlock.isLadder(b)) {
-                                    LadderBlock.generateGeometry(c, opaqueVBOBuilder, transVBOBuilder, xi, yi, zi, b.id, colour, c.blockData(xi, yi, zi));
-                                } else if (b != null && !b.isCuboid) {
-                                    GeometryGenerator.addFace(c, b, xi, yi, zi, BlockFactory.Face.South, colour, opaqueVBOBuilder, transVBOBuilder);
-                                    GeometryGenerator.addFace(c, b, xi, yi, zi, BlockFactory.Face.North, colour, opaqueVBOBuilder, transVBOBuilder);
-                                    GeometryGenerator.addFace(c, b, xi, yi, zi, BlockFactory.Face.West, colour, opaqueVBOBuilder, transVBOBuilder);
-                                    GeometryGenerator.addFace(c, b, xi, yi, zi, BlockFactory.Face.East, colour, opaqueVBOBuilder, transVBOBuilder);
-                                    GeometryGenerator.addFace(c, b, xi, yi, zi, BlockFactory.Face.Bottom, colour, opaqueVBOBuilder, transVBOBuilder);
-                                    GeometryGenerator.addFace(c, b, xi, yi, zi, BlockFactory.Face.Top, colour, opaqueVBOBuilder, transVBOBuilder);
-                                }
-                                if (b == null || !b.opaque || BedBlock.isBed(b) || DoorBlock.isDoor(b) || LadderBlock.isLadder(b)) {
-                                    GeometryGenerator.addFace(c, b, xi, yi, zi + 1, BlockFactory.Face.South, colour, opaqueVBOBuilder, transVBOBuilder);
-                                    GeometryGenerator.addFace(c, b, xi, yi, zi - 1, BlockFactory.Face.North, colour, opaqueVBOBuilder, transVBOBuilder);
-                                    GeometryGenerator.addFace(c, b, xi - 1, yi, zi, BlockFactory.Face.West, colour, opaqueVBOBuilder, transVBOBuilder);
-                                    GeometryGenerator.addFace(c, b, xi + 1, yi, zi, BlockFactory.Face.East, colour, opaqueVBOBuilder, transVBOBuilder);
-                                    GeometryGenerator.addFace(c, b, xi, yi + 1, zi, BlockFactory.Face.Bottom, colour, opaqueVBOBuilder, transVBOBuilder);
-                                    GeometryGenerator.addFace(c, b, xi, yi - 1, zi, BlockFactory.Face.Top, colour, opaqueVBOBuilder, transVBOBuilder);
-                                }
+        Runnable r = () -> {
+            synchronized (GeometryGenerator.synVBOBuilderObject) {
+                ShapeBuilder opaqueVBOBuilder = synchronous ? GeometryGenerator.immediateOpaqueVBOBuilder : GeometryGenerator.queuedOpaqueVBOBuilder;
+                ShapeBuilder transVBOBuilder = synchronous ? GeometryGenerator.immediateTransVBOBuilder : GeometryGenerator.queuedTransVBOBuilder;
+                transVBOBuilder.clear();
+                opaqueVBOBuilder.clear();
+                for (int xi = 0; xi < 16; xi++) {
+                    for (int yi = 0; yi < 16; yi++) {
+                        for (int zi = 0; zi < 16; zi++) {
+                            BlockFactory.Block b = BlockFactory.getBlock(c.blockType(xi, yi, zi));
+                            float light = c.light(xi, yi, zi);
+                            if (b == BlockFactory.Block.Slab) {
+                                light = c.light(xi, yi + 1, zi);
+                            }
+                            int colour = Colour.packFloat(light, light, light, 1.0f);
+                            if (DoorBlock.isDoor(b)) {
+                                DoorBlock.generateGeometry(c, opaqueVBOBuilder, xi, yi, zi, b.id, colour, c.blockData(xi, yi, zi));
+                            } else if (BedBlock.isBed(b)) {
+                                BedBlock.generateGeometry(c, opaqueVBOBuilder, xi, yi, zi, c.blockData(xi, yi, zi), colour);
+                            } else if (LadderBlock.isLadder(b)) {
+                                LadderBlock.generateGeometry(c, opaqueVBOBuilder, transVBOBuilder, xi, yi, zi, b.id, colour, c.blockData(xi, yi, zi));
+                            } else if (b != null && !b.isCuboid) {
+                                GeometryGenerator.addFace(c, b, xi, yi, zi, BlockFactory.Face.South, colour, opaqueVBOBuilder, transVBOBuilder);
+                                GeometryGenerator.addFace(c, b, xi, yi, zi, BlockFactory.Face.North, colour, opaqueVBOBuilder, transVBOBuilder);
+                                GeometryGenerator.addFace(c, b, xi, yi, zi, BlockFactory.Face.West, colour, opaqueVBOBuilder, transVBOBuilder);
+                                GeometryGenerator.addFace(c, b, xi, yi, zi, BlockFactory.Face.East, colour, opaqueVBOBuilder, transVBOBuilder);
+                                GeometryGenerator.addFace(c, b, xi, yi, zi, BlockFactory.Face.Bottom, colour, opaqueVBOBuilder, transVBOBuilder);
+                                GeometryGenerator.addFace(c, b, xi, yi, zi, BlockFactory.Face.Top, colour, opaqueVBOBuilder, transVBOBuilder);
+                            }
+                            if (b == null || !b.opaque || BedBlock.isBed(b) || DoorBlock.isDoor(b) || LadderBlock.isLadder(b)) {
+                                GeometryGenerator.addFace(c, b, xi, yi, zi + 1, BlockFactory.Face.South, colour, opaqueVBOBuilder, transVBOBuilder);
+                                GeometryGenerator.addFace(c, b, xi, yi, zi - 1, BlockFactory.Face.North, colour, opaqueVBOBuilder, transVBOBuilder);
+                                GeometryGenerator.addFace(c, b, xi - 1, yi, zi, BlockFactory.Face.West, colour, opaqueVBOBuilder, transVBOBuilder);
+                                GeometryGenerator.addFace(c, b, xi + 1, yi, zi, BlockFactory.Face.East, colour, opaqueVBOBuilder, transVBOBuilder);
+                                GeometryGenerator.addFace(c, b, xi, yi + 1, zi, BlockFactory.Face.Bottom, colour, opaqueVBOBuilder, transVBOBuilder);
+                                GeometryGenerator.addFace(c, b, xi, yi - 1, zi, BlockFactory.Face.Top, colour, opaqueVBOBuilder, transVBOBuilder);
                             }
                         }
                     }
-                    TexturedShape s = opaqueVBOBuilder.compile();
-                    if (s != null) {
-                        s.state = BlockFactory.state;
-                        s.translate(c.x, c.y, c.z);
-                    }
-                    TexturedShape t = transVBOBuilder.compile();
-                    if (t != null) {
-                        t.state = BlockFactory.state;
-                        t.translate(c.x, c.y, c.z);
-                    }
-                    if (Game.mGlVersion == GLVersion.OnePointOne) {
-                        VBOShape solid = null;
-                        if (s != null) {
-                            solid = new VBOShape(s);
-                        }
-                        VBOShape transparent = null;
-                        if (t != null) {
-                            transparent = new VBOShape(t);
-                        }
-                        c.geometryComplete(solid, transparent);
-                    } else {
-                        CompiledShape solid2 = null;
-                        if (s != null) {
-                            solid2 = new CompiledShape(s);
-                        }
-                        CompiledShape transparent2 = null;
-                        if (t != null) {
-                            transparent2 = new CompiledShape(t);
-                        }
-                        c.geometryComplete(solid2, transparent2);
-                    }
-                    GeometryGenerator.access$610();
                 }
+                TexturedShape s = opaqueVBOBuilder.compile();
+                if (s != null) {
+                    s.state = BlockFactory.state;
+                    s.translate(c.x, c.y, c.z);
+                }
+                TexturedShape t = transVBOBuilder.compile();
+                if (t != null) {
+                    t.state = BlockFactory.state;
+                    t.translate(c.x, c.y, c.z);
+                }
+                if (Game.mGlVersion == GLVersion.OnePointOne) {
+                    VBOShape solid = null;
+                    if (s != null) {
+                        solid = new VBOShape(s);
+                    }
+                    VBOShape transparent = null;
+                    if (t != null) {
+                        transparent = new VBOShape(t);
+                    }
+                    c.geometryComplete(solid, transparent);
+                } else {
+                    CompiledShape solid2 = null;
+                    if (s != null) {
+                        solid2 = new CompiledShape(s);
+                    }
+                    CompiledShape transparent2 = null;
+                    if (t != null) {
+                        transparent2 = new CompiledShape(t);
+                    }
+                    c.geometryComplete(solid2, transparent2);
+                }
+                GeometryGenerator.access$610();
             }
         };
         queueSize++;
@@ -125,8 +124,7 @@ public class GeometryGenerator {
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public static void addFace(Chunklet c, BlockFactory.Block facing, int x, int y, int z, BlockFactory.Face f, int colour, ShapeBuilder opaque, ShapeBuilder transparent) {
+    public static void addFace(@NonNull Chunklet c, BlockFactory.Block facing, int x, int y, int z, BlockFactory.Face f, int colour, ShapeBuilder opaque, ShapeBuilder transparent) {
         byte bt = c.blockType(x, y, z);
         BlockFactory.Block b = BlockFactory.getBlock(bt);
         if (b != null) {
@@ -140,12 +138,10 @@ public class GeometryGenerator {
         geomService.add(r);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-
     public static class GeomService implements Runnable {
         private static final long SLEEP_TIME = 10;
         private boolean active;
-        private LinkedList<Runnable> queue = new LinkedList<>();
+        private final LinkedList<Runnable> queue = new LinkedList<>();
 
         public void add(Runnable runnable) {
             synchronized (this.queue) {

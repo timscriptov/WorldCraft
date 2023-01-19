@@ -557,6 +557,6 @@ public class MultiplayerActivityHelper implements AndroidClient.MultiplayerListe
     }
 
     public void startGameActivity() {
-        this.activity.runOnUiThread(() -> GameStarter.startGame((MyApplication) activity.getApplication(), activity, null, false, 0, WorldGenerator.Mode.CREATIVE));
+        this.activity.runOnUiThread(() -> GameStarter.startGame(activity, null, false, 0, WorldGenerator.Mode.CREATIVE));
     }
 }

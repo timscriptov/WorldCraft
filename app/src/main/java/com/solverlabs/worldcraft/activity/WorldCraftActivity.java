@@ -37,7 +37,6 @@ import java.util.concurrent.TimeUnit;
 
 
 public class WorldCraftActivity extends GameActivity {
-    protected MyApplication application;
     private BlockView bw;
     private DeathMenuDialog deathMenuDialog;
     private boolean isResumingGame = false;
@@ -48,7 +47,6 @@ public class WorldCraftActivity extends GameActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        application = (MyApplication) getApplicationContext();
         getWindow().addFlags(CpioConstants.C_IWUSR);
         String worldFileName = getIntent().getExtras().getString("world");
         boolean isNewGame = getIntent().getExtras().getBoolean("isNewGame");
@@ -70,7 +68,6 @@ public class WorldCraftActivity extends GameActivity {
 
     @Override
     public void onPause() {
-        clearReferences();
         if (world != null) {
             world.save();
         }
@@ -86,15 +83,9 @@ public class WorldCraftActivity extends GameActivity {
         super.onPause();
     }
 
-    private void clearReferences() {
-        if (application.isCurrentActivity(this)) {
-            application.setCurrentActivity(null);
-        }
-    }
 
     @Override
     public void onResume() {
-        application.setCurrentActivity(this);
         if (isResumingGame) {
             isResumingGame = false;
             if (GameMode.isMultiplayerMode()) {

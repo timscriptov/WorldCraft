@@ -43,7 +43,7 @@ public class NewGameSingleplayerActivity extends CommonActivity {
         MolotButton startButton = findViewById(R.id.start_button);
         startButton.setOnClickListener(v -> {
             KeyboardUtils.hideKeyboard(NewGameSingleplayerActivity.this, name);
-            GameStarter.startGame((MyApplication) getApplication(), NewGameSingleplayerActivity.this, String.valueOf(name.getText()), true, mapTypeSpinner.getSelectedItemPosition(), worldTypeCreative.isChecked() ? WorldGenerator.Mode.CREATIVE : WorldGenerator.Mode.SURVIVAL);
+            GameStarter.startGame(NewGameSingleplayerActivity.this, String.valueOf(name.getText()), true, mapTypeSpinner.getSelectedItemPosition(), worldTypeCreative.isChecked() ? WorldGenerator.Mode.CREATIVE : WorldGenerator.Mode.SURVIVAL);
             finishActivityAndCloseParent();
         });
         getWindow().setSoftInputMode(2);

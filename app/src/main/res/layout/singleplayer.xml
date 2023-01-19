@@ -4,11 +4,6 @@
     android:layout_height="match_parent"
     android:layout_gravity="center_vertical">
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/dialog_background" />
-
     <RelativeLayout
         android:id="@+id/title_bar"
         android:layout_width="match_parent"
@@ -20,8 +15,8 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/main_menu_margin"
             android:text="@string/select_world"
-            android:textColor="@color/title_color"
             android:textSize="@dimen/title_text_size" />
+
     </RelativeLayout>
 
     <LinearLayout
@@ -87,4 +82,5 @@
         android:layout_height="match_parent"
         android:layout_above="@+id/button_bar"
         android:layout_below="@+id/title_bar" />
+
 </RelativeLayout>

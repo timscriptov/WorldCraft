@@ -3,6 +3,7 @@ package com.solverlabs.droid.rugl.res;
 import android.content.res.Resources;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.LinkedList;
 
@@ -92,6 +93,7 @@ public class ResourceLoader {
     public static abstract class Loader<T> {
         public boolean selfCompleting = true;
         protected Throwable exception;
+        @Nullable
         protected T resource;
 
         public abstract void complete();
