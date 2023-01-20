@@ -15,20 +15,19 @@ import com.solverlabs.droid.rugl.texture.TextureFactory;
 import com.solverlabs.droid.rugl.util.Colour;
 import com.solverlabs.worldcraft.skin.geometry.generator.SkinGeometryGenerator;
 
-
 public class SkinFactory {
     public static State state = GLUtil.typicalState.with(MinFilter.NEAREST, MagFilter.NEAREST).with(new Fog(FogMode.LINEAR, 0.5f, 30.0f, 40.0f, Colour.packFloat(0.7f, 0.7f, 0.9f, 1.0f)));
     public static Texture texture;
 
     public static void loadTexture() {
-        ResourceLoader.loadNow(new BitmapLoader("player_skins.png") {
+        ResourceLoader.loadNow(new BitmapLoader(R.drawable.player_skins) {
             @Override
             public void complete() {
-                SkinFactory.texture = TextureFactory.buildTexture((Image) this.resource, true, false);
+                SkinFactory.texture = TextureFactory.buildTexture(this.resource, true, false);
                 if (SkinFactory.texture != null) {
                     SkinFactory.state = SkinFactory.texture.applyTo(SkinFactory.state);
                 }
-                ((BitmapImage) this.resource).bitmap.recycle();
+                this.resource.bitmap.recycle();
                 SkinGeometryGenerator.init();
             }
         });

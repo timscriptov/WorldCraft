@@ -1,10 +1,13 @@
 package com.solverlabs.worldcraft.srv.util;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.nio.ByteBuffer;
 
-
 public class BufferUtils {
-    public static String byteBufferToString(ByteBuffer byteBuffer) {
+    @Nullable
+    public static String byteBufferToString(@NonNull ByteBuffer byteBuffer) {
         int limit = byteBuffer.limit();
         if (limit <= 0) {
             return null;
@@ -14,7 +17,8 @@ public class BufferUtils {
         return new String(bArr);
     }
 
-    public static byte[] readByteArray(ByteBuffer byteBuffer) {
+    @Nullable
+    public static byte[] readByteArray(@NonNull ByteBuffer byteBuffer) {
         int i = byteBuffer.getInt();
         if (i == 0) {
             return null;
@@ -24,7 +28,8 @@ public class BufferUtils {
         return bArr;
     }
 
-    public static String readStr(ByteBuffer byteBuffer) {
+    @Nullable
+    public static String readStr(@NonNull ByteBuffer byteBuffer) {
         int i = byteBuffer.getShort();
         if (i <= 0) {
             return null;
@@ -45,10 +50,10 @@ public class BufferUtils {
 
     public static void writeStr(ByteBuffer byteBuffer, String str, boolean z) {
         if (str == null) {
-            if (!z) {
+            if (z) {
+                byteBuffer.putShort((short) 0);
                 return;
             }
-            byteBuffer.putShort((short) 0);
             return;
         }
         int length = str.length();

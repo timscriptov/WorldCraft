@@ -21,36 +21,28 @@ import com.solverlabs.droid.rugl.util.Colour;
 import com.solverlabs.droid.rugl.util.geom.Vector3f;
 import com.solverlabs.worldcraft.ui.Interaction;
 
-
 public class Clouds {
     private static final int CLOUD_HEIGHT = 128;
     private static final int CLOUD_SIZE = 2560;
     private static Clouds instance;
-    private final CloudPosition[] clouds = new CloudPosition[4];
-    protected State state = GLUtil.typicalState.with(MinFilter.NEAREST, MagFilter.NEAREST);
     private Texture texture;
     private TexturedShape ts;
     private float xOffset;
-
-    public static Clouds getInstance() {
-        if (instance == null) {
-            instance = new Clouds();
-        }
-        return instance;
-    }
+    protected State state = GLUtil.typicalState.with(MinFilter.NEAREST, MagFilter.NEAREST);
+    private final CloudPosition[] clouds = new CloudPosition[4];
 
     public void init(World world) {
         loadTexture();
         if (this.texture != null) {
             Shape shape = ShapeUtil.filledQuad(0.0f, 0.0f, 256.0f, 256.0f, 0.0f);
-            ColouredShape cs = new ColouredShape(shape, Colour.withAlphai(Colour.white, (int) Interaction.NOISE_NOTIFICATION_DELAY), this.state);
+            ColouredShape cs = new ColouredShape(shape, Colour.withAlphai(Colour.white, Interaction.NOISE_NOTIFICATION_DELAY), this.state);
             this.ts = new TexturedShape(cs, ShapeUtil.getQuadTexCoords(1), this.texture);
             this.ts.scale(10.0f, 10.0f, 10.0f);
             setLight(world.getSunlight());
             this.state.apply();
         }
         this.xOffset = 0.0f;
-        Vector3f playerPos = world.mPlayer.position;
+        Vector3f playerPos = world.player.position;
         this.clouds[0] = new CloudPosition(playerPos.x, playerPos.z);
         this.clouds[1] = new CloudPosition(playerPos.x, playerPos.z - 2560.0f);
         this.clouds[2] = new CloudPosition(playerPos.x - 2560.0f, playerPos.z);
@@ -95,27 +87,34 @@ public class Clouds {
         renderer.popMatrix();
     }
 
+    public static Clouds getInstance() {
+        if (instance == null) {
+            instance = new Clouds();
+        }
+        return instance;
+    }
+
     public void loadTexture() {
-        ResourceLoader.loadNow(new BitmapLoader("clouds.png") {
+        ResourceLoader.loadNow(new BitmapLoader(R.drawable.clouds) {
             @Override
             public void complete() {
-                texture = TextureFactory.buildTexture((Image) this.resource, true, false);
-                if (texture != null) {
-                    state = texture.applyTo(state);
+                Clouds.this.texture = TextureFactory.buildTexture(this.resource, true, false);
+                if (Clouds.this.texture != null) {
+                    Clouds.this.state = Clouds.this.texture.applyTo(Clouds.this.state);
                 }
-                ((BitmapImage) this.resource).bitmap.recycle();
+                this.resource.bitmap.recycle();
             }
         });
     }
 
     public void setLight(int sunLight) {
         float light = (float) Math.pow(0.8d, 15 - sunLight);
-        this.ts.colours = ShapeUtil.expand((int) Colour.packFloat(light, light, light, 1.0f), this.ts.vertexCount());
+        this.ts.colours = ShapeUtil.expand(Colour.packFloat(light, light, light, 1.0f), this.ts.vertexCount());
     }
 
     public static class CloudPosition {
-        public float xOffset;
         private float x;
+        public float xOffset;
         private float z;
 
         public CloudPosition(float x, float z) {

@@ -16,156 +16,150 @@ import com.solverlabs.droid.rugl.util.geom.BoundingRectangle;
 import com.solverlabs.worldcraft.chunk.tile_entity.Inventory;
 import com.solverlabs.worldcraft.factories.CraftFactory;
 import com.solverlabs.worldcraft.factories.ItemFactory;
-
 import org.apache.commons.compress.archivers.cpio.CpioConstants;
 
-
 public class CraftMenuTapItem {
-    public static final float HEIGHT = 70.0f;
-    public static final float WIDTH = 300.0f;
     private static final float HALF_HEIGHT = 35.0f;
     private static final float HALF_WIDTH = 150.0f;
+    public static final float HEIGHT = 70.0f;
     private static final float TAP_TIME = 0.3f;
-    public static boolean mIsResetFocus = false;
-    private final CraftFactory.CraftItem mCraftItem;
-    private final Inventory mInventory;
-    private final ItemFactory.Item mItem;
-    private final String mName;
-    private final TexturedShape mTexShape;
-    private final float mX;
-    private final float mY;
-    public BoundingRectangle mBounds;
-    public boolean mCanBeCrafted;
-    public int mInnerColour = Colour.packInt(241, 241, 249, CpioConstants.C_IWUSR);
-    public boolean mIsSelected;
-    private ColouredShape mBottomBound;
-    private int mCount;
-    private Readout mCountTextShape;
-    private long mDownTime = -1;
-    private ColouredShape mInnerShape;
-    private TextShape mNameShape;
-    private Touch.Pointer mTouch;
-    private ColouredShape mIpBound;
-    private float mYOffset;
+    public static final float WIDTH = 300.0f;
+    public static boolean isResetFocus = false;
+    private ColouredShape bottomBound;
+    public BoundingRectangle bounds;
+    public boolean canBeCrafted;
+    private int count;
+    private Readout countTextShape;
+    private final CraftFactory.CraftItem craftItem;
+    private long downTime = -1;
+    public int innerColour = Colour.packInt(241, 241, 249, CpioConstants.C_IWUSR);
+    private ColouredShape innerShape;
+    private final Inventory inventory;
+    public boolean isSelected;
+    private final ItemFactory.Item item;
+    private final String name;
+    private TextShape nameShape;
+    private final TexturedShape texShape;
+    private Touch.Pointer touch;
+    private ColouredShape upBound;
+    private final float x;
+    private final float y;
+    private float yOffset;
 
     public CraftMenuTapItem(@NonNull CraftFactory.CraftItem craftItem, Inventory inventory, float x, float y) {
-        mCraftItem = craftItem;
-        mItem = ItemFactory.Item.getItemByID(craftItem.getID());
-        mTexShape = mItem.itemShape.clone();
-        mInventory = inventory;
-        mName = craftItem.name();
-        mX = x;
-        mY = y;
-        mBounds = new BoundingRectangle(x, y, 300.0f, 70.0f);
+        this.craftItem = craftItem;
+        this.item = ItemFactory.Item.getItemByID(craftItem.getID());
+        this.texShape = this.item.itemShape.clone();
+        this.inventory = inventory;
+        this.name = craftItem.name();
+        this.x = x;
+        this.y = y;
+        this.bounds = new BoundingRectangle(x, y, 300.0f, 70.0f);
     }
 
-    public CraftFactory.CraftItem getmCraftItem() {
-        return mCraftItem;
+    public CraftFactory.CraftItem getCraftItem() {
+        return this.craftItem;
     }
 
     public void draw(StackedRenderer sr, float deltaY) {
-        mBounds.y.set(mY + deltaY + mYOffset);
-        if (mIsSelected) {
+        this.bounds.y.set(this.y + deltaY + this.yOffset);
+        if (this.isSelected) {
             drawInnerShape(sr, deltaY);
         }
         drawBounds(sr, deltaY);
         sr.render();
         sr.pushMatrix();
-        sr.translate(mX + 10.0f, ((mY + HALF_HEIGHT) - 10.0f) + deltaY + mYOffset, 0.0f);
+        sr.translate(this.x + 10.0f, ((this.y + HALF_HEIGHT) - 10.0f) + deltaY + this.yOffset, 0.0f);
         drawName(sr);
         sr.translate(220.0f, -15.0f, 0.0f);
         drawCount(sr);
         sr.translate(0.0f, 25.0f, 0.0f);
         sr.scale(50.0f, 50.0f, 1.0f);
-        mTexShape.render(sr);
+        this.texShape.render(sr);
         sr.popMatrix();
         sr.render();
     }
 
     private void drawCount(StackedRenderer sr) {
-        if (mCountTextShape == null) {
-            mCountTextShape = new Readout(GUI.getFont(), Colour.white, " ", false, 2, 0);
+        if (this.countTextShape == null) {
+            this.countTextShape = new Readout(GUI.getFont(), Colour.white, " ", false, 2, 0);
         }
-        mCountTextShape.updateValue(mCount);
-        if (mCanBeCrafted) {
-            mCountTextShape.colours = ShapeUtil.expand(Colour.white, mCountTextShape.vertexCount());
+        this.countTextShape.updateValue(this.count);
+        if (this.canBeCrafted) {
+            this.countTextShape.colours = ShapeUtil.expand(Colour.white, this.countTextShape.vertexCount());
         } else {
-            mCountTextShape.colours = ShapeUtil.expand(Colour.darkgrey, mCountTextShape.vertexCount());
+            this.countTextShape.colours = ShapeUtil.expand(Colour.darkgrey, this.countTextShape.vertexCount());
         }
-        mCountTextShape.render(sr);
+        this.countTextShape.render(sr);
     }
 
     private void drawName(StackedRenderer sr) {
-        if (mNameShape == null) {
-            mNameShape = GUI.getFont().buildTextShape(mName, Colour.white);
+        if (this.nameShape == null) {
+            this.nameShape = GUI.getFont().buildTextShape(this.name, Colour.white);
         }
-        if (mCanBeCrafted) {
-            mNameShape.colours = ShapeUtil.expand(Colour.white, mNameShape.vertexCount());
+        if (this.canBeCrafted) {
+            this.nameShape.colours = ShapeUtil.expand(Colour.white, this.nameShape.vertexCount());
         } else {
-            mNameShape.colours = ShapeUtil.expand(Colour.darkgrey, mNameShape.vertexCount());
+            this.nameShape.colours = ShapeUtil.expand(Colour.darkgrey, this.nameShape.vertexCount());
         }
-        mNameShape.render(sr);
+        this.nameShape.render(sr);
     }
 
     private void drawInnerShape(StackedRenderer sr, float deltaY) {
-        if (mInnerShape == null) {
-            Shape is = ShapeUtil.innerQuad(mBounds.x.getMin() + 2.0f, mBounds.y.getMin(), mBounds.x.getMax() - 2.0f, mBounds.y.getMax(), mBounds.y.getSpan(), 0.0f);
-            mInnerShape = new ColouredShape(is, mInnerColour, (State) null);
+        if (this.innerShape == null) {
+            Shape is = ShapeUtil.innerQuad(this.bounds.x.getMin() + 2.0f, this.bounds.y.getMin(), this.bounds.x.getMax() - 2.0f, this.bounds.y.getMax(), this.bounds.y.getSpan(), 0.0f);
+            this.innerShape = new ColouredShape(is, this.innerColour, (State) null);
         }
-        mInnerShape.set(mX, mY + deltaY + mYOffset, 0.0f);
-        mInnerShape.render(sr);
+        this.innerShape.set(this.x, this.y + deltaY + this.yOffset, 0.0f);
+        this.innerShape.render(sr);
     }
 
     private void drawBounds(StackedRenderer sr, float deltaY) {
-        if (mIpBound == null) {
+        if (this.upBound == null) {
             Shape s = ShapeUtil.line(3.0f, 0.0f, 0.0f, 300.0f, 0.0f);
-            mIpBound = new ColouredShape(s, Colour.white, (State) null);
-            mBottomBound = new ColouredShape(s, Colour.darkgrey, (State) null);
+            this.upBound = new ColouredShape(s, Colour.white, (State) null);
+            this.bottomBound = new ColouredShape(s, Colour.darkgrey, (State) null);
         }
         sr.pushMatrix();
-        sr.translate(mX, mY + mYOffset + deltaY, 0.0f);
-        mBottomBound.render(sr);
+        sr.translate(this.x, this.y + this.yOffset + deltaY, 0.0f);
+        this.bottomBound.render(sr);
         sr.translate(0.0f, 67.0f, 0.0f);
-        mIpBound.render(sr);
+        this.upBound.render(sr);
         sr.popMatrix();
     }
 
     private void canBeCrafted() {
-        boolean z = true;
-        mCanBeCrafted = false;
+        this.canBeCrafted = false;
         int temp = 0;
-        for (int i = 0; i < mCraftItem.getMaterial().length; i++) {
-            if (mInventory.getItemTotalCount(mCraftItem.getMaterial()[i][0]) >= mCraftItem.getMaterial()[i][1]) {
+        for (int i = 0; i < this.craftItem.getMaterial().length; i++) {
+            if (this.inventory.getItemTotalCount(this.craftItem.getMaterial()[i][0]) >= this.craftItem.getMaterial()[i][1]) {
                 temp++;
             }
         }
-        if (temp != mCraftItem.getMaterial().length) {
-            z = false;
-        }
-        mCanBeCrafted = z;
+        this.canBeCrafted = temp == this.craftItem.getMaterial().length;
     }
 
     public void checkCount() {
-        mCount = mInventory.getItemTotalCount(mCraftItem.getID());
+        this.count = this.inventory.getItemTotalCount(this.craftItem.getID());
     }
 
     public boolean pointerAdded(Touch.Pointer p) {
-        if (mTouch != null || !mBounds.contains(p.x, p.y)) {
-            return false;
+        if (this.touch == null && this.bounds.contains(p.x, p.y)) {
+            isResetFocus = true;
+            this.touch = p;
+            this.downTime = System.currentTimeMillis();
+            return true;
         }
-        mIsResetFocus = true;
-        mTouch = p;
-        mDownTime = System.currentTimeMillis();
-        return true;
+        return false;
     }
 
     public void pointerRemoved(Touch.Pointer p) {
-        if (mTouch == p && mTouch != null) {
-            long delta = System.currentTimeMillis() - mDownTime;
+        if (this.touch == p && this.touch != null) {
+            long delta = System.currentTimeMillis() - this.downTime;
             if (((float) delta) < 300.0f) {
                 onTap();
             }
-            mTouch = null;
+            this.touch = null;
         }
     }
 
@@ -173,7 +167,7 @@ public class CraftMenuTapItem {
     }
 
     private void onTap() {
-        mIsSelected = true;
+        this.isSelected = true;
     }
 
     public void setShown(boolean isShown) {
@@ -182,20 +176,20 @@ public class CraftMenuTapItem {
         }
     }
 
-    public float getYOffset() {
-        return mYOffset;
-    }
-
     public void setYOffset(float f) {
-        mYOffset = f;
+        this.yOffset = f;
     }
 
-    public float getmY() {
-        return mYOffset + mY;
+    public float getYOffset() {
+        return this.yOffset;
+    }
+
+    public float getY() {
+        return this.yOffset + this.y;
     }
 
     public void translateYOffset(float yOffset) {
-        mYOffset += yOffset;
+        this.yOffset += yOffset;
     }
 
     public void checkItem() {
@@ -203,7 +197,7 @@ public class CraftMenuTapItem {
         checkCount();
     }
 
-    public ItemFactory.Item getmItem() {
-        return mItem;
+    public ItemFactory.Item getItem() {
+        return this.item;
     }
 }

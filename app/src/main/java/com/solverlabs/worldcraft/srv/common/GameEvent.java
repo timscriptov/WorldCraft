@@ -2,7 +2,6 @@ package com.solverlabs.worldcraft.srv.common;
 
 import com.solverlabs.worldcraft.srv.domain.Player;
 
-
 public interface GameEvent {
     public static final byte CLIENT_HAVE_TO_UPDATE_APP = -2;
     public static final byte CLIENT_RATHER_UPDATE_APP = -1;
@@ -72,17 +71,17 @@ public interface GameEvent {
 
     byte getError();
 
-    void setError(byte b);
-
     Player getPlayer();
-
-    void setPlayer(Player player);
 
     int getPlayerId();
 
-    void setPlayerId(int i);
-
     byte getType();
+
+    void setError(byte b);
+
+    void setPlayer(Player player);
+
+    void setPlayerId(int i);
 
     void setType(byte b);
 }

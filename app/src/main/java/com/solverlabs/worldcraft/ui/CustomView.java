@@ -9,14 +9,12 @@ import android.widget.Button;
 
 import androidx.annotation.NonNull;
 
-
 @SuppressLint("ViewConstructor")
 public class CustomView extends ViewGroup {
     private final Button deleteSave;
     private final Paint paint;
     private final String worldName;
 
-    @SuppressLint("SetTextI18n")
     public CustomView(Context context, String worldName) {
         super(context);
         this.paint = new Paint();
@@ -26,22 +24,22 @@ public class CustomView extends ViewGroup {
         addView(this.deleteSave);
     }
 
-    @Override
+    @Override 
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         this.deleteSave.layout(0, 0, 0, 0);
     }
 
-    @Override
+    @Override 
     protected void onDraw(@NonNull Canvas canvas) {
         canvas.drawText(this.worldName, 0.0f, 0.0f, this.paint);
     }
 
-    @Override
+    @Override 
     protected void dispatchDraw(@NonNull Canvas canvas) {
         canvas.drawText(this.worldName, 0.0f, 0.0f, this.paint);
     }
 
-    @Override
+    @Override 
     public void draw(@NonNull Canvas canvas) {
         super.draw(canvas);
         canvas.drawText(this.worldName, 0.0f, 0.0f, this.paint);

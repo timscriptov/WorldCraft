@@ -7,21 +7,20 @@ import android.text.InputFilter;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 
 import androidx.annotation.NonNull;
 
 import com.solverlabs.worldcraft.MyApplication;
-import com.solverlabs.worldcraft.R;
 import com.solverlabs.worldcraft.dialog.component.MolotButton;
 import com.solverlabs.worldcraft.dialog.component.MolotEditText;
 import com.solverlabs.worldcraft.dialog.component.MolotRadioButton;
+import com.solverlabs.worldcraft.R;
 import com.solverlabs.worldcraft.multiplayer.util.TextUtils;
 import com.solverlabs.worldcraft.util.GameStarter;
 import com.solverlabs.worldcraft.util.KeyboardUtils;
 import com.solverlabs.worldcraft.util.WorldGenerator;
-
 import java.util.ArrayList;
-
 
 public class NewGameSingleplayerActivity extends CommonActivity {
     @Override
@@ -43,7 +42,7 @@ public class NewGameSingleplayerActivity extends CommonActivity {
         MolotButton startButton = findViewById(R.id.start_button);
         startButton.setOnClickListener(v -> {
             KeyboardUtils.hideKeyboard(NewGameSingleplayerActivity.this, name);
-            GameStarter.startGame(NewGameSingleplayerActivity.this, String.valueOf(name.getText()), true, mapTypeSpinner.getSelectedItemPosition(), worldTypeCreative.isChecked() ? WorldGenerator.Mode.CREATIVE : WorldGenerator.Mode.SURVIVAL);
+            GameStarter.startGame((MyApplication) getApplication(), NewGameSingleplayerActivity.this, String.valueOf(name.getText()), true, mapTypeSpinner.getSelectedItemPosition(), worldTypeCreative.isChecked() ? WorldGenerator.Mode.CREATIVE : WorldGenerator.Mode.SURVIVAL);
             finishActivityAndCloseParent();
         });
         getWindow().setSoftInputMode(2);

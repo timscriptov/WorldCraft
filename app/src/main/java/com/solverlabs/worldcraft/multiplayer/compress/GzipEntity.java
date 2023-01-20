@@ -1,8 +1,6 @@
 package com.solverlabs.worldcraft.multiplayer.compress;
 
-import org.apache.commons.compress.archivers.cpio.CpioConstants;
-import org.apache.http.entity.mime.content.ByteArrayBody;
-import org.apache.http.entity.mime.content.ContentBody;
+import androidx.annotation.NonNull;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -11,14 +9,25 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.zip.GZIPOutputStream;
-
+import org.apache.commons.compress.archivers.cpio.CpioConstants;
+import org.apache.http.entity.mime.content.ByteArrayBody;
+import org.apache.http.entity.mime.content.ContentBody;
 
 public class GzipEntity implements ContentBody {
     private static final String GZIP_MIME_TYPE = "application/x-gzip";
-    private ByteArrayBody body;
+    private final ByteArrayBody body;
 
     public GzipEntity(byte[] data, String filename) throws IOException {
         this.body = new ByteArrayBody(getGzipedBytes(data), GZIP_MIME_TYPE, filename);
+    }
+
+    @NonNull
+    private byte[] getGzipedBytes(byte[] data) throws IOException {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        GZIPOutputStream zos = new GZIPOutputStream(new BufferedOutputStream(os));
+        zos.write(data);
+        zos.close();
+        return os.toByteArray();
     }
 
     public GzipEntity(File file) throws IOException {
@@ -39,50 +48,42 @@ public class GzipEntity implements ContentBody {
         }
     }
 
-    private byte[] getGzipedBytes(byte[] data) throws IOException {
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        GZIPOutputStream zos = new GZIPOutputStream(new BufferedOutputStream(os));
-        zos.write(data);
-        zos.close();
-        return os.toByteArray();
-    }
-
-    @Override
+    @Override 
     public String getCharset() {
         return this.body.getCharset();
     }
 
-    @Override
+    @Override 
     public long getContentLength() {
         return this.body.getContentLength();
     }
 
-    @Override
+    @Override 
     public String getMediaType() {
         return this.body.getMediaType();
     }
 
-    @Override
+    @Override 
     public String getMimeType() {
         return this.body.getMimeType();
     }
 
-    @Override
+    @Override 
     public String getSubType() {
         return this.body.getSubType();
     }
 
-    @Override
+    @Override 
     public String getTransferEncoding() {
         return this.body.getTransferEncoding();
     }
 
-    @Override
+    @Override 
     public String getFilename() {
         return this.body.getFilename();
     }
 
-    @Override
+    @Override 
     public void writeTo(OutputStream arg0) throws IOException {
         this.body.writeTo(arg0);
     }

@@ -1,14 +1,12 @@
 package com.solverlabs.worldcraft.activity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.view.KeyEvent;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-
-public class CommonActivity extends AppCompatActivity {
+public class CommonActivity extends Activity {
     private AudioManager audio;
 
     @Override

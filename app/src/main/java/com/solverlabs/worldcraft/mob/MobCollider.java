@@ -3,6 +3,7 @@ package com.solverlabs.worldcraft.mob;
 import androidx.annotation.NonNull;
 
 import com.solverlabs.droid.rugl.geom.DoorBlock;
+import com.solverlabs.droid.rugl.util.FloatMath;
 import com.solverlabs.droid.rugl.util.geom.BoundingCuboid;
 import com.solverlabs.droid.rugl.util.geom.Vector3f;
 import com.solverlabs.droid.rugl.util.math.Range;
@@ -10,9 +11,6 @@ import com.solverlabs.worldcraft.World;
 import com.solverlabs.worldcraft.factories.BlockFactory;
 
 import org.jetbrains.annotations.Contract;
-
-import com.solverlabs.droid.rugl.util.FloatMath;
-
 
 public class MobCollider {
     private static final Vector3f collideCorrection = new Vector3f();

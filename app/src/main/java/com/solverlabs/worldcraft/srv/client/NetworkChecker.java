@@ -1,11 +1,16 @@
 package com.solverlabs.worldcraft.srv.client;
 
-
 public class NetworkChecker {
     protected static final long CONNECT_TIMEOUT = 40000;
     protected static final long PING_TIMEOUT = 30000;
     protected long lastServerPacketTime;
     protected NetworkCheckListener listener;
+
+    public interface NetworkCheckListener {
+        void connectionLost();
+
+        void sendPingRequest();
+    }
 
     public NetworkChecker() {
         updatePacketTime();
@@ -26,12 +31,5 @@ public class NetworkChecker {
 
     public void updatePacketTime() {
         this.lastServerPacketTime = System.currentTimeMillis();
-    }
-
-
-    public interface NetworkCheckListener {
-        void connectionLost();
-
-        void sendPingRequest();
     }
 }

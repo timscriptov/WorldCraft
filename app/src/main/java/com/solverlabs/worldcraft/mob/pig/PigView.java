@@ -5,7 +5,6 @@ import com.solverlabs.droid.rugl.gl.State;
 import com.solverlabs.worldcraft.mob.MobTexturePack;
 import com.solverlabs.worldcraft.mob.MobView;
 
-
 public class PigView extends MobView {
     private final PigTexturePack texturePack;
 

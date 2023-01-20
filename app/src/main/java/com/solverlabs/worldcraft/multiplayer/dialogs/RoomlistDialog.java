@@ -13,16 +13,17 @@ import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
+import androidx.annotation.NonNull;
+
 import com.solverlabs.droid.rugl.util.WorldUtils;
-import com.solverlabs.worldcraft.R;
 import com.solverlabs.worldcraft.activity.OptionActivity;
 import com.solverlabs.worldcraft.factories.DescriptionFactory;
+import com.solverlabs.worldcraft.R;
+import com.solverlabs.worldcraft.multiplayer.dialogs.SearchRoomDialog;
 import com.solverlabs.worldcraft.srv.util.ObjectCodec;
 import com.solverlabs.worldcraft.ui.JoinRoomListAdapter;
-
 import java.util.ArrayList;
 import java.util.Collection;
-
 
 public class RoomlistDialog extends Dialog {
     private JoinRoomListAdapter adapterPlayerNumber;
@@ -33,61 +34,69 @@ public class RoomlistDialog extends Dialog {
     private OnRefreshClickListener onRefreshClickListener;
     private OnRoomClickListener onRoomClickListener;
     private AlertDialog passwordDialog;
-    private ListView roomListRatingView;
-    private ListView roomListReadOnly;
-    private ListView roomListUsersView;
+    private final ListView roomListRatingView;
+    private final ListView roomListReadOnly;
+    private final ListView roomListUsersView;
     private ObjectCodec.RoomPack roomPack;
     private SearchRoomDialog searchRoomDialog;
 
+    /* loaded from: classes.dex */
+    public interface OnCancelClickListener {
+        void onCancelClick();
+    }
+
+    /* loaded from: classes.dex */
+    public interface OnCreateRoomClickListener {
+        void noCreativeModeWorlds();
+
+        void onCreateRoomClick();
+    }
+
+    /* loaded from: classes.dex */
+    public interface OnRefreshClickListener {
+        void onRefreshClick();
+    }
+
+    /* loaded from: classes.dex */
+    public interface OnRoomClickListener {
+        void onRoomClick(ObjectCodec.RoomPack roomPack);
+    }
+
     public RoomlistDialog(Context context) {
-        super(context, 16973841);
+        super(context);
         this.adapterPlayerNumber = null;
         this.adapterReadOnly = null;
         this.adapterRating = null;
         requestWindowFeature(1);
         setContentView(R.layout.join_room);
         getWindow().setFlags(1024, 1024);
-        this.roomListUsersView = (ListView) findViewById(R.id.roomList);
-        this.roomListReadOnly = (ListView) findViewById(R.id.roomList1);
-        this.roomListRatingView = (ListView) findViewById(R.id.roomList2);
-        Button createGameButton = (Button) findViewById(R.id.createGameButton);
-        createGameButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                RoomlistDialog.this.dismiss();
-                if (RoomlistDialog.this.onCreateRoomClickListener != null) {
-                    if (WorldUtils.getmCreativeModeWorlds() == null || WorldUtils.getmCreativeModeWorlds().size() <= 0) {
-                        RoomlistDialog.this.onCreateRoomClickListener.noCreativeModeWorlds();
-                    } else {
-                        RoomlistDialog.this.onCreateRoomClickListener.onCreateRoomClick();
-                    }
+        this.roomListUsersView = findViewById(R.id.roomList);
+        this.roomListReadOnly = findViewById(R.id.roomList1);
+        this.roomListRatingView = findViewById(R.id.roomList2);
+        Button createGameButton = findViewById(R.id.createGameButton);
+        createGameButton.setOnClickListener(arg0 -> {
+            dismiss();
+            if (onCreateRoomClickListener != null) {
+                if (WorldUtils.getCreativeModeWorlds() == null || WorldUtils.getCreativeModeWorlds().size() <= 0) {
+                    onCreateRoomClickListener.noCreativeModeWorlds();
+                } else {
+                    onCreateRoomClickListener.onCreateRoomClick();
                 }
             }
         });
-        Button refreshButton = (Button) findViewById(R.id.refreshButton);
-        refreshButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                if (RoomlistDialog.this.onRefreshClickListener != null) {
-                    RoomlistDialog.this.onRefreshClickListener.onRefreshClick();
-                }
+        Button refreshButton = findViewById(R.id.refreshButton);
+        refreshButton.setOnClickListener(arg0 -> {
+            if (onRefreshClickListener != null) {
+                onRefreshClickListener.onRefreshClick();
             }
         });
-        Button searchButton = (Button) findViewById(R.id.searchButton);
-        searchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                RoomlistDialog.this.hide();
-                RoomlistDialog.this.showSearchRoomResultDialog();
-            }
+        Button searchButton = findViewById(R.id.searchButton);
+        searchButton.setOnClickListener(arg0 -> {
+            hide();
+            showSearchRoomResultDialog();
         });
-        Button cancelButton = (Button) findViewById(R.id.cancelButton);
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                RoomlistDialog.this.onCancel();
-            }
-        });
+        Button cancelButton = findViewById(R.id.cancelButton);
+        cancelButton.setOnClickListener(v -> onCancel());
     }
 
     public void setOnCreateRoomClickListener(OnCreateRoomClickListener onCreateRoomClickListener) {
@@ -108,29 +117,14 @@ public class RoomlistDialog extends Dialog {
 
     public void initData(ArrayList<ObjectCodec.RoomPack> roomsByEntranceNumber, ArrayList<ObjectCodec.RoomPack> roomsByPlayerNumber, ArrayList<ObjectCodec.RoomPack> roomsByRating) {
         this.adapterPlayerNumber = new JoinRoomListAdapter(getContext(), roomsByPlayerNumber, (byte) 1);
-        this.roomListUsersView.setAdapter((ListAdapter) this.adapterPlayerNumber);
+        this.roomListUsersView.setAdapter(this.adapterPlayerNumber);
         this.adapterReadOnly = new JoinRoomListAdapter(getContext(), roomsByEntranceNumber, (byte) 4);
-        this.roomListReadOnly.setAdapter((ListAdapter) this.adapterReadOnly);
+        this.roomListReadOnly.setAdapter(this.adapterReadOnly);
         this.adapterRating = new JoinRoomListAdapter(getContext(), roomsByRating, (byte) 3);
-        this.roomListRatingView.setAdapter((ListAdapter) this.adapterRating);
-        this.roomListUsersView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
-                RoomlistDialog.this.onRoomSelected(RoomlistDialog.this.adapterPlayerNumber.getItem(position));
-            }
-        });
-        this.roomListReadOnly.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
-                RoomlistDialog.this.onRoomSelected(RoomlistDialog.this.adapterReadOnly.getItem(position));
-            }
-        });
-        this.roomListRatingView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
-                RoomlistDialog.this.onRoomSelected(RoomlistDialog.this.adapterRating.getItem(position));
-            }
-        });
+        this.roomListRatingView.setAdapter(this.adapterRating);
+        this.roomListUsersView.setOnItemClickListener((arg0, arg1, position, arg3) -> onRoomSelected(adapterPlayerNumber.getItem(position)));
+        this.roomListReadOnly.setOnItemClickListener((arg0, arg1, position, arg3) -> onRoomSelected(adapterReadOnly.getItem(position)));
+        this.roomListRatingView.setOnItemClickListener((arg0, arg1, position, arg3) -> onRoomSelected(adapterRating.getItem(position)));
         this.roomListUsersView.setOnScrollListener(new JoinRoomListAdapter.JoinRoomOnScrollListener(this.adapterPlayerNumber));
         this.roomListReadOnly.setOnScrollListener(new JoinRoomListAdapter.JoinRoomOnScrollListener(this.adapterReadOnly));
         this.roomListRatingView.setOnScrollListener(new JoinRoomListAdapter.JoinRoomOnScrollListener(this.adapterRating));
@@ -158,12 +152,12 @@ public class RoomlistDialog extends Dialog {
         }
     }
 
-    @Override
+    @Override 
     public void show() {
         super.show();
     }
 
-    @Override
+    @Override 
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == 4) {
             onCancel();
@@ -176,29 +170,19 @@ public class RoomlistDialog extends Dialog {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         final EditText password = new EditText(getContext());
         password.setInputType(129);
-        builder.setTitle("Enter password").setView(password).setPositiveButton(OptionActivity.OK, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                RoomlistDialog.this.hideKeyBoard(password);
-                RoomlistDialog.this.onJoinRoom(password.getText().toString());
-            }
-        }).setNegativeButton(OptionActivity.CANCEL, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                dialog.dismiss();
-            }
-        });
+        builder.setTitle("Enter password").setView(password).setPositiveButton(OptionActivity.OK, (dialog, id) -> {
+            hideKeyBoard(password);
+            onJoinRoom(password.getText().toString());
+        }).setNegativeButton(OptionActivity.CANCEL, (dialog, id) -> dialog.dismiss());
         this.passwordDialog = builder.create();
         this.passwordDialog.show();
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public void hideKeyBoard(View v) {
-        InputMethodManager imm = (InputMethodManager) getContext().getSystemService("input_method");
+    public void hideKeyBoard(@NonNull View v) {
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public void onJoinRoom(String roomPassword) {
         this.roomPack.password = roomPassword;
         if (this.onRoomClickListener != null) {
@@ -206,7 +190,6 @@ public class RoomlistDialog extends Dialog {
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public void onCancel() {
         dismiss();
         if (this.onCancelClickListener != null) {
@@ -214,28 +197,16 @@ public class RoomlistDialog extends Dialog {
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public void showSearchRoomResultDialog() {
         if (this.searchRoomDialog == null) {
             this.searchRoomDialog = new SearchRoomDialog(getContext());
         }
-        this.searchRoomDialog.setOnCloseListener(new SearchRoomDialog.OnCloseListener() {
-            @Override
-            public void onClose() {
-                RoomlistDialog.this.show();
-            }
-        });
-        this.searchRoomDialog.setOnRoomClickListener(new SearchRoomDialog.OnRoomClickListener() {
-            @Override
-            public void onRoomClick(ObjectCodec.RoomPack roomPack) {
-                RoomlistDialog.this.onRoomSelected(roomPack);
-            }
-        });
+        this.searchRoomDialog.setOnCloseListener(this::show);
+        this.searchRoomDialog.setOnRoomClickListener(this::onRoomSelected);
         this.searchRoomDialog.show();
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public void onRoomSelected(ObjectCodec.RoomPack roomPack) {
+    public void onRoomSelected(@NonNull ObjectCodec.RoomPack roomPack) {
         this.roomPack = roomPack;
         if (roomPack.hasPassword) {
             showPasswordDialog();
@@ -244,7 +215,7 @@ public class RoomlistDialog extends Dialog {
         }
     }
 
-    @Override
+    @Override 
     public void dismiss() {
         if (this.passwordDialog != null) {
             this.passwordDialog.dismiss();
@@ -253,27 +224,5 @@ public class RoomlistDialog extends Dialog {
             this.searchRoomDialog.dismiss();
         }
         super.dismiss();
-    }
-
-
-    public interface OnCancelClickListener {
-        void onCancelClick();
-    }
-
-
-    public interface OnCreateRoomClickListener {
-        void noCreativeModeWorlds();
-
-        void onCreateRoomClick();
-    }
-
-
-    public interface OnRefreshClickListener {
-        void onRefreshClick();
-    }
-
-
-    public interface OnRoomClickListener {
-        void onRoomClick(ObjectCodec.RoomPack roomPack);
     }
 }

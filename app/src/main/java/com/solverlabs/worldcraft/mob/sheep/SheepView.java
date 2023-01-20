@@ -4,7 +4,6 @@ import com.solverlabs.droid.rugl.gl.State;
 import com.solverlabs.worldcraft.mob.MobTexturePack;
 import com.solverlabs.worldcraft.mob.MobView;
 
-
 public class SheepView extends MobView {
     private final MobTexturePack furryTexturePack;
     private final Sheep mob;

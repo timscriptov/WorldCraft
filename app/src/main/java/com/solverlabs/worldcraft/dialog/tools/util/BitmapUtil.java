@@ -8,41 +8,44 @@ import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.provider.MediaStore;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-
 public final class BitmapUtil {
     public static Bitmap decodeFile(String filepath, int size, boolean square) {
         return decodeFile(new File(filepath), size, square);
     }
 
+    @Nullable
     public static Bitmap decodeFile(File file, int size, boolean square) {
         try {
             BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
             bitmapOptions.inJustDecodeBounds = true;
             BitmapFactory.decodeStream(new FileInputStream(file), null, bitmapOptions);
-            if (size <= 0) {
-                return null;
+            if (size > 0) {
+                int width_tmp = bitmapOptions.outWidth;
+                int height_tmp = bitmapOptions.outHeight;
+                int scale = 1;
+                while (width_tmp / 2 >= size && height_tmp / 2 >= size) {
+                    width_tmp /= 2;
+                    height_tmp /= 2;
+                    scale++;
+                }
+                BitmapFactory.Options bitmapOptions2 = new BitmapFactory.Options();
+                bitmapOptions2.inSampleSize = scale;
+                bitmapOptions2.inScaled = true;
+                if (square) {
+                    return cropToSquare(BitmapFactory.decodeFile(file.getAbsolutePath(), bitmapOptions2));
+                }
+                return BitmapFactory.decodeFile(file.getAbsolutePath(), bitmapOptions2);
             }
-            int width_tmp = bitmapOptions.outWidth;
-            int height_tmp = bitmapOptions.outHeight;
-            int scale = 1;
-            while (width_tmp / 2 >= size && height_tmp / 2 >= size) {
-                width_tmp /= 2;
-                height_tmp /= 2;
-                scale++;
-            }
-            BitmapFactory.Options bitmapOptions2 = new BitmapFactory.Options();
-            bitmapOptions2.inSampleSize = scale;
-            bitmapOptions2.inScaled = true;
-            if (square) {
-                return cropToSquare(BitmapFactory.decodeFile(file.getAbsolutePath(), bitmapOptions2));
-            }
-            return BitmapFactory.decodeFile(file.getAbsolutePath(), bitmapOptions2);
+            return null;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             return null;
@@ -59,10 +62,11 @@ public final class BitmapUtil {
             }
             return bitmap;
         }
-        return bitmap;
+        return null;
     }
 
-    public static Bitmap getThumbnail(ContentResolver contentResolver, long id) {
+    @Nullable
+    public static Bitmap getThumbnail(@NonNull ContentResolver contentResolver, long id) {
         Cursor cursor = contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, new String[]{"_data"}, "_id=?", new String[]{String.valueOf(id)}, null);
         if (cursor != null && cursor.getCount() > 0) {
             cursor.moveToFirst();
@@ -86,6 +90,7 @@ public final class BitmapUtil {
                     }
                 }
             } catch (IOException e) {
+                e.printStackTrace();
             }
             Bitmap bitmap = MediaStore.Images.Thumbnails.getThumbnail(contentResolver, id, 1, null);
             if (rotation != 0) {

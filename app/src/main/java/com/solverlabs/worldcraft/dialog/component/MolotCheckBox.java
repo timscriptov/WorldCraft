@@ -5,8 +5,9 @@ import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.widget.CheckBox;
 
+import androidx.appcompat.widget.AppCompatCheckBox;
 
-public class MolotCheckBox extends CheckBox {
+public class MolotCheckBox extends AppCompatCheckBox {
     public MolotCheckBox(Context context) {
         super(context);
         setMolotTypeFace();

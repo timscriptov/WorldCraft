@@ -27,22 +27,27 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-
 public class Explosion {
     private static final float BLAST_DECREASED_PER_STEP = 0.22500001f;
     private static final float EXPLOSION_STEP = 0.3f;
     private static final float MAX_BLAST_FACTOR = 1.3f;
     private static final float MIN_BLAST_FACTOR = 0.7f;
+    private static Set<Vector3f> RAY_VECTORS = null;
     private static final float STEP = 0.125f;
     private static final int STEP_COUNT_PER_AXIS = 16;
-    private static Set<Vector3f> RAY_VECTORS = null;
+
+    public enum CoordOrder {
+        XYZ,
+        YXZ,
+        ZXY
+    }
 
     static {
         initRayVectors();
     }
 
     public static void explode(final World world, final Vector3i position, final float power) {
-        GeometryGenerator.addTask(() -> Explosion.explode(world, new Vector3f(position), power, (TNTBlock) null));
+        GeometryGenerator.addTask(() -> Explosion.explode(world, new Vector3f(position), power, null));
     }
 
     public static void explode(final World world, final Vector3i position, final float power, final TNTBlock tnt) {
@@ -53,7 +58,7 @@ public class Explosion {
         int explodeRadius = getExplodeRadius(power);
         Vector3f normalizedPosition = getNormalizedExplosionPosition(position);
         ExplosionCube explosionCube = new ExplosionCube(world, normalizedPosition, explodeRadius);
-        world.addBlockParticle((byte) 46, new Vector3f(position), BlockFactory.WorldSide.Top, true);
+        world.addBlockParticle(BlockFactory.TNT_ID, new Vector3f(position), BlockFactory.WorldSide.Top, true);
         if (tnt != null) {
             tnt.setExploded(true);
         }
@@ -65,7 +70,7 @@ public class Explosion {
             explosionCube.applyDamageLive();
         }
         world.recalculateChunklets(modifiedChunklets);
-        float distance = Distance.getDistanceBetweenPoints(position, world.mPlayer.position, Float.MAX_VALUE);
+        float distance = Distance.getDistanceBetweenPoints(position, world.player.position, Float.MAX_VALUE);
         SoundManager.playMaterialSound(Material.EXPLOSIVE, distance);
     }
 
@@ -79,7 +84,7 @@ public class Explosion {
     }
 
     private static int getExplodeRadius(float power) {
-        return (int) Math.ceil(((MAX_BLAST_FACTOR * power) / BLAST_DECREASED_PER_STEP) * 0.3f);
+        return (int) Math.ceil(((MAX_BLAST_FACTOR * power) / BLAST_DECREASED_PER_STEP) * EXPLOSION_STEP);
     }
 
     @NonNull
@@ -88,12 +93,12 @@ public class Explosion {
         float currentStep = 0.0f;
         Set<Chunklet> modifiedChunklets = new HashSet<>();
         do {
-            currentStep += 0.3f;
+            currentStep += EXPLOSION_STEP;
             explosionCube.damageLive(rayVector, blastForce, currentStep);
             Vector3f blockPosition = getBlockPosition(rayVector, currentStep, position);
             byte blockType = world.blockType(blockPosition);
             if (blockType != 0) {
-                if (blockType == 46) {
+                if (blockType == BlockFactory.TNT_ID) {
                     removeBlock(world, modifiedChunklets, blockPosition, blockType);
                     world.activateTNT(blockPosition, TNTBlock.DetonationDelayType.SHORT_DELAY, false);
                 } else {
@@ -109,7 +114,7 @@ public class Explosion {
     }
 
     private static float getAbsorbedBlastForce(float currentStep, Byte blockType) {
-        return ((BlockBlastResistance.getBlastResistance(blockType) / 5.0f) + 0.3f) * currentStep;
+        return ((BlockBlastResistance.getBlastResistance(blockType) / 5.0f) + EXPLOSION_STEP) * currentStep;
     }
 
     @NonNull
@@ -120,7 +125,7 @@ public class Explosion {
 
     private static void removeBlock(@NonNull World world, @NonNull Set<Chunklet> result, @NonNull Vector3f position, byte blockId) {
         result.addAll(world.setBlockTypeWithoutGeometryRecalculate(position.x, position.y, position.z, (byte) 0, (byte) 0));
-        if (GameMode.isSurvivalMode() && blockId != 46 && RandomUtil.getChance(0.3f)) {
+        if (GameMode.isSurvivalMode() && blockId != BlockFactory.TNT_ID && RandomUtil.getChance(EXPLOSION_STEP)) {
             world.addDroppableItem(blockId, position.x, position.y, position.z);
         }
     }
@@ -134,7 +139,6 @@ public class Explosion {
         fillRayVectors(getRays(CoordOrder.XYZ), getRays(CoordOrder.YXZ), getRays(CoordOrder.ZXY));
     }
 
-    @SafeVarargs
     private static void fillRayVectors(@NonNull Collection<Vector3f>... rayVectorCollectionList) {
         for (Collection<Vector3f> rayVectorList : rayVectorCollectionList) {
             RAY_VECTORS.addAll(rayVectorList);
@@ -147,8 +151,8 @@ public class Explosion {
         Collection<Vector3f> result = new ArrayList<>();
         float[] iArray = {-1.0f, 1.0f};
         for (float i : iArray) {
-            for (float j = -1.0f; j + 0.125f <= 1.0f; j += 0.125f) {
-                for (float k = -1.0f; k + 0.125f <= 1.0f; k += 0.125f) {
+            for (float j = -1.0f; j + STEP <= 1.0f; j += STEP) {
+                for (float k = -1.0f; k + STEP <= 1.0f; k += STEP) {
                     if (coordOrder == CoordOrder.XYZ) {
                         vector3f = new Vector3f(i, j, k);
                     } else if (coordOrder == CoordOrder.YXZ) {
@@ -161,12 +165,6 @@ public class Explosion {
             }
         }
         return result;
-    }
-
-    public enum CoordOrder {
-        XYZ,
-        YXZ,
-        ZXY
     }
 
     public static class ExplosionCube {
@@ -187,9 +185,9 @@ public class Explosion {
                     this.damagables[(int) ((position.x - mobPosition.x) + explodeRadius)][(int) ((position.y - mobPosition.y) + explodeRadius)][(int) ((position.z - mobPosition.z) + explodeRadius)] = new DamagableLoss(mob);
                 }
             }
-            Vector3f playerPosition = world.mPlayer.position;
+            Vector3f playerPosition = world.player.position;
             if (belongsExplosionCube(position, explodeRadius, playerPosition)) {
-                this.damagables[(int) ((position.x - playerPosition.x) + explodeRadius)][(int) ((position.y - playerPosition.y) + explodeRadius)][(int) ((position.z - playerPosition.z) + explodeRadius)] = new DamagableLoss(world.mPlayer);
+                this.damagables[(int) ((position.x - playerPosition.x) + explodeRadius)][(int) ((position.y - playerPosition.y) + explodeRadius)][(int) ((position.z - playerPosition.z) + explodeRadius)] = new DamagableLoss(world.player);
             }
         }
 

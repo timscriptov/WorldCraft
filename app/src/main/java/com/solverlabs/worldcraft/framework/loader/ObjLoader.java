@@ -4,14 +4,12 @@ import androidx.annotation.NonNull;
 
 import com.solverlabs.worldcraft.framework.gl.Vertices3;
 import com.solverlabs.worldcraft.framework.io.FileIO;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class ObjLoader {
     @NonNull

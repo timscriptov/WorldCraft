@@ -10,10 +10,9 @@ import com.solverlabs.worldcraft.World;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class BlockEntityPainter {
-    private StackedRenderer renderer = new StackedRenderer();
-    private List<BlockEntity> entityList = new ArrayList();
+    private final StackedRenderer renderer = new StackedRenderer();
+    private final List<BlockEntity> entityList = new ArrayList<>();
 
     public static void init() {
         TNTBlock.init();

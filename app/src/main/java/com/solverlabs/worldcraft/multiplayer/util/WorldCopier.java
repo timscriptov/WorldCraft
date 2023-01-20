@@ -1,26 +1,147 @@
 package com.solverlabs.worldcraft.multiplayer.util;
 
 import android.util.Log;
-
 import com.solverlabs.droid.rugl.util.WorldUtils;
 import com.solverlabs.worldcraft.World;
 import com.solverlabs.worldcraft.util.Properties;
-
-import org.apache.commons.compress.utils.IOUtils;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
+import org.apache.commons.compress.utils.IOUtils;
 
 public class WorldCopier {
-    private String worldId;
+    private final String worldId;
 
     public WorldCopier(String worldId) {
         this.worldId = worldId;
+    }
+
+    private void copyFile(File srcDir, String srcFileName, File destDir, String destFileName) {
+        File file = new File(srcDir, srcFileName);
+        File mpFile = new File(destDir, destFileName);
+        InputStream is = null;
+        OutputStream os = null;
+        try {
+            if (file.exists()) {
+                try {
+                    InputStream is2 = new FileInputStream(file);
+                    try {
+                        OutputStream os2 = new FileOutputStream(mpFile);
+                        try {
+                            byte[] temp = new byte[is2.available()];
+                            while (true) {
+                                int length = is2.read(temp);
+                                if (length == -1) {
+                                    break;
+                                }
+                                os2.write(temp, 0, length);
+                            }
+                            if (is2 != null) {
+                                try {
+                                    is2.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            if (os2 != null) {
+                                try {
+                                    os2.close();
+                                    os = os2;
+                                    is = is2;
+                                } catch (IOException e2) {
+                                    os = os2;
+                                    is = is2;
+                                }
+                            } else {
+                                os = os2;
+                                is = is2;
+                            }
+                        } catch (IOException e3) {
+                            os = os2;
+                            is = is2;
+                            if (is != null) {
+                                try {
+                                    is.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            if (os != null) {
+                                try {
+                                    os.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        } catch (Throwable th) {
+                            th = th;
+                            os = os2;
+                            is = is2;
+                            if (is != null) {
+                                try {
+                                    is.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            if (os != null) {
+                                try {
+                                    os.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            throw th;
+                        }
+                    } catch (IOException e) {
+                        is = is2;
+                    } catch (Throwable th) {
+                        is = is2;
+                    }
+                } catch (IOException io) {
+                    io.printStackTrace();
+                }
+            }
+        } catch (Throwable th) {
+            th.printStackTrace();
+        }
+    }
+
+    public void copyWorld() {
+        fCopyWorld();
+    }
+
+    private void fCopyWorld() {
+        File dir = new File(WorldUtils.WORLD_DIR, this.worldId);
+        File mpDir = new File(WorldUtils.WORLD_DIR, Properties.MULTIPLAYER_WORLD_NAME);
+        if (dir.exists()) {
+            try {
+                if (mpDir.exists()) {
+                    deleteAllFilesFromDirectory(mpDir);
+                }
+                mpDir.mkdir();
+                copyFile(dir, World.LEVEL_DAT_FILE_NAME, mpDir, World.LEVEL_DAT_FILE_NAME);
+                File dir2 = new File(dir, World.REGION_DIR_NAME);
+                try {
+                    File mpDir2 = new File(mpDir, World.REGION_DIR_NAME);
+                    try {
+                        if (!mpDir2.exists()) {
+                            mpDir2.mkdir();
+                        }
+                        String[] fileList = dir2.list();
+                        for (String fileName : fileList) {
+                            copyFile(dir2, fileName, mpDir2, fileName);
+                        }
+                    } catch (Throwable th) {
+                    }
+                } catch (Throwable th2) {
+                }
+            } catch (Throwable th3) {
+            }
+        }
     }
 
     public static void copyDirectory(File sourceLocation, File targetLocation) throws IOException {
@@ -96,125 +217,6 @@ public class WorldCopier {
             }
             if (file.isDirectory()) {
                 deleteAllFilesFromDirectory(file);
-            }
-        }
-    }
-
-    private void copyFile(File srcDir, String srcFileName, File destDir, String destFileName) {
-        File file = new File(srcDir, srcFileName);
-        File mpFile = new File(destDir, destFileName);
-        InputStream is = null;
-        OutputStream os = null;
-        try {
-            if (!file.exists()) {
-                return;
-            }
-            try {
-                InputStream is2 = new FileInputStream(file);
-                try {
-                    OutputStream os2 = new FileOutputStream(mpFile);
-                    try {
-                        byte[] temp = new byte[is2.available()];
-                        while (true) {
-                            int length = is2.read(temp);
-                            if (length == -1) {
-                                break;
-                            }
-                            os2.write(temp, 0, length);
-                        }
-                        if (is2 != null) {
-                            try {
-                                is2.close();
-                            } catch (IOException e) {
-                            }
-                        }
-                        if (os2 != null) {
-                            try {
-                                os2.close();
-                                os = os2;
-                                is = is2;
-                            } catch (IOException e2) {
-                                os = os2;
-                                is = is2;
-                            }
-                        } else {
-                            os = os2;
-                            is = is2;
-                        }
-                    } catch (IOException e3) {
-                        os = os2;
-                        is = is2;
-                        if (is != null) {
-                            try {
-                                is.close();
-                            } catch (IOException e4) {
-                            }
-                        }
-                        if (os != null) {
-                            try {
-                                os.close();
-                            } catch (IOException e5) {
-                            }
-                        }
-                    } catch (Throwable th) {
-                        th = th;
-                        os = os2;
-                        is = is2;
-                        if (is != null) {
-                            try {
-                                is.close();
-                            } catch (IOException e6) {
-                            }
-                        }
-                        if (os != null) {
-                            try {
-                                os.close();
-                            } catch (IOException e7) {
-                            }
-                        }
-                        throw th;
-                    }
-                } catch (IOException e8) {
-                    is = is2;
-                } catch (Throwable th2) {
-                    is = is2;
-                }
-            } catch (IOException e9) {
-            }
-        } catch (Throwable th3) {
-        }
-    }
-
-    public void copyWorld() {
-        fCopyWorld();
-    }
-
-    private void fCopyWorld() {
-        File dir = new File(WorldUtils.WORLD_DIR, this.worldId);
-        File mpDir = new File(WorldUtils.WORLD_DIR, Properties.MULTIPLAYER_WORLD_NAME);
-        if (dir.exists()) {
-            try {
-                if (mpDir.exists()) {
-                    deleteAllFilesFromDirectory(mpDir);
-                }
-                mpDir.mkdir();
-                copyFile(dir, World.LEVEL_DAT_FILE_NAME, mpDir, World.LEVEL_DAT_FILE_NAME);
-                File dir2 = new File(dir, World.REGION_DIR_NAME);
-                try {
-                    File mpDir2 = new File(mpDir, World.REGION_DIR_NAME);
-                    try {
-                        if (!mpDir2.exists()) {
-                            mpDir2.mkdir();
-                        }
-                        String[] fileList = dir2.list();
-                        for (String fileName : fileList) {
-                            copyFile(dir2, fileName, mpDir2, fileName);
-                        }
-                    } catch (Throwable th) {
-                    }
-                } catch (Throwable th2) {
-                }
-            } catch (Throwable th3) {
             }
         }
     }

@@ -1,6 +1,5 @@
 package com.solverlabs.worldcraft.srv.domain;
 
-
 public interface Player {
     public static final short BEE = 7;
     public static final short CAROLINE = 18;
@@ -25,63 +24,63 @@ public interface Player {
 
     String getAndroidApiLevel();
 
-    void setAndroidApiLevel(String str);
-
     Camera getCamera();
 
-    void setCamera(Camera camera);
-
     String getClientVersion();
-
-    void setClientVersion(String str);
 
     long getDevId();
 
     String getDeviceId();
 
-    void setDeviceId(String str);
-
     String getDeviceName();
 
-    void setDeviceName(String str);
-
     int getId();
-
-    void setId(int i);
 
     String getIp();
 
     long getLastRequestTime();
 
-    void setLastRequestTime(long j);
-
     String getOsVersion();
-
-    void setOsVersion(String str);
 
     String getPlayerName();
 
-    void setPlayerName(String str);
-
     Room getRoom();
 
-    void setRoom(Room room);
-
     short getSkin();
-
-    void setSkin(short s);
 
     boolean inRoom();
 
     boolean isGraphicsInited();
 
-    void setGraphicsInited(boolean z);
-
     boolean loggedIn();
 
     boolean requiresRemove();
 
+    void setAndroidApiLevel(String str);
+
+    void setCamera(Camera camera);
+
+    void setClientVersion(String str);
+
+    void setDeviceId(String str);
+
+    void setDeviceName(String str);
+
+    void setGraphicsInited(boolean z);
+
+    void setId(int i);
+
+    void setLastRequestTime(long j);
+
     void setLoggedIn(boolean z);
+
+    void setOsVersion(String str);
+
+    void setPlayerName(String str);
+
+    void setRoom(Room room);
+
+    void setSkin(short s);
 
     void updateCamera(Camera camera);
 }

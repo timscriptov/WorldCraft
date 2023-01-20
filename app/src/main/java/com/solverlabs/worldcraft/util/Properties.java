@@ -1,6 +1,5 @@
 package com.solverlabs.worldcraft.util;
 
-
 public class Properties {
     public static final String COMPRESSED_WORLD_NAME = "game.tar.gz";
     public static final String COMPRESSED_WORLD_TAR_NAME = "game.tar";

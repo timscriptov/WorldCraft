@@ -4,8 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.nio.ByteBuffer;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SocketChannel;
-
 
 public class NIOUtils {
     public static boolean channelWrite(SocketChannel socketChannel, @NonNull ByteBuffer byteBuffer) {
@@ -32,15 +32,15 @@ public class NIOUtils {
                     }
                 }
             }
-        } catch (Exception e2) {
-            e2.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         byteBuffer.rewind();
         return z;
     }
 
     @Nullable
-    public static byte[] getByteArray(ByteBuffer byteBuffer) {
+    public static byte[] getByteArray(@NonNull ByteBuffer byteBuffer) {
         int i = byteBuffer.getInt();
         if (i == 0) {
             return null;

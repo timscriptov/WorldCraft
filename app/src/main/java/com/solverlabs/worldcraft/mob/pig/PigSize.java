@@ -3,7 +3,6 @@ package com.solverlabs.worldcraft.mob.pig;
 import com.solverlabs.worldcraft.mob.MobSize;
 import com.solverlabs.worldcraft.mob.TexturedBlockProperties;
 
-
 public class PigSize extends MobSize {
     private final TexturedBlockProperties snoutBox;
     private final float snoutDepth;

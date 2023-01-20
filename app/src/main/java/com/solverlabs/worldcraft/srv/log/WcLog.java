@@ -1,9 +1,14 @@
 package com.solverlabs.worldcraft.srv.log;
 
+import android.annotation.SuppressLint;
+
+import androidx.annotation.NonNull;
+
+import org.jetbrains.annotations.Contract;
+
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
 
 public class WcLog {
     private static final String TAG = "MULTIPLAYER";
@@ -18,6 +23,8 @@ public class WcLog {
     private static Object log4jLogger;
     private static Method warnMethod;
     private static Method warnThrowableMethod;
+    private final String name;
+    private boolean useEvque;
 
     static {
         log4jLogger = null;
@@ -45,11 +52,9 @@ public class WcLog {
             evqueLogger = cls.getDeclaredMethod("getEvqueLogger", new Class[0]).invoke(null, new Object[0]);
             evqueInfoMethod = evqueLogger.getClass().getMethod("info", Object.class);
         } catch (Throwable th) {
+            th.printStackTrace();
         }
     }
-
-    private String name;
-    private boolean useEvque;
 
     protected WcLog(String str) {
         this.useEvque = false;
@@ -59,20 +64,23 @@ public class WcLog {
         }
     }
 
-    public static WcLog getLogger(Class<?> cls) {
+    @NonNull
+    @Contract("_ -> new")
+    public static WcLog getLogger(@NonNull Class<?> cls) {
         return new WcLog(cls.getName());
     }
 
+    @NonNull
+    @Contract(value = "_ -> new", pure = true)
     public static WcLog getLogger(String str) {
         return new WcLog(str);
     }
 
+    @SuppressLint("SimpleDateFormat")
     private void print(String str, Object obj) {
         Date date = new Date();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yy HH:mm:ss.SSS");
-        StringBuffer stringBuffer = new StringBuffer();
-        stringBuffer.append("[").append(str).append("] - ").append(simpleDateFormat.format(date)).append(" - ").append(obj);
-        System.out.println(stringBuffer.toString());
+        System.out.println("[" + str + "] - " + simpleDateFormat.format(date) + " - " + obj);
     }
 
     public void debug(Object obj) {
@@ -88,10 +96,9 @@ public class WcLog {
             debugThrowableMethod.invoke(log4jLogger, obj, th);
         } catch (Throwable th2) {
             print("debug", obj);
-            if (th == null) {
-                return;
+            if (th != null) {
+                th.printStackTrace();
             }
-            th.printStackTrace();
         }
     }
 
@@ -108,10 +115,9 @@ public class WcLog {
             errorThrowableMethod.invoke(log4jLogger, obj, th);
         } catch (Throwable th2) {
             print("error", obj);
-            if (th == null) {
-                return;
+            if (th != null) {
+                th.printStackTrace();
             }
-            th.printStackTrace();
         }
     }
 
@@ -143,10 +149,9 @@ public class WcLog {
             infoThrowableMethod.invoke(log4jLogger, obj, th);
         } catch (Throwable th2) {
             print("info", obj);
-            if (th == null) {
-                return;
+            if (th != null) {
+                th.printStackTrace();
             }
-            th.printStackTrace();
         }
     }
 
@@ -166,10 +171,9 @@ public class WcLog {
             warnThrowableMethod.invoke(log4jLogger, obj, th);
         } catch (Throwable th2) {
             print("warn", obj);
-            if (th == null) {
-                return;
+            if (th != null) {
+                th.printStackTrace();
             }
-            th.printStackTrace();
         }
     }
 }

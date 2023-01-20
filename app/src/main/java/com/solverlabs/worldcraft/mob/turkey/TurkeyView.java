@@ -8,7 +8,6 @@ import com.solverlabs.droid.rugl.gl.GLUtil;
 import com.solverlabs.worldcraft.framework.gl.Vertices3;
 import com.solverlabs.worldcraft.framework.io.Assets;
 
-
 public class TurkeyView {
     static float[] ambient = {0.2f, 0.2f, 0.2f, 1.0f};
     static float[] diffuse = {1.0f, 1.0f, 1.0f, 1.0f};

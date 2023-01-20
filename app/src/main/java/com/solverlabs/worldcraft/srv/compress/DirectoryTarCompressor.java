@@ -1,23 +1,22 @@
 package com.solverlabs.worldcraft.srv.compress;
 
-import com.solverlabs.worldcraft.factories.DescriptionFactory;
+import androidx.annotation.NonNull;
 
+import com.solverlabs.worldcraft.factories.DescriptionFactory;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveOutputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.utils.IOUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
-
 public class DirectoryTarCompressor {
-    private File dest;
-    private String pathPrefix;
-    private File src;
+    private final File dest;
+    private final String pathPrefix;
+    private final File src;
 
     public DirectoryTarCompressor(File file, File file2) {
         this.src = file;
@@ -25,7 +24,7 @@ public class DirectoryTarCompressor {
         this.pathPrefix = this.src.getAbsolutePath().replace('\\', '/');
     }
 
-    private void addFile(ArchiveOutputStream archiveOutputStream, File file) throws IOException {
+    private void addFile(ArchiveOutputStream archiveOutputStream, @NonNull File file) throws IOException {
         if (file.isDirectory()) {
             for (String str : file.list()) {
                 addFile(archiveOutputStream, new File(file, str));

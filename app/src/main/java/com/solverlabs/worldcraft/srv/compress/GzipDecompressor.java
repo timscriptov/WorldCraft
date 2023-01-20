@@ -1,20 +1,17 @@
 package com.solverlabs.worldcraft.srv.compress;
 
 import com.solverlabs.worldcraft.factories.DescriptionFactory;
-
-import org.apache.commons.compress.archivers.ArchiveException;
-import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
-import org.apache.commons.compress.utils.IOUtils;
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
+import org.apache.commons.compress.archivers.ArchiveException;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+import org.apache.commons.compress.utils.IOUtils;
 
 public class GzipDecompressor {
-    private File src;
+    private final File src;
 
     public GzipDecompressor(File file) {
         this.src = file;
@@ -34,7 +31,6 @@ public class GzipDecompressor {
                 try {
                     gzipCompressorInputStream = new GzipCompressorInputStream(bufferedInputStream2);
                 } catch (Throwable th) {
-                    th = th;
                     gzipCompressorInputStream = null;
                     fileOutputStream2 = fileOutputStream;
                     bufferedInputStream = bufferedInputStream2;
@@ -72,7 +68,7 @@ public class GzipDecompressor {
                 bufferedInputStream.close();
             }
         }
-        return replaceAll;
+        return null;
     }
 
     public void removeSrc() {

@@ -3,7 +3,6 @@ package com.solverlabs.worldcraft.mob.zombie;
 import com.solverlabs.worldcraft.mob.MobSize;
 import com.solverlabs.worldcraft.mob.TexturedBlockProperties;
 
-
 public class ZombieSize extends MobSize {
     public ZombieSize(TexturedBlockProperties head, TexturedBlockProperties body, TexturedBlockProperties hand, TexturedBlockProperties leg) {
         super(head, body, hand, leg);

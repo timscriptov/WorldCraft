@@ -4,11 +4,9 @@ import androidx.annotation.NonNull;
 
 import com.solverlabs.worldcraft.srv.common.GameEvent;
 import com.solverlabs.worldcraft.srv.domain.Player;
-
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.Set;
-
 
 public class ClientGameEvent implements GameEvent {
     protected SocketChannel channel;
@@ -47,16 +45,8 @@ public class ClientGameEvent implements GameEvent {
         return this.channel;
     }
 
-    public void setChannel(SocketChannel socketChannel) {
-        this.channel = socketChannel;
-    }
-
     public byte[] getData() {
         return this.data;
-    }
-
-    public void setData(byte[] bArr) {
-        this.data = bArr;
     }
 
     @Override
@@ -64,22 +54,52 @@ public class ClientGameEvent implements GameEvent {
         return this.error;
     }
 
-    @Override
-    public void setError(byte b) {
-        this.error = b;
-    }
-
     public String getMessage() {
         return this.message;
-    }
-
-    public void setMessage(String str) {
-        this.message = str;
     }
 
     @Override
     public Player getPlayer() {
         return this.player;
+    }
+
+    @Override
+    public int getPlayerId() {
+        return this.playerId;
+    }
+
+    public Set<Integer> getRecipientSet() {
+        return this.recipientSet;
+    }
+
+    @Override
+    public byte getType() {
+        return this.eventType;
+    }
+
+    public void read(@NonNull ByteBuffer byteBuffer) {
+        this.eventType = byteBuffer.get();
+        this.error = byteBuffer.get();
+        this.playerId = byteBuffer.getInt();
+        this.message = NIOUtils.getStr(byteBuffer);
+        this.data = NIOUtils.getByteArray(byteBuffer);
+    }
+
+    public void setChannel(SocketChannel socketChannel) {
+        this.channel = socketChannel;
+    }
+
+    public void setData(byte[] bArr) {
+        this.data = bArr;
+    }
+
+    @Override
+    public void setError(byte b) {
+        this.error = b;
+    }
+
+    public void setMessage(String str) {
+        this.message = str;
     }
 
     @Override
@@ -91,17 +111,8 @@ public class ClientGameEvent implements GameEvent {
     }
 
     @Override
-    public int getPlayerId() {
-        return this.playerId;
-    }
-
-    @Override
     public void setPlayerId(int i) {
         this.playerId = i;
-    }
-
-    public Set<Integer> getRecipientSet() {
-        return this.recipientSet;
     }
 
     public void setRecipientSet(Set<Integer> set) {
@@ -109,21 +120,8 @@ public class ClientGameEvent implements GameEvent {
     }
 
     @Override
-    public byte getType() {
-        return this.eventType;
-    }
-
-    @Override
     public void setType(byte b) {
         this.eventType = b;
-    }
-
-    public void read(@NonNull ByteBuffer byteBuffer) {
-        this.eventType = byteBuffer.get();
-        this.error = byteBuffer.get();
-        this.playerId = byteBuffer.getInt();
-        this.message = NIOUtils.getStr(byteBuffer);
-        this.data = NIOUtils.getByteArray(byteBuffer);
     }
 
     @NonNull

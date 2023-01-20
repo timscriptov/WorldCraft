@@ -1,6 +1,5 @@
 package com.solverlabs.worldcraft;
 
-
 public class Sounds {
     public static final int DOOR_OPEN = R.raw.door_open;
     public static final int DOOR_CLOSE = R.raw.door_close;

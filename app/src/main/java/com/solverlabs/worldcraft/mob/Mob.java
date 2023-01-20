@@ -3,6 +3,7 @@ package com.solverlabs.worldcraft.mob;
 import androidx.annotation.NonNull;
 
 import com.solverlabs.droid.rugl.util.FPSCamera;
+import com.solverlabs.droid.rugl.util.FloatMath;
 import com.solverlabs.droid.rugl.util.geom.BoundingCuboid;
 import com.solverlabs.droid.rugl.util.geom.Frustum;
 import com.solverlabs.droid.rugl.util.geom.Vector3f;
@@ -19,22 +20,17 @@ import com.solverlabs.worldcraft.math.MathUtils;
 import com.solverlabs.worldcraft.util.Distance;
 import com.solverlabs.worldcraft.util.FallDetector;
 import com.solverlabs.worldcraft.util.RandomUtil;
-
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import javax.vecmath.Point3d;
-
-import com.solverlabs.droid.rugl.util.FloatMath;
-
 
 public abstract class Mob implements Damagable {
     public static final byte AGGRESSION_TYPE_HOSTILE = 2;
     public static final byte AGGRESSION_TYPE_PASSIVE = 1;
-    public static final int FAR_AWAY_DISTANCE = 1000;
     private static final float DEFAULT_ATTACK_DISTANCE = 3.0f;
     private static final long DEFAULT_DYING_TIMEOUT = 2500;
     private static final float DEFAULT_JUMP_SPEED = 5.0f;
+    public static final int FAR_AWAY_DISTANCE = 1000;
     private static final int GRAVITY = -10;
     private static final long IS_RECENTLY_ATTACKED_TIMEOUT = 800;
     private static final int MAX_TALK_INTERVAL = 30000;
@@ -45,19 +41,15 @@ public abstract class Mob implements Damagable {
     private static final long SUNLIGHT_DAMAGE_TIMEOUT = 1000;
     private static final Vector3f ZERO_VELOCITY_VECTOR = new Vector3f(0.0f, 0.0f, 0.0f);
     private static final AtomicInteger nextId = new AtomicInteger();
-    private final BoundingCuboid bounds;
-    private final FallDetector fallDetector;
-    private final Vector3f outerVelocityVector;
-    private final BoundingCuboid smallBounds;
-    private final Vector3f velocityVector;
-    protected Byte downBlock;
-    protected short healthPoints;
-    protected MobSize mobSize;
     private byte aggressionType;
     private float angle;
+    private final BoundingCuboid bounds;
     private boolean currVisible;
     private long damagedAt;
     private float distance;
+    protected Byte downBlock;
+    private final FallDetector fallDetector;
+    protected short healthPoints;
     private int id;
     private MobInteractionListener interactionListener;
     private boolean isRunning;
@@ -68,7 +60,9 @@ public abstract class Mob implements Damagable {
     private long lastJumpAt;
     private long lastSunlightDamageAt;
     private float light;
+    protected MobSize mobSize;
     private long nextTalkAt;
+    private final Vector3f outerVelocityVector;
     private long outerVelocityVectorEndsAt;
     private Vector3f position;
     private boolean positionChanged;
@@ -77,10 +71,32 @@ public abstract class Mob implements Damagable {
     private boolean prevIsSelected;
     private boolean prevIsVisible;
     private boolean prevVisible;
+    private final BoundingCuboid smallBounds;
     private Object tag;
     private float targetAngle;
     private float velocity;
+    private final Vector3f velocityVector;
     private World world;
+
+    public interface MobInteractionListener {
+        void collisionWithBlock(Mob mob, boolean z);
+
+        void collisionWithMob(Mob mob);
+
+        void collisionWithPlayer(Mob mob, Player player);
+
+        void dead(Mob mob);
+
+        void mobAttacked(Mob mob, Player player);
+    }
+
+    public abstract Material getMaterial();
+
+    public abstract float getQuietVelocity();
+
+    public abstract float getRunVelocity();
+
+    public abstract String getSaveId();
 
     public Mob(Vector3f position) {
         this();
@@ -99,14 +115,6 @@ public abstract class Mob implements Damagable {
         this.fallDetector = new FallDetector(this);
         onTalk();
     }
-
-    public abstract Material getMaterial();
-
-    public abstract float getQuietVelocity();
-
-    public abstract float getRunVelocity();
-
-    public abstract String getSaveId();
 
     public void advance(float delta, World world, FPSCamera cam, Player player) {
         this.world = world;
@@ -251,6 +259,10 @@ public abstract class Mob implements Damagable {
         return this.bounds;
     }
 
+    public void setAngle(float angle) {
+        setAngle(angle, true);
+    }
+
     public void setAngle(float angle, boolean animateRotation) {
         if (!isFrozen()) {
             setTargetAngle(angle);
@@ -272,6 +284,15 @@ public abstract class Mob implements Damagable {
         }
     }
 
+    public void setVelocity(float velocity) {
+        if (!isFrozen()) {
+            this.velocity = velocity;
+            Vector3f velocityVector = MathUtils.getVelocityVector(this.targetAngle, this.velocity);
+            this.velocityVector.x = velocityVector.x;
+            this.velocityVector.z = velocityVector.z;
+        }
+    }
+
     public void shift(float angle, float distance) {
         Vector3f velocityVector = MathUtils.getVelocityVector(angle, distance);
         this.outerVelocityVector.x = velocityVector.x * 4.0f;
@@ -284,9 +305,7 @@ public abstract class Mob implements Damagable {
         if (!isDying() && this.mobSize != null) {
             float distance = getDistanceToSegment(x, y, z, directionX, directionY, directionZ);
             float mobMaxSize = this.mobSize.getMaxSize() / 2.0f;
-            if (Float.compare(distance, mobMaxSize) == -1) {
-                return true;
-            }
+            return Float.compare(distance, mobMaxSize) == -1;
         }
         return false;
     }
@@ -316,7 +335,7 @@ public abstract class Mob implements Damagable {
     }
 
     public boolean isWalking() {
-        return !isDying() && !(this.velocityVector.x == 0.0f && this.velocityVector.z == 0.0f && this.velocityVector.y == 0.0f && Float.compare(this.angle, this.targetAngle) == 0);
+        return !isDying() && (this.velocityVector.x != 0.0f || this.velocityVector.z != 0.0f || this.velocityVector.y != 0.0f || Float.compare(this.angle, this.targetAngle) != 0);
     }
 
     public void tryAttack(Player player) {
@@ -390,21 +409,8 @@ public abstract class Mob implements Damagable {
         return this.angle;
     }
 
-    public void setAngle(float angle) {
-        setAngle(angle, true);
-    }
-
     public Vector3f getVelocity() {
         return this.velocityVector;
-    }
-
-    public void setVelocity(float velocity) {
-        if (!isFrozen()) {
-            this.velocity = velocity;
-            Vector3f velocityVector = MathUtils.getVelocityVector(this.targetAngle, this.velocity);
-            this.velocityVector.x = velocityVector.x;
-            this.velocityVector.z = velocityVector.z;
-        }
     }
 
     public Object getTag() {
@@ -419,12 +425,12 @@ public abstract class Mob implements Damagable {
         return this.mobSize;
     }
 
-    public boolean isSelected() {
-        return this.isSelected;
-    }
-
     public void setSelected(boolean value) {
         this.isSelected = false;
+    }
+
+    public boolean isSelected() {
+        return this.isSelected;
     }
 
     public float getDistance() {
@@ -451,12 +457,12 @@ public abstract class Mob implements Damagable {
         return this.aggressionType == 1;
     }
 
-    public boolean isRunning() {
-        return this.isRunning;
-    }
-
     public void setRunning(boolean isRunning) {
         this.isRunning = isRunning;
+    }
+
+    public boolean isRunning() {
+        return this.isRunning;
     }
 
     public short getHealthPoints() {
@@ -501,12 +507,12 @@ public abstract class Mob implements Damagable {
         return getClass().getSimpleName() + " id: " + this.id;
     }
 
-    protected byte getAggressionType() {
-        return this.aggressionType;
-    }
-
     public void setAggressionType(byte type) {
         this.aggressionType = type;
+    }
+
+    protected byte getAggressionType() {
+        return this.aggressionType;
     }
 
     protected long getAttackTimeout() {
@@ -579,7 +585,7 @@ public abstract class Mob implements Damagable {
         return System.currentTimeMillis() - DEFAULT_DYING_TIMEOUT < this.killedAt;
     }
 
-    @Override
+    @Override 
     public boolean isDead() {
         return this.healthPoints <= 0 && !isDyingTimeout();
     }
@@ -604,7 +610,7 @@ public abstract class Mob implements Damagable {
         return (int) FloatMath.floor(this.position.x / 16.0f);
     }
 
-    @Override
+    @Override 
     public void takeDamage(int damage) {
         this.damagedAt = System.currentTimeMillis();
         this.healthPoints = (short) (this.healthPoints - damage);
@@ -683,18 +689,5 @@ public abstract class Mob implements Damagable {
 
     public boolean hasNeedToTalk() {
         return System.currentTimeMillis() > this.nextTalkAt && getHealthPoints() > 0;
-    }
-
-
-    public interface MobInteractionListener {
-        void collisionWithBlock(Mob mob, boolean z);
-
-        void collisionWithMob(Mob mob);
-
-        void collisionWithPlayer(Mob mob, Player player);
-
-        void dead(Mob mob);
-
-        void mobAttacked(Mob mob, Player player);
     }
 }

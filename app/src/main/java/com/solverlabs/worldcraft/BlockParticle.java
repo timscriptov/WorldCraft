@@ -20,69 +20,36 @@ import com.solverlabs.worldcraft.factories.BlockFactory;
 import com.solverlabs.worldcraft.factories.ItemFactory;
 import com.solverlabs.worldcraft.util.RandomUtil;
 
+import org.jetbrains.annotations.Contract;
+
 import java.util.Random;
 
-
 public class BlockParticle {
-    private static final float sxtn = 0.0625f;
-    private static final long ACTIVE_PERIOD = 400;
-    private static final int MAX_TIME_DELAY = 500;
-    private static final int[] EXPLOSION_SHAPE_COORDS = {2, 11, 3, 11, 4, 11, 5, 11, 2, 12, 3, 12, 4, 12, 5, 12, 2, 13, 3, 13, 4, 13, 5, 13, 2, 14, 3, 14, 4, 14, 5, 14};
-    private static final Random random = new Random(System.currentTimeMillis());
     private static ColouredShape blockColouredShape = null;
     private static State blockState = null;
     private static ColouredShape itemColouredShape = null;
     private static State itemState = null;
-    private final BlockFactory.WorldSide mBlockSide;
+    private static final float sxtn = 0.0625f;
+    private final BlockFactory.WorldSide blockSide;
     private final long createTime;
     private final int horizontalOffsetSign;
-    float[] itc;
-    private boolean mIsExplosion;
+    private boolean isExplosion;
     private boolean isOrtho2D;
+    float[] itc;
     private boolean moveUp;
     private float scale;
     private long timeDelay;
     private TexturedShape ts;
-    private float mX;
+    private float x;
     private float xOffset;
-    private float mY;
+    private float y;
     private float yOffset;
-    private float mZ;
+    private float z;
     private float zOffset;
-
-    public BlockParticle(byte blockID, float x, float y, float z, BlockFactory.WorldSide blockSide) {
-        this(blockID, x, y, z, blockSide, false);
-    }
-
-    public BlockParticle(byte blockID, float x, float y, float z, BlockFactory.WorldSide blockSide, boolean isExplosion) {
-        int i = 1;
-        itc = ShapeUtil.getQuadTexCoords(1);
-        moveUp = true;
-        isOrtho2D = false;
-        mIsExplosion = false;
-        blockColouredShape.reset();
-        itemColouredShape.reset();
-        mIsExplosion = isExplosion;
-        createTime = System.currentTimeMillis();
-        mX = x + 0.5f;
-        mY = y + 0.5f + Range.toValue(random.nextFloat(), -0.4f, 0.4f);
-        mZ = z + 0.5f;
-        mBlockSide = blockSide;
-        initPosition(blockSide);
-        initOffsets(blockID);
-        isOrtho2D = blockSide == BlockFactory.WorldSide.Empty;
-        BlockFactory.Block b = BlockFactory.getBlock(blockID);
-        ItemFactory.Item item = ItemFactory.Item.getItemByID(blockID);
-        if (item != null) {
-            faceTexCoords(itc, item);
-        }
-        if (b != null && !isExplosion) {
-            ts = new TexturedShape(blockColouredShape, itc, BlockFactory.texture);
-        } else {
-            ts = new TexturedShape(itemColouredShape, itc, ItemFactory.itemTexture);
-        }
-        horizontalOffsetSign = !random.nextBoolean() ? -1 : i;
-    }
+    private static final long ACTIVE_PERIOD = 400;
+    private static final int MAX_TIME_DELAY = 500;
+    private static final int[] EXPLOSION_SHAPE_COORDS = {2, 11, 3, 11, 4, 11, 5, 11, 2, 12, 3, 12, 4, 12, 5, 12, 2, 13, 3, 13, 4, 13, 5, 13, 2, 14, 3, 14, 4, 14, 5, 14};
+    private static final Random random = new Random(System.currentTimeMillis());
 
     public static void init() {
         blockState = GLUtil.typicalState.with(MinFilter.NEAREST, MagFilter.NEAREST);
@@ -94,24 +61,55 @@ public class BlockParticle {
         itemColouredShape = new ColouredShape(shape, Colour.packFloat(0.9f, 0.9f, 0.9f, 0.9f), itemState);
     }
 
+    public BlockParticle(byte blockID, float x, float y, float z, BlockFactory.WorldSide blockSide) {
+        this(blockID, x, y, z, blockSide, false);
+    }
+
+    public BlockParticle(byte blockID, float x, float y, float z, BlockFactory.WorldSide blockSide, boolean isExplosion) {
+        this.itc = ShapeUtil.getQuadTexCoords(1);
+        this.moveUp = true;
+        this.isOrtho2D = false;
+        this.isExplosion = false;
+        blockColouredShape.reset();
+        itemColouredShape.reset();
+        this.isExplosion = isExplosion;
+        this.createTime = System.currentTimeMillis();
+        this.x = x + 0.5f;
+        this.y = y + 0.5f + Range.toValue(random.nextFloat(), -0.4f, 0.4f);
+        this.z = z + 0.5f;
+        this.blockSide = blockSide;
+        initPosition(blockSide);
+        initOffsets(blockID);
+        this.isOrtho2D = blockSide == BlockFactory.WorldSide.Empty;
+        ItemFactory.Item item = ItemFactory.Item.getItemByID(blockID);
+        BlockFactory.Block b = BlockFactory.getBlock(blockID);
+        faceTexCoords(this.itc, item);
+        if (b != null && !isExplosion) {
+            this.ts = new TexturedShape(blockColouredShape, this.itc, BlockFactory.texture);
+        } else {
+            this.ts = new TexturedShape(itemColouredShape, this.itc, ItemFactory.itemTexture);
+        }
+        this.horizontalOffsetSign = random.nextBoolean() ? 1 : -1;
+    }
+
     private void initOffsets(byte blockID) {
-        if (!mIsExplosion) {
-            scale = RandomUtil.getRandomInRangeExclusive(0.05f, 0.15f);
-            zOffset = RandomUtil.getRandomInRangeExclusive(-0.5f, 0.5f);
-            xOffset = RandomUtil.getRandomInRangeExclusive(-0.5f, 0.5f);
+        if (!this.isExplosion) {
+            this.scale = RandomUtil.getRandomInRangeExclusive(0.05f, 0.15f);
+            this.zOffset = RandomUtil.getRandomInRangeExclusive(-0.5f, 0.5f);
+            this.xOffset = RandomUtil.getRandomInRangeExclusive(-0.5f, 0.5f);
             return;
         }
-        scale = RandomUtil.getRandomInRangeExclusive(0.75f, 3.0f);
-        zOffset = RandomUtil.getRandomInRangeExclusive(-3.0f, 3.0f);
-        xOffset = RandomUtil.getRandomInRangeExclusive(-3.0f, 3.0f);
-        yOffset = RandomUtil.getRandomInRangeExclusive(-3.0f, 2.0f);
-        timeDelay = RandomUtil.getRandomInRangeInclusive(0, MAX_TIME_DELAY);
+        this.scale = RandomUtil.getRandomInRangeExclusive(0.75f, 3.0f);
+        this.zOffset = RandomUtil.getRandomInRangeExclusive(-3.0f, 3.0f);
+        this.xOffset = RandomUtil.getRandomInRangeExclusive(-3.0f, 3.0f);
+        this.yOffset = RandomUtil.getRandomInRangeExclusive(-3.0f, 2.0f);
+        this.timeDelay = RandomUtil.getRandomInRangeInclusive(0, MAX_TIME_DELAY);
     }
 
     private void faceTexCoords(float[] tc, @NonNull ItemFactory.Item item) {
         int[] blockTexCoords;
         BlockFactory.Block b = BlockFactory.getBlock(item.id);
-        if (mIsExplosion) {
+        if (this.isExplosion) {
             blockTexCoords = EXPLOSION_SHAPE_COORDS;
         } else if (b != null) {
             blockTexCoords = b.texCoords;
@@ -135,7 +133,7 @@ public class BlockParticle {
         float bv = sxtn * (blockTexCoords[1] + 1);
         float tu = sxtn * (blockTexCoords[0] + 1);
         float tv = sxtn * blockTexCoords[1];
-        int index = 1;
+        int index = 0 + 1;
         tc[0] = bu;
         int index2 = index + 1;
         tc[index] = bv;
@@ -156,22 +154,22 @@ public class BlockParticle {
     private void initPosition(@NonNull BlockFactory.WorldSide blockSide) {
         switch (blockSide) {
             case Bottom:
-                mY -= 0.55f;
+                this.y -= 0.55f;
                 return;
             case Top:
-                mY += 0.7f;
+                this.y += 0.7f;
                 return;
             case North:
-                mX -= 0.55f;
+                this.x -= 0.55f;
                 return;
             case South:
-                mX += 0.55f;
+                this.x += 0.55f;
                 return;
             case West:
-                mZ += 0.55f;
+                this.z += 0.55f;
                 return;
             case East:
-                mZ -= 0.55f;
+                this.z -= 0.55f;
                 return;
             default:
                 return;
@@ -179,47 +177,47 @@ public class BlockParticle {
     }
 
     public void draw(StackedRenderer sr, FPSCamera camera) {
-        if (isActive() && System.currentTimeMillis() - createTime >= timeDelay) {
-            if (!mIsExplosion) {
-                if (yOffset <= 0.12f && moveUp) {
-                    yOffset += 0.03f;
+        if (isActive() && System.currentTimeMillis() - this.createTime >= this.timeDelay) {
+            if (!this.isExplosion) {
+                if (this.yOffset <= 0.12f && this.moveUp) {
+                    this.yOffset += 0.03f;
                 } else {
-                    moveUp = false;
-                    yOffset -= 0.03f;
+                    this.moveUp = false;
+                    this.yOffset -= 0.03f;
                 }
-                zOffset += horizontalOffsetSign * 0.01f;
-                xOffset += horizontalOffsetSign * 0.01f;
+                this.zOffset += this.horizontalOffsetSign * 0.01f;
+                this.xOffset += this.horizontalOffsetSign * 0.01f;
             } else {
                 setExplosionShape();
             }
-            if (!isOrtho2D) {
+            if (!this.isOrtho2D) {
                 float angleHeading = Range.wrap(camera.getHeading(), 0.0f, 6.2831855f) + 3.1415927f;
                 sr.pushMatrix();
-                if (mBlockSide == BlockFactory.WorldSide.South || mBlockSide == BlockFactory.WorldSide.North) {
-                    sr.translate(mX, mY + yOffset, mZ + zOffset);
-                } else if (mBlockSide == BlockFactory.WorldSide.West || mBlockSide == BlockFactory.WorldSide.East) {
-                    sr.translate(mX + xOffset, mY + yOffset, mZ);
-                } else if (mBlockSide == BlockFactory.WorldSide.Top || mBlockSide == BlockFactory.WorldSide.Bottom) {
-                    sr.translate(mX + xOffset, mY + yOffset, mZ + zOffset);
+                if (this.blockSide == BlockFactory.WorldSide.South || this.blockSide == BlockFactory.WorldSide.North) {
+                    sr.translate(this.x, this.y + this.yOffset, this.z + this.zOffset);
+                } else if (this.blockSide == BlockFactory.WorldSide.West || this.blockSide == BlockFactory.WorldSide.East) {
+                    sr.translate(this.x + this.xOffset, this.y + this.yOffset, this.z);
+                } else if (this.blockSide == BlockFactory.WorldSide.Top || this.blockSide == BlockFactory.WorldSide.Bottom) {
+                    sr.translate(this.x + this.xOffset, this.y + this.yOffset, this.z + this.zOffset);
                 }
-                sr.scale(scale, scale, scale);
+                sr.scale(this.scale, this.scale, this.scale);
                 sr.rotate(Trig.toDegrees(angleHeading), 0.0f, 1.0f, 0.0f);
-                if ((mBlockSide == BlockFactory.WorldSide.Bottom || mBlockSide == BlockFactory.WorldSide.Top) && !mIsExplosion) {
+                if ((this.blockSide == BlockFactory.WorldSide.Bottom || this.blockSide == BlockFactory.WorldSide.Top) && !this.isExplosion) {
                     float angleElevation = Range.wrap(camera.getElevation(), 0.0f, 1.5707964f) + 3.1415927f;
                     sr.rotate(Trig.toDegrees(angleElevation), 1.0f, 0.0f, 0.0f);
                 }
-                if (ts != null) {
-                    ts.render(sr);
+                if (this.ts != null) {
+                    this.ts.render(sr);
                 }
                 sr.popMatrix();
                 sr.render();
                 return;
             }
-            GLUtil.scaledOrtho(Game.mGameWidth, Game.mGameHeight, Game.mScreenWidth, Game.mScreenHeight, -1.0f, 1.0f);
+            GLUtil.scaledOrtho(Game.gameWidth, Game.gameHeight, Game.screenWidth, Game.screenHeight, -1.0f, 1.0f);
             sr.pushMatrix();
-            sr.translate(375.0f + (zOffset * 300.0f), 80.0f + (yOffset * 500.0f), 1.0f);
-            sr.scale(scale * 400.0f, scale * 400.0f, 1.0f);
-            ts.render(sr);
+            sr.translate(375.0f + (this.zOffset * 300.0f), 80.0f + (this.yOffset * 500.0f), 1.0f);
+            sr.scale(this.scale * 400.0f, this.scale * 400.0f, 1.0f);
+            this.ts.render(sr);
             sr.popMatrix();
             sr.render();
             camera.resetGluPerspective();
@@ -227,20 +225,20 @@ public class BlockParticle {
     }
 
     private void setExplosionShape() {
-        long delta = System.currentTimeMillis() - createTime;
+        long delta = System.currentTimeMillis() - this.createTime;
         int step = (int) (ACTIVE_PERIOD / (EXPLOSION_SHAPE_COORDS.length / 2));
         int index = ((int) (delta / step)) * 2;
         if (index >= EXPLOSION_SHAPE_COORDS.length || index + 1 >= EXPLOSION_SHAPE_COORDS.length) {
-            ts = null;
+            this.ts = null;
             return;
         }
         int s = EXPLOSION_SHAPE_COORDS[index];
         int t = EXPLOSION_SHAPE_COORDS[index + 1];
-        calcTextureOffset(itc, new int[]{s, t});
-        ts = new TexturedShape(itemColouredShape, itc, ItemFactory.itemTexture);
+        calcTextureOffset(this.itc, new int[]{s, t});
+        this.ts = new TexturedShape(itemColouredShape, this.itc, ItemFactory.itemTexture);
     }
 
     public boolean isActive() {
-        return System.currentTimeMillis() - createTime <= ACTIVE_PERIOD + timeDelay && ts != null;
+        return System.currentTimeMillis() - this.createTime <= ACTIVE_PERIOD + this.timeDelay && this.ts != null;
     }
 }

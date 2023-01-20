@@ -6,14 +6,15 @@ import androidx.annotation.NonNull;
 
 import com.solverlabs.droid.rugl.util.FloatMath;
 
+import org.jetbrains.annotations.Contract;
 
 public class Vector3 {
-    private static final float[] matrix = new float[16];
-    private static final float[] inVec = new float[4];
-    private static final float[] outVec = new float[4];
     public float x;
     public float y;
     public float z;
+    private static final float[] matrix = new float[16];
+    private static final float[] inVec = new float[4];
+    private static final float[] outVec = new float[4];
 
     public Vector3() {
     }

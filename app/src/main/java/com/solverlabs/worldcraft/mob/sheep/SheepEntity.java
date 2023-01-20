@@ -4,7 +4,6 @@ import com.solverlabs.worldcraft.chunk.entity.MobEntity;
 import com.solverlabs.worldcraft.mob.Mob;
 import com.solverlabs.worldcraft.nbt.Tag;
 
-
 public class SheepEntity extends MobEntity {
     private static final String SHEARED = "Sheared";
     private boolean isSheared;
@@ -40,7 +39,7 @@ public class SheepEntity extends MobEntity {
             tags[tags.length - 1] = new Tag(Tag.Type.TAG_Short, SHEARED, sheared);
             Tag[] newResult = new Tag[tags.length + 1];
             System.arraycopy(tags, 0, newResult, 0, tags.length);
-            newResult[tags.length] = new Tag(Tag.Type.TAG_End, (String) null, (Tag[]) null);
+            newResult[tags.length] = new Tag(Tag.Type.TAG_End, null, null);
             result.setValue(newResult);
         }
         return result;

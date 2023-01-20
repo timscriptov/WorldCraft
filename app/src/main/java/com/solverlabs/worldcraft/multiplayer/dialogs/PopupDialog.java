@@ -5,15 +5,11 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 
+import androidx.annotation.NonNull;
 
 public class PopupDialog {
-    public static void showInUiThread(final int titleId, final String messageText, final Activity activity) {
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                PopupDialog.show(titleId, messageText, activity);
-            }
-        });
+    public static void showInUiThread(final int titleId, final String messageText, @NonNull final Activity activity) {
+        activity.runOnUiThread(() -> PopupDialog.show(titleId, messageText, activity));
     }
 
     public static void show(int titleId, int messageId, Context context) {
@@ -24,12 +20,7 @@ public class PopupDialog {
 
     public static void show(int titleId, String messageText, Context context) {
         AlertDialog.Builder alertDialogBuilder = createDialog(titleId, messageText, context);
-        alertDialogBuilder.setPositiveButton(17039370, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
+        alertDialogBuilder.setPositiveButton(android.R.string.ok, (dialog, which) -> dialog.dismiss());
         alertDialogBuilder.show();
     }
 
@@ -40,6 +31,7 @@ public class PopupDialog {
         return null;
     }
 
+    @NonNull
     public static AlertDialog.Builder createDialog(int titleId, String messageText, Context context) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
         alertDialogBuilder.setTitle(titleId);

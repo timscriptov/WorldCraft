@@ -1,6 +1,5 @@
 package com.solverlabs.worldcraft.framework.math;
 
-
 public class Sphere {
     public final Vector3 center = new Vector3();
     public float radius;

@@ -17,8 +17,8 @@ import com.solverlabs.droid.rugl.util.geom.Vector2f;
 import com.solverlabs.droid.rugl.util.math.Range;
 import com.solverlabs.worldcraft.GameMode;
 import com.solverlabs.worldcraft.Player;
+import com.solverlabs.worldcraft.R;
 import com.solverlabs.worldcraft.skin.geometry.generator.SkinGeometryGenerator;
-
 
 public class Hand {
     public static final float DEFAULT_SIZE = 300.0f;
@@ -40,19 +40,6 @@ public class Hand {
 
     public Hand(Player player) {
         this.player = player;
-    }
-
-    public static void loadTexture() {
-        ResourceLoader.loadNow(new BitmapLoader("player_skins.png") {
-            @Override
-            public void complete() {
-                Texture skin = TextureFactory.buildTexture((Image) this.resource, true, false);
-                if (skin != null) {
-                    State unused = Hand.state = skin.applyTo(Hand.state);
-                }
-                ((BitmapImage) this.resource).bitmap.recycle();
-            }
-        });
     }
 
     public void strike(boolean fast) {
@@ -86,11 +73,11 @@ public class Hand {
         float y;
         try {
             r.pushMatrix();
-            float size = 300.0f;
+            float size = DEFAULT_SIZE;
             if (this.swing && this.player != null && this.player.isReadyToEat()) {
                 float swing = (-Math.abs(Trig.cos(this.strikeCycle))) + 1.0f;
                 rot = 0.0f;
-                size = Range.toValue(swing, 200.0f, 300.0f);
+                size = Range.toValue(swing, FOOD_SIZE_REST, FOOD_SIZE_STRIKE);
                 x = Range.toValue(swing, this.foodPosRest.x, this.foodPosStrike.x);
                 y = Range.toValue(swing, this.foodPosRest.y, this.foodPosStrike.y);
             } else {
@@ -102,18 +89,29 @@ public class Hand {
             r.translate(x, y, 0.0f);
             r.rotate(rot, 0.0f, 0.0f, 1.0f);
             r.scale(size, size, 1.0f);
-            if (this.player != null) {
-                if (this.player.inHand != null) {
-                    this.player.inHand.getItemShape().render(r);
-                } else if (state != null && (!GameMode.isMultiplayerMode() || this.player.getmWorld().isReady())) {
-                    TexturedShape hand = SkinGeometryGenerator.getHandShape();
-                    hand.state = state;
-                    hand.render(r);
-                }
+            if (this.player.inHand != null) {
+                this.player.inHand.getItemShape().render(r);
+            } else if (state != null && (!GameMode.isMultiplayerMode() || this.player.getWorld().isReady())) {
+                TexturedShape hand = SkinGeometryGenerator.getHandShape();
+                hand.state = state;
+                hand.render(r);
             }
             r.popMatrix();
         } catch (Throwable t) {
             t.printStackTrace();
         }
+    }
+
+    public static void loadTexture() {
+        ResourceLoader.loadNow(new BitmapLoader(R.drawable.player_skins) {
+            @Override
+            public void complete() {
+                Texture skin = TextureFactory.buildTexture(this.resource, true, false);
+                if (skin != null) {
+                    Hand.state = skin.applyTo(Hand.state);
+                }
+                this.resource.bitmap.recycle();
+            }
+        });
     }
 }

@@ -1,5 +1,6 @@
 package com.solverlabs.worldcraft.srv.domain;
 
+import androidx.annotation.NonNull;
 
 public class BadWord {
     private long id;
@@ -16,27 +17,28 @@ public class BadWord {
         return this.id;
     }
 
-    public void setId(long j) {
-        this.id = j;
-    }
-
     public String getReplacement() {
         return this.replacement;
-    }
-
-    public void setReplacement(String str) {
-        this.replacement = str;
     }
 
     public String getWord() {
         return this.word;
     }
 
+    public void setId(long j) {
+        this.id = j;
+    }
+
+    public void setReplacement(String str) {
+        this.replacement = str;
+    }
+
     public void setWord(String str) {
         this.word = str;
     }
 
+    @NonNull
     public String toString() {
-        return new StringBuffer("BadWord{}").append(this.id).append(",").append(this.word).toString();
+        return "BadWord{}" + this.id + "," + this.word;
     }
 }

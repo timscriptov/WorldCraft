@@ -16,6 +16,7 @@ import com.solverlabs.droid.rugl.gl.StackedRenderer;
 import com.solverlabs.droid.rugl.res.ResourceLoader;
 import com.solverlabs.droid.rugl.util.Colour;
 import com.solverlabs.droid.rugl.util.FPSCamera;
+import com.solverlabs.droid.rugl.util.FloatMath;
 import com.solverlabs.droid.rugl.util.WorldUtils;
 import com.solverlabs.droid.rugl.util.geom.Frustum;
 import com.solverlabs.droid.rugl.util.geom.ReadableVector3f;
@@ -47,6 +48,7 @@ import com.solverlabs.worldcraft.util.WorldGenerator;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -58,112 +60,92 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 
-import com.solverlabs.droid.rugl.util.FloatMath;
-
-/**
- * Manages loading chunks, decides which chunklets to render
- */
 public class World {
-    public static final String LEVEL_DAT_FILE_NAME = "level.dat";
-    public static final int LOADED_CHUNK_COUNT_FOR_WORLD_READY = 24;
-    public static final int MAP_SIZE = 3;
-    public static final String REGION_DIR_NAME = "region";
     private static final int DAY_PHASE = 0;
     private static final long DAY_TIME_PERIOD = 600000;
     private static final long ECLIPSE_TIME_PERIOD = 90000;
     private static final long FULL_DAY_TIME_PERIOD = 1200000;
+    public static final String LEVEL_DAT_FILE_NAME = "level.dat";
+    public static final int LOADED_CHUNK_COUNT_FOR_WORLD_READY = 24;
     private static final int LOADING_LIMIT_ON_MAP_CREATE = 148;
+    public static final int MAP_SIZE = 3;
     private static final int NIGHT_PHASE = 2;
     private static final long NIGHT_TIME_PERIOD = 420000;
     private static final long PARTICLE_PERIOD = 80;
+    public static final String REGION_DIR_NAME = "region";
     private static final int SUN_DOWN_PHASE = 1;
     private static final int SUN_UP_PHASE = 3;
-    private static final ChunkSorter cs = new ChunkSorter();
+    private Furnace activeFurnace;
+    private BlockEntityPainter blockEntityPainter;
+    private ColouredShape blockPreviewShape;
+    public BreakingShape breakingShape;
+    public int chunkPosX;
+    public int chunkPosZ;
+    public File dir;
+    private long eclipseTime;
+    public boolean isCancelLoad;
+    private boolean isChunksInited;
+    private long lastSavedAt;
+    private final Tag levelTag;
+    private int mapType;
+    public Player player;
+    private Vector3f playerPos;
+    public final ReadableVector3f startPosition;
     public static int renderedChunklets = 0;
-    public final ReadableVector3f mStartPosition;
-    /**
-     * For drawing the wireframes
-     */
+    private static final ChunkSorter cs = new ChunkSorter();
+    private int loadedChunkCount = 0;
+    public boolean drawOutlines = false;
+    public boolean drawEnemies = true;
     private final StackedRenderer renderer = new StackedRenderer();
+    public int loadradius = 3;
+    public Chunk[][] chunks = (Chunk[][]) Array.newInstance(Chunk.class, 7, 7);
     private final Queue<Chunklet> floodQueue = new ArrayBlockingQueue<>(50);
-    private final Vector3i mBlockPreviewLocation = new Vector3i();
-    private final Tag mLevelTag;
+    private Chunklet[] renderList = new Chunklet[64];
+    private int renderListSize = 0;
+    private int drawFlag = Integer.MIN_VALUE;
+    private boolean blockPreview = false;
+    private final Vector3i blockPreviewLocation = new Vector3i();
+    public boolean isNewGame = false;
     private final LightProcessor lightProcessor = new LightProcessor(this);
     private final TreeDecorator treeDecorator = new TreeDecorator();
     private final ArrayList<DroppableItem> droppableItems = new ArrayList<>();
     private final ArrayList<BlockParticle> blockParticles = new ArrayList<>();
+    private int sunlight = 15;
     private final ArrayList<TileEntity> tileEntitiesList = new ArrayList<>();
     private final Vector3f playerNormPosition = new Vector3f();
     private final Vector3f playerSpawnPosition = new Vector3f();
     private final List<Runnable> onInitedRunnableList = new ArrayList<>();
+    private long lastParticleTime = System.currentTimeMillis();
     private final BaseTerrainGenerator generator = new StandardGenerationMethod();
-    public BreakingShape mBreakingShape;
-    public int mChunkPosX;
-    public int mChunkPosZ;
-    /**
-     * The world save directory
-     */
-    public File mDir;
-    public boolean isCancelLoad;
-    public Player mPlayer;
-    public boolean drawOutlines = false;
-    public boolean drawEnemies = true;
-    public int loadradius = 3;
-    /**
-     * 1st index = x, 2nd = z
-     */
-    public Chunk[][] chunks = new Chunk[2 * getLoadRadius() + 1][2 * getLoadRadius() + 1];
-    public boolean mIsNewGame = false;
-    private Furnace mActiveFurnace;
-    private BlockEntityPainter mBlockEntityPainter;
-    private ColouredShape mBlockPreviewShape;
-    private long eclipseTime;
-    private boolean isChunksInited;
-    private long lastSavedAt;
-    private int mMapType;
-    private Vector3f mPlayerPos;
-    private int loadedChunkCount = 0;
-    private Chunklet[] renderList = new Chunklet[64];
     private final Game.SurfaceListener surfaceListener = new Game.SurfaceListener() {
         @Override
         public void onSurfaceCreated() {
             loadChunkCache();
         }
     };
-    private int renderListSize = 0;
-    private int drawFlag = Integer.MIN_VALUE;
-    private boolean mBlockPreview = false;
-    private int sunlight = 15;
-    private long lastParticleTime = System.currentTimeMillis();
 
     public World(File dir, @NonNull Vector3f startPosition, Tag levelTag) {
-        isCancelLoad = false;
-        mDir = dir;
-        mStartPosition = startPosition;
-        mLevelTag = levelTag;
-        mChunkPosX = (int) Math.floor(startPosition.getX() / 16.0f);
-        mChunkPosZ = (int) Math.floor(startPosition.getZ() / 16.0f);
-        Game.addSurfaceLIstener(surfaceListener);
-    }
-
-    public static int getLoadingLimit(boolean isNewGame) {
-        if (isNewGame) {
-            return LOADING_LIMIT_ON_MAP_CREATE;
-        }
-        return 24;
+        this.isCancelLoad = false;
+        this.isCancelLoad = false;
+        this.dir = dir;
+        this.startPosition = startPosition;
+        this.levelTag = levelTag;
+        this.chunkPosX = (int) Math.floor(startPosition.getX() / 16.0f);
+        this.chunkPosZ = (int) Math.floor(startPosition.getZ() / 16.0f);
+        Game.addSurfaceLIstener(this.surfaceListener);
     }
 
     protected void setInited(boolean value) {
-        isChunksInited = true;
-        if (isChunksInited) {
+        this.isChunksInited = true;
+        if (this.isChunksInited) {
             executeInitRelatedTasks();
         }
     }
 
     private void executeInitRelatedTasks() {
-        synchronized (onInitedRunnableList) {
-            if (onInitedRunnableList.size() > 0) {
-                Iterator<Runnable> iterator = onInitedRunnableList.iterator();
+        synchronized (this.onInitedRunnableList) {
+            if (this.onInitedRunnableList.size() > 0) {
+                Iterator<Runnable> iterator = this.onInitedRunnableList.iterator();
                 while (iterator.hasNext()) {
                     Runnable runnable = iterator.next();
                     runnable.run();
@@ -174,42 +156,49 @@ public class World {
     }
 
     public void init(Player player, BlockEntityPainter blockEntityPainter) {
-        mPlayer = player;
-        mBlockEntityPainter = blockEntityPainter;
-        if (mIsNewGame) {
-            player.position.set(playerNormPosition);
-            player.spawnPosition.set(playerSpawnPosition);
+        this.player = player;
+        this.blockEntityPainter = blockEntityPainter;
+        if (this.isNewGame) {
+            player.position.set(this.playerNormPosition);
+            player.spawnPosition.set(this.playerSpawnPosition);
         }
-        mBlockPreviewShape = new ColouredShape(ShapeUtil.cuboid(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f), Colour.packFloat(1.0f, 1.0f, 1.0f, 0.3f), ShapeUtil.state);
-        mBreakingShape = new BreakingShape();
+        this.blockPreviewShape = new ColouredShape(ShapeUtil.cuboid(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f), Colour.packFloat(1.0f, 1.0f, 1.0f, 0.3f), ShapeUtil.state);
+        this.breakingShape = new BreakingShape();
         save();
+    }
+
+    public static int getLoadingLimit(boolean isNewGame) {
+        if (isNewGame) {
+            return LOADING_LIMIT_ON_MAP_CREATE;
+        }
+        return 24;
     }
 
     public void loadChunkCache() {
         try {
             clearCache();
-            if (mIsNewGame) {
-                switch (mMapType) {
-                    case 0: // RANDOM MAP
+            if (this.isNewGame) {
+                switch (this.mapType) {
+                    case 0:
                         generateRandomMap();
                         generateDecoration();
                         generateLight();
                         break;
-                    case 1: // FLAT MAP
+                    case 1:
                         generateFlatMap();
                         generateLight();
                         break;
                 }
                 Chunk c = getChunk(0, 0);
-                float x = mStartPosition.getX();
-                float z = mStartPosition.getZ();
+                float x = this.startPosition.getX();
+                float z = this.startPosition.getZ();
                 boolean positionNormilize = false;
                 if (c != null) {
                     for (int y = 127; y >= 0 && !positionNormilize; y--) {
                         byte blockType = c.blockTypeForPosition(x, y, z);
                         if (blockType != 0 && blockType != 18) {
-                            playerNormPosition.set(x, y + 3.0f, z);
-                            playerSpawnPosition.set(playerNormPosition);
+                            this.playerNormPosition.set(x, y + 3.0f, z);
+                            this.playerSpawnPosition.set(this.playerNormPosition);
                             positionNormilize = true;
                         }
                     }
@@ -219,44 +208,44 @@ public class World {
             }
             fillChunks();
         } catch (OutOfMemoryError e) {
-            isCancelLoad = true;
+            this.isCancelLoad = true;
         }
     }
 
     private void fillChunks() {
-        for (int i = 0; i < chunks.length; i++) {
-            for (int j = 0; j < chunks[i].length; j++) {
+        for (int i = 0; i < this.chunks.length; i++) {
+            for (int j = 0; j < this.chunks[i].length; j++) {
                 final int caix = i;
                 final int caiz = j;
-                int x = (mChunkPosX + i) - getLoadRadius();
-                int z = (mChunkPosZ + j) - getLoadRadius();
+                int x = (this.chunkPosX + i) - getLoadRadius();
+                int z = (this.chunkPosZ + j) - getLoadRadius();
                 if (getChunk(x, z) == null) {
                     ResourceLoader.load(new ChunkLoader(this, x, z) {
                         @Override
                         public void complete() {
-                            if (resource != null && Range.inRange(caix, 0.0f, chunks.length - 1) && Range.inRange(caiz, 0.0f, chunks[caix].length - 1)) {
-                                if (chunks[caix][caiz] == null) {
-                                    resource.geomDirty();
-                                    chunks[caix][caiz] = resource;
+                            if (this.resource != null && Range.inRange(caix, 0.0f, chunks.length - 1) && Range.inRange(caiz, 0.0f, chunks[caix].length - 1)) {
+                                if (World.this.chunks[caix][caiz] == null) {
+                                    this.resource.geomDirty();
+                                    chunks[caix][caiz] = this.resource;
                                     incLoadingProgressStatus(1);
-                                    Chunk c = getChunk(x - 1, z);
+                                    Chunk c = getChunk(this.x - 1, this.z);
                                     if (c != null) {
                                         c.geomDirty();
                                     }
-                                    Chunk c2 = getChunk(x + 1, z);
+                                    Chunk c2 = getChunk(this.x + 1, this.z);
                                     if (c2 != null) {
                                         c2.geomDirty();
                                     }
-                                    Chunk c3 = getChunk(x, z - 1);
+                                    Chunk c3 = getChunk(this.x, this.z - 1);
                                     if (c3 != null) {
                                         c3.geomDirty();
                                     }
-                                    Chunk c4 = getChunk(x, z + 1);
+                                    Chunk c4 = getChunk(this.x, this.z + 1);
                                     if (c4 != null) {
                                         c4.geomDirty();
                                     }
                                 }
-                                resource.onPostGenerated();
+                                this.resource.onPostGenerated();
                             }
                             loadedChunkCount += 1;
                         }
@@ -267,84 +256,84 @@ public class World {
     }
 
     public boolean isReady() {
-        return loadedChunkCount >= 24;
+        return this.loadedChunkCount >= 24;
     }
 
     public void generateTerrain(Chunk c, boolean isFlat) {
         if (isFlat) {
-            generator.generateFlatTerrain(c);
-            lightProcessor.lightSunlitBlocksInChunk(c);
+            this.generator.generateFlatTerrain(c);
+            this.lightProcessor.lightSunlitBlocksInChunk(c);
             return;
         }
-        generator.generateTerrain(c, 2);
+        this.generator.generateTerrain(c, 2);
         for (int k = 0; k < c.topLayer.size(); k++) {
             Vector3i top = c.topLayer.get(k);
-            treeDecorator.decorate(top.x, top.y, top.z, c);
+            this.treeDecorator.decorate(top.x, top.y, top.z, c);
         }
         recalculateLightForChunk(c);
     }
 
     private void generateRandomMap() {
-        for (int i = 0; i < chunks.length; i++) {
-            for (int j = 0; j < chunks[i].length; j++) {
+        for (int i = 0; i < this.chunks.length; i++) {
+            for (int j = 0; j < this.chunks[i].length; j++) {
                 int caix = i;
                 int caiz = j;
-                int x = (mChunkPosX + i) - getLoadRadius();
-                int z = (mChunkPosZ + j) - getLoadRadius();
+                int x = (this.chunkPosX + i) - getLoadRadius();
+                int z = (this.chunkPosZ + j) - getLoadRadius();
                 if (getChunk(x, z) == null) {
                     try {
                         Chunk c = new Chunk(this, x, z);
-                        generator.generateTerrain(c, 2135413);
-                        chunks[caix][caiz] = c;
-                        chunks[caix][caiz].onPostGenerated();
+                        this.generator.generateTerrain(c, 2135413);
+                        this.chunks[caix][caiz] = c;
+                        this.chunks[caix][caiz].onPostGenerated();
                         incLoadingProgressStatus(1);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
-                loadedChunkCount++;
+                this.loadedChunkCount++;
             }
         }
     }
 
     private void generateFlatMap() {
-        for (int i = 0; i < chunks.length; i++) {
-            for (int j = 0; j < chunks[i].length; j++) {
+        for (int i = 0; i < this.chunks.length; i++) {
+            for (int j = 0; j < this.chunks[i].length; j++) {
                 int caix = i;
                 int caiz = j;
-                int x = (mChunkPosX + i) - getLoadRadius();
-                int z = (mChunkPosZ + j) - getLoadRadius();
+                int x = (this.chunkPosX + i) - getLoadRadius();
+                int z = (this.chunkPosZ + j) - getLoadRadius();
                 if (getChunk(x, z) == null) {
                     try {
                         Chunk c = new Chunk(this, x, z);
-                        generator.generateFlatTerrain(c);
-                        chunks[caix][caiz] = c;
-                        chunks[caix][caiz].onPostGenerated();
+                        this.generator.generateFlatTerrain(c);
+                        this.chunks[caix][caiz] = c;
+                        this.chunks[caix][caiz].onPostGenerated();
                         incLoadingProgressStatus(1);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
-                loadedChunkCount++;
+                this.loadedChunkCount++;
             }
         }
     }
 
     private void generateLight() {
-        for (int i = 0; i < chunks.length && !isCancelLoad; i++) {
-            for (int j = 0; j < chunks[i].length && !isCancelLoad; j++) {
-                Chunk c = chunks[i][j];
+        for (int i = 0; i < this.chunks.length && !this.isCancelLoad; i++) {
+            for (int j = 0; j < this.chunks[i].length && !this.isCancelLoad; j++) {
+                Chunk c = this.chunks[i][j];
                 if (c != null) {
-                    lightProcessor.lightSunlitBlocksInChunk(c);
+                    this.lightProcessor.lightSunlitBlocksInChunk(c);
                     incLoadingProgressStatus(1);
                 }
             }
         }
-        for (int x = 0; x < chunks.length && !isCancelLoad; x++) {
-            for (int z = 0; z < chunks[x].length && !isCancelLoad; z++) {
-                Chunk c2 = chunks[x][z];
+        for (int x = 0; x < this.chunks.length && !this.isCancelLoad; x++) {
+            for (int z = 0; z < this.chunks[x].length && !this.isCancelLoad; z++) {
+                Chunk c2 = this.chunks[x][z];
                 if (c2 != null) {
-                    lightProcessor.lightChunk(c2);
+                    this.lightProcessor.lightChunk(c2);
                     incLoadingProgressStatus(1);
                     c2.geomDirty();
                 }
@@ -354,18 +343,18 @@ public class World {
 
     public void generateLight(Chunk c) {
         if (c != null) {
-            lightProcessor.lightChunk(c);
+            this.lightProcessor.lightChunk(c);
         }
     }
 
     private void generateDecoration() {
-        for (int i = 0; i < chunks.length && !isCancelLoad; i++) {
-            for (int j = 0; j < chunks[i].length && !isCancelLoad; j++) {
-                Chunk c = chunks[i][j];
+        for (int i = 0; i < this.chunks.length && !this.isCancelLoad; i++) {
+            for (int j = 0; j < this.chunks[i].length && !this.isCancelLoad; j++) {
+                Chunk c = this.chunks[i][j];
                 if (c != null) {
                     for (int k = 0; k < c.topLayer.size(); k++) {
                         Vector3i top = c.topLayer.get(k);
-                        treeDecorator.decorate(top.x, top.y, top.z, c);
+                        this.treeDecorator.decorate(top.x, top.y, top.z, c);
                     }
                 }
             }
@@ -373,58 +362,58 @@ public class World {
     }
 
     public void setBlockPlacePreview(boolean active, int x, int y, int z) {
-        mBlockPreview = active;
-        mBlockPreviewLocation.set(x, y, z);
+        this.blockPreview = active;
+        this.blockPreviewLocation.set(x, y, z);
     }
 
     public void advance() {
-        if (!isChunksInited) {
+        if (!this.isChunksInited) {
             setInited(true);
         }
-        if (isChunksInited) {
-            mPlayerPos = mPlayer.position;
-            float posX = mPlayerPos.x;
-            float posZ = mPlayerPos.z;
+        if (this.isChunksInited) {
+            this.playerPos = this.player.position;
+            float posX = this.playerPos.x;
+            float posZ = this.playerPos.z;
             boolean chunksDirty = false;
             int cx = (int) Math.floor(posX / 16.0f);
             int cz = (int) Math.floor(posZ / 16.0f);
-            for (int i = 0; i < droppableItems.size(); i++) {
-                droppableItems.get(i).advance(this);
+            for (int i = 0; i < this.droppableItems.size(); i++) {
+                this.droppableItems.get(i).advance(this);
             }
-            for (int i2 = 0; i2 < blockParticles.size(); i2++) {
-                BlockParticle bp = blockParticles.get(i2);
+            for (int i2 = 0; i2 < this.blockParticles.size(); i2++) {
+                BlockParticle bp = this.blockParticles.get(i2);
                 if (bp != null && !bp.isActive()) {
-                    blockParticles.remove(bp);
+                    this.blockParticles.remove(bp);
                 }
             }
-            Clouds.getInstance().advance(mPlayer);
+            Clouds.getInstance().advance(this.player);
             advanceFurnace();
             if (checkChunks()) {
-                if (Math.abs(cx - mChunkPosX) > getLoadRadius() || Math.abs(cz - mChunkPosZ) > getLoadRadius()) {
-                    mChunkPosX = cx;
-                    mChunkPosZ = cz;
+                if (Math.abs(cx - this.chunkPosX) > getLoadRadius() || Math.abs(cz - this.chunkPosZ) > getLoadRadius()) {
+                    this.chunkPosX = cx;
+                    this.chunkPosZ = cz;
                     unloadAllChunks();
                     chunksDirty = true;
                 }
-                if (cx < mChunkPosX) {
-                    mChunkPosX--;
+                if (cx < this.chunkPosX) {
+                    this.chunkPosX--;
                     moveRight();
                     chunksDirty = true;
-                } else if (cx > mChunkPosX) {
-                    mChunkPosX++;
+                } else if (cx > this.chunkPosX) {
+                    this.chunkPosX++;
                     moveLeft();
                     chunksDirty = true;
-                } else if (cz < mChunkPosZ) {
-                    mChunkPosZ--;
+                } else if (cz < this.chunkPosZ) {
+                    this.chunkPosZ--;
                     moveDown();
                     chunksDirty = true;
-                } else if (cz > mChunkPosZ) {
-                    mChunkPosZ++;
+                } else if (cz > this.chunkPosZ) {
+                    this.chunkPosZ++;
                     moveUp();
                     chunksDirty = true;
                 }
                 if (chunksDirty) {
-                    Log.i(Game.RUGL_TAG, "Entered chunk " + mChunkPosX + ", " + mChunkPosZ);
+                    Log.i(Game.RUGL_TAG, "Entered chunk " + this.chunkPosX + ", " + this.chunkPosZ);
                     fillChunks();
                 }
             }
@@ -432,21 +421,21 @@ public class World {
     }
 
     private void unloadAllChunks() {
-        for (int i = 0; i < chunks.length; i++) {
-            for (int j = 0; j < chunks[i].length; j++) {
-                if (chunks[i][j] != null) {
-                    chunks[i][j].unload();
-                    chunks[i][j].save(this);
-                    chunks[i][j] = null;
+        for (int i = 0; i < this.chunks.length; i++) {
+            for (int j = 0; j < this.chunks[i].length; j++) {
+                if (this.chunks[i][j] != null) {
+                    this.chunks[i][j].unload();
+                    this.chunks[i][j].save(this);
+                    this.chunks[i][j] = null;
                 }
             }
         }
     }
 
     private void advanceFurnace() {
-        for (int i = 0; i < tileEntitiesList.size(); i++) {
-            if (tileEntitiesList.get(i).isFurnace()) {
-                Furnace furnace = (Furnace) tileEntitiesList.get(i);
+        for (int i = 0; i < this.tileEntitiesList.size(); i++) {
+            if (this.tileEntitiesList.get(i).isFurnace()) {
+                Furnace furnace = (Furnace) this.tileEntitiesList.get(i);
                 if (furnace.needRecalcLight) {
                     if (furnace.isInProgress()) {
                         setBlockType(furnace.getX(), furnace.getY(), furnace.getZ(), BlockFactory.FURNACE_ACTIVE_ID);
@@ -468,7 +457,7 @@ public class World {
     }
 
     private void moveLeft() {
-        Chunk[] swap = chunks[0];
+        Chunk[] swap = this.chunks[0];
         if (swap != null) {
             for (int i = 0; i < swap.length; i++) {
                 if (swap[i] != null) {
@@ -477,15 +466,15 @@ public class World {
                     swap[i] = null;
                 }
             }
-            for (int i2 = 0; i2 < chunks.length - 1; i2++) {
-                chunks[i2] = chunks[i2 + 1];
+            for (int i2 = 0; i2 < this.chunks.length - 1; i2++) {
+                this.chunks[i2] = this.chunks[i2 + 1];
             }
-            chunks[chunks.length - 1] = swap;
+            this.chunks[this.chunks.length - 1] = swap;
         }
     }
 
     private void moveRight() {
-        Chunk[] swap = chunks[chunks.length - 1];
+        Chunk[] swap = this.chunks[this.chunks.length - 1];
         for (int i = 0; i < swap.length; i++) {
             if (swap[i] != null) {
                 swap[i].save(this);
@@ -493,35 +482,35 @@ public class World {
                 swap[i] = null;
             }
         }
-        for (int i2 = chunks.length - 1; i2 > 0; i2--) {
-            chunks[i2] = chunks[i2 - 1];
+        for (int i2 = this.chunks.length - 1; i2 > 0; i2--) {
+            this.chunks[i2] = this.chunks[i2 - 1];
         }
-        chunks[0] = swap;
+        this.chunks[0] = swap;
     }
 
     private void moveUp() {
-        for (int i = 0; i < chunks.length; i++) {
-            if (chunks[i][0] != null) {
-                chunks[i][0].save(this);
-                chunks[i][0].unload();
+        for (int i = 0; i < this.chunks.length; i++) {
+            if (this.chunks[i][0] != null) {
+                this.chunks[i][0].save(this);
+                this.chunks[i][0].unload();
             }
-            for (int j = 0; j < chunks[i].length - 1; j++) {
-                chunks[i][j] = chunks[i][j + 1];
+            for (int j = 0; j < this.chunks[i].length - 1; j++) {
+                this.chunks[i][j] = this.chunks[i][j + 1];
             }
-            chunks[i][chunks[i].length - 1] = null;
+            this.chunks[i][this.chunks[i].length - 1] = null;
         }
     }
 
     private void moveDown() {
-        for (int i = 0; i < chunks.length; i++) {
-            if (chunks[i][chunks[i].length - 1] != null) {
-                chunks[i][chunks[i].length - 1].save(this);
-                chunks[i][chunks[i].length - 1].unload();
+        for (int i = 0; i < this.chunks.length; i++) {
+            if (this.chunks[i][this.chunks[i].length - 1] != null) {
+                this.chunks[i][this.chunks[i].length - 1].save(this);
+                this.chunks[i][this.chunks[i].length - 1].unload();
             }
-            for (int j = chunks[i].length - 1; j > 0; j--) {
-                chunks[i][j] = chunks[i][j - 1];
+            for (int j = this.chunks[i].length - 1; j > 0; j--) {
+                this.chunks[i][j] = this.chunks[i][j - 1];
             }
-            chunks[i][0] = null;
+            this.chunks[i][0] = null;
         }
     }
 
@@ -529,47 +518,47 @@ public class World {
         save();
         File dest = new File(WorldUtils.WORLD_DIR, worldName);
         try {
-            WorldCopier.copyDirectory(mDir, dest);
+            WorldCopier.copyDirectory(this.dir, dest);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void save() {
-        if (System.currentTimeMillis() - lastSavedAt >= 5000) {
-            lastSavedAt = System.currentTimeMillis();
-            for (int i = 0; i < chunks.length && !isCancelLoad; i++) {
-                for (int j = 0; j < chunks[i].length && !isCancelLoad; j++) {
-                    Chunk chunk = chunks[i][j];
+        if (System.currentTimeMillis() - this.lastSavedAt >= 5000) {
+            this.lastSavedAt = System.currentTimeMillis();
+            for (int i = 0; i < this.chunks.length && !this.isCancelLoad; i++) {
+                for (int j = 0; j < this.chunks[i].length && !this.isCancelLoad; j++) {
+                    Chunk chunk = this.chunks[i][j];
                     if (chunk != null) {
                         chunk.save(this);
                     }
                 }
             }
-            if (mLevelTag != null && !isCancelLoad) {
+            if (this.levelTag != null && !this.isCancelLoad) {
                 try {
-                    FileOutputStream os = new FileOutputStream(new File(mDir, LEVEL_DAT_FILE_NAME));
-                    Tag playerTag = mLevelTag.findTagByName("Player");
+                    FileOutputStream os = new FileOutputStream(new File(this.dir, LEVEL_DAT_FILE_NAME));
+                    Tag playerTag = this.levelTag.findTagByName("Player");
                     Tag pos = playerTag.findTagByName("Pos");
                     Tag[] tl = (Tag[]) pos.getValue();
-                    if (mPlayerPos != null) {
-                        tl[0].setValue(Float.valueOf(mPlayerPos.x).doubleValue());
-                        tl[1].setValue(Float.valueOf(mPlayerPos.y).doubleValue());
-                        tl[2].setValue(Float.valueOf(mPlayerPos.z).doubleValue());
+                    if (this.playerPos != null) {
+                        tl[0].setValue(Float.valueOf(this.playerPos.x).doubleValue());
+                        tl[1].setValue(Float.valueOf(this.playerPos.y).doubleValue());
+                        tl[2].setValue(Float.valueOf(this.playerPos.z).doubleValue());
                     }
-                    if (mPlayer != null && GameMode.isSurvivalMode()) {
+                    if (this.player != null && GameMode.isSurvivalMode()) {
                         Tag rot = playerTag.findTagByName("Rotation");
                         Tag[] tr = (Tag[]) rot.getValue();
-                        tr[0].setValue(mPlayer.rotation.x);
-                        tr[1].setValue(mPlayer.rotation.y);
-                        mLevelTag.findTagByName("SpawnX").setValue(Float.valueOf(mPlayer.spawnPosition.x).intValue());
-                        mLevelTag.findTagByName("SpawnY").setValue(Float.valueOf(mPlayer.spawnPosition.y).intValue());
-                        mLevelTag.findTagByName("SpawnZ").setValue(Float.valueOf(mPlayer.spawnPosition.z).intValue());
-                        mPlayer.save(playerTag);
+                        tr[0].setValue(this.player.rotation.x);
+                        tr[1].setValue(this.player.rotation.y);
+                        this.levelTag.findTagByName("SpawnX").setValue(Float.valueOf(this.player.spawnPosition.x).intValue());
+                        this.levelTag.findTagByName("SpawnY").setValue(Float.valueOf(this.player.spawnPosition.y).intValue());
+                        this.levelTag.findTagByName("SpawnZ").setValue(Float.valueOf(this.player.spawnPosition.z).intValue());
+                        this.player.save(playerTag);
                     }
-                    Tag time = mLevelTag.findTagByName(WorldGenerator.LAST_PLAYED);
+                    Tag time = this.levelTag.findTagByName(WorldGenerator.LAST_PLAYED);
                     time.setValue(GameTime.getTime());
-                    mLevelTag.writeTo(os, true);
+                    this.levelTag.writeTo(os, true);
                 } catch (IOException | ClassCastException e) {
                     e.printStackTrace();
                 }
@@ -587,132 +576,134 @@ public class World {
         Chunklet east;
         Chunklet south;
         Chunklet north;
-        if (isChunksInited) {
-            mIsNewGame = false;
+        if (this.isChunksInited) {
+            this.isNewGame = false;
             if (GameMode.isMultiplayerMode() && !Multiplayer.instance.isWorldReady && isReady()) {
                 Multiplayer.instance.clientGraphicInited();
             }
-            if (!isCancelLoad) {
+            if (!this.isCancelLoad) {
                 Chunklet c = getChunklet(eye.x, eye.y, eye.z);
                 if (c != null) {
-                    c.drawFlag = drawFlag;
-                    floodQueue.offer(c);
-                    while (!floodQueue.isEmpty()) {
-                        Chunklet c2 = floodQueue.poll();
-                        Chunklet[] chunkletArr = renderList;
-                        int i = renderListSize;
-                        renderListSize = i + 1;
+                    c.drawFlag = this.drawFlag;
+                    this.floodQueue.offer(c);
+                    while (!this.floodQueue.isEmpty()) {
+                        Chunklet c2 = this.floodQueue.poll();
+                        Chunklet[] chunkletArr = this.renderList;
+                        int i = this.renderListSize;
+                        this.renderListSize = i + 1;
                         chunkletArr[i] = c2;
-                        if (renderListSize >= renderList.length) {
-                            Chunklet[] nrl = new Chunklet[renderList.length * 2];
-                            System.arraycopy(renderList, 0, nrl, 0, renderList.length);
-                            renderList = nrl;
+                        if (this.renderListSize >= this.renderList.length) {
+                            Chunklet[] nrl = new Chunklet[this.renderList.length * 2];
+                            System.arraycopy(this.renderList, 0, nrl, 0, this.renderList.length);
+                            this.renderList = nrl;
                         }
-                        if (c2 != null && c2.x <= c.x && !c2.northSheet && (north = getChunklet(c2.x - 16, c2.y, c2.z)) != null && !north.southSheet && north.drawFlag != drawFlag && north.intersection(cam.getFrustum()) != Frustum.Result.Miss) {
-                            north.drawFlag = drawFlag;
-                            floodQueue.offer(north);
+                        if (c2.x <= c.x && !c2.northSheet && (north = getChunklet(c2.x - 16, c2.y, c2.z)) != null && !north.southSheet && north.drawFlag != this.drawFlag && north.intersection(cam.getFrustum()) != Frustum.Result.Miss) {
+                            north.drawFlag = this.drawFlag;
+                            this.floodQueue.offer(north);
                         }
-                        if (c2 != null && c2.x >= c.x && !c2.southSheet && (south = getChunklet(c2.x + 16, c2.y, c2.z)) != null && !south.northSheet && south.drawFlag != drawFlag && south.intersection(cam.getFrustum()) != Frustum.Result.Miss) {
-                            south.drawFlag = drawFlag;
-                            floodQueue.offer(south);
+                        if (c2.x >= c.x && !c2.southSheet && (south = getChunklet(c2.x + 16, c2.y, c2.z)) != null && !south.northSheet && south.drawFlag != this.drawFlag && south.intersection(cam.getFrustum()) != Frustum.Result.Miss) {
+                            south.drawFlag = this.drawFlag;
+                            this.floodQueue.offer(south);
                         }
-                        if (c2 != null && c2.z <= c.z && !c2.eastSheet && (east = getChunklet(c2.x, c2.y, c2.z - 16)) != null && !east.westSheet && east.drawFlag != drawFlag && east.intersection(cam.getFrustum()) != Frustum.Result.Miss) {
-                            east.drawFlag = drawFlag;
-                            floodQueue.offer(east);
+                        if (c2.z <= c.z && !c2.eastSheet && (east = getChunklet(c2.x, c2.y, c2.z - 16)) != null && !east.westSheet && east.drawFlag != this.drawFlag && east.intersection(cam.getFrustum()) != Frustum.Result.Miss) {
+                            east.drawFlag = this.drawFlag;
+                            this.floodQueue.offer(east);
                         }
-                        if (c2.z >= c.z && !c2.westSheet && (west = getChunklet(c2.x, c2.y, c2.z + 16)) != null && !west.eastSheet && west.drawFlag != drawFlag && west.intersection(cam.getFrustum()) != Frustum.Result.Miss) {
-                            west.drawFlag = drawFlag;
-                            floodQueue.offer(west);
+                        if (c2.z >= c.z && !c2.westSheet && (west = getChunklet(c2.x, c2.y, c2.z + 16)) != null && !west.eastSheet && west.drawFlag != this.drawFlag && west.intersection(cam.getFrustum()) != Frustum.Result.Miss) {
+                            west.drawFlag = this.drawFlag;
+                            this.floodQueue.offer(west);
                         }
-                        if (c2.y <= c.y && !c2.bottomSheet && (bottom = getChunklet(c2.x, c2.y - 16, c2.z)) != null && !bottom.topSheet && bottom.drawFlag != drawFlag && bottom.intersection(cam.getFrustum()) != Frustum.Result.Miss) {
-                            bottom.drawFlag = drawFlag;
-                            floodQueue.offer(bottom);
+                        if (c2.y <= c.y && !c2.bottomSheet && (bottom = getChunklet(c2.x, c2.y - 16, c2.z)) != null && !bottom.topSheet && bottom.drawFlag != this.drawFlag && bottom.intersection(cam.getFrustum()) != Frustum.Result.Miss) {
+                            bottom.drawFlag = this.drawFlag;
+                            this.floodQueue.offer(bottom);
                         }
-                        if (c2.y >= c.y && !c2.topSheet && (top = getChunklet(c2.x, c2.y + 16, c2.z)) != null && !top.bottomSheet && top.drawFlag != drawFlag && top.intersection(cam.getFrustum()) != Frustum.Result.Miss) {
-                            top.drawFlag = drawFlag;
-                            floodQueue.offer(top);
+                        if (c2.y >= c.y && !c2.topSheet && (top = getChunklet(c2.x, c2.y + 16, c2.z)) != null && !top.bottomSheet && top.drawFlag != this.drawFlag && top.intersection(cam.getFrustum()) != Frustum.Result.Miss) {
+                            top.drawFlag = this.drawFlag;
+                            this.floodQueue.offer(top);
                         }
                     }
                 }
                 renderedChunklets = 0;
-                cs.mEye.set(eye);
+                cs.eye.set(eye);
                 GLUtil.checkGLError();
-                for (int i2 = 0; i2 < renderListSize; i2++) {
-                    renderList[i2].generateGeometry(false);
+                for (int i2 = 0; i2 < this.renderListSize; i2++) {
+                    this.renderList[i2].generateGeometry(false);
                 }
-                for (int i3 = 0; i3 < renderListSize; i3++) {
-                    renderList[i3].drawSolid(renderer);
-                    if (!renderList[i3].isEmpty()) {
+                for (int i3 = 0; i3 < this.renderListSize; i3++) {
+                    this.renderList[i3].drawSolid(this.renderer);
+                    if (!this.renderList[i3].isEmpty()) {
                         renderedChunklets++;
                     }
                 }
                 GLUtil.checkGLError();
-                for (int i4 = renderListSize - 1; i4 >= 0; i4--) {
-                    renderList[i4].drawTransparent(renderer);
+                for (int i4 = this.renderListSize - 1; i4 >= 0; i4--) {
+                    this.renderList[i4].drawTransparent(this.renderer);
                 }
                 GLUtil.checkGLError();
-                if (drawOutlines) {
-                    for (int i5 = 0; i5 < renderListSize; i5++) {
-                        renderList[i5].drawOutline(renderer);
+                if (this.drawOutlines) {
+                    for (int i5 = 0; i5 < this.renderListSize; i5++) {
+                        this.renderList[i5].drawOutline(this.renderer);
                     }
                     GLUtil.checkGLError();
                 }
-                for (int i6 = 0; i6 < renderListSize; i6++) {
-                    renderList[i6].drawSolid(renderer);
-                    if (!renderList[i6].isEmpty()) {
+                for (int i6 = 0; i6 < this.renderListSize; i6++) {
+                    this.renderList[i6].drawSolid(this.renderer);
+                    if (!this.renderList[i6].isEmpty()) {
                         renderedChunklets++;
                     }
                 }
-                Clouds.getInstance().draw(renderer);
+                Clouds.getInstance().draw(this.renderer);
                 if (GameMode.isSurvivalMode() && !GameMode.isMultiplayerMode()) {
                     dayNightCircle();
                 }
-                if (mBlockPreview) {
-                    renderer.pushMatrix();
-                    renderer.translate(mBlockPreviewLocation.x, mBlockPreviewLocation.y, mBlockPreviewLocation.z);
+                if (this.blockPreview) {
+                    this.renderer.pushMatrix();
+                    this.renderer.translate(this.blockPreviewLocation.x, this.blockPreviewLocation.y, this.blockPreviewLocation.z);
                     Byte previewBlockType = getPreviewBlockType();
                     if (DoorBlock.isDoor(previewBlockType)) {
-                        DoorBlock.renderPreview(this, renderer);
+                        DoorBlock.renderPreview(this, this.renderer);
                     } else if (BedBlock.isBed(previewBlockType)) {
-                        BedBlock.renderPreview(this, renderer);
+                        BedBlock.renderPreview(this, this.renderer);
                     } else if (LadderBlock.isLadder(previewBlockType)) {
-                        LadderBlock.renderPreview(this, renderer, mBlockPreviewLocation);
-                    } else if (mBreakingShape != null && mBreakingShape.isInBreakingProcess()) {
-                        mBreakingShape.render(renderer);
+                        LadderBlock.renderPreview(this, this.renderer, this.blockPreviewLocation);
+                    } else if (this.breakingShape != null && this.breakingShape.isInBreakingProcess()) {
+                        this.breakingShape.render(this.renderer);
                     } else {
-                        mBlockPreviewShape.render(renderer);
+                        this.blockPreviewShape.render(this.renderer);
                     }
-                    renderer.popMatrix();
+                    this.renderer.popMatrix();
                 }
-                renderer.render();
-                for (int i7 = 0; i7 < droppableItems.size(); i7++) {
-                    DroppableItem b = droppableItems.get(i7);
-                    b.draw(renderer, cam);
+                this.renderer.render();
+                for (int i7 = 0; i7 < this.droppableItems.size(); i7++) {
+                    DroppableItem b = this.droppableItems.get(i7);
+                    b.draw(this.renderer, cam);
                 }
-                for (int i8 = 0; i8 < blockParticles.size(); i8++) {
-                    BlockParticle bp = blockParticles.get(i8);
-                    bp.draw(renderer, cam);
+                for (int i8 = 0; i8 < this.blockParticles.size(); i8++) {
+                    BlockParticle bp = this.blockParticles.get(i8);
+                    bp.draw(this.renderer, cam);
                 }
-                Arrays.fill(renderList, null);
-                renderListSize = 0;
-                Arrays.fill(renderList, null);
-                renderList = new Chunklet[32];
-                drawFlag++;
-                renderer.render();
+                Arrays.fill(this.renderList, null);
+                this.renderListSize = 0;
+                for (int i9 = 0; i9 < this.renderList.length; i9++) {
+                    this.renderList[i9] = null;
+                }
+                this.renderList = new Chunklet[32];
+                this.drawFlag++;
+                this.renderer.render();
             }
         }
     }
 
     public boolean checkChunks() {
         boolean res = true;
-        for (int i = 0; i < chunks.length; i++) {
-            for (int j = 0; j < chunks[i].length; j++) {
-                if (chunks[i][j] == null) {
+        for (int i = 0; i < this.chunks.length; i++) {
+            for (int j = 0; j < this.chunks[i].length; j++) {
+                if (this.chunks[i][j] == null) {
                     res = false;
                 }
             }
         }
-        return res | (mMapType == -1) | GameMode.isMultiplayerMode();
+        return res | (this.mapType == -1) | GameMode.isMultiplayerMode();
     }
 
     public void initSunLight() {
@@ -720,28 +711,28 @@ public class World {
         int currentDayPeriod = (int) (time % FULL_DAY_TIME_PERIOD);
         switch (getDayPhase(currentDayPeriod)) {
             case 0:
-                sunlight = 15;
+                this.sunlight = 15;
                 Log.d("SUNLIGHT", "INNITED DAY");
                 return;
             case 1:
-                sunlight = 15;
-                sunlight = (int) (sunlight - ((currentDayPeriod - DAY_TIME_PERIOD) / 10000));
-                Log.d("SUNLIGHT", "INNITED SUN DOWN" + sunlight);
-                if (sunlight < 6) {
-                    sunlight = 6;
+                this.sunlight = 15;
+                this.sunlight = (int) (this.sunlight - ((currentDayPeriod - DAY_TIME_PERIOD) / 10000));
+                Log.d("SUNLIGHT", "INNITED SUN DOWN" + this.sunlight);
+                if (this.sunlight < 6) {
+                    this.sunlight = 6;
                     return;
                 }
                 return;
             case 2:
-                sunlight = 6;
+                this.sunlight = 6;
                 Log.d("SUNLIGHT", "INNITED NIGHT");
                 return;
             case 3:
-                sunlight = 15;
-                sunlight = (int) (sunlight - ((FULL_DAY_TIME_PERIOD - currentDayPeriod) / 10000));
-                Log.d("SUNLIGHT", "INNITED SUN UP" + sunlight);
-                if (sunlight > 15) {
-                    sunlight = 15;
+                this.sunlight = 15;
+                this.sunlight = (int) (this.sunlight - ((FULL_DAY_TIME_PERIOD - currentDayPeriod) / 10000));
+                Log.d("SUNLIGHT", "INNITED SUN UP" + this.sunlight);
+                if (this.sunlight > 15) {
+                    this.sunlight = 15;
                     return;
                 }
                 return;
@@ -761,10 +752,10 @@ public class World {
             if (dayPeriod > DAY_TIME_PERIOD && dayPeriod <= 690000) {
                 return 1;
             }
-            if (dayPeriod > 690000 && dayPeriod <= 1110000) {
-                return 2;
+            if (dayPeriod <= 690000 || dayPeriod > 1110000) {
+                return (((long) dayPeriod) <= 1110000 || ((long) dayPeriod) > FULL_DAY_TIME_PERIOD) ? 0 : 3;
             }
-            return (((long) dayPeriod) <= 1110000 || ((long) dayPeriod) > FULL_DAY_TIME_PERIOD) ? 0 : 3;
+            return 2;
         }
         return 0;
     }
@@ -779,47 +770,50 @@ public class World {
         long time = GameTime.getTime();
         switch (getCurrentPhase()) {
             case 0:
-                if (sunlight != 15) {
-                    sunlight = 15;
+                if (this.sunlight != 15) {
+                    this.sunlight = 15;
                     geomDirty = true;
                     onDayBegins();
                 }
-                eclipseTime = time;
+                this.eclipseTime = time;
                 break;
             case 1:
-                if (time - eclipseTime >= 10000 && sunlight > 6) {
-                    eclipseTime = time;
-                    sunlight--;
+                if (time - this.eclipseTime >= 10000 && this.sunlight > 6) {
+                    this.eclipseTime = time;
+                    this.sunlight--;
                     geomDirty = true;
                     break;
                 }
                 break;
             case 2:
-                if (sunlight != 6) {
-                    sunlight = 6;
+                if (this.sunlight != 6) {
+                    this.sunlight = 6;
                     geomDirty = true;
                     onNightBegins();
                 }
-                eclipseTime = time;
+                this.eclipseTime = time;
                 break;
             case 3:
-                if (time - eclipseTime >= 10000 && sunlight < 15) {
-                    eclipseTime = time;
-                    sunlight++;
+                if (time - this.eclipseTime >= 10000 && this.sunlight < 15) {
+                    this.eclipseTime = time;
+                    this.sunlight++;
                     geomDirty = true;
                     break;
                 }
                 break;
         }
         if (geomDirty) {
-            Runnable r = () -> {
-                for (int i = 0; i < chunks.length; i++) {
-                    for (int j = 0; j < chunks[i].length; j++) {
-                        Chunk c = chunks[i][j];
-                        if (c != null) {
-                            Chunklet[] arr$ = c.chunklets;
-                            for (Chunklet chunklet : arr$) {
-                                chunklet.changeSunLight();
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    for (int i = 0; i < chunks.length; i++) {
+                        for (int j = 0; j < chunks[i].length; j++) {
+                            Chunk c = chunks[i][j];
+                            if (c != null) {
+                                Chunklet[] arr$ = c.chunklets;
+                                for (Chunklet chunklet : arr$) {
+                                    chunklet.changeSunLight();
+                                }
                             }
                         }
                     }
@@ -827,7 +821,7 @@ public class World {
             };
             GeometryGenerator.addTask(r);
             MobFactory.updateMobsLight();
-            Clouds.getInstance().setLight(sunlight);
+            Clouds.getInstance().setLight(this.sunlight);
         }
     }
 
@@ -841,7 +835,7 @@ public class World {
 
     private void spawnPassiveMobs(boolean force) {
         updateChunkMobs();
-        Chunk[][] arr$ = chunks;
+        Chunk[][] arr$ = this.chunks;
         for (Chunk[] chunkArray : arr$) {
             for (Chunk chunk : chunkArray) {
                 if (chunk != null) {
@@ -853,7 +847,7 @@ public class World {
 
     private void spawnHostileMobs(boolean force) {
         updateChunkMobs();
-        Chunk[][] arr$ = chunks;
+        Chunk[][] arr$ = this.chunks;
         for (Chunk[] chunkArray : arr$) {
             for (Chunk chunk : chunkArray) {
                 if (chunk != null) {
@@ -864,7 +858,7 @@ public class World {
     }
 
     private void updateChunkMobs() {
-        Chunk[][] arr$ = chunks;
+        Chunk[][] arr$ = this.chunks;
         for (Chunk[] chunkArray : arr$) {
             for (Chunk chunk : chunkArray) {
                 if (chunk != null) {
@@ -879,11 +873,11 @@ public class World {
     }
 
     public int getSkyColour() {
-        float ratio = sunlight / 15.0f;
-        if (sunlight <= 10) {
+        float ratio = this.sunlight / 15.0f;
+        if (this.sunlight <= 10) {
             ratio = (float) (ratio * 0.6d);
         }
-        if (sunlight == 4) {
+        if (this.sunlight == 4) {
             ratio = (float) (ratio * 0.1d);
         }
         float r = 0.7f * ratio;
@@ -892,30 +886,30 @@ public class World {
         return Colour.packFloat(r, g, b, 1.0f);
     }
 
-    public Vector3i getmBlockPreviewLocation() {
-        return mBlockPreviewLocation;
+    public Vector3i getBlockPreviewLocation() {
+        return this.blockPreviewLocation;
     }
 
     public Byte getPreviewBlockType() {
-        return getBlockTypeAbsolute(mBlockPreviewLocation.x, mBlockPreviewLocation.y, mBlockPreviewLocation.z);
+        return getBlockTypeAbsolute(this.blockPreviewLocation.x, this.blockPreviewLocation.y, this.blockPreviewLocation.z);
     }
 
     public Byte getPreviewBlockData() {
-        return getBlockDataAbsolute(mBlockPreviewLocation.x, mBlockPreviewLocation.y, mBlockPreviewLocation.z);
+        return getBlockDataAbsolute(this.blockPreviewLocation.x, this.blockPreviewLocation.y, this.blockPreviewLocation.z);
     }
 
     public Byte getDownPreviewBlockType() {
-        return getBlockTypeAbsolute(mBlockPreviewLocation.x, mBlockPreviewLocation.y - 1, mBlockPreviewLocation.z);
+        return getBlockTypeAbsolute(this.blockPreviewLocation.x, this.blockPreviewLocation.y - 1, this.blockPreviewLocation.z);
     }
 
     public Byte getLeftPreviewBlockType() {
-        return getBlockTypeAbsolute(mBlockPreviewLocation.x - 1, mBlockPreviewLocation.y, mBlockPreviewLocation.z);
+        return getBlockTypeAbsolute(this.blockPreviewLocation.x - 1, this.blockPreviewLocation.y, this.blockPreviewLocation.z);
     }
 
     public Byte getBlockTypeAbsolute(int x, int y, int z) {
         Chunk chunk = getChunk(x / 16, z / 16);
         if (chunk != null) {
-            return chunk.blockType(x % 16, y, z % 16);
+            return Byte.valueOf(chunk.blockType(x % 16, y, z % 16));
         }
         return null;
     }
@@ -936,18 +930,18 @@ public class World {
     }
 
     public Chunk getChunk(int x, int z) {
-        int dx = x - mChunkPosX;
-        int dz = z - mChunkPosZ;
+        int dx = x - this.chunkPosX;
+        int dz = z - this.chunkPosZ;
         int caix = getLoadRadius() + dx;
         int caiz = getLoadRadius() + dz;
-        if (caix < 0 || caix >= chunks.length || caiz < 0 || caiz >= chunks[caix].length) {
+        if (caix < 0 || caix >= this.chunks.length || caiz < 0 || caiz >= this.chunks[caix].length) {
             return null;
         }
-        return chunks[caix][caiz];
+        return this.chunks[caix][caiz];
     }
 
     public Chunk getChunkByPos(int chunkX, int chunkZ) {
-        Chunk[][] arr$ = chunks;
+        Chunk[][] arr$ = this.chunks;
         for (Chunk[] chunkArray : arr$) {
             for (Chunk chunk : chunkArray) {
                 if (chunk != null && chunk.chunkX == chunkX && chunk.chunkZ == chunkZ) {
@@ -1025,21 +1019,36 @@ public class World {
     }
 
     public int getLoadRadius() {
-        return loadradius;
+        return this.loadradius;
+    }
+
+    public static class ChunkSorter implements Comparator<Chunklet> {
+        private final Vector3f eye;
+
+        private ChunkSorter() {
+            this.eye = new Vector3f();
+        }
+
+        @Override
+        public int compare(@NonNull Chunklet a, @NonNull Chunklet b) {
+            float ad = a.distanceSq(this.eye.x, this.eye.y, this.eye.z);
+            float bd = b.distanceSq(this.eye.x, this.eye.y, this.eye.z);
+            return (int) Math.signum(ad - bd);
+        }
     }
 
     public void clearCache() {
-        for (int i = 0; i < chunks.length; i++) {
-            for (int j = 0; j < chunks[i].length; j++) {
-                Chunk chunk = chunks[i][j];
+        for (int i = 0; i < this.chunks.length; i++) {
+            for (int j = 0; j < this.chunks[i].length; j++) {
+                Chunk chunk = this.chunks[i][j];
                 if (chunk != null) {
                     chunk.unload();
-                    chunks[i][j] = null;
+                    this.chunks[i][j] = null;
                 }
             }
         }
-        for (int i2 = 0; i2 < renderList.length; i2++) {
-            Chunklet c = renderList[i2];
+        for (int i2 = 0; i2 < this.renderList.length; i2++) {
+            Chunklet c = this.renderList[i2];
             if (c != null) {
                 c.unload();
             }
@@ -1050,17 +1059,17 @@ public class World {
     }
 
     public void setNewGame(boolean isNewGame) {
-        mIsNewGame = isNewGame;
+        this.isNewGame = isNewGame;
     }
 
     public void recalculateSkyLight(Chunk chunk, int bx, int by, int bz) {
-        lightProcessor.recalculateSkyLightingAround(chunk, bx, by, bz);
+        this.lightProcessor.recalculateSkyLightingAround(chunk, bx, by, bz);
     }
 
     public void recalculateBlockLight(final Chunk chunk, final int bx, final int by, final int bz) {
         Runnable r = () -> {
             lightProcessor.recalculateBlockLightAround(chunk, bx, by, bz);
-            List<Chunklet> chunkletsLightRecalc = new ArrayList<>(chunkletsForRecalculateLight());
+            List<Chunklet> chunkletsLightRecalc = new ArrayList<>(World.this.chunkletsForRecalculateLight());
             for (Chunklet chunklet : chunkletsLightRecalc) {
                 chunklet.geomDirty = true;
                 chunklet.generateGeometry(false);
@@ -1071,7 +1080,7 @@ public class World {
     }
 
     public ArrayList<Chunklet> chunkletsForRecalculateLight() {
-        return lightProcessor.getDirtyChunklet();
+        return this.lightProcessor.getDirtyChunklet();
     }
 
     public void recalculateChunklets(Set<Chunklet> modifiedChunks) {
@@ -1106,16 +1115,20 @@ public class World {
     }
 
     public void recalculateLightForChunk(Chunk c) {
-        lightProcessor.lightSunlitBlocksInChunk(c);
-        lightProcessor.lightChunk(c);
+        this.lightProcessor.lightSunlitBlocksInChunk(c);
+        this.lightProcessor.lightChunk(c);
+    }
+
+    public void setMapType(int mapType) {
+        this.mapType = mapType;
     }
 
     public boolean isCancelLoad() {
-        return isCancelLoad;
+        return this.isCancelLoad;
     }
 
     public void setCancel(boolean isCancel) {
-        isCancelLoad = isCancel;
+        this.isCancelLoad = isCancel;
     }
 
     public int getMapSize() {
@@ -1157,23 +1170,19 @@ public class World {
     }
 
     public void destroy() {
-        Game.removeSurfaceListener(surfaceListener);
+        Game.removeSurfaceListener(this.surfaceListener);
     }
 
     public int getSunlight() {
-        return sunlight;
+        return this.sunlight;
     }
 
     public boolean isChunksInited() {
-        return isChunksInited;
+        return this.isChunksInited;
     }
 
     public int getMapType() {
-        return mMapType;
-    }
-
-    public void setMapType(int mapType) {
-        mMapType = mapType;
+        return this.mapType;
     }
 
     public Furnace getFurnace(@NonNull Vector3i vec) {
@@ -1181,16 +1190,16 @@ public class World {
     }
 
     public Furnace getFurnace(int x, int y, int z) {
-        for (int i = 0; i < tileEntitiesList.size(); i++) {
-            if (tileEntitiesList.get(i) != null && tileEntitiesList.get(i).isFurnace()) {
-                Furnace furnace = (Furnace) tileEntitiesList.get(i);
+        for (int i = 0; i < this.tileEntitiesList.size(); i++) {
+            if (this.tileEntitiesList.get(i) != null && this.tileEntitiesList.get(i).isFurnace()) {
+                Furnace furnace = (Furnace) this.tileEntitiesList.get(i);
                 if (furnace.isSelectedEntity(x, y, z)) {
                     return furnace;
                 }
             }
         }
         Furnace furnace2 = new Furnace(x, y, z);
-        tileEntitiesList.add(furnace2);
+        this.tileEntitiesList.add(furnace2);
         return furnace2;
     }
 
@@ -1199,33 +1208,33 @@ public class World {
     }
 
     public Chest getChest(int x, int y, int z) {
-        for (int i = 0; i < tileEntitiesList.size(); i++) {
-            if (tileEntitiesList.get(i) != null && tileEntitiesList.get(i).isChest()) {
-                Chest chest = (Chest) tileEntitiesList.get(i);
+        for (int i = 0; i < this.tileEntitiesList.size(); i++) {
+            if (this.tileEntitiesList.get(i) != null && this.tileEntitiesList.get(i).isChest()) {
+                Chest chest = (Chest) this.tileEntitiesList.get(i);
                 if (chest.isSelectedEntity(x, y, z)) {
                     return chest;
                 }
             }
         }
         Chest chest2 = new Chest(x, y, z);
-        tileEntitiesList.add(chest2);
+        this.tileEntitiesList.add(chest2);
         return chest2;
     }
 
     public void addTileEntity(TileEntity tileEntity) {
-        tileEntitiesList.add(tileEntity);
+        this.tileEntitiesList.add(tileEntity);
     }
 
     public Furnace getActiveFurnace() {
-        return mActiveFurnace;
+        return this.activeFurnace;
     }
 
     public void setActiveFurnace(Furnace activeFurnace) {
-        mActiveFurnace = activeFurnace;
+        this.activeFurnace = activeFurnace;
     }
 
-    public Tag getmLevelTag() {
-        return mLevelTag;
+    public Tag getLevelTag() {
+        return this.levelTag;
     }
 
     public void addDroppableItem(byte itemId, @NonNull Vector3i pos) {
@@ -1247,20 +1256,20 @@ public class World {
     public void addDroppableItem(byte itemId, float x, float y, float z, int count, boolean dropFromHotbar) {
         if (!GameMode.isCreativeMode()) {
             if (dropFromHotbar) {
-                Vector3f vec = MathUtils.getVelocityVector(mPlayer.getAngle(), 0.75f);
-                droppableItems.add(new DroppableItem(itemId, x + (vec.x * 1.5f), y, z + (vec.z * 1.5f), count, true));
+                Vector3f vec = MathUtils.getVelocityVector(this.player.getAngle(), 0.75f);
+                this.droppableItems.add(new DroppableItem(itemId, x + (vec.x * 1.5f), y, z + (vec.z * 1.5f), count, true));
             } else if (itemId == 82) {
                 for (int i = 0; i < 4; i++) {
-                    droppableItems.add(new DroppableItem(itemId, x, y, z, count, false));
+                    this.droppableItems.add(new DroppableItem(itemId, x, y, z, count, false));
                 }
             } else if (itemId != 121) {
-                droppableItems.add(new DroppableItem(itemId, x, y, z, count, false));
+                this.droppableItems.add(new DroppableItem(itemId, x, y, z, count, false));
             }
         }
     }
 
     public void removeDroppableBlock(DroppableItem droppableItem) {
-        droppableItems.remove(droppableItem);
+        this.droppableItems.remove(droppableItem);
     }
 
     public void addBlockParticle(byte itemID, Vector3f location, BlockFactory.WorldSide blockSide) {
@@ -1270,32 +1279,32 @@ public class World {
     public void addBlockParticle(byte itemID, Vector3f location, BlockFactory.WorldSide blockSide, boolean isExplosion) {
         if (isExplosion) {
             for (int i = 0; i < 50; i++) {
-                blockParticles.add(new BlockParticle(itemID, location.x, location.y, location.z, blockSide, isExplosion));
+                this.blockParticles.add(new BlockParticle(itemID, location.x, location.y, location.z, blockSide, isExplosion));
             }
-        } else if (System.currentTimeMillis() - lastParticleTime > 80) {
-            blockParticles.add(new BlockParticle(itemID, location.x, location.y, location.z, blockSide));
-            lastParticleTime = System.currentTimeMillis();
+        } else if (System.currentTimeMillis() - this.lastParticleTime > 80) {
+            this.blockParticles.add(new BlockParticle(itemID, location.x, location.y, location.z, blockSide));
+            this.lastParticleTime = System.currentTimeMillis();
         }
     }
 
     public void removeTileEntity(TileEntity tileEntity) {
-        tileEntitiesList.remove(tileEntity);
+        this.tileEntitiesList.remove(tileEntity);
     }
 
     public List<? extends TileEntity> getTileEntities(Chunk chunk) {
         List<TileEntity> result = new ArrayList<>();
-        for (int i = 0; i < tileEntitiesList.size(); i++) {
-            TileEntity item = tileEntitiesList.get(i);
+        for (int i = 0; i < this.tileEntitiesList.size(); i++) {
+            TileEntity item = this.tileEntitiesList.get(i);
             if (chunk.contains(item.getX(), item.getZ())) {
                 result.add(item);
             }
         }
-        tileEntitiesList.removeAll(result);
+        this.tileEntitiesList.removeAll(result);
         return result;
     }
 
     public void updateMobChunks() {
-        Chunk[][] arr$ = chunks;
+        Chunk[][] arr$ = this.chunks;
         for (Chunk[] chunkArray : arr$) {
             for (Chunk chunk : chunkArray) {
                 if (chunk != null) {
@@ -1307,12 +1316,12 @@ public class World {
 
     public void executeOnInited(Runnable runnable) {
         if (runnable != null) {
-            if (isChunksInited) {
+            if (this.isChunksInited) {
                 runnable.run();
                 return;
             }
-            synchronized (onInitedRunnableList) {
-                onInitedRunnableList.add(runnable);
+            synchronized (this.onInitedRunnableList) {
+                this.onInitedRunnableList.add(runnable);
             }
         }
     }
@@ -1327,27 +1336,11 @@ public class World {
 
     public void activateTNT(Vector3i targetBlockLocation, TNTBlock.DetonationDelayType detonationType, boolean removeBlock) {
         TNTBlock tnt = new TNTBlock(targetBlockLocation, this);
-        mBlockEntityPainter.add(tnt);
+        this.blockEntityPainter.add(tnt);
         tnt.activate(detonationType, removeBlock);
     }
 
     public void activateTNT(Vector3f targetBlockLocation, TNTBlock.DetonationDelayType detonationType, boolean removeBlock) {
         activateTNT(new Vector3i(targetBlockLocation), detonationType, removeBlock);
-    }
-
-
-    private static class ChunkSorter implements Comparator<Chunklet> {
-        private final Vector3f mEye;
-
-        private ChunkSorter() {
-            mEye = new Vector3f();
-        }
-
-        @Override
-        public int compare(@NonNull Chunklet a, @NonNull Chunklet b) {
-            float ad = a.distanceSq(mEye.x, mEye.y, mEye.z);
-            float bd = b.distanceSq(mEye.x, mEye.y, mEye.z);
-            return (int) Math.signum(ad - bd);
-        }
     }
 }

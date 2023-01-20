@@ -6,6 +6,7 @@ import com.solverlabs.droid.rugl.util.FPSCamera;
 import com.solverlabs.droid.rugl.util.geom.Vector3f;
 import com.solverlabs.worldcraft.Player;
 import com.solverlabs.worldcraft.World;
+import com.solverlabs.worldcraft.R;
 import com.solverlabs.worldcraft.mob.cow.Cow;
 import com.solverlabs.worldcraft.mob.cow.CowFactory;
 import com.solverlabs.worldcraft.mob.pig.Pig;
@@ -15,16 +16,14 @@ import com.solverlabs.worldcraft.mob.sheep.SheepFactory;
 import com.solverlabs.worldcraft.mob.zombie.Zombie;
 import com.solverlabs.worldcraft.mob.zombie.ZombieFactory;
 import com.solverlabs.worldcraft.util.RandomUtil;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-
 public class MobPainter {
     private static final int MOB_CHUNK_UPDATE_TIMEOUT = 2000;
-    private static final List<Runnable> onInitedTaskList = new ArrayList<>();
     private static CowFactory cowFactory;
+    private static final List<Runnable> onInitedTaskList = new ArrayList();
     private static PigFactory pigFactory;
     private static SheepFactory sheepFactory;
     private static ZombieFactory zombieFactory;
@@ -35,10 +34,10 @@ public class MobPainter {
         pigFactory = new PigFactory();
         sheepFactory = new SheepFactory();
         zombieFactory = new ZombieFactory();
-        cowFactory.loadTexture("cow.png");
-        pigFactory.loadTexture("pig.png");
-        sheepFactory.loadTexture("sheep.png");
-        zombieFactory.loadTexture("zombie.png");
+        cowFactory.loadTexture(R.drawable.cow);
+        pigFactory.loadTexture(R.drawable.pig);
+        sheepFactory.loadTexture(R.drawable.sheep);
+        zombieFactory.loadTexture(R.drawable.zombie);
         cowFactory.setWorld(world);
         pigFactory.setWorld(world);
         sheepFactory.setWorld(world);
@@ -81,49 +80,8 @@ public class MobPainter {
         return zombieFactory;
     }
 
-    public static void onInited() {
-        synchronized (onInitedTaskList) {
-            Iterator<Runnable> iterator = onInitedTaskList.iterator();
-            while (iterator.hasNext()) {
-                Runnable runnable = iterator.next();
-                runnable.run();
-                iterator.remove();
-            }
-        }
-    }
-
-    public static void executeOnInited(Runnable runnable) {
-        if (runnable != null) {
-            if (cowFactory != null && pigFactory != null && sheepFactory != null && zombieFactory != null) {
-                runnable.run();
-                return;
-            }
-            synchronized (onInitedTaskList) {
-                onInitedTaskList.add(runnable);
-            }
-        }
-    }
-
-    public static float getDistanceToClosestHostileMob(float x, float y, float z) {
-        Mob closestHostileMob = zombieFactory.getClosestMob(x, y, z);
-        if (closestHostileMob == null) {
-            return 1000.0f;
-        }
-        return closestHostileMob.distance(x, y, z);
-    }
-
-    public static void debug() {
-        MobFactory.printAllMobs();
-        System.out.println("_PIG FACTORY: ");
-        pigFactory.printMobs();
-        System.out.println("_COW FACTORY: ");
-        cowFactory.printMobs();
-        System.out.println("_SHEEP FACTORY: ");
-        sheepFactory.printMobs();
-    }
-
     public void advance(float delta, World world, FPSCamera cam, Player player) {
-        if (System.currentTimeMillis() - mobChunksUpdatedAt > MOB_CHUNK_UPDATE_TIMEOUT) {
+        if (System.currentTimeMillis() - this.mobChunksUpdatedAt > 2000) {
             world.updateMobChunks();
             this.mobChunksUpdatedAt = System.currentTimeMillis();
         }
@@ -164,5 +122,46 @@ public class MobPainter {
     private Mob getClosestMob(float x, float y, float z, float directionX, float directionY, float directionZ) {
         MobFactory.updateAllMobs(pigFactory.mobs, cowFactory.mobs, sheepFactory.mobs, zombieFactory.mobs);
         return MobFactory.closestMobOnRay(x, y, z, directionX, directionY, directionZ);
+    }
+
+    public static void onInited() {
+        synchronized (onInitedTaskList) {
+            Iterator<Runnable> iterator = onInitedTaskList.iterator();
+            while (iterator.hasNext()) {
+                Runnable runnable = iterator.next();
+                runnable.run();
+                iterator.remove();
+            }
+        }
+    }
+
+    public static void executeOnInited(Runnable runnable) {
+        if (runnable != null) {
+            if (cowFactory != null && pigFactory != null && sheepFactory != null && zombieFactory != null) {
+                runnable.run();
+                return;
+            }
+            synchronized (onInitedTaskList) {
+                onInitedTaskList.add(runnable);
+            }
+        }
+    }
+
+    public static float getDistanceToClosestHostileMob(float x, float y, float z) {
+        Mob closestHostileMob = zombieFactory.getClosestMob(x, y, z);
+        if (closestHostileMob == null) {
+            return 1000.0f;
+        }
+        return closestHostileMob.distance(x, y, z);
+    }
+
+    public static void debug() {
+        MobFactory.printAllMobs();
+        System.out.println("_PIG FACTORY: ");
+        pigFactory.printMobs();
+        System.out.println("_COW FACTORY: ");
+        cowFactory.printMobs();
+        System.out.println("_SHEEP FACTORY: ");
+        sheepFactory.printMobs();
     }
 }

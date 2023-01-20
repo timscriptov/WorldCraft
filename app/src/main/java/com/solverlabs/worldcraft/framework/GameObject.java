@@ -3,7 +3,6 @@ package com.solverlabs.worldcraft.framework;
 import com.solverlabs.worldcraft.framework.math.Rectangle;
 import com.solverlabs.worldcraft.framework.math.Vector2;
 
-
 public class GameObject {
     public final Rectangle bounds;
     public final Vector2 position;

@@ -1,5 +1,7 @@
 package com.solverlabs.worldcraft.srv.client.base;
 
+import androidx.annotation.NonNull;
+
 import com.solverlabs.worldcraft.client.common.EventQueue;
 import com.solverlabs.worldcraft.srv.client.EventReceiver;
 import com.solverlabs.worldcraft.srv.client.EventReceiverListener;
@@ -13,7 +15,9 @@ import com.solverlabs.worldcraft.srv.common.WorldCraftGameEvent;
 import com.solverlabs.worldcraft.srv.domain.PlayerDefault;
 import com.solverlabs.worldcraft.srv.log.WcLog;
 import com.solverlabs.worldcraft.srv.util.UsefullGameEvents;
-
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.util.concurrent.Executors;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFactory;
@@ -24,34 +28,34 @@ import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.jboss.netty.util.HashedWheelTimer;
 
-import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.util.concurrent.Executors;
-
-
 public abstract class GameClient implements Runnable, NIOEventReader.OnEventReaderStartedListener {
     protected static final ByteBuffer WRITE_BUFFER = ByteBuffer.allocate(Globals.MAX_EVENT_SIZE);
     protected static final WcLog log = WcLog.getLogger("GameClient");
+    private ClientBootstrap bootstrap;
+    private ClientHandler clientHandler;
     protected NIOEventReader.OnEventReaderStartedListener eventReaderStartedListener;
     protected ConnectionListener gameListener;
     protected EventQueue inQueue;
+    private long lastUsefullEventSentAt;
+    private Channel nettyChannel;
     protected NetworkChecker networkChecker;
     protected EventQueue outQueue;
     protected EventReceiver receiver;
     protected boolean running = true;
     protected String serverName;
-    private ClientBootstrap bootstrap;
-    private ClientHandler clientHandler;
-    private long lastUsefullEventSentAt;
-    private Channel nettyChannel;
     private HashedWheelTimer timer;
 
-    /* JADX INFO: Access modifiers changed from: private */
+    public interface ConnectionListener {
+        void onConnectionEstablished();
+
+        void onConnectionFailed(String str, Throwable th);
+    }
+
     public void connect() {
         this.timer = new HashedWheelTimer();
         this.bootstrap = getBootstrap(new NioClientSocketChannelFactory(Executors.newCachedThreadPool(), Executors.newCachedThreadPool()));
         this.bootstrap.setOption("tcpNoDelay", true);
-        ChannelFuture connect = this.bootstrap.connect(new InetSocketAddress(this.serverName, (int) Globals.PORT));
+        ChannelFuture connect = this.bootstrap.connect(new InetSocketAddress(this.serverName, Globals.PORT));
         this.nettyChannel = connect.awaitUninterruptibly().getChannel();
         if (connect.isSuccess()) {
             this.eventReaderStartedListener.onEventReaderListenerStarted();
@@ -62,6 +66,7 @@ public abstract class GameClient implements Runnable, NIOEventReader.OnEventRead
         this.eventReaderStartedListener.onEventReaderErrorOccurs(null, null);
     }
 
+    @NonNull
     private ClientBootstrap getBootstrap(ChannelFactory channelFactory) {
         ClientBootstrap clientBootstrap = new ClientBootstrap(channelFactory);
         clientBootstrap.setPipelineFactory(getChannelPipelineFactory());
@@ -70,14 +75,10 @@ public abstract class GameClient implements Runnable, NIOEventReader.OnEventRead
         return clientBootstrap;
     }
 
+    @NonNull
     private ChannelPipelineFactory getChannelPipelineFactory() {
         this.clientHandler = new ClientHandler(this.receiver, this);
-        return new ChannelPipelineFactory() {
-            @Override
-            public ChannelPipeline getPipeline() throws Exception {
-                return Channels.pipeline(new FrameSplitter(), new WorldCraftEventDecoder(), new WorldCraftEventEncoder(), GameClient.this.clientHandler);
-            }
-        };
+        return () -> Channels.pipeline(new FrameSplitter(), new WorldCraftEventDecoder(), new WorldCraftEventEncoder(), clientHandler);
     }
 
     private void releaseBootstrapResources() {
@@ -95,6 +96,7 @@ public abstract class GameClient implements Runnable, NIOEventReader.OnEventRead
         try {
             Thread.sleep(j);
         } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
@@ -106,6 +108,7 @@ public abstract class GameClient implements Runnable, NIOEventReader.OnEventRead
                     writeEvent(deQueue);
                 }
             } catch (InterruptedException e) {
+                e.printStackTrace();
             }
             if (this.outQueue.size() == 0) {
                 try {
@@ -117,15 +120,14 @@ public abstract class GameClient implements Runnable, NIOEventReader.OnEventRead
         }
     }
 
-    /* JADX WARN: Type inference failed for: r0v0, types: [com.solverlabs.worldcraft.srv.client.base.GameClient$2] */
     protected boolean connectLater() {
         new Thread() {
             @Override
             public void run() {
                 try {
-                    GameClient.this.connect();
+                    connect();
                 } catch (Throwable th) {
-                    GameClient.this.errorOccurs("Exception while connecting", th);
+                    errorOccurs("Exception while connecting", th);
                 }
             }
         }.start();
@@ -161,15 +163,15 @@ public abstract class GameClient implements Runnable, NIOEventReader.OnEventRead
         this.outQueue = new EventQueue("GameClient-out");
         this.serverName = str;
         this.networkChecker = new NetworkChecker();
-        this.networkChecker.setListener(new NetworkChecker.NetworkCheckListener() {
-            @Override
+        this.networkChecker.setListener(new NetworkChecker.NetworkCheckListener() { 
+            @Override 
             public void connectionLost() {
-                GameClient.this.errorOccurs("Connection lost", null);
+                errorOccurs("Connection lost", null);
             }
 
-            @Override
+            @Override 
             public void sendPingRequest() {
-                GameClient.this.ping();
+                ping();
             }
         });
         this.receiver = new EventReceiver(this.inQueue, eventReceiverListener, this.networkChecker);
@@ -178,12 +180,12 @@ public abstract class GameClient implements Runnable, NIOEventReader.OnEventRead
 
     protected abstract void onConnectionLost(String str, Throwable th);
 
-    @Override
+    @Override 
     public void onEventReaderErrorOccurs(String str, Exception exc) {
         errorOccurs(str, exc);
     }
 
-    @Override
+    @Override 
     public void onEventReaderListenerStarted() {
         if (this.gameListener != null) {
             this.gameListener.onConnectionEstablished();
@@ -192,7 +194,7 @@ public abstract class GameClient implements Runnable, NIOEventReader.OnEventRead
 
     protected abstract void ping();
 
-    @Override
+    @Override 
     public void run() {
         while (this.running) {
             writeOutgoingEvents();
@@ -225,7 +227,7 @@ public abstract class GameClient implements Runnable, NIOEventReader.OnEventRead
         }
     }
 
-    protected void writeEvent(WorldCraftGameEvent worldCraftGameEvent) {
+    protected void writeEvent(@NonNull WorldCraftGameEvent worldCraftGameEvent) {
         if (UsefullGameEvents.contains(worldCraftGameEvent.getType())) {
             this.lastUsefullEventSentAt = System.currentTimeMillis();
         }
@@ -235,12 +237,5 @@ public abstract class GameClient implements Runnable, NIOEventReader.OnEventRead
         } else {
             connectionLost();
         }
-    }
-
-
-    public interface ConnectionListener {
-        void onConnectionEstablished();
-
-        void onConnectionFailed(String str, Throwable th);
     }
 }

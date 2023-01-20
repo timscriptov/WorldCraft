@@ -1,11 +1,14 @@
 package com.solverlabs.worldcraft.activity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
@@ -13,17 +16,15 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.solverlabs.droid.rugl.util.WorldUtils;
 import com.solverlabs.worldcraft.MyApplication;
-import com.solverlabs.worldcraft.R;
 import com.solverlabs.worldcraft.dialog.component.MolotButton;
 import com.solverlabs.worldcraft.dialog.component.MolotTextView;
 import com.solverlabs.worldcraft.dialog.tools.ui.SwipeView;
+import com.solverlabs.worldcraft.R;
 import com.solverlabs.worldcraft.ui.GUI;
 import com.solverlabs.worldcraft.util.GameStarter;
 import com.solverlabs.worldcraft.util.WorldGenerator;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,7 +34,7 @@ public class SingleplayerActivity extends CommonActivity {
     private RotateAnimation rotateAnimation = null;
     private SwipeView swipeView = null;
 
-    @Override
+    @Override 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.singleplayer);
@@ -48,22 +49,22 @@ public class SingleplayerActivity extends CommonActivity {
         });
     }
 
-    @Override
+    @Override 
     protected void onResume() {
         updateMapList();
         super.onResume();
     }
 
-    @Override
+    @Override 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1 && resultCode == RESULT_OK && data.getBooleanExtra(SHOULD_FINISH, false)) {
+        if (requestCode == 1 && resultCode == -1 && data.getBooleanExtra(SHOULD_FINISH, false)) {
             finish();
         }
     }
 
     public void onItemClick(@NonNull WorldUtils.WorldInfo worldInfo) {
-        GameStarter.startGame(this, worldInfo.mFile.getAbsolutePath(), false, 0, worldInfo.mIsCreative ? WorldGenerator.Mode.CREATIVE : WorldGenerator.Mode.SURVIVAL);
+        GameStarter.startGame((MyApplication) getApplication(), this, worldInfo.file.getAbsolutePath(), false, 0, worldInfo.isCreative ? WorldGenerator.Mode.CREATIVE : WorldGenerator.Mode.SURVIVAL);
+        finish();
     }
 
     public void onDeleteClick(WorldUtils.WorldInfo worldInfo) {
@@ -71,8 +72,8 @@ public class SingleplayerActivity extends CommonActivity {
     }
 
     private void initSwipeView() {
-        swipeView = findViewById(R.id.level_swipe);
-        swipeView.setPageWidth((getScreenWidth(GUI.HEIGHT) * 7) / 12);
+        this.swipeView = findViewById(R.id.level_swipe);
+        this.swipeView.setPageWidth((getScreenWidth(GUI.HEIGHT) * 7) / 12);
     }
 
     private int getScreenWidth(int defaultValue) {
@@ -84,9 +85,9 @@ public class SingleplayerActivity extends CommonActivity {
     }
 
     public void updateMapList() {
-        if (swipeView != null) {
-            new Thread() {
-                @Override
+        if (this.swipeView != null) {
+            new Thread() { 
+                @Override 
                 public void run() {
                     startLoadingSpinnerAnimation();
                     if (WorldUtils.isStorageAvailable(SingleplayerActivity.this)) {
@@ -140,13 +141,13 @@ public class SingleplayerActivity extends CommonActivity {
     }
 
     public RotateAnimation getRotateAnimation() {
-        if (rotateAnimation == null) {
-            rotateAnimation = new RotateAnimation(0.0f, 1800.0f, 1, 0.5f, 1, 0.5f);
-            rotateAnimation.setDuration(7500L);
-            rotateAnimation.setRepeatCount(-1);
-            rotateAnimation.setInterpolator(new LinearInterpolator());
+        if (this.rotateAnimation == null) {
+            this.rotateAnimation = new RotateAnimation(0.0f, 1800.0f, 1, 0.5f, 1, 0.5f);
+            this.rotateAnimation.setDuration(7500L);
+            this.rotateAnimation.setRepeatCount(-1);
+            this.rotateAnimation.setInterpolator(new LinearInterpolator());
         }
-        return rotateAnimation;
+        return this.rotateAnimation;
     }
 
     @NonNull
@@ -159,9 +160,9 @@ public class SingleplayerActivity extends CommonActivity {
         MolotTextView mapNameView = view.findViewById(R.id.map_name);
         MolotTextView mapModifiedAtView = view.findViewById(R.id.map_modified_at);
         MolotTextView mapModeView = view.findViewById(R.id.map_mode);
-        mapNameView.setText(worldInfo.mName);
-        mapModifiedAtView.setText(DateFormat.format("MM/dd/yyyy hh:mmaa", worldInfo.mModifiedAt));
-        if (worldInfo.mIsCreative) {
+        mapNameView.setText(worldInfo.name);
+        mapModifiedAtView.setText(DateFormat.format("MM/dd/yyyy hh:mmaa", worldInfo.modifiedAt));
+        if (worldInfo.isCreative) {
             mapModeView.setText(R.string.creative);
             icon.setImageResource(R.drawable.world_creative);
         } else {
@@ -175,14 +176,13 @@ public class SingleplayerActivity extends CommonActivity {
     }
 
     private void showDeleteSaveDialog(@NonNull final WorldUtils.WorldInfo worldInfo) {
-        MaterialAlertDialogBuilder materialAlertDialogBuilder = new MaterialAlertDialogBuilder(this);
-        materialAlertDialogBuilder.setTitle(getResources().getString(R.string.are_you_realy_want_to_delete_map, worldInfo.mFile.getName()));
-        materialAlertDialogBuilder.setPositiveButton(R.string.yes, (dialog, id) -> {
-            deleteSave(worldInfo.mFile.getAbsolutePath());
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getResources().getString(R.string.are_you_realy_want_to_delete_map, worldInfo.file.getName())).setPositiveButton(R.string.yes, (dialog, id) -> {
+            deleteSave(worldInfo.file.getAbsolutePath());
             updateMapList();
-        });
-        materialAlertDialogBuilder.setNegativeButton(R.string.no, (dialog, id) -> dialog.dismiss());
-        materialAlertDialogBuilder.show();
+        }).setNegativeButton(R.string.no, (dialog, id) -> dialog.dismiss());
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 
     public void deleteSave(String absolutePath) {
@@ -198,10 +198,9 @@ public class SingleplayerActivity extends CommonActivity {
                     deleteSave(file.getAbsolutePath());
                 }
             }
-
-            if (dir.isDirectory() && list.length == 0) {
-                dir.delete();
-            }
+        }
+        if (list != null && dir.isDirectory() && list.length == 0) {
+            dir.delete();
         }
     }
 }

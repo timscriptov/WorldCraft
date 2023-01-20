@@ -2,7 +2,7 @@ package com.solverlabs.worldcraft.ui;
 
 import com.solverlabs.droid.rugl.util.Colour;
 import com.solverlabs.worldcraft.Player;
-
+import com.solverlabs.worldcraft.ui.FadeInOutBar;
 
 public class DamageBar extends FadeInOutBar {
     private static final int DAMAGE_BAR_COLOR = Colour.packFloat(1.0f, 0.0f, 0.0f, 0.3f);

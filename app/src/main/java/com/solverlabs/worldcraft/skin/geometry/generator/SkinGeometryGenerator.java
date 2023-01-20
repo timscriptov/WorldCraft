@@ -10,38 +10,37 @@ import com.solverlabs.worldcraft.CharactersPainter;
 import com.solverlabs.worldcraft.SkinFactory;
 import com.solverlabs.worldcraft.skin.geometry.Parallelepiped;
 
-
 public class SkinGeometryGenerator {
-    public static final float BLOCK_SIZE = 0.125f;
-    public static final float HALF_OF_PI = 1.5707964f;
-    public static final int HAND_HEIGHT = 3;
-    public static final int LEG_HEIGHT = 3;
-    public static final float ONE_AND_HALF_OF_PI = 4.712389f;
-    public static final int SKIN_COUNT = 20;
-    public static final float ZOOM = 1.5f;
     private static final int BLOCKS_IN_TEXTURE = 16;
+    public static final float BLOCK_SIZE = 0.125f;
     private static final int BODY_DEPTH = 1;
     private static final int BODY_HEIGHT = 3;
     private static final int BODY_WIDTH = 2;
+    public static final float HALF_OF_PI = 1.5707964f;
     private static final int HAND_DEPTH = 1;
+    public static final int HAND_HEIGHT = 3;
     private static final int HAND_WIDTH = 1;
     private static final int HEAD_DEPTH = 2;
     private static final int HEAD_HEIGHT = 2;
     private static final int HEAD_WIDTH = 2;
     private static final int LEG_DEPTH = 1;
+    public static final int LEG_HEIGHT = 3;
     private static final int LEG_WIDTH = 1;
+    public static final float ONE_AND_HALF_OF_PI = 4.712389f;
+    public static final int SKIN_COUNT = 20;
     private static final float STXTN = 0.015625f;
     private static final int TEXTURE_COORD_COUNT = 12;
-    private static final int COLOR = Colour.packFloat(0.5f, 0.5f, 0.5f, 1.0f);
-    private static final int[] headTc = {4, 2, 0, 2, 2, 2, 6, 2, 2, 0, 4, 0};
-    private static final int[] bodyTc = {9, 5, 4, 5, 5, 5, 7, 5, 5, 4, 7, 4};
-    private static final int[] handTc = {13, 5, 10, 5, 11, 5, 12, 5, 11, 4, 12, 4};
-    private static final int[] legTc = {3, 5, 0, 5, 1, 5, 2, 5, 1, 4, 2, 4};
+    public static final float ZOOM = 1.5f;
     private static TexturedShape[] bodyShape;
     private static TexturedShape[] handShape;
     private static TexturedShape[] headShape;
     private static TexturedShape[] legShape;
     private static TexturedShape playerHandShape;
+    private static final int COLOR = Colour.packFloat(0.5f, 0.5f, 0.5f, 1.0f);
+    private static final int[] headTc = {4, 2, 0, 2, 2, 2, 6, 2, 2, 0, 4, 0};
+    private static final int[] bodyTc = {9, 5, 4, 5, 5, 5, 7, 5, 5, 4, 7, 4};
+    private static final int[] handTc = {13, 5, 10, 5, 11, 5, 12, 5, 11, 4, 12, 4};
+    private static final int[] legTc = {3, 5, 0, 5, 1, 5, 2, 5, 1, 4, 2, 4};
 
     public static void init() {
         headShape = new TexturedShape[20];
@@ -102,21 +101,23 @@ public class SkinGeometryGenerator {
         return headShape[skin % 20];
     }
 
+    @Nullable
     public static TexturedShape createHeadShape(int skin) {
         if (headShape == null) {
             return null;
         }
-        TexturedShape s = (TexturedShape) headShape[skin % 20].clone();
+        TexturedShape s = headShape[skin % 20].clone();
         s.translate(-0.1875f, -0.1875f, -0.1875f);
         s.backup();
         return s;
     }
 
+    @Nullable
     public static TexturedShape createBodyShape(int skin) {
         if (bodyShape == null) {
             return null;
         }
-        TexturedShape s = (TexturedShape) bodyShape[skin % 20].clone();
+        TexturedShape s = bodyShape[skin % 20].clone();
         s.translate(-0.1875f, -0.5625f, -0.09375f);
         s.backup();
         return s;
@@ -127,7 +128,7 @@ public class SkinGeometryGenerator {
         if (handShape == null) {
             return null;
         }
-        TexturedShape s = (TexturedShape) handShape[skin % 20].clone();
+        TexturedShape s = handShape[skin % 20].clone();
         s.backup();
         return s;
     }
@@ -137,7 +138,7 @@ public class SkinGeometryGenerator {
         if (legShape == null) {
             return null;
         }
-        TexturedShape s = (TexturedShape) legShape[skin % 20].clone();
+        TexturedShape s = legShape[skin % 20].clone();
         s.backup();
         return s;
     }
@@ -155,7 +156,7 @@ public class SkinGeometryGenerator {
         return shapeBuilder;
     }
 
-    private static void addFace(Parallelepiped facing, float x, float y, float z, Parallelepiped.Face f, float width, float height, int colour, ShapeBuilder shapBuilder) {
+    private static void addFace(@NonNull Parallelepiped facing, float x, float y, float z, Parallelepiped.Face f, float width, float height, int colour, ShapeBuilder shapBuilder) {
         facing.face(f, x, y, z, width, height, colour, shapBuilder);
     }
 }

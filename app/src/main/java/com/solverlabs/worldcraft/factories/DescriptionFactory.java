@@ -1,6 +1,5 @@
 package com.solverlabs.worldcraft.factories;
 
-
 public class DescriptionFactory {
     public static final String Axe = "Used to choap wood-related blocks faster than by hand.";
     public static final String Chest = "Stores blocks and items inside.";

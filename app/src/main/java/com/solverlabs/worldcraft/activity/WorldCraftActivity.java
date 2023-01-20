@@ -1,9 +1,9 @@
 package com.solverlabs.worldcraft.activity;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
-
 import com.solverlabs.droid.rugl.Game;
 import com.solverlabs.droid.rugl.GameActivity;
 import com.solverlabs.droid.rugl.input.Touch;
@@ -28,15 +28,13 @@ import com.solverlabs.worldcraft.nbt.TagLoader;
 import com.solverlabs.worldcraft.ui.CustomProgressDialog;
 import com.solverlabs.worldcraft.util.GameTime;
 import com.solverlabs.worldcraft.util.WorldGenerator;
-
-import org.apache.commons.compress.archivers.cpio.CpioConstants;
-
 import java.io.File;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
+import org.apache.commons.compress.archivers.cpio.CpioConstants;
 
 public class WorldCraftActivity extends GameActivity {
+    protected MyApplication application;
     private BlockView bw;
     private DeathMenuDialog deathMenuDialog;
     private boolean isResumingGame = false;
@@ -44,9 +42,10 @@ public class WorldCraftActivity extends GameActivity {
     private ProgressDialog resumeDialog;
     private World world;
 
-    @Override
+    @Override 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.application = (MyApplication) getApplicationContext();
         getWindow().addFlags(CpioConstants.C_IWUSR);
         String worldFileName = getIntent().getExtras().getString("world");
         boolean isNewGame = getIntent().getExtras().getBoolean("isNewGame");
@@ -56,167 +55,36 @@ public class WorldCraftActivity extends GameActivity {
         Log.e(Game.RUGL_TAG, "loading " + worldFileName);
         File dir = new File(worldFileName);
         showProgressDialog();
-        TagLoader tl = new WorldLoader(new File(dir, World.LEVEL_DAT_FILE_NAME), dir, isNewGame, gameMode);
+        TagLoader tl = new TagLoad(new File(dir, World.LEVEL_DAT_FILE_NAME), dir, isNewGame, gameMode);
         tl.selfCompleting = true;
         ResourceLoader.load(tl);
     }
 
-    private void initSoundManager() {
-        SoundManager.initSounds(this);
-        SoundManager.loadSounds();
-    }
+    public class TagLoad extends TagLoader {
+        final File dir;
+        final WorldGenerator.Mode gameMode;
+        final boolean isNewGame;
 
-    @Override
-    public void onPause() {
-        if (world != null) {
-            world.save();
-        }
-        isResumingGame = true;
-        Log.d("ONPAUSE", "isResume  " + true);
-        if (loadingProgressDialog != null) {
-            loadingProgressDialog.dismiss();
-        }
-        if (GameMode.isMultiplayerMode()) {
-            Multiplayer.instance.shutdown();
-            finish();
-        }
-        super.onPause();
-    }
-
-
-    @Override
-    public void onResume() {
-        if (isResumingGame) {
-            isResumingGame = false;
-            if (GameMode.isMultiplayerMode()) {
-                super.finish();
-                return;
-            }
-            showResumeDialog();
-        }
-        super.onResume();
-    }
-
-    @Override
-    public void onDestroy() {
-        TextureFactory.removeListener();
-        if (bw != null) {
-            bw.destroyWorld();
-            bw = null;
-            TextureFactory.deleteAllTextures();
-        }
-        RegionFileCache.clear();
-        System.runFinalization();
-        Runtime.getRuntime().gc();
-        super.onDestroy();
-    }
-
-    @Override
-    public void finish() {
-        if (world != null && world.mIsNewGame) {
-            deleteSave(world.mDir.getAbsolutePath());
-        }
-        super.finish();
-    }
-
-    private void showResumeDialog() {
-        if (resumeDialog == null) {
-            resumeDialog = new ProgressDialog(this);
-            resumeDialog.setTitle("Please wait");
-            resumeDialog.setMessage("Resuming");
-        }
-        runOnUiThread(() -> resumeDialog.show());
-    }
-
-    private void showProgressDialog() {
-        if (loadingProgressDialog == null) {
-            loadingProgressDialog = new CustomProgressDialog(this) {
-                @Override
-                public void onBackPressed() {
-                    if (world != null) {
-                        world.setCancel(true);
-                    }
-                    finish();
-                }
-
-                @Override
-                public void buttonClick() {
-                    if (world != null) {
-                        world.setCancel(true);
-                    }
-                    finish();
-                }
-            };
-        }
-        loadingProgressDialog.show();
-    }
-
-    public void dismissProgresDialog() {
-        loadingProgressDialog.dismiss();
-    }
-
-    public void dismissResumeDialog() {
-        resumeDialog.dismiss();
-    }
-
-    public void dismissAllLoadingDialogs() {
-        if (loadingProgressDialog != null && loadingProgressDialog.isShowing()) {
-            loadingProgressDialog.dismiss();
-        }
-        if (resumeDialog != null && resumeDialog.isShowing()) {
-            resumeDialog.dismiss();
-        }
-    }
-
-    private void deleteSave(String absolutePath) {
-        File dir = new File(absolutePath);
-        String[] list = dir.list();
-        if (list != null) {
-            for (String str : list) {
-                File file = new File(dir, str);
-                if (file.isFile()) {
-                    Log.d("del_file", "  " + file.delete());
-                }
-                if (file.isDirectory()) {
-                    deleteSave(file.getAbsolutePath());
-                }
-            }
-            if (dir.isDirectory() && list.length == 0) {
-                Log.d("del_dir", "  " + dir.delete());
-            }
-        }
-    }
-
-    class WorldLoader extends TagLoader {
-        final File mWorldDir;
-        final WorldGenerator.Mode mGameMode;
-        final boolean mIsNewGame;
-
-        WorldLoader(File x0, File worldFile, boolean isNewGame, WorldGenerator.Mode mode) {
-            super(x0);
-            mWorldDir = worldFile;
-            mIsNewGame = isNewGame;
-            mGameMode = mode;
+        TagLoad(File dat, File file, boolean z, WorldGenerator.Mode mode) {
+            super(dat);
+            this.dir = file;
+            this.isNewGame = z;
+            this.gameMode = mode;
         }
 
-        @Override
-        public void complete() {
-            runOnUiThread(new RunWorldLoader());
-        }
-
-        class RunWorldLoader implements Runnable {
+        public class TagLoaderRunnable implements Runnable {
             @Override
             public void run() {
                 int mapType;
-                if (resource == null) {
-                    showToast("Could not load world level.dat\n" + exception.getClass().getSimpleName() + ":" + exception.getMessage(), true);
+                if (TagLoad.this.resource == null) {
+                    showToast("Could not load world level.dat\n" + TagLoad.this.exception.getClass().getSimpleName() + ":" + TagLoad.this.exception.getMessage(), true);
                     finish();
                     return;
                 }
                 try {
-                    Tag time = ((Tag) resource).findTagByName(WorldGenerator.LAST_PLAYED);
+                    Tag time = TagLoad.this.resource.findTagByName(WorldGenerator.LAST_PLAYED);
                     GameTime.initTime((Long) time.getValue());
-                    Tag playerTag = ((Tag) resource).findTagByName("Player");
+                    Tag playerTag = TagLoad.this.resource.findTagByName("Player");
                     Tag pos = playerTag.findTagByName("Pos");
                     Tag[] tl = (Tag[]) pos.getValue();
                     Vector3f p = new Vector3f();
@@ -233,13 +101,13 @@ public class WorldCraftActivity extends GameActivity {
                             rotation.y = 0.0f;
                         }
                     }
-                    Tag mapTypeTag = ((Tag) resource).findTagByName(WorldGenerator.MAP_TYPE);
+                    Tag mapTypeTag = TagLoad.this.resource.findTagByName(WorldGenerator.MAP_TYPE);
                     if (mapTypeTag != null) {
                         mapType = (Integer) mapTypeTag.getValue();
                     } else {
                         mapType = -1;
                     }
-                    world = new World(mWorldDir, p, (Tag) resource) {
+                    world = new World(TagLoad.this.dir, p, TagLoad.this.resource) {
                         @Override
                         public boolean isLoadingDialogVisible() {
                             return loadingProgressDialog != null || loadingProgressDialog.isShowing();
@@ -305,16 +173,16 @@ public class WorldCraftActivity extends GameActivity {
                             });
                         }
                     };
-                    world.setNewGame(mIsNewGame);
+                    world.setNewGame(TagLoad.this.isNewGame);
                     world.setMapType(mapType);
-                    ((CustomProgressDialog) loadingProgressDialog).updateMax(World.getLoadingLimit(mIsNewGame));
+                    ((CustomProgressDialog) loadingProgressDialog).updateMax(World.getLoadingLimit(TagLoad.this.isNewGame));
                     bw = new BlockView(world);
                     if (GameMode.isMultiplayerMode()) {
                         Multiplayer.instance.blockView = bw;
                     }
                     bw.setCamRotation(rotation);
-                    bw.mCam.invert = Persistence.getInstance().isInvertY();
-                    GameMode.setGameMode((GameMode.isMultiplayerMode() || !WorldGenerator.Mode.SURVIVAL.equals(mGameMode)) ? 1 : 0);
+                    bw.cam.invert = Persistence.getInstance().isInvertY();
+                    GameMode.setGameMode((GameMode.isMultiplayerMode() || !WorldGenerator.Mode.SURVIVAL.equals(TagLoad.this.gameMode)) ? 1 : 0);
                     if (GameMode.isSurvivalMode() && !GameMode.isMultiplayerMode()) {
                         world.initSunLight();
                     }
@@ -335,6 +203,144 @@ public class WorldCraftActivity extends GameActivity {
                 }
                 BlockFactory.state.fog.start = fogDistance;
                 BlockFactory.state.fog.end = 10.0f + fogDistance;
+            }
+        }
+
+        @Override 
+        public void complete() {
+            runOnUiThread(new TagLoaderRunnable());
+        }
+    }
+
+    private void initSoundManager() {
+        SoundManager.initSounds(this);
+        SoundManager.loadSounds();
+    }
+
+    @Override 
+    public void onPause() {
+        clearReferences();
+        if (this.world != null) {
+            this.world.save();
+        }
+        this.isResumingGame = true;
+        Log.d("ONPAUSE", "isResume  " + this.isResumingGame);
+        if (this.loadingProgressDialog != null) {
+            this.loadingProgressDialog.dismiss();
+        }
+        if (GameMode.isMultiplayerMode()) {
+            Multiplayer.instance.shutdown();
+            finish();
+        }
+        super.onPause();
+    }
+
+    private void clearReferences() {
+        if (this.application.isCurrentActivity(this)) {
+            this.application.setCurrentActivity(null);
+        }
+    }
+
+    @Override 
+    public void onResume() {
+        this.application.setCurrentActivity(this);
+        if (this.isResumingGame) {
+            this.isResumingGame = false;
+            if (GameMode.isMultiplayerMode()) {
+                super.finish();
+                return;
+            }
+            showResumeDialog();
+        }
+        super.onResume();
+    }
+
+    @Override 
+    public void onDestroy() {
+        TextureFactory.removeListener();
+        if (this.bw != null) {
+            this.bw.destroyWorld();
+            this.bw = null;
+            TextureFactory.deleteAllTextures();
+        }
+        RegionFileCache.clear();
+        System.runFinalization();
+        Runtime.getRuntime().gc();
+        super.onDestroy();
+    }
+
+    @Override 
+    public void finish() {
+        if (this.world != null && this.world.isNewGame) {
+            deleteSave(this.world.dir.getAbsolutePath());
+        }
+        super.finish();
+    }
+
+    private void showResumeDialog() {
+        if (this.resumeDialog == null) {
+            this.resumeDialog = new ProgressDialog(this);
+            this.resumeDialog.setTitle("Please wait");
+            this.resumeDialog.setMessage("Resuming");
+        }
+        runOnUiThread(() -> resumeDialog.show());
+    }
+
+    private void showProgressDialog() {
+        if (this.loadingProgressDialog == null) {
+            this.loadingProgressDialog = new CustomProgressDialog(this) { 
+                @Override 
+                public void onBackPressed() {
+                    if (world != null) {
+                        world.setCancel(true);
+                    }
+                    finish();
+                }
+
+                @Override 
+                public void buttonClick() {
+                    if (world != null) {
+                        world.setCancel(true);
+                    }
+                    finish();
+                }
+            };
+        }
+        this.loadingProgressDialog.show();
+    }
+
+    public void dismissProgresDialog() {
+        this.loadingProgressDialog.dismiss();
+    }
+
+    public void dismissResumeDialog() {
+        this.resumeDialog.dismiss();
+    }
+
+    public void dismissAllLoadingDialogs() {
+        if (this.loadingProgressDialog != null && this.loadingProgressDialog.isShowing()) {
+            this.loadingProgressDialog.dismiss();
+        }
+        if (this.resumeDialog != null && this.resumeDialog.isShowing()) {
+            this.resumeDialog.dismiss();
+        }
+    }
+
+    private void deleteSave(String absolutePath) {
+        File dir = new File(absolutePath);
+        String[] list = dir.list();
+        if (list != null) {
+            for (String str : list) {
+                File file = new File(dir, str);
+                if (file.isFile()) {
+                    Log.d("del_file", "  " + file.delete());
+                }
+                if (file.isDirectory()) {
+                    deleteSave(file.getAbsolutePath());
+                }
+            }
+            if (dir.isDirectory() && list.length == 0) {
+                Log.d("del_dir", "  " + dir.delete());
             }
         }
     }

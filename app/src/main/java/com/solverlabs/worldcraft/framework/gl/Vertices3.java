@@ -1,12 +1,10 @@
 package com.solverlabs.worldcraft.framework.gl;
 
 import android.opengl.GLES10;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
-
 
 public class Vertices3 {
     final boolean hasColor;
@@ -18,11 +16,10 @@ public class Vertices3 {
     final IntBuffer vertices;
 
     public Vertices3(int maxVertices, int maxIndices, boolean hasColor, boolean hasTexCoords, boolean hasNormals) {
-        int i = 0;
         this.hasColor = hasColor;
         this.hasTexCoords = hasTexCoords;
         this.hasNormals = hasNormals;
-        this.vertexSize = ((hasNormals ? 3 : i) + (hasTexCoords ? 2 : 0) + (hasColor ? 4 : 0) + 3) * 4;
+        this.vertexSize = ((hasNormals ? 3 : 0) + (hasTexCoords ? 2 : 0) + (hasColor ? 4 : 0) + 3) * 4;
         this.tmpBuffer = new int[(this.vertexSize * maxVertices) / 4];
         ByteBuffer buffer = ByteBuffer.allocateDirect(this.vertexSize * maxVertices);
         buffer.order(ByteOrder.nativeOrder());
@@ -71,7 +68,6 @@ public class Vertices3 {
     }
 
     public void bind() {
-        int i = 3;
         this.vertices.position(0);
         GLES10.glVertexPointer(3, 5126, this.vertexSize, this.vertices);
         if (this.hasColor) {
@@ -79,10 +75,7 @@ public class Vertices3 {
             GLES10.glColorPointer(4, 5126, this.vertexSize, this.vertices);
         }
         if (this.hasTexCoords) {
-            if (this.hasColor) {
-                i = 7;
-            }
-            this.vertices.position(i);
+            this.vertices.position(this.hasColor ? 7 : 3);
             GLES10.glTexCoordPointer(2, 5126, this.vertexSize, this.vertices);
         }
         if (this.hasNormals) {

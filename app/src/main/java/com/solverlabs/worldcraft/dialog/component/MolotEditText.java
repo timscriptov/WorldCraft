@@ -5,8 +5,9 @@ import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.widget.EditText;
 
+import androidx.appcompat.widget.AppCompatEditText;
 
-public class MolotEditText extends EditText {
+public class MolotEditText extends AppCompatEditText {
     public MolotEditText(Context context) {
         super(context);
         setMolotTypeFace();

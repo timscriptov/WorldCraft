@@ -9,20 +9,19 @@ import com.solverlabs.worldcraft.mob.MobAI;
 import com.solverlabs.worldcraft.mob.MobFactory;
 import com.solverlabs.worldcraft.mob.MobView;
 
-
 public class CowFactory extends MobFactory {
-    @Override
+    @Override 
     protected MobView getMobView(Mob mob) {
         return new CowView((Cow) mob, this.state);
     }
 
-    @Override
+    @Override 
     public void advanceMob(float delta, World world, FPSCamera cam, Player player, Mob mob) {
         MobAI.advance(mob, player);
         super.advanceMob(delta, world, cam, player, mob);
     }
 
-    @Override
+    @Override 
     public void collisionWithBlock(Mob mob, boolean isJumpPossible) {
         if (isJumpPossible) {
             mob.jump();
@@ -31,31 +30,31 @@ public class CowFactory extends MobFactory {
         }
     }
 
-    @Override
+    @Override 
     public void collisionWithMob(Mob mob) {
         MobAI.mobCollision(mob);
     }
 
-    @Override
+    @Override 
     public void collisionWithPlayer(Mob mob, Player player) {
     }
 
-    @Override
+    @Override 
     public int getMaxMobCountAroundPlayer() {
         return 1;
     }
 
-    @Override
+    @Override 
     public Mob createMob(Vector3f location) {
         return new Cow(location);
     }
 
-    @Override
+    @Override 
     public int getMinGroupSize() {
         return 1;
     }
 
-    @Override
+    @Override 
     public int getMaxGroupSize() {
         return 3;
     }

@@ -12,19 +12,15 @@ import com.solverlabs.droid.rugl.util.geom.BoundingRectangle;
 import com.solverlabs.worldcraft.GameMode;
 import com.solverlabs.worldcraft.Player;
 import com.solverlabs.worldcraft.ui.GUI;
-
 import org.apache.commons.compress.archivers.cpio.CpioConstants;
 
-
 public class InventoryTapItem implements Touch.TouchListener {
+    private static final long DROP_TIME = 2000;
     public static final float HALF_WIDTH = 40.0f;
     public static final float HEIGHT = 80.0f;
-    public static final float WIDTH = 80.0f;
-    private static final long DROP_TIME = 2000;
     private static final float TAP_TIME = 0.6f;
+    public static final float WIDTH = 80.0f;
     public BoundingRectangle bounds;
-    public boolean isDrawBounds;
-    protected InventoryItem item;
     private ColouredShape buttonBottomBound;
     private ColouredShape buttonLeftBound;
     private ColouredShape buttonRightBound;
@@ -33,16 +29,18 @@ public class InventoryTapItem implements Touch.TouchListener {
     private long downTime;
     private float dropProgresRatio;
     private ColouredShape dropProgresShape;
-    private int durabilityBrokeColor;
-    private int durabilityFullColor;
-    private int durabilityHalfColor;
+    private final int durabilityBrokeColor;
+    private final int durabilityFullColor;
+    private final int durabilityHalfColor;
     private ColouredShape durabilityShape;
     private ColouredShape innerShape;
+    public boolean isDrawBounds;
+    protected InventoryItem item;
     private long longPressPeriod;
     private long longPressStartTime;
-    private float longPressTime;
+    private final float longPressTime;
     private boolean longPressed;
-    private Player player;
+    private final Player player;
     private Touch.Pointer touch;
     private float x;
     private float y;
@@ -214,12 +212,12 @@ public class InventoryTapItem implements Touch.TouchListener {
 
     @Override
     public boolean pointerAdded(Touch.Pointer p) {
-        if (this.touch != null || !this.bounds.contains(p.x + 40.0f, p.y + 40.0f)) {
-            return false;
+        if (this.touch == null && this.bounds.contains(p.x + 40.0f, p.y + 40.0f)) {
+            this.touch = p;
+            this.downTime = System.currentTimeMillis();
+            return true;
         }
-        this.touch = p;
-        this.downTime = System.currentTimeMillis();
-        return true;
+        return false;
     }
 
     @Override
@@ -240,15 +238,19 @@ public class InventoryTapItem implements Touch.TouchListener {
     }
 
     protected void onTap() {
-        this.player.addItemToHotBar(new InventoryTapItem(this.player, this.item));
+        if (this.player != null) {
+            this.player.addItemToHotBar(new InventoryTapItem(this.player, this.item));
+        }
     }
 
     protected void onLongPress() {
         if (!GameMode.isCreativeMode()) {
             long timeDelta = System.currentTimeMillis() - this.longPressStartTime;
             if (timeDelta >= DROP_TIME) {
-                this.player.dropItemFronHotbar(getInventoryItem());
-                this.player.inventory.remove(getInventoryItem());
+                if (this.player != null) {
+                    this.player.dropItemFronHotbar(getInventoryItem());
+                    this.player.inventory.remove(getInventoryItem());
+                }
             } else if (timeDelta == 0) {
                 this.dropProgresRatio = 0.0f;
             } else {
@@ -263,12 +265,12 @@ public class InventoryTapItem implements Touch.TouchListener {
         }
     }
 
-    public float getYOffset() {
-        return this.yOffset;
-    }
-
     public void setYOffset(float f) {
         this.yOffset = f;
+    }
+
+    public float getYOffset() {
+        return this.yOffset;
     }
 
     public void translateYOffset(float yOffset) {
@@ -279,14 +281,14 @@ public class InventoryTapItem implements Touch.TouchListener {
         return this.y;
     }
 
-    public void setY(float y) {
-        this.y = y;
-        this.bounds.y.set(y);
-    }
-
     public void setX(float x) {
         this.x = x;
         this.bounds.x.set(x);
+    }
+
+    public void setY(float y) {
+        this.y = y;
+        this.bounds.y.set(y);
     }
 
     public void setPosition(float x, float y) {

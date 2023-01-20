@@ -1,7 +1,6 @@
 package com.solverlabs.worldcraft.srv.domain;
 
 @Deprecated
-
 public class Action {
     public static final String ACTION_CHAT_MESSAGE_MODERATED = "chat-message-moderated";
     public static final String ACTION_DEVICE_ID_BLACKLIST_ADD = "deviceid-blacklist-add";
@@ -37,28 +36,28 @@ public class Action {
         return this.createdAt;
     }
 
-    public void setCreatedAt(long j) {
-        this.createdAt = j;
-    }
-
     public long getId() {
         return this.id;
-    }
-
-    public void setId(long j) {
-        this.id = j;
     }
 
     public long getRecordId() {
         return this.recordId;
     }
 
-    public void setRecordId(long j) {
-        this.recordId = j;
-    }
-
     public int getType() {
         return this.type;
+    }
+
+    public void setCreatedAt(long j) {
+        this.createdAt = j;
+    }
+
+    public void setId(long j) {
+        this.id = j;
+    }
+
+    public void setRecordId(long j) {
+        this.recordId = j;
     }
 
     public void setType(String str) {
@@ -78,8 +77,7 @@ public class Action {
             this.type = 7;
         } else if (ACTION_DEVICE_ID_BLACKLIST_REMOVE.equals(str)) {
             this.type = 8;
-        } else if (!ACTION_CHAT_MESSAGE_MODERATED.equals(str)) {
-        } else {
+        } else if (ACTION_CHAT_MESSAGE_MODERATED.equals(str)) {
             this.type = 9;
         }
     }

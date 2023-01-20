@@ -21,6 +21,8 @@ import com.solverlabs.droid.rugl.texture.Texture;
 import com.solverlabs.droid.rugl.texture.TextureFactory;
 import com.solverlabs.droid.rugl.util.Colour;
 import com.solverlabs.worldcraft.etc.Food;
+import com.solverlabs.worldcraft.factories.BlockFactory;
+import com.solverlabs.worldcraft.R;
 import com.solverlabs.worldcraft.ui.FoodBar;
 import com.solverlabs.worldcraft.ui.HealthBar;
 
@@ -30,29 +32,27 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-
 public class ItemFactory {
-    public static final int[] WOOD_DOOR_TEX_COORDS = {11, 2};
-    public static final int[] IRON_DOOR_TEX_COORDS = {12, 2};
-    public static final int[] BED_TEX_COORDS = {13, 2};
-    public static final int[] LADDER_TEX_COORDS = {3, 5};
+    public static State itemState;
+    public static Texture itemTexture;
     private static final int WOOD_WEAPON_DURABILITY = 60;
     private static final int STONE_WEAPON_DURABILITY = 132;
     private static final int IRON_WEAPON_DURABILITY = 251;
     private static final int GOLD_WEAPON_DURABILITY = 33;
     private static final int DIAMOND_WEAPON_DURABILITY = 1562;
-    public static State itemState;
-    public static Texture itemTexture;
+    public static final int[] WOOD_DOOR_TEX_COORDS = {11, 2};
+    public static final int[] IRON_DOOR_TEX_COORDS = {12, 2};
+    public static final int[] BED_TEX_COORDS = {13, 2};
+    public static final int[] LADDER_TEX_COORDS = {3, 5};
     public static Map<Byte, Food> FOOD_ID_LIST = new HashMap<>();
     public static Map<Byte, Integer> WEAPON_ID_LIST = new HashMap<>();
 
     static {
-        Food[] arr$ = Food.values();
-        for (Food food : arr$) {
+        for (Food food : Food.values()) {
             FOOD_ID_LIST.put(food.getId(), food);
         }
-        WEAPON_ID_LIST.put((byte) BlockFactory.WOOD_SWORD_ID, 4);
-        WEAPON_ID_LIST.put((byte) BlockFactory.GOLD_SWORD_ID, 4);
+        WEAPON_ID_LIST.put(BlockFactory.WOOD_SWORD_ID, 4);
+        WEAPON_ID_LIST.put(BlockFactory.GOLD_SWORD_ID, 4);
         WEAPON_ID_LIST.put((byte) 30, 5);
         WEAPON_ID_LIST.put((byte) 34, 6);
         WEAPON_ID_LIST.put((byte) 52, 7);
@@ -75,16 +75,15 @@ public class ItemFactory {
     }
 
     public static void loadTexture() {
-        ResourceLoader.loadNow(new BitmapLoader("items.png") {
+        ResourceLoader.loadNow(new BitmapLoader(R.drawable.items) {
             @Override
             public void complete() {
                 Set<Byte> fuels = FurnaceItemFactory.getFuelList();
                 Set<Byte> materials = FurnaceItemFactory.getMaterialList();
-                ItemFactory.itemTexture = TextureFactory.buildTexture((Image) this.resource, true, false);
+                ItemFactory.itemTexture = TextureFactory.buildTexture(this.resource, true, false);
                 if (ItemFactory.itemTexture != null) {
                     ItemFactory.itemState = ItemFactory.itemTexture.applyTo(ItemFactory.itemState);
-                    Item[] arr$ = Item.values();
-                    for (Item item : arr$) {
+                    for (Item item : Item.values()) {
                         item.initShape();
                         if (fuels.contains(item.id)) {
                             item.setIsFuel(true);
@@ -99,7 +98,6 @@ public class ItemFactory {
             }
         });
     }
-
 
     public enum Item {
         WoodSword(BlockFactory.WOOD_SWORD_ID, 0, 4, 1, ItemFactory.WOOD_WEAPON_DURABILITY, DescriptionFactory.Sword),
@@ -122,7 +120,7 @@ public class ItemFactory {
         GoldShovel((byte) 40, 4, 5, 1, ItemFactory.GOLD_WEAPON_DURABILITY, DescriptionFactory.Shovel),
         GoldPick((byte) 50, 4, 6, 1, ItemFactory.GOLD_WEAPON_DURABILITY, DescriptionFactory.Pickaxe),
         GoldAxe((byte) 51, 4, 7, 1, ItemFactory.GOLD_WEAPON_DURABILITY, DescriptionFactory.Axe),
-        Stick((byte) BlockFactory.STICK_ID, 5, 3, 64, DescriptionFactory.Stick),
+        Stick(BlockFactory.STICK_ID, 5, 3, 64, DescriptionFactory.Stick),
         Stone(BlockFactory.Block.Stone, 64, DescriptionFactory.Stone),
         DirtWithGrass(BlockFactory.Block.DirtWithGrass, 64, DescriptionFactory.emptyText),
         Dirt(BlockFactory.Block.Dirt, 64, DescriptionFactory.emptyText),
@@ -200,11 +198,11 @@ public class ItemFactory {
         WoolLightGray(BlockFactory.Block.WoolLightGray, 64, DescriptionFactory.emptyText),
         NetherBrick(BlockFactory.Block.NetherBrick, 64, DescriptionFactory.emptyText),
         Obsidian2(BlockFactory.Block.Obsidian2, 64, DescriptionFactory.emptyText),
-        IronIgnot((byte) BlockFactory.IRON_INGOT_ID, 7, 1, 64, DescriptionFactory.Ignots),
-        GoldIgnot((byte) BlockFactory.GOLD_INGOT_ID, 7, 2, 64, DescriptionFactory.Ignots),
+        IronIgnot(BlockFactory.IRON_INGOT_ID, 7, 1, 64, DescriptionFactory.Ignots),
+        GoldIgnot(BlockFactory.GOLD_INGOT_ID, 7, 2, 64, DescriptionFactory.Ignots),
         StoneBrick(BlockFactory.Block.StoneBrick, 64, DescriptionFactory.emptyText),
         WaterMellon(BlockFactory.Block.Melon, 64, DescriptionFactory.emptyText),
-        DiamondIgnot((byte) BlockFactory.DIAMOND_INGOT_ID, 7, 3, 64, DescriptionFactory.Ignots),
+        DiamondIgnot(BlockFactory.DIAMOND_INGOT_ID, 7, 3, 64, DescriptionFactory.Ignots),
         Emerald(BlockFactory.Block.Emerald, 64, DescriptionFactory.emptyText),
         Sandstone2(BlockFactory.Block.Sandstone2, 64, DescriptionFactory.emptyText),
         MossStone2(BlockFactory.Block.MossStone2, 64, DescriptionFactory.emptyText),
@@ -212,23 +210,23 @@ public class ItemFactory {
         WoodPlankPine(BlockFactory.Block.WoodPlankPine, 64, DescriptionFactory.emptyText),
         WoodPlankJungle(BlockFactory.Block.WoodPlankJungle, 64, DescriptionFactory.emptyText),
         LeavesJungle(BlockFactory.Block.LeavesJungle, 64, DescriptionFactory.emptyText),
-        ItemsLabel((byte) BlockFactory.ITEMS_LABEL_ID, 10, 1, 1, DescriptionFactory.emptyText),
-        RawPorkchop((byte) BlockFactory.RAW_PORKCHOP_ID, 7, 5, 64, DescriptionFactory.emptyText),
-        Beef((byte) BlockFactory.RAW_BEEF_ID, 9, 6, 64, DescriptionFactory.emptyText),
-        RottenFlesh((byte) BlockFactory.ROTTEN_FLESH_ID, 11, 5, 64, DescriptionFactory.emptyText),
-        Shears((byte) BlockFactory.SHEARS_ID, 13, 5, 1, DescriptionFactory.Shears),
-        Steak((byte) BlockFactory.STEAK_ID, 10, 6, 64, DescriptionFactory.emptyText),
-        CookedPorkchop((byte) BlockFactory.COOKED_PORKCHOP_ID, 8, 5, 64, DescriptionFactory.emptyText);
-
+        ItemsLabel(BlockFactory.ITEMS_LABEL_ID, 10, 1, 1, DescriptionFactory.emptyText),
+        RawPorkchop(BlockFactory.RAW_PORKCHOP_ID, 7, 5, 64, DescriptionFactory.emptyText),
+        Beef(BlockFactory.RAW_BEEF_ID, 9, 6, 64, DescriptionFactory.emptyText),
+        RottenFlesh(BlockFactory.ROTTEN_FLESH_ID, 11, 5, 64, DescriptionFactory.emptyText),
+        Shears(BlockFactory.SHEARS_ID, 13, 5, 1, DescriptionFactory.Shears),
+        Steak(BlockFactory.STEAK_ID, 10, 6, 64, DescriptionFactory.emptyText),
+        CookedPorkchop(BlockFactory.COOKED_PORKCHOP_ID, 8, 5, 64, DescriptionFactory.emptyText);
+        
         public final BlockFactory.Block block;
-        public final int durability;
-        public final int maxCountInStack;
-        public byte id;
-        public TexturedShape itemShape;
         private String description;
+        public final int durability;
+        public byte id;
         private boolean isTool;
         private boolean isUseAsFuel;
         private boolean isUseAsMaterials;
+        public TexturedShape itemShape;
+        public final int maxCountInStack;
         private Integer s;
         private Integer t;
 
@@ -284,6 +282,18 @@ public class ItemFactory {
             }
         }
 
+        public void initShape() {
+            if (this.s != null && this.t != null) {
+                this.itemShape = getShape(this.s, this.t);
+            }
+        }
+
+        @NonNull
+        @Contract(value = " -> new", pure = true)
+        public int[] getTexCoords() {
+            return new int[]{this.s, this.t};
+        }
+
         @NonNull
         @Contract("_ -> new")
         public static TexturedShape getShape(@NonNull int[] texCoords) {
@@ -326,18 +336,6 @@ public class ItemFactory {
                 }
             }
             return null;
-        }
-
-        public void initShape() {
-            if (this.s != null && this.t != null) {
-                this.itemShape = getShape(this.s, this.t);
-            }
-        }
-
-        @NonNull
-        @Contract(value = " -> new", pure = true)
-        public int[] getTexCoords() {
-            return new int[]{this.s, this.t};
         }
 
         public boolean isTool() {

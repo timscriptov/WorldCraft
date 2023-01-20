@@ -1,15 +1,17 @@
 package com.solverlabs.worldcraft.framework.math;
 
+
 import androidx.annotation.NonNull;
 
 import com.solverlabs.droid.rugl.util.FloatMath;
 
+import org.jetbrains.annotations.Contract;
 
 public class Vector2 {
-    public static float TO_RADIANS = 0.017453294f;
-    public static float TO_DEGREES = 57.295776f;
     public float x;
     public float y;
+    public static float TO_RADIANS = 0.017453294f;
+    public static float TO_DEGREES = 57.295776f;
 
     public Vector2() {
     }

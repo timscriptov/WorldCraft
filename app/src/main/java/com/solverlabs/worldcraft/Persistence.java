@@ -2,12 +2,9 @@ package com.solverlabs.worldcraft;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-
 import com.solverlabs.worldcraft.factories.DescriptionFactory;
 
-
 public class Persistence {
-    private static final boolean BANNER_REMOVED_DEFAULT_VALUE = false;
     private static final String BANNER_REMOVED_KEY = "IS_BANNER_REMOVED";
     private static final int ENTER_COUNT_DEFAULT_VALUE = 0;
     private static final String ENTER_COUNT_KEY = "enter_count";
@@ -172,6 +169,14 @@ public class Persistence {
 
     public void setEnterCount(int enterCount) {
         putInt(ENTER_COUNT_KEY, enterCount);
+    }
+
+    public boolean isBannerRemoved() {
+        return getBoolean(BANNER_REMOVED_KEY, false);
+    }
+
+    public void setBannerRemoved(boolean isBannerRemoved) {
+        putBoolean(BANNER_REMOVED_KEY, isBannerRemoved);
     }
 
     public boolean isFirstTimeStarted() {

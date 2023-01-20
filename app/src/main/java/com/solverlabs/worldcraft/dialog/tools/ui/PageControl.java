@@ -1,5 +1,6 @@
 package com.solverlabs.worldcraft.dialog.tools.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
@@ -12,19 +13,23 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-
 import java.util.ArrayList;
-
 
 public class PageControl extends LinearLayout {
     private Drawable activeDrawable;
     private Drawable inactiveDrawable;
     private ArrayList<ImageView> indicators;
-    private Context mContext;
+    private final Context mContext;
     private int mCurrentPage;
     private int mIndicatorSize;
     private OnPageControlClickListener mOnPageControlClickListener;
     private int mPageCount;
+
+    public interface OnPageControlClickListener {
+        void goBackwards();
+
+        void goForwards();
+    }
 
     public PageControl(Context context) {
         super(context);
@@ -47,11 +52,13 @@ public class PageControl extends LinearLayout {
 
     @Override
     protected void onFinishInflate() {
+        super.onFinishInflate();
         initPageControl();
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void initPageControl() {
-        Log.i("uk.co.jasonfry.android.tools.ui.PageControl", "Initialising PageControl");
+        Log.i("PageControl", "Initialising PageControl");
         this.indicators = new ArrayList<>();
         this.activeDrawable = new ShapeDrawable();
         this.inactiveDrawable = new ShapeDrawable();
@@ -68,37 +75,29 @@ public class PageControl extends LinearLayout {
         ((ShapeDrawable) this.activeDrawable).setShape(s1);
         ((ShapeDrawable) this.inactiveDrawable).setShape(s2);
         this.mIndicatorSize = (int) (this.mIndicatorSize * getResources().getDisplayMetrics().density);
-        setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (PageControl.this.mOnPageControlClickListener != null) {
-                    switch (event.getAction()) {
-                        case 1:
-                            if (PageControl.this.getOrientation() == 0) {
-                                if (event.getX() < PageControl.this.getWidth() / 2) {
-                                    if (PageControl.this.mCurrentPage > 0) {
-                                        PageControl.this.mOnPageControlClickListener.goBackwards();
-                                    }
-                                } else if (PageControl.this.mCurrentPage < PageControl.this.mPageCount - 1) {
-                                    PageControl.this.mOnPageControlClickListener.goForwards();
-                                }
-                            } else if (event.getY() < PageControl.this.getHeight() / 2) {
-                                if (PageControl.this.mCurrentPage > 0) {
-                                    PageControl.this.mOnPageControlClickListener.goBackwards();
-                                }
-                            } else if (PageControl.this.mCurrentPage < PageControl.this.mPageCount - 1) {
-                                PageControl.this.mOnPageControlClickListener.goForwards();
+        setOnTouchListener(( View v, MotionEvent event) -> {
+            if (mOnPageControlClickListener != null) {
+                if (event.getAction() == 1) {
+                    if (getOrientation() == LinearLayout.HORIZONTAL) {
+                        if (event.getX() < getWidth() / 2) {
+                            if (mCurrentPage > 0) {
+                                mOnPageControlClickListener.goBackwards();
                             }
-                            return false;
+                        } else if (mCurrentPage < mPageCount - 1) {
+                            mOnPageControlClickListener.goForwards();
+                        }
+                    } else if (event.getY() < getHeight() / 2) {
+                        if (mCurrentPage > 0) {
+                            mOnPageControlClickListener.goBackwards();
+                        }
+                    } else if (mCurrentPage < mPageCount - 1) {
+                        mOnPageControlClickListener.goForwards();
                     }
+                    return false;
                 }
-                return true;
             }
+            return true;
         });
-    }
-
-    public Drawable getActiveDrawable() {
-        return this.activeDrawable;
     }
 
     public void setActiveDrawable(Drawable d) {
@@ -106,8 +105,8 @@ public class PageControl extends LinearLayout {
         this.indicators.get(this.mCurrentPage).setBackgroundDrawable(this.activeDrawable);
     }
 
-    public Drawable getInactiveDrawable() {
-        return this.inactiveDrawable;
+    public Drawable getActiveDrawable() {
+        return this.activeDrawable;
     }
 
     public void setInactiveDrawable(Drawable d) {
@@ -118,8 +117,8 @@ public class PageControl extends LinearLayout {
         this.indicators.get(this.mCurrentPage).setBackgroundDrawable(this.activeDrawable);
     }
 
-    public int getPageCount() {
-        return this.mPageCount;
+    public Drawable getInactiveDrawable() {
+        return this.inactiveDrawable;
     }
 
     public void setPageCount(int pageCount) {
@@ -135,8 +134,8 @@ public class PageControl extends LinearLayout {
         }
     }
 
-    public int getCurrentPage() {
-        return this.mCurrentPage;
+    public int getPageCount() {
+        return this.mPageCount;
     }
 
     public void setCurrentPage(int currentPage) {
@@ -147,8 +146,8 @@ public class PageControl extends LinearLayout {
         }
     }
 
-    public int getIndicatorSize() {
-        return this.mIndicatorSize;
+    public int getCurrentPage() {
+        return this.mCurrentPage;
     }
 
     public void setIndicatorSize(int indicatorSize) {
@@ -158,18 +157,15 @@ public class PageControl extends LinearLayout {
         }
     }
 
-    public OnPageControlClickListener getOnPageControlClickListener() {
-        return this.mOnPageControlClickListener;
+    public int getIndicatorSize() {
+        return this.mIndicatorSize;
     }
 
     public void setOnPageControlClickListener(OnPageControlClickListener onPageControlClickListener) {
         this.mOnPageControlClickListener = onPageControlClickListener;
     }
 
-
-    public interface OnPageControlClickListener {
-        void goBackwards();
-
-        void goForwards();
+    public OnPageControlClickListener getOnPageControlClickListener() {
+        return this.mOnPageControlClickListener;
     }
 }

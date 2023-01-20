@@ -2,16 +2,14 @@ package com.solverlabs.worldcraft.ui;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
-
 import com.solverlabs.worldcraft.activity.OptionActivity;
 import com.solverlabs.worldcraft.factories.DescriptionFactory;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-
 
 public class CustomProgressDialog extends ProgressDialog {
     public CustomProgressDialog(Context context) {
@@ -21,7 +19,7 @@ public class CustomProgressDialog extends ProgressDialog {
         setMessage("Loading chunks");
         setCancelable(true);
         setProgress(0);
-        setButton(OptionActivity.CANCEL, (dialog, which) -> buttonClick());
+        setButton(OptionActivity.CANCEL, (dialog, which) -> CustomProgressDialog.this.buttonClick());
     }
 
     public void updateMax(int loadLimit) {

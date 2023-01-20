@@ -2,22 +2,11 @@ package com.solverlabs.worldcraft.math;
 
 import androidx.annotation.NonNull;
 
+import com.solverlabs.droid.rugl.util.FloatMath;
 import com.solverlabs.droid.rugl.util.geom.Vector3f;
-
 import java.util.Random;
 
-import com.solverlabs.droid.rugl.util.FloatMath;
-
-
 public class MathUtils {
-    public static final float HALF_OF_PI = 1.5707964f;
-    public static final float ONE_AND_HALF_PI = 4.712389f;
-    public static final float PI = 3.1415927f;
-    public static final float TWO_PI = 6.2831855f;
-    public static final float degRad = 0.017453292f;
-    public static final float degreesToRadians = degRad;
-    public static final float radDeg = 57.295776f;
-    public static final float radiansToDegrees = radDeg;
     private static final int ATAN2_BITS = 7;
     private static final int ATAN2_BITS2 = 14;
     private static final int ATAN2_COUNT = 16384;
@@ -25,36 +14,94 @@ public class MathUtils {
     private static final int BIG_ENOUGH_INT = 16384;
     private static final double BIG_ENOUGH_ROUND = 16384.5d;
     private static final double CEIL = 0.9999999d;
+    public static final float HALF_OF_PI = 1.5707964f;
+    public static final float ONE_AND_HALF_PI = 4.712389f;
+    public static final float PI = 3.1415927f;
     private static final int SIN_BITS = 13;
     private static final int SIN_COUNT = 8192;
     private static final int SIN_MASK = 8191;
+    public static final float TWO_PI = 6.2831855f;
     private static final float degFull = 360.0f;
+    public static final float degRad = 0.017453292f;
     private static final float degToIndex = 22.755556f;
-    private static final float radFull = TWO_PI;
+    public static final float degreesToRadians = 0.017453292f;
+    public static final float radDeg = 57.295776f;
+    private static final float radFull = 6.2831855f;
     private static final float radToIndex = 1303.7972f;
+    public static final float radiansToDegrees = 57.295776f;
     private static final double BIG_ENOUGH_FLOOR = 16384.0d;
     static final int ATAN2_DIM = (int) Math.sqrt(BIG_ENOUGH_FLOOR);
     private static final float INV_ATAN2_DIM_MINUS_1 = 1.0f / (ATAN2_DIM - 1);
-    private static final double BIG_ENOUGH_CEIL = NumberUtils.longBitsToDouble(NumberUtils.doubleToLongBits(16385.0d) - 1);
     public static Random random = new Random();
+    private static final double BIG_ENOUGH_CEIL = NumberUtils.longBitsToDouble(NumberUtils.doubleToLongBits(16385.0d) - 1);
 
-    public static float sin(float radians) {
+    public static class Sin {
+        static final float[] table = new float[8192];
+
+        private Sin() {
+        }
+
+        static {
+            for (int i = 0; i < 8192; i++) {
+                table[i] = FloatMath.sin(((i + 0.5f) / 8192.0f) * 6.2831855f);
+            }
+            for (int i2 = 0; i2 < 360; i2 += 90) {
+                table[((int) (i2 * MathUtils.degToIndex)) & MathUtils.SIN_MASK] = FloatMath.sin(i2 * 0.017453292f);
+            }
+        }
+    }
+
+    /* loaded from: classes.dex */
+    public static class Cos {
+        static final float[] table = new float[8192];
+
+        private Cos() {
+        }
+
+        static {
+            for (int i = 0; i < 8192; i++) {
+                table[i] = FloatMath.cos(((i + 0.5f) / 8192.0f) * 6.2831855f);
+            }
+            for (int i2 = 0; i2 < 360; i2 += 90) {
+                table[((int) (i2 * MathUtils.degToIndex)) & MathUtils.SIN_MASK] = FloatMath.cos(i2 * 0.017453292f);
+            }
+        }
+    }
+
+    public static final float sin(float radians) {
         return Sin.table[((int) (radToIndex * radians)) & SIN_MASK];
     }
 
-    public static float cos(float radians) {
+    public static final float cos(float radians) {
         return Cos.table[((int) (radToIndex * radians)) & SIN_MASK];
     }
 
-    public static float sinDeg(float degrees) {
+    public static final float sinDeg(float degrees) {
         return Sin.table[((int) (degToIndex * degrees)) & SIN_MASK];
     }
 
-    public static float cosDeg(float degrees) {
+    public static final float cosDeg(float degrees) {
         return Cos.table[((int) (degToIndex * degrees)) & SIN_MASK];
     }
 
-    public static float atan2(float y, float x) {
+    private static class Atan2 {
+        static final float[] table = new float[16384];
+
+        private Atan2() {
+        }
+
+        static {
+            for (int i = 0; i < MathUtils.ATAN2_DIM; i++) {
+                for (int j = 0; j < MathUtils.ATAN2_DIM; j++) {
+                    float x0 = i / MathUtils.ATAN2_DIM;
+                    float y0 = j / MathUtils.ATAN2_DIM;
+                    table[(MathUtils.ATAN2_DIM * j) + i] = (float) Math.atan2(y0, x0);
+                }
+            }
+        }
+    }
+
+    public static final float atan2(float y, float x) {
         float mul;
         float add;
         if (x < INV_ATAN2_DIM_MINUS_1) {
@@ -65,7 +112,7 @@ public class MathUtils {
                 mul = -1.0f;
             }
             x = -x;
-            add = -PI;
+            add = -3.1415927f;
         } else {
             if (y < INV_ATAN2_DIM_MINUS_1) {
                 y = -y;
@@ -75,33 +122,33 @@ public class MathUtils {
             }
             add = INV_ATAN2_DIM_MINUS_1;
         }
-        float invDiv = 1.0f / ((Math.max(x, y)) * INV_ATAN2_DIM_MINUS_1);
+        float invDiv = 1.0f / ((x < y ? y : x) * INV_ATAN2_DIM_MINUS_1);
         int xi = (int) (x * invDiv);
         int yi = (int) (y * invDiv);
         return (Atan2.table[(ATAN2_DIM * yi) + xi] + add) * mul;
     }
 
-    public static int random(int range) {
+    public static final int random(int range) {
         return random.nextInt(range + 1);
     }
 
-    public static int random(int start, int end) {
+    public static final int random(int start, int end) {
         return random.nextInt((end - start) + 1) + start;
     }
 
-    public static boolean randomBoolean() {
+    public static final boolean randomBoolean() {
         return random.nextBoolean();
     }
 
-    public static float random() {
+    public static final float random() {
         return random.nextFloat();
     }
 
-    public static float random(float range) {
+    public static final float random(float range) {
         return random.nextFloat() * range;
     }
 
-    public static float random(float start, float end) {
+    public static final float random(float start, float end) {
         return (random.nextFloat() * (end - start)) + start;
     }
 
@@ -125,7 +172,7 @@ public class MathUtils {
         if (value < min) {
             return min;
         }
-        return Math.min(value, max);
+        return value > max ? max : value;
     }
 
     public static short clamp(short value, short min, short max) {
@@ -139,7 +186,7 @@ public class MathUtils {
         if (value < min) {
             return min;
         }
-        return Math.min(value, max);
+        return value > max ? max : value;
     }
 
     public static int floor(float x) {
@@ -186,14 +233,14 @@ public class MathUtils {
 
     public static float normalizeAngle(float angle) {
         int mult;
-        if (angle < INV_ATAN2_DIM_MINUS_1 || angle > TWO_PI) {
-            int mult2 = (int) (Math.abs(angle) / TWO_PI);
+        if (angle < INV_ATAN2_DIM_MINUS_1 || angle > 6.2831855f) {
+            int mult2 = (int) (Math.abs(angle) / 6.2831855f);
             if (angle > INV_ATAN2_DIM_MINUS_1) {
                 mult = mult2 * (-1);
             } else {
                 mult = mult2 + 1;
             }
-            return angle + (mult * TWO_PI);
+            return angle + (mult * 6.2831855f);
         }
         return angle;
     }
@@ -204,30 +251,30 @@ public class MathUtils {
         if (Float.compare(angle, INV_ATAN2_DIM_MINUS_1) == 0) {
             result.x = INV_ATAN2_DIM_MINUS_1;
             result.z = velocity;
-        } else if (Float.compare(angle, HALF_OF_PI) == 0) {
+        } else if (Float.compare(angle, 1.5707964f) == 0) {
             result.x = velocity;
             result.z = INV_ATAN2_DIM_MINUS_1;
-        } else if (Float.compare(angle, PI) == 0) {
+        } else if (Float.compare(angle, 3.1415927f) == 0) {
             result.x = INV_ATAN2_DIM_MINUS_1;
             result.z = -velocity;
-        } else if (Float.compare(angle, ONE_AND_HALF_PI) == 0) {
+        } else if (Float.compare(angle, 4.712389f) == 0) {
             result.x = -velocity;
             result.z = INV_ATAN2_DIM_MINUS_1;
-        } else if (angleInRange(angle, INV_ATAN2_DIM_MINUS_1, HALF_OF_PI)) {
+        } else if (angleInRange(angle, INV_ATAN2_DIM_MINUS_1, 1.5707964f)) {
             result.x = 2.0f * velocity * sin(angle);
-            result.z = 2.0f * velocity * sin(HALF_OF_PI - angle);
-        } else if (angleInRange(angle, HALF_OF_PI, PI)) {
-            float tempAngle = angle - HALF_OF_PI;
+            result.z = 2.0f * velocity * sin(1.5707964f - angle);
+        } else if (angleInRange(angle, 1.5707964f, 3.1415927f)) {
+            float tempAngle = angle - 1.5707964f;
             result.z = (-2.0f) * velocity * sin(tempAngle);
-            result.x = 2.0f * velocity * sin(HALF_OF_PI - tempAngle);
-        } else if (angleInRange(angle, PI, ONE_AND_HALF_PI)) {
-            float tempAngle2 = angle - PI;
+            result.x = 2.0f * velocity * sin(1.5707964f - tempAngle);
+        } else if (angleInRange(angle, 3.1415927f, 4.712389f)) {
+            float tempAngle2 = angle - 3.1415927f;
             result.x = (-2.0f) * velocity * sin(tempAngle2);
-            result.z = (-2.0f) * velocity * sin(HALF_OF_PI - tempAngle2);
-        } else if (angleInRange(angle, ONE_AND_HALF_PI, TWO_PI)) {
-            float tempAngle3 = angle - ONE_AND_HALF_PI;
+            result.z = (-2.0f) * velocity * sin(1.5707964f - tempAngle2);
+        } else if (angleInRange(angle, 4.712389f, 6.2831855f)) {
+            float tempAngle3 = angle - 4.712389f;
             result.z = 2.0f * velocity * sin(tempAngle3);
-            result.x = (-2.0f) * velocity * sin(HALF_OF_PI - tempAngle3);
+            result.x = (-2.0f) * velocity * sin(1.5707964f - tempAngle3);
         }
         return result;
     }
@@ -244,12 +291,12 @@ public class MathUtils {
             return getAngleUsingCosTheorem(a, b, c);
         }
         if (a > INV_ATAN2_DIM_MINUS_1 && b < INV_ATAN2_DIM_MINUS_1) {
-            return PI - getAngleUsingCosTheorem(a, -b, c);
+            return 3.1415927f - getAngleUsingCosTheorem(a, -b, c);
         }
         if (a <= INV_ATAN2_DIM_MINUS_1 && b < INV_ATAN2_DIM_MINUS_1) {
-            return getAngleUsingCosTheorem(-a, -b, c) + PI;
+            return getAngleUsingCosTheorem(-a, -b, c) + 3.1415927f;
         }
-        return TWO_PI - getAngleUsingCosTheorem(-a, b, c);
+        return 6.2831855f - getAngleUsingCosTheorem(-a, b, c);
     }
 
     private static float getHypotenuse(float xDiff, float zDiff) {
@@ -258,56 +305,5 @@ public class MathUtils {
 
     private static float getAngleUsingCosTheorem(float a, float b, float c) {
         return (float) Math.acos((((b * b) + (c * c)) - (a * a)) / ((2.0f * b) * c));
-    }
-
-    public static class Sin {
-        static final float[] table = new float[8192];
-
-        static {
-            for (int i = 0; i < 8192; i++) {
-                table[i] = FloatMath.sin(((i + 0.5f) / 8192.0f) * TWO_PI);
-            }
-            for (int i2 = 0; i2 < 360; i2 += 90) {
-                table[((int) (i2 * MathUtils.degToIndex)) & MathUtils.SIN_MASK] = FloatMath.sin(i2 * degreesToRadians);
-            }
-        }
-
-        private Sin() {
-        }
-    }
-
-
-    public static class Cos {
-        static final float[] table = new float[8192];
-
-        static {
-            for (int i = 0; i < 8192; i++) {
-                table[i] = FloatMath.cos(((i + 0.5f) / 8192.0f) * TWO_PI);
-            }
-            for (int i2 = 0; i2 < 360; i2 += 90) {
-                table[((int) (i2 * MathUtils.degToIndex)) & MathUtils.SIN_MASK] = FloatMath.cos(i2 * degreesToRadians);
-            }
-        }
-
-        private Cos() {
-        }
-    }
-
-
-    private static class Atan2 {
-        static final float[] table = new float[16384];
-
-        static {
-            for (int i = 0; i < MathUtils.ATAN2_DIM; i++) {
-                for (int j = 0; j < MathUtils.ATAN2_DIM; j++) {
-                    float x0 = i / MathUtils.ATAN2_DIM;
-                    float y0 = j / MathUtils.ATAN2_DIM;
-                    table[(MathUtils.ATAN2_DIM * j) + i] = (float) Math.atan2(y0, x0);
-                }
-            }
-        }
-
-        private Atan2() {
-        }
     }
 }

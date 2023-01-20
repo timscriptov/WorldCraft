@@ -10,7 +10,6 @@ import com.solverlabs.worldcraft.mob.MobTexturePack;
 import com.solverlabs.worldcraft.mob.TexturedBlockProperties;
 import com.solverlabs.worldcraft.skin.geometry.Parallelepiped;
 
-
 public class PigTexturePack extends MobTexturePack {
     private final Pig mob;
     private TexturedShape snout;
@@ -24,7 +23,7 @@ public class PigTexturePack extends MobTexturePack {
         return this.snout;
     }
 
-    @Override
+    @Override 
     public boolean render(Renderer r) {
         boolean renderNeeds = super.render(r);
         if (renderNeeds && this.snout != null) {
@@ -33,7 +32,7 @@ public class PigTexturePack extends MobTexturePack {
         return renderNeeds;
     }
 
-    @Override
+    @Override 
     public boolean initShapes(int state) {
         boolean needInitShapes = super.initShapes(state);
         if (needInitShapes) {

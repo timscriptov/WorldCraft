@@ -70,7 +70,7 @@ public final class HttpPostBodyUtil2 {
      *
      * @return the rank of the first non whitespace
      */
-    static int findNonWhitespace(String sb, int offset) {
+    static int findNonWhitespace(@NonNull String sb, int offset) {
         int result;
         for (result = offset; result < sb.length(); result++) {
             if (!Character.isWhitespace(sb.charAt(result))) {
@@ -85,7 +85,7 @@ public final class HttpPostBodyUtil2 {
      *
      * @return the rank of the first whitespace
      */
-    static int findWhitespace(String sb, int offset) {
+    static int findWhitespace(@NonNull String sb, int offset) {
         int result;
         for (result = offset; result < sb.length(); result++) {
             if (Character.isWhitespace(sb.charAt(result))) {
@@ -100,7 +100,7 @@ public final class HttpPostBodyUtil2 {
      *
      * @return the rank of the end of string
      */
-    static int findEndOfString(String sb) {
+    static int findEndOfString(@NonNull String sb) {
         int result;
         for (result = sb.length(); result > 0; result--) {
             if (!Character.isWhitespace(sb.charAt(result - 1))) {
@@ -146,6 +146,7 @@ public final class HttpPostBodyUtil2 {
             return value;
         }
 
+        @NonNull
         @Override
         public String toString() {
             return value;

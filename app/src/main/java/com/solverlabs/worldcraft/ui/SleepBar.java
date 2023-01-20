@@ -5,7 +5,7 @@ import androidx.annotation.NonNull;
 import com.solverlabs.droid.rugl.util.Colour;
 import com.solverlabs.worldcraft.Player;
 import com.solverlabs.worldcraft.World;
-
+import com.solverlabs.worldcraft.ui.FadeInOutBar;
 
 public class SleepBar extends FadeInOutBar {
     private static final long FADE_OUT_DURATION = 5000;
@@ -20,7 +20,7 @@ public class SleepBar extends FadeInOutBar {
 
     @Override
     public void advance(float delta) {
-        setFadingStartedAt(this.player.getmKeptDownAt());
+        setFadingStartedAt(this.player.getKeptDownAt());
         super.advance(delta);
     }
 }

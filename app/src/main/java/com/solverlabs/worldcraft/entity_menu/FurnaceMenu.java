@@ -27,37 +27,35 @@ import com.solverlabs.worldcraft.inventory.InventoryItem;
 import com.solverlabs.worldcraft.math.MathUtils;
 import com.solverlabs.worldcraft.ui.CustomButton;
 import com.solverlabs.worldcraft.ui.GUI;
-
 import java.util.ArrayList;
-
 
 public class FurnaceMenu extends CustomMenu {
     private static final int FUEL_SELECTED = 2;
     private static final int MATERIAL_SELECTED = 1;
     private static final float SCALE_VALUE = 100.0f;
     private static final int crafteItemColour = Colour.packFloat(0.8f, 0.8f, 0.8f, 0.5f);
+    private TexturedShape activeArrowShape;
+    private TexturedShape activeFireShape;
+    private TexturedShape arrowShape;
     private final TapPad.Listener buttonGroupListener;
     private final ArrayList<CustomButton> buttonsGroup;
     private final CustomButton craftedItemButton;
     private final TapPad.Listener craftedItemButtonListener;
-    private final CustomButton fuelButton;
-    private final CustomButton materialButton;
-    private final ArrayList<CustomTapItem> tapItems;
-    public BoundingRectangle scissorBound;
-    private TexturedShape activeArrowShape;
-    private TexturedShape activeFireShape;
-    private TexturedShape arrowShape;
     private CustomTapItem craftedTapItem;
     private TextLayout descriptionLayout;
     private ColouredShape fillTitleShape;
     private TexturedShape fireShape;
+    private final CustomButton fuelButton;
     private CustomTapItem fuelTapItem;
     private Furnace furnace;
+    private final CustomButton materialButton;
     private CustomTapItem materialTapItem;
     private boolean needToScroll;
     private float prevYpoint;
+    public BoundingRectangle scissorBound;
     private ColouredShape scissorBoundShape;
     private int selectedItemNumber;
+    private final ArrayList<CustomTapItem> tapItems;
     private TextShape title;
     private float touchDelta;
 
@@ -77,27 +75,27 @@ public class FurnaceMenu extends CustomMenu {
         this.fuelButton.drawText = false;
         this.fuelButton.isStroke = true;
         this.buttonsGroup.add(this.fuelButton);
-        this.buttonGroupListener = new TapPad.Listener() {
-            @Override
+        this.buttonGroupListener = new TapPad.Listener() { 
+            @Override 
             public void onTap(TapPad pad) {
                 removeItemFromFurance(pad);
             }
 
-            @Override
+            @Override 
             public void onLongPress(TapPad pad) {
                 removeItemFromFurance(pad);
             }
 
-            @Override
+            @Override 
             public void onFlick(TapPad pad, int horizontal, int vertical) {
             }
 
-            @Override
+            @Override 
             public void onDoubleTap(TapPad pad) {
             }
         };
-        this.craftedItemButtonListener = new TapPad.Listener() {
-            @Override
+        this.craftedItemButtonListener = new TapPad.Listener() { 
+            @Override 
             public void onTap(TapPad pad) {
                 InventoryItem craftedItem;
                 if (furnace != null && (craftedItem = furnace.getCraftedItem()) != null && !craftedItem.isEmpty()) {
@@ -114,15 +112,15 @@ public class FurnaceMenu extends CustomMenu {
                 }
             }
 
-            @Override
+            @Override 
             public void onLongPress(TapPad pad) {
             }
 
-            @Override
+            @Override 
             public void onFlick(TapPad pad, int horizontal, int vertical) {
             }
 
-            @Override
+            @Override 
             public void onDoubleTap(TapPad pad) {
             }
         };
@@ -161,7 +159,7 @@ public class FurnaceMenu extends CustomMenu {
 
     public void addItemToFurnace(InventoryItem inventoryItem) {
         if (this.selectedItemNumber == 2) {
-            if (this.furnace.addFuel(inventoryItem.m83clone())) {
+            if (this.furnace.addFuel(inventoryItem.clone())) {
                 this.inventory.decItem(inventoryItem);
                 if (inventoryItem.isEmpty() || inventoryItem.isFull()) {
                     initFuranceItems(this.inventory);
@@ -173,7 +171,7 @@ public class FurnaceMenu extends CustomMenu {
             }
         }
         if (this.selectedItemNumber == 1) {
-            if (this.furnace.addMaterial(inventoryItem.m83clone())) {
+            if (this.furnace.addMaterial(inventoryItem.clone())) {
                 this.inventory.decItem(inventoryItem);
                 if (inventoryItem.isEmpty() || inventoryItem.isFull()) {
                     initFuranceItems(this.inventory);
@@ -191,13 +189,13 @@ public class FurnaceMenu extends CustomMenu {
         for (int i = 0; i < inventory.getSize(); i++) {
             final InventoryItem inventoryItem = inventory.getAllInventoryItems().get(i);
             if (!inventoryItem.isEmpty() && ((this.selectedItemNumber == 2 && inventoryItem.isUseAsFuel()) || (this.selectedItemNumber == 1 && inventoryItem.isUseAsMaterial()))) {
-                CustomTapItem furnaceTapItem = new CustomTapItem(inventoryItem) {
-                    @Override
+                CustomTapItem furnaceTapItem = new CustomTapItem(inventoryItem) { 
+                    @Override 
                     protected void onTap() {
                         addItemToFurnace(inventoryItem);
                     }
 
-                    @Override
+                    @Override 
                     protected void onLongPress() {
                         addItemToFurnace(inventoryItem);
                     }
@@ -207,27 +205,27 @@ public class FurnaceMenu extends CustomMenu {
         }
     }
 
-    @Override
+    @Override 
     public boolean pointerAdded(Touch.Pointer p) {
-        if (this.touch != null || !this.bounds.contains(p.x, p.y) || !this.show) {
-            return false;
+        if (this.touch == null && this.bounds.contains(p.x, p.y) && this.show) {
+            this.touch = p;
+            this.exitTap.pointerAdded(this.touch);
+            for (int i = 0; i < this.tapItems.size(); i++) {
+                this.tapItems.get(i).pointerAdded(this.touch);
+            }
+            this.materialButton.pointerAdded(this.touch);
+            this.fuelButton.pointerAdded(this.touch);
+            this.craftedItemButton.pointerAdded(this.touch);
+            if (this.scissorBound.contains(p.x, p.y)) {
+                this.needToScroll = true;
+                this.prevYpoint = this.touch.y;
+            }
+            return true;
         }
-        this.touch = p;
-        this.exitTap.pointerAdded(this.touch);
-        for (int i = 0; i < this.tapItems.size(); i++) {
-            this.tapItems.get(i).pointerAdded(this.touch);
-        }
-        this.materialButton.pointerAdded(this.touch);
-        this.fuelButton.pointerAdded(this.touch);
-        this.craftedItemButton.pointerAdded(this.touch);
-        if (this.scissorBound.contains(p.x, p.y)) {
-            this.needToScroll = true;
-            this.prevYpoint = this.touch.y;
-        }
-        return true;
+        return false;
     }
 
-    @Override
+    @Override 
     public void pointerRemoved(Touch.Pointer p) {
         if (this.touch == p && this.touch != null) {
             this.exitTap.pointerRemoved(this.touch);
@@ -244,11 +242,11 @@ public class FurnaceMenu extends CustomMenu {
         }
     }
 
-    @Override
+    @Override 
     public void reset() {
     }
 
-    @Override
+    @Override 
     public void draw(StackedRenderer sr) {
         super.draw(sr);
         if (this.show) {
@@ -281,7 +279,7 @@ public class FurnaceMenu extends CustomMenu {
                     sr.pushMatrix();
                     sr.translate(710.0f, 235.0f, 0.0f);
                     sr.scale(60.0f, 60.0f, 1.0f);
-                    TexturedShape itemShape = (TexturedShape) item.itemShape.clone();
+                    TexturedShape itemShape = item.itemShape.clone();
                     itemShape.colours = ShapeUtil.expand(crafteItemColour, itemShape.vertexCount());
                     itemShape.render(sr);
                     sr.popMatrix();
@@ -325,8 +323,8 @@ public class FurnaceMenu extends CustomMenu {
         if (this.title == null) {
             Font font = GUI.getFont();
             this.title = font.buildTextShape(TileEntity.FURNACE_ID, Colour.white);
-            this.title.translate(((Game.mGameWidth - font.getStringLength(TileEntity.FURNACE_ID)) / 2.0f) - 50.0f, (Game.mGameHeight - font.size) - 20.0f, 0.0f);
-            Shape s = ShapeUtil.filledQuad(20.0f, Game.mGameHeight - 10.0f, Game.mGameWidth - 68.0f, Game.mGameHeight - 70.0f, 0.0f);
+            this.title.translate(((Game.gameWidth - font.getStringLength(TileEntity.FURNACE_ID)) / 2.0f) - 50.0f, (Game.gameHeight - font.size) - 20.0f, 0.0f);
+            Shape s = ShapeUtil.filledQuad(20.0f, Game.gameHeight - 10.0f, Game.gameWidth - 68.0f, Game.gameHeight - 70.0f, 0.0f);
             this.fillTitleShape = new ColouredShape(s, Colour.packFloat(0.0f, 0.0f, 0.0f, 0.5f), (State) null);
         }
         this.fillTitleShape.render(sr);

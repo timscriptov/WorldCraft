@@ -1,6 +1,5 @@
 package com.solverlabs.worldcraft.math;
 
-
 public class NumberUtils {
     public static int floatToIntBits(float value) {
         return Float.floatToIntBits(value);

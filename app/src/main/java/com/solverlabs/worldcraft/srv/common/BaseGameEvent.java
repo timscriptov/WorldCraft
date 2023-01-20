@@ -1,10 +1,8 @@
 package com.solverlabs.worldcraft.srv.common;
 
-import org.jboss.netty.channel.Channel;
-
 import java.nio.ByteBuffer;
 import java.util.Collection;
-
+import org.jboss.netty.channel.Channel;
 
 public interface BaseGameEvent extends GameEvent {
     void addRecipient(int i);
@@ -15,11 +13,7 @@ public interface BaseGameEvent extends GameEvent {
 
     Channel getChannel();
 
-    void setChannel(Channel channel);
-
     int getClientVersionId();
-
-    void setClientVersionId(int i);
 
     ByteBuffer getInputBuffer();
 
@@ -40,6 +34,10 @@ public interface BaseGameEvent extends GameEvent {
     void putData(byte[] bArr);
 
     void putMessage(String str);
+
+    void setChannel(Channel channel);
+
+    void setClientVersionId(int i);
 
     ByteBuffer toByteBuffer();
 }

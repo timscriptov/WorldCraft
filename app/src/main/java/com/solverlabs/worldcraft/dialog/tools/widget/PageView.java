@@ -6,9 +6,7 @@ import android.view.View;
 import android.widget.Adapter;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
-
 import com.solverlabs.worldcraft.dialog.tools.ui.SwipeView;
-
 
 public class PageView extends BounceSwipeView {
     private Adapter mAdapter;
@@ -49,13 +47,17 @@ public class PageView extends BounceSwipeView {
         return this.mOffset;
     }
 
+    public void setCarouselEnabled(boolean enabled) {
+        this.mCarouselMode = enabled;
+        setBounceEnabled(!enabled);
+    }
+
     public boolean getCarouselEnabled() {
         return this.mCarouselMode;
     }
 
-    public void setCarouselEnabled(boolean enabled) {
-        this.mCarouselMode = enabled;
-        setBounceEnabled(!enabled);
+    public void setAdapter(BaseAdapter adapter) {
+        setAdapter(adapter, 0);
     }
 
     public void setAdapter(BaseAdapter adapter, final int startPosition) {
@@ -63,20 +65,16 @@ public class PageView extends BounceSwipeView {
         if (this.mAdapter != null) {
             this.mCurrentPage = startPosition;
             fillCarousel(startPosition);
-            post(new Runnable() {
-                @Override
-                public void run() {
-                    if (PageView.this.mCarouselMode || startPosition != 0) {
-                        if (PageView.this.mCarouselMode || startPosition != PageView.this.mAdapter.getCount() - 1) {
-                            PageView.super.scrollToPage(1);
-                            return;
-                        } else {
-                            PageView.super.scrollToPage(2);
-                            return;
-                        }
+            post(() -> {
+                if (PageView.this.mCarouselMode || startPosition != 0) {
+                    if (PageView.this.mCarouselMode || startPosition != PageView.this.mAdapter.getCount() - 1) {
+                        PageView.super.scrollToPage(1);
+                    } else {
+                        PageView.super.scrollToPage(2);
                     }
-                    PageView.super.scrollToPage(0);
+                    return;
                 }
+                PageView.super.scrollToPage(0);
             });
             if (this.mAdapter.getCount() <= 1) {
                 setBounceEnabled(true);
@@ -86,10 +84,6 @@ public class PageView extends BounceSwipeView {
 
     public Adapter getAdapter() {
         return this.mAdapter;
-    }
-
-    public void setAdapter(BaseAdapter adapter) {
-        setAdapter(adapter, 0);
     }
 
     private int getAdapterPageCount() {
@@ -128,7 +122,7 @@ public class PageView extends BounceSwipeView {
                 loadPage(this.mAdapter.getCount() - 1, 0, null);
                 loadPage(0, 1, null);
                 loadPage(1, 2, null);
-            } else if (page == 0 && !this.mCarouselMode) {
+            } else if (page == 0) {
                 loadPage(0, 0, null);
                 loadPage(1, 1, null);
                 loadPage(2, 2, null);
@@ -150,13 +144,13 @@ public class PageView extends BounceSwipeView {
     }
 
     @Override
-    public SwipeView.OnPageChangedListener getOnPageChangedListener() {
-        return this.mOnPageChangedListener;
+    public void setOnPageChangedListener(SwipeView.OnPageChangedListener onPageChangedListener) {
+        this.mOnPageChangedListener = onPageChangedListener;
     }
 
     @Override
-    public void setOnPageChangedListener(SwipeView.OnPageChangedListener onPageChangedListener) {
-        this.mOnPageChangedListener = onPageChangedListener;
+    public SwipeView.OnPageChangedListener getOnPageChangedListener() {
+        return this.mOnPageChangedListener;
     }
 
     private void loadPage(int page, int position, View convertView) {
@@ -235,14 +229,11 @@ public class PageView extends BounceSwipeView {
             } else {
                 pageToScrollTo = 1;
             }
-            post(new Runnable() {
-                @Override
-                public void run() {
-                    if (smooth) {
-                        PageView.super.smoothScrollToPage(pageToScrollTo);
-                    } else {
-                        PageView.super.scrollToPage(pageToScrollTo);
-                    }
+            post(() -> {
+                if (smooth) {
+                    PageView.super.smoothScrollToPage(pageToScrollTo);
+                } else {
+                    PageView.super.scrollToPage(pageToScrollTo);
                 }
             });
         }

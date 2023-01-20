@@ -1,6 +1,8 @@
 package com.solverlabs.worldcraft.multiplayer.dialogs;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
@@ -9,10 +11,10 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import com.solverlabs.worldcraft.R;
-
 import java.util.ArrayList;
-
 
 public class AddAdapter extends BaseAdapter {
     public static final int ITEM_APPWIDGET = 1;
@@ -22,8 +24,25 @@ public class AddAdapter extends BaseAdapter {
     private final LayoutInflater mInflater;
     private final ArrayList<ListItem> mItems = new ArrayList<>();
 
-    public AddAdapter(Activity launcher) {
-        this.mInflater = (LayoutInflater) launcher.getSystemService("layout_inflater");
+    public static class ListItem {
+        public final int actionTag;
+        public final Drawable image;
+        public final CharSequence text;
+
+        @SuppressLint("UseCompatLoadingForDrawables")
+        public ListItem(@NonNull Resources res, int textResourceId, int imageResourceId, int actionTag) {
+            this.text = res.getString(textResourceId);
+            if (imageResourceId != -1) {
+                this.image = res.getDrawable(imageResourceId);
+            } else {
+                this.image = null;
+            }
+            this.actionTag = actionTag;
+        }
+    }
+
+    public AddAdapter(@NonNull Activity launcher) {
+        this.mInflater = (LayoutInflater) launcher.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         Resources res = launcher.getResources();
         this.mItems.add(new ListItem(res, R.string.red_man, R.drawable.man1, 0));
         this.mItems.add(new ListItem(res, R.string.sensei_man, R.drawable.man2, 1));
@@ -56,7 +75,7 @@ public class AddAdapter extends BaseAdapter {
         TextView textView = (TextView) convertView;
         textView.setTag(item);
         textView.setText(item.text);
-        textView.setCompoundDrawablesWithIntrinsicBounds(item.image, (Drawable) null, (Drawable) null, (Drawable) null);
+        textView.setCompoundDrawablesWithIntrinsicBounds(item.image, null, null, null);
         return convertView;
     }
 
@@ -73,22 +92,5 @@ public class AddAdapter extends BaseAdapter {
     @Override
     public long getItemId(int position) {
         return position;
-    }
-
-
-    public class ListItem {
-        public final int actionTag;
-        public final Drawable image;
-        public final CharSequence text;
-
-        public ListItem(Resources res, int textResourceId, int imageResourceId, int actionTag) {
-            this.text = res.getString(textResourceId);
-            if (imageResourceId != -1) {
-                this.image = res.getDrawable(imageResourceId);
-            } else {
-                this.image = null;
-            }
-            this.actionTag = actionTag;
-        }
     }
 }

@@ -5,8 +5,10 @@ import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatImageView;
 
-public class RotatableImageView extends ImageView {
+public class RotatableImageView extends AppCompatImageView {
     private int mRotation;
     private float mXPivot;
     private float mYPivot;
@@ -25,6 +27,10 @@ public class RotatableImageView extends ImageView {
         this.mYPivot = 0.0f;
     }
 
+    public void setRotation(int rotation) {
+        setRotation(rotation, 0.5f, 0.5f);
+    }
+
     public void setRotation(int rotation, float xPivot, float yPivot) {
         this.mRotation = rotation;
         this.mXPivot = xPivot;
@@ -36,10 +42,6 @@ public class RotatableImageView extends ImageView {
         return this.mRotation;
     }
 
-    public void setRotation(int rotation) {
-        setRotation(rotation, 0.5f, 0.5f);
-    }
-
     public float getXPivot() {
         return this.mXPivot;
     }
@@ -49,7 +51,7 @@ public class RotatableImageView extends ImageView {
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(@NonNull Canvas canvas) {
         canvas.save();
         canvas.rotate(this.mRotation, getWidth() * this.mXPivot, getHeight() * this.mYPivot);
         super.onDraw(canvas);

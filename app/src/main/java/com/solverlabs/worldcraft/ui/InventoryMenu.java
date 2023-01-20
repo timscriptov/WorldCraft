@@ -1,7 +1,6 @@
 package com.solverlabs.worldcraft.ui;
 
 import android.opengl.GLES10;
-
 import com.solverlabs.droid.rugl.Game;
 import com.solverlabs.droid.rugl.geom.ColouredShape;
 import com.solverlabs.droid.rugl.geom.DoorBlock;
@@ -18,30 +17,28 @@ import com.solverlabs.worldcraft.factories.BlockFactory;
 import com.solverlabs.worldcraft.inventory.InventoryItem;
 import com.solverlabs.worldcraft.inventory.InventoryTapItem;
 import com.solverlabs.worldcraft.math.MathUtils;
-
 import java.util.ArrayList;
-
+import java.util.Iterator;
 
 public class InventoryMenu implements Touch.TouchListener {
+    private boolean autoScrollDown;
+    private ColouredShape boundsShape;
+    private ColouredShape downScrollArrowShape;
+    private ColouredShape innerShape;
     private final Player player;
-    private final ArrayList<InventoryTapItem> renderItemsList = new ArrayList<>();
+    private float prevYpoint;
+    private ColouredShape scrollSliderShape;
+    private float sliderSize;
+    private Touch.Pointer touch;
+    private float touchDelta;
+    private ColouredShape upScrollArrowShape;
+    private boolean show = false;
     public BoundingRectangle bounds = new BoundingRectangle(55.0f, 100.0f, 675.0f, 320.0f);
     public int boundsColour = Colour.packFloat(1.0f, 1.0f, 1.0f, 1.0f);
     public int arrowColour = Colour.packFloat(1.0f, 1.0f, 1.0f, 1.0f);
     public int innerColour = Colour.packInt(148, 134, 123, 255);
     public int sliderColour = Colour.grey;
-    private boolean autoScrollDown;
-    private ColouredShape boundsShape;
-    private ColouredShape downScrollArrowShape;
-    private ColouredShape innerShape;
-    private float prevYpoint;
-    private ColouredShape scrollSliderShape;
-    private float sliderSize;
-    private float sliderY;
-    private Touch.Pointer touch;
-    private float touchDelta;
-    private ColouredShape upScrollArrowShape;
-    private boolean show = false;
+    private final ArrayList<InventoryTapItem> renderItemsList = new ArrayList<>();
     private boolean autoScrollUp = false;
     private boolean itemInited = false;
 
@@ -54,8 +51,7 @@ public class InventoryMenu implements Touch.TouchListener {
         int k = 0;
         if (GameMode.isCreativeMode() && !this.itemInited) {
             int id = 0;
-            BlockFactory.Block[] arr$ = BlockFactory.Block.values();
-            for (BlockFactory.Block block : arr$) {
+            for (BlockFactory.Block block : BlockFactory.Block.values()) {
                 if (!DoorBlock.isOpenedDoor(block.id) && block != BlockFactory.Block.Ladder) {
                     float x = this.bounds.x.getMin() + (84.0f / 2.0f) + (k * 84.0f);
                     if (x > this.bounds.x.getMax()) {
@@ -118,8 +114,8 @@ public class InventoryMenu implements Touch.TouchListener {
             drawInnerShape(sr);
             sr.render();
             GLES10.glEnable(3089);
-            float deltaX = Game.mScreenWidth / Game.mGameWidth;
-            float deltaY = Game.mScreenHeight / Game.mGameHeight;
+            float deltaX = Game.screenWidth / Game.gameWidth;
+            float deltaY = Game.screenHeight / Game.gameHeight;
             GLES10.glScissor((int) (40.0f * deltaX), (int) (100.0f * deltaY), (int) (710.0f * deltaX), (int) (320.0f * deltaY));
             for (int i = 0; i < this.renderItemsList.size(); i++) {
                 this.renderItemsList.get(i).draw(sr, this.touchDelta);
@@ -179,7 +175,7 @@ public class InventoryMenu implements Touch.TouchListener {
     private void drawBoundShape(StackedRenderer sr) {
         if (this.boundsShape == null) {
             Shape bs = ShapeUtil.innerQuad(this.bounds.x.getMin() - 5.0f, this.bounds.y.getMin() - 5.0f, this.bounds.x.getMax() + 5.0f, this.bounds.y.getMax() + 5.0f, 5.0f, 0.0f);
-            this.boundsShape = new ColouredShape(bs, this.boundsColour, (State) null);
+            this.boundsShape = new ColouredShape(bs, this.boundsColour, null);
         }
         this.boundsShape.render(sr);
     }
@@ -187,7 +183,7 @@ public class InventoryMenu implements Touch.TouchListener {
     private void drawInnerShape(StackedRenderer sr) {
         if (this.innerShape == null) {
             Shape is = ShapeUtil.innerQuad(this.bounds.x.getMin(), this.bounds.y.getMin(), this.bounds.x.getMax(), this.bounds.y.getMax(), this.bounds.y.getSpan(), 0.0f);
-            this.innerShape = new ColouredShape(is, this.innerColour, (State) null);
+            this.innerShape = new ColouredShape(is, this.innerColour, null);
         }
         this.innerShape.render(sr);
     }
@@ -195,11 +191,11 @@ public class InventoryMenu implements Touch.TouchListener {
     private void drawScrollArrows(StackedRenderer sr) {
         if (this.downScrollArrowShape == null) {
             Shape us = ShapeUtil.triangle(750.0f, 100.0f, 750.0f, 140.0f, 770.0f, 140.0f);
-            this.downScrollArrowShape = new ColouredShape(us, this.arrowColour, (State) null);
+            this.downScrollArrowShape = new ColouredShape(us, this.arrowColour, null);
         }
         if (this.upScrollArrowShape == null) {
             Shape us2 = ShapeUtil.triangle(750.0f, 420.0f, 750.0f, 380.0f, 770.0f, 380.0f);
-            this.upScrollArrowShape = new ColouredShape(us2, this.arrowColour, (State) null);
+            this.upScrollArrowShape = new ColouredShape(us2, this.arrowColour, null);
         }
         this.upScrollArrowShape.render(sr);
         this.downScrollArrowShape.render(sr);
@@ -213,12 +209,12 @@ public class InventoryMenu implements Touch.TouchListener {
             size = 240.0f / size2;
             this.sliderSize = size;
             Shape ss = ShapeUtil.filledQuad(750.0f, 140.0f, 765.0f, 140.0f + size, 0.0f);
-            this.scrollSliderShape = new ColouredShape(ss, this.sliderColour, (State) null);
+            this.scrollSliderShape = new ColouredShape(ss, this.sliderColour, null);
         }
         float delta = (this.bounds.y.getMin() - getBlockBarItems().get(0).bounds.y.getMin()) + 40.0f;
         if (this.touchDelta != 0.0f && !this.autoScrollDown && !this.autoScrollUp) {
-            this.sliderY = ((240.0f - size) * delta) / 540.0f;
-            float y = 140.0f + this.sliderY;
+            float sliderY = ((240.0f - size) * delta) / 540.0f;
+            float y = 140.0f + sliderY;
             if (y < 140.0f) {
                 y = 140.0f;
             }
@@ -232,15 +228,15 @@ public class InventoryMenu implements Touch.TouchListener {
 
     @Override
     public boolean pointerAdded(Touch.Pointer p) {
-        if (this.touch != null || !this.bounds.contains(p.x, p.y) || !this.show) {
-            return false;
+        if (this.touch == null && this.bounds.contains(p.x, p.y) && this.show) {
+            this.touch = p;
+            for (InventoryTapItem item : getBlockBarItems()) {
+                item.pointerAdded(this.touch);
+            }
+            this.prevYpoint = this.touch.y;
+            return true;
         }
-        this.touch = p;
-        for (InventoryTapItem item : getBlockBarItems()) {
-            item.pointerAdded(this.touch);
-        }
-        this.prevYpoint = this.touch.y;
-        return true;
+        return false;
     }
 
     @Override

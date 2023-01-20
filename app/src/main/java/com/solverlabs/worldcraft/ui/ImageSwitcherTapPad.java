@@ -4,10 +4,9 @@ import com.solverlabs.droid.rugl.geom.TexturedShape;
 import com.solverlabs.droid.rugl.gl.StackedRenderer;
 import com.solverlabs.worldcraft.factories.ItemFactory;
 
-
 public class ImageSwitcherTapPad extends ImageTapPad {
-    private final TexturedShape shape;
     private boolean isOn;
+    private final TexturedShape shape;
 
     public ImageSwitcherTapPad(float x, float y, float width, float height, int w, int h, int w2, int h2) {
         super(x, y, width, height, w, h);

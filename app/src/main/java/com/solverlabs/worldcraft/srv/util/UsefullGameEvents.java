@@ -3,9 +3,8 @@ package com.solverlabs.worldcraft.srv.util;
 import java.util.HashSet;
 import java.util.Set;
 
-
 public class UsefullGameEvents {
-    public static final Set<Byte> USEFULL_ACTIONS = new HashSet();
+    public static final Set<Byte> USEFULL_ACTIONS = new HashSet<>();
 
     static {
         USEFULL_ACTIONS.add((byte) 1);
@@ -22,6 +21,6 @@ public class UsefullGameEvents {
     }
 
     public static boolean contains(byte b) {
-        return USEFULL_ACTIONS.contains(Byte.valueOf(b));
+        return USEFULL_ACTIONS.contains(b);
     }
 }

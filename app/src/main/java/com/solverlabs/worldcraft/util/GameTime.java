@@ -1,13 +1,14 @@
 package com.solverlabs.worldcraft.util;
 
-
 public class GameTime {
+    private static long currentGameTime;
     private static long lastPlayedTime;
     private static long systemStartSessionTime;
     private static long timeOffset = 0;
 
     public static long getTime() {
-        return (System.currentTimeMillis() - systemStartSessionTime) + lastPlayedTime + timeOffset;
+        currentGameTime = (System.currentTimeMillis() - systemStartSessionTime) + lastPlayedTime + timeOffset;
+        return currentGameTime;
     }
 
     public static void initTime(long lastPlayedTime2) {

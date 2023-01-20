@@ -9,6 +9,7 @@ import com.solverlabs.droid.rugl.text.Font;
 import com.solverlabs.droid.rugl.text.TextShape;
 import com.solverlabs.droid.rugl.util.Colour;
 import com.solverlabs.droid.rugl.util.FPSCamera;
+import com.solverlabs.droid.rugl.util.FloatMath;
 import com.solverlabs.droid.rugl.util.geom.Frustum;
 import com.solverlabs.droid.rugl.util.geom.Vector3f;
 import com.solverlabs.droid.rugl.util.math.Range;
@@ -16,11 +17,7 @@ import com.solverlabs.worldcraft.factories.BlockFactory;
 import com.solverlabs.worldcraft.multiplayer.Multiplayer;
 import com.solverlabs.worldcraft.skin.geometry.generator.SkinGeometryGenerator;
 import com.solverlabs.worldcraft.srv.domain.Camera;
-
 import java.util.Comparator;
-
-import com.solverlabs.droid.rugl.util.FloatMath;
-
 
 public class Enemy implements Comparable<Enemy> {
     private static final float BODY_Y_OFFSET = 0.1875f;
@@ -51,36 +48,32 @@ public class Enemy implements Comparable<Enemy> {
         if (lhs == null) {
             return -1;
         }
-        if (lhs.name != null && rhs.name != null) {
+        if (lhs != null && rhs != null && lhs.name != null && rhs.name != null) {
             return lhs.name.compareToIgnoreCase(rhs.name);
         }
         return 0;
     };
-    private final Vector3f targetEye = new Vector3f();
-    private final Vector3f targetAt = new Vector3f();
     public float angle;
-    public float handLegWalkAngle;
-    public int id;
-    public String name;
-    public short skin;
-    public float actionHandMovementAngle = MIN_ACTION_ANGLE;
-    public Vector3f eye = new Vector3f();
-    public Vector3f at = new Vector3f();
     private TexturedShape body;
     private boolean currVisible;
     private float distance;
+    public float handLegWalkAngle;
     private TexturedShape head;
+    public int id;
     private byte lastActionType;
     private TexturedShape leftHand;
     private TexturedShape leftLeg;
     private long moveEndTime;
     private long moveStartTime;
+    public String name;
     private TextShape nameShape;
     private float prevCamHeading;
     private boolean prevVisible;
     private TexturedShape rightHand;
     private TexturedShape rightLeg;
+    public short skin;
     private boolean targetReached = false;
+    public float actionHandMovementAngle = MIN_ACTION_ANGLE;
     private float legMultiplyParam = 1.0f;
     private float actionHandMovementMultiplyParam = 1.0f;
     private long lastMoveTime = 0;
@@ -88,44 +81,13 @@ public class Enemy implements Comparable<Enemy> {
     private long avgMoveDiffTime = 200;
     private boolean isGeometryDirty = true;
     private boolean forceUpdateGeometry = false;
+    public Vector3f eye = new Vector3f();
+    public Vector3f at = new Vector3f();
+    private final Vector3f targetEye = new Vector3f();
+    private final Vector3f targetAt = new Vector3f();
 
     public Enemy() {
         invalidateShapes();
-    }
-
-    public static float getAngle(float atX, float atY, float atZ) {
-        float a = 0.0f;
-        float b = 0.0f;
-        float anglePlus = 0.0f;
-        float angleMinus = 0.0f;
-        if (atZ == 0.0f) {
-            atZ = -0.01f;
-        }
-        if (atX >= -1.0f && atX < 0.0f && atZ >= 0.0f && atZ <= 1.0f) {
-            a = atZ;
-            b = atX;
-            angleMinus = 1.5707964f;
-        } else if (atX >= -1.0f && atX < 0.0f && atZ >= -1.0f && atZ <= 0.0f) {
-            a = atZ;
-            b = atX;
-            anglePlus = 1.5707964f;
-        } else if (atX >= 0.0f && atX <= 1.0f && atZ >= -1.0f && atZ <= 0.0f) {
-            a = atX;
-            b = atZ;
-            anglePlus = 3.1415927f;
-        } else if (atX >= 0.0f && atX <= 1.0f && atZ > 0.0f && atZ <= 1.0f) {
-            a = atZ;
-            b = atX;
-            anglePlus = 4.712389f;
-            angleMinus = 3.1415927f;
-        }
-        float c = (float) Math.pow((a * a) + (b * b), 0.5d);
-        float cos = (-b) / c;
-        float angle = (float) (angleMinus + ((angleMinus != 0.0f ? -1 : 1) * Math.acos(cos)) + anglePlus);
-        if (Float.compare(angle, Float.NaN) == 0) {
-            angle = 0.0f;
-        }
-        return (-1.0f) * angle;
     }
 
     public void onMovement(Camera camera) {
@@ -529,5 +491,40 @@ public class Enemy implements Comparable<Enemy> {
         this.rightLeg = null;
         this.leftLeg = null;
         this.nameShape = null;
+    }
+
+    public static float getAngle(float atX, float atY, float atZ) {
+        float a = 0.0f;
+        float b = 0.0f;
+        float anglePlus = 0.0f;
+        float angleMinus = 0.0f;
+        if (atZ == 0.0f) {
+            atZ = -0.01f;
+        }
+        if (atX >= -1.0f && atX < 0.0f && atZ >= 0.0f && atZ <= 1.0f) {
+            a = atZ;
+            b = atX;
+            angleMinus = 1.5707964f;
+        } else if (atX >= -1.0f && atX < 0.0f && atZ >= -1.0f && atZ <= 0.0f) {
+            a = atZ;
+            b = atX;
+            anglePlus = 1.5707964f;
+        } else if (atX >= 0.0f && atX <= 1.0f && atZ >= -1.0f && atZ <= 0.0f) {
+            a = atX;
+            b = atZ;
+            anglePlus = 3.1415927f;
+        } else if (atX >= 0.0f && atX <= 1.0f && atZ > 0.0f && atZ <= 1.0f) {
+            a = atZ;
+            b = atX;
+            anglePlus = 4.712389f;
+            angleMinus = 3.1415927f;
+        }
+        float c = (float) Math.pow((a * a) + (b * b), 0.5d);
+        float cos = (-b) / c;
+        float angle = (float) (angleMinus + ((angleMinus != 0.0f ? -1 : 1) * Math.acos(cos)) + anglePlus);
+        if (Float.compare(angle, Float.NaN) == 0) {
+            angle = 0.0f;
+        }
+        return (-1.0f) * angle;
     }
 }

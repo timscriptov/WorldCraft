@@ -1,6 +1,5 @@
 package com.solverlabs.worldcraft.domain;
 
-
 public interface Damagable {
     boolean isDead();
 

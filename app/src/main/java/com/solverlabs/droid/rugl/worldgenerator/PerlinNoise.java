@@ -3,13 +3,11 @@ package com.solverlabs.droid.rugl.worldgenerator;
 import com.solverlabs.worldcraft.math.MathUtils;
 import com.solverlabs.worldcraft.srv.util.ObjectCodec;
 import com.solverlabs.worldcraft.ui.Interaction;
-
+import java.util.Random;
 import org.apache.commons.compress.archivers.cpio.CpioConstants;
 import org.apache.commons.compress.archivers.tar.TarConstants;
 
-import java.util.Random;
-
-
+/* loaded from: classes.dex */
 public class PerlinNoise {
     private static final int GRADIENT_MASK_TABLE = 256;
     private static final int mask = 255;

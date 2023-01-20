@@ -1,6 +1,5 @@
 package com.solverlabs.worldcraft.ui;
 
-
 public class SectionItem implements OptionItem {
     private final String title;
 

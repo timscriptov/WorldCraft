@@ -1,5 +1,6 @@
 package com.solverlabs.worldcraft.srv.domain;
 
+import androidx.annotation.NonNull;
 
 public class PlayerDefault implements Player {
     public static final long MAX_IDLE_TIME = 120000;
@@ -20,7 +21,8 @@ public class PlayerDefault implements Player {
     private Room room;
     private short skin;
 
-    public static Player create(Camera camera) {
+    @NonNull
+    public static Player create(@NonNull Camera camera) {
         PlayerDefault playerDefault = new PlayerDefault();
         playerDefault.setId(camera.playerId);
         playerDefault.updateCamera(camera);
@@ -44,174 +46,173 @@ public class PlayerDefault implements Player {
         if (this.id == playerDefault.getId() && this.playerName == null && playerDefault.getPlayerName() == null) {
             return true;
         }
-        if (this.playerName == null) {
-            return false;
+        if (this.playerName != null) {
+            return this.playerName.equals(playerDefault.getPlayerName());
         }
-        return this.playerName.equals(playerDefault.getPlayerName());
+        return false;
     }
 
-    @Override
+    @Override 
     public String getAndroidApiLevel() {
         return this.androidApiLevel;
     }
 
-    @Override
-    public void setAndroidApiLevel(String str) {
-        this.androidApiLevel = str;
-    }
-
-    @Override
+    @Override 
     public Camera getCamera() {
         return this.camera;
     }
 
-    @Override
-    public void setCamera(Camera camera) {
-        this.camera = camera;
-    }
-
-    @Override
+    @Override 
     public String getClientVersion() {
         return this.clientVersion;
     }
 
-    @Override
-    public void setClientVersion(String str) {
-        this.clientVersion = str;
-    }
-
-    @Override
+    @Override 
     public long getDevId() {
         return 0L;
     }
 
-    @Override
+    @Override 
     public String getDeviceId() {
         return this.deviceId;
     }
 
-    @Override
-    public void setDeviceId(String str) {
-        this.deviceId = str;
-    }
-
-    @Override
+    @Override 
     public String getDeviceName() {
         return this.deviceName;
     }
 
-    @Override
-    public void setDeviceName(String str) {
-        this.deviceName = str;
-    }
-
-    @Override
+    @Override 
     public int getId() {
         return this.id;
     }
 
-    @Override
-    public void setId(int i) {
-        this.id = i;
-    }
-
-    @Override
+    @Override 
     public String getIp() {
         return this.playerName;
     }
 
-    @Override
+    @Override 
     public long getLastRequestTime() {
         return this.lastRequestTime;
     }
 
-    @Override
-    public void setLastRequestTime(long j) {
-        this.lastRequestTime = j;
-    }
-
-    @Override
+    @Override 
     public String getOsVersion() {
         return this.osVersion;
     }
 
-    @Override
-    public void setOsVersion(String str) {
-        this.osVersion = str;
-    }
-
-    @Override
+    @Override 
     public String getPlayerName() {
         return this.playerName;
     }
 
-    @Override
-    public void setPlayerName(String str) {
-        this.playerName = str;
-    }
-
-    @Override
+    @Override 
     public Room getRoom() {
         return this.room;
     }
 
-    @Override
-    public void setRoom(Room room) {
-        this.room = room;
-    }
-
-    @Override
+    @Override 
     public short getSkin() {
         return this.skin;
-    }
-
-    @Override
-    public void setSkin(short s) {
-        this.skin = s;
     }
 
     public int hashCode() {
         return this.playerName.hashCode();
     }
 
-    @Override
+    @Override 
     public boolean inRoom() {
         return this.room != null;
     }
 
-    @Override
+    @Override 
     public boolean isGraphicsInited() {
         return this.isGraphicsInited;
     }
 
-    @Override
-    public void setGraphicsInited(boolean z) {
-        this.isGraphicsInited = z;
-    }
-
-    @Override
+    @Override 
     public boolean loggedIn() {
         return this.loggedIn;
     }
 
-    @Override
+    @Override 
     public boolean requiresRemove() {
         return System.currentTimeMillis() - this.lastRequestTime > MAX_IDLE_TIME;
     }
 
-    @Override
+    @Override 
+    public void setAndroidApiLevel(String str) {
+        this.androidApiLevel = str;
+    }
+
+    @Override 
+    public void setCamera(Camera camera) {
+        this.camera = camera;
+    }
+
+    @Override 
+    public void setClientVersion(String str) {
+        this.clientVersion = str;
+    }
+
+    @Override 
+    public void setDeviceId(String str) {
+        this.deviceId = str;
+    }
+
+    @Override 
+    public void setDeviceName(String str) {
+        this.deviceName = str;
+    }
+
+    @Override 
+    public void setGraphicsInited(boolean z) {
+        this.isGraphicsInited = z;
+    }
+
+    @Override 
+    public void setId(int i) {
+        this.id = i;
+    }
+
+    @Override 
+    public void setLastRequestTime(long j) {
+        this.lastRequestTime = j;
+    }
+
+    @Override 
     public void setLoggedIn(boolean z) {
         this.loggedIn = z;
     }
 
-    public String toString() {
-        StringBuffer stringBuffer = new StringBuffer();
-        stringBuffer.append("Player @, id:").append(this.id).append(" name: ").append(this.playerName).append(" skin: ").append((int) this.skin).append(" camera: " + this.camera);
-        return stringBuffer.toString();
+    @Override 
+    public void setOsVersion(String str) {
+        this.osVersion = str;
     }
 
-    @Override
-    public void updateCamera(Camera camera) {
+    @Override 
+    public void setPlayerName(String str) {
+        this.playerName = str;
+    }
+
+    @Override 
+    public void setRoom(Room room) {
+        this.room = room;
+    }
+
+    @Override 
+    public void setSkin(short s) {
+        this.skin = s;
+    }
+
+    @NonNull
+    public String toString() {
+        return "Player @, id:" + this.id + " name: " + this.playerName + " skin: " + (int) this.skin + " camera: " + this.camera;
+    }
+
+    @Override 
+    public void updateCamera(@NonNull Camera camera) {
         this.camera.playerId = camera.playerId;
         this.camera.position.x = camera.position.x;
         this.camera.position.y = camera.position.y;

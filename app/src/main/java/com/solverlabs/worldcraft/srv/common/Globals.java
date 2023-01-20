@@ -1,6 +1,5 @@
 package com.solverlabs.worldcraft.srv.common;
 
-
 public class Globals {
     public static final long CHANNEL_WRITE_SLEEP = 10;
     public static final int DEFAULT_CONTROLLER_WORKERS = 30;

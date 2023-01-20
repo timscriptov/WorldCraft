@@ -4,7 +4,6 @@ import com.solverlabs.droid.rugl.gl.StackedRenderer;
 import com.solverlabs.worldcraft.inventory.InventoryItem;
 import com.solverlabs.worldcraft.inventory.InventoryTapItem;
 
-
 public class CustomTapItem extends InventoryTapItem {
     public CustomTapItem(InventoryItem item) {
         super(item);

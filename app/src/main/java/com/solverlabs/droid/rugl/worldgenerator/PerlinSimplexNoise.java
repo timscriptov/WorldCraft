@@ -2,11 +2,10 @@ package com.solverlabs.droid.rugl.worldgenerator;
 
 import com.solverlabs.worldcraft.srv.util.ObjectCodec;
 import com.solverlabs.worldcraft.ui.Interaction;
-
 import org.apache.commons.compress.archivers.cpio.CpioConstants;
 import org.apache.commons.compress.archivers.tar.TarConstants;
 
-
+/* loaded from: classes.dex */
 public class PerlinSimplexNoise {
     private static int[][] grad3 = {new int[]{1, 1, 0}, new int[]{-1, 1, 0}, new int[]{1, -1, 0}, new int[]{-1, -1, 0}, new int[]{1, 0, 1}, new int[]{-1, 0, 1}, new int[]{1, 0, -1}, new int[]{-1, 0, -1}, new int[]{0, 1, 1}, new int[]{0, -1, 1}, new int[]{0, 1, -1}, new int[]{0, -1, -1}};
     private static int[][] grad4 = {new int[]{0, 1, 1, 1}, new int[]{0, 1, 1, -1}, new int[]{0, 1, -1, 1}, new int[]{0, 1, -1, -1}, new int[]{0, -1, 1, 1}, new int[]{0, -1, 1, -1}, new int[]{0, -1, -1, 1}, new int[]{0, -1, -1, -1}, new int[]{1, 0, 1, 1}, new int[]{1, 0, 1, -1}, new int[]{1, 0, -1, 1}, new int[]{1, 0, -1, -1}, new int[]{-1, 0, 1, 1}, new int[]{-1, 0, 1, -1}, new int[]{-1, 0, -1, 1}, new int[]{-1, 0, -1, -1}, new int[]{1, 1, 0, 1}, new int[]{1, 1, 0, -1}, new int[]{1, -1, 0, 1}, new int[]{1, -1, 0, -1}, new int[]{-1, 1, 0, 1}, new int[]{-1, 1, 0, -1}, new int[]{-1, -1, 0, 1}, new int[]{-1, -1, 0, -1}, new int[]{1, 1, 1, 0}, new int[]{1, 1, -1, 0}, new int[]{1, -1, 1, 0}, new int[]{1, -1, -1, 0}, new int[]{-1, 1, 1, 0}, new int[]{-1, 1, -1, 0}, new int[]{-1, -1, 1, 0}, new int[]{-1, -1, -1, 0}};

@@ -1,41 +1,43 @@
 package com.solverlabs.droid.rugl.util;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.DialogInterface;
+import android.os.Environment;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.solverlabs.worldcraft.R;
 import com.solverlabs.worldcraft.World;
 import com.solverlabs.worldcraft.nbt.Tag;
 import com.solverlabs.worldcraft.nbt.TagLoader;
 import com.solverlabs.worldcraft.util.Properties;
 import com.solverlabs.worldcraft.util.WorldGenerator;
-
-import org.jetbrains.annotations.Contract;
-
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.Stack;
 import java.util.TreeSet;
 
-
+/* loaded from: classes.dex */
 public class WorldUtils {
     private static final String WORLDS_HOME = "games/worldcraft/";
-    private static final ArrayList<File> mWorlds = new ArrayList<>();
-    private static final ArrayList<File> mCreativeModeWorlds = new ArrayList<>();
-    private static final ArrayList<File> mSurvivalModeWorlds = new ArrayList<>();
-    private static final FileFilter DIR_FILTER = pathname -> pathname.isDirectory() && pathname.listFiles() != null;
     public static File WORLD_DIR = null;
+    private static ArrayList<File> worlds = new ArrayList<>();
+    private static ArrayList<File> creativeModeWorlds = new ArrayList<>();
+    private static ArrayList<File> survivalModeWorlds = new ArrayList<>();
+    private static FileFilter DIR_FILTER = new FileFilter() { // from class: com.solverlabs.droid.rugl.util.WorldUtils.1
+        @Override // java.io.FileFilter
+        public boolean accept(File pathname) {
+            return pathname.isDirectory() && pathname.listFiles() != null;
+        }
+    };
 
     public static boolean isStorageAvailable(Context context) {
         try {
@@ -50,17 +52,34 @@ public class WorldUtils {
         if (activity == null) {
             Log.e("WorldCraft", "Activity is null in WorldUtils.showStorageNotFoundDialog() method");
         } else {
-            activity.runOnUiThread(() -> {
-                MaterialAlertDialogBuilder materialAlertDialogBuilder = new MaterialAlertDialogBuilder(activity);
-                materialAlertDialogBuilder.setTitle(R.string.storage_not_found);
-                materialAlertDialogBuilder.setNeutralButton(android.R.string.ok, null);
-                materialAlertDialogBuilder.show();
+            activity.runOnUiThread(new Runnable() { // from class: com.solverlabs.droid.rugl.util.WorldUtils.2
+                @Override // java.lang.Runnable
+                public void run() {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                    builder.setTitle(R.string.storage_not_found).setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() { // from class: com.solverlabs.droid.rugl.util.WorldUtils.2.1
+                        @Override // android.content.DialogInterface.OnClickListener
+                        public void onClick(DialogInterface dialog, int id) {
+                        }
+                    });
+                    AlertDialog alert = builder.create();
+                    alert.show();
+                }
             });
         }
     }
 
-    private static File getWorldDir(@NonNull Context context) {
+    private static File getWorldDir(Context context) throws StorageNotFoundException {
         return context.getExternalFilesDir(null);
+    }
+
+    private static void testDir(File worldDir) throws IOException {
+        File testFile = new File(worldDir, "test.file");
+        testFile.createNewFile();
+        testFile.delete();
+    }
+
+    private static File getExternalStorage() {
+        return new File(Environment.getExternalStorageDirectory() + "/" + WORLDS_HOME);
     }
 
     private static File getInternalStorage(Context context) {
@@ -68,32 +87,42 @@ public class WorldUtils {
         return contextWrapper.getDir("games", 0);
     }
 
-    @Nullable
-    @Contract(pure = true)
     public static File getWorld(int position) {
-        return mWorlds.get(position);
+        if (worlds != null) {
+            return worlds.get(position);
+        }
+        return null;
     }
 
     public static void addWorld(File dir) {
-        mWorlds.add(dir);
+        if (worlds != null) {
+            worlds.add(dir);
+        }
     }
 
-    @NonNull
     public static ArrayList<File> getWorldList() {
-        return new ArrayList<>(mWorlds);
+        ArrayList<File> result = new ArrayList<>();
+        if (worlds != null) {
+            result.addAll(worlds);
+        }
+        return result;
     }
 
-    public static ArrayList<File> getmCreativeModeWorlds() {
-        return mCreativeModeWorlds;
+    public static ArrayList<File> getCreativeModeWorlds() {
+        return creativeModeWorlds;
     }
 
-    public static ArrayList<File> getmSurvivalModeWorlds() {
-        return mSurvivalModeWorlds;
+    public static ArrayList<File> getSurvivalModeWorlds() {
+        return survivalModeWorlds;
     }
 
-    @NonNull
     public static Collection<WorldInfo> getWorldListSortedByLastModification(Context context) throws StorageNotFoundException {
-        Collection<WorldInfo> result = new TreeSet<>((a, b) -> a.mModifiedAt > b.mModifiedAt ? -1 : 1);
+        Collection<WorldInfo> result = new TreeSet<>(new Comparator<WorldInfo>() { // from class: com.solverlabs.droid.rugl.util.WorldUtils.3
+            @Override // java.util.Comparator
+            public int compare(WorldInfo a, WorldInfo b) {
+                return a.modifiedAt > b.modifiedAt ? -1 : 1;
+            }
+        });
         searchSaves(context);
         for (File file : getWorldList()) {
             result.add(getWorldInfo(file));
@@ -102,9 +131,9 @@ public class WorldUtils {
     }
 
     public static void searchSaves(Context context) throws StorageNotFoundException {
-        mWorlds.clear();
-        mCreativeModeWorlds.clear();
-        mSurvivalModeWorlds.clear();
+        worlds.clear();
+        creativeModeWorlds.clear();
+        survivalModeWorlds.clear();
         WORLD_DIR = getWorldDir(context);
         Stack<File> dirs = new Stack<>();
         File temp = WORLD_DIR;
@@ -116,23 +145,25 @@ public class WorldUtils {
             File dir = dirs.pop();
             if (isWorld(dir)) {
                 if (!Properties.MULTIPLAYER_WORLD_NAME.equals(dir.getName())) {
-                    mWorlds.add(dir);
+                    worlds.add(dir);
                     try {
                         WorldInfo worldInfo = getWorldInfo(dir);
                         if (worldInfo.isSurvival()) {
-                            mSurvivalModeWorlds.add(dir);
+                            survivalModeWorlds.add(dir);
                         } else {
-                            mCreativeModeWorlds.add(dir);
+                            creativeModeWorlds.add(dir);
                         }
                     } catch (Throwable th) {
-                        mCreativeModeWorlds.add(dir);
+                        creativeModeWorlds.add(dir);
                     }
                 }
             } else {
                 File[] subDirs = dir.listFiles(DIR_FILTER);
                 if (subDirs != null) {
                     Arrays.sort(subDirs);
-                    Collections.addAll(dirs, subDirs);
+                    for (File subDir : subDirs) {
+                        dirs.add(subDir);
+                    }
                 }
             }
         }
@@ -140,32 +171,28 @@ public class WorldUtils {
 
     private static boolean isWorld(File dir) {
         try {
-            File[] files = dir.listFiles();
-            if (files != null) {
-                for (File f : files) {
-                    if (f != null && f.getName().equals(World.LEVEL_DAT_FILE_NAME)) {
-                        return true;
-                    }
+            File[] arr$ = dir.listFiles();
+            for (File f : arr$) {
+                if (f != null && f.getName().equals(World.LEVEL_DAT_FILE_NAME)) {
+                    return true;
                 }
             }
         } catch (Throwable th) {
-            th.printStackTrace();
         }
         return false;
     }
 
-    @NonNull
     private static WorldInfo getWorldInfo(final File file) {
         final WorldInfo worldInfo = new WorldInfo(file);
-        TagLoader tagLoader = new TagLoader(new File(file, World.LEVEL_DAT_FILE_NAME)) {
-            @Override
+        TagLoader tagLoader = new TagLoader(new File(file, World.LEVEL_DAT_FILE_NAME)) { // from class: com.solverlabs.droid.rugl.util.WorldUtils.4
+            @Override // com.solverlabs.droid.rugl.res.ResourceLoader.Loader
             public void complete() {
                 Tag gameType;
                 try {
                     if (this.resource != null && (gameType = ((Tag) this.resource).findTagByName(WorldGenerator.GAME_TYPE)) != null) {
-                        worldInfo.mIsCreative = (Integer) gameType.getValue() == 1;
+                        worldInfo.isCreative = ((Integer) gameType.getValue()).intValue() == 1;
                     }
-                    worldInfo.mModifiedAt = WorldUtils.getLastModification(file);
+                    worldInfo.modifiedAt = WorldUtils.getLastModification(file);
                 } catch (Throwable t) {
                     t.printStackTrace();
                 }
@@ -183,43 +210,40 @@ public class WorldUtils {
     public static long getLastModification(File file) {
         File regionDir = new File(file, World.REGION_DIR_NAME);
         long lastModified = 0;
-        String[] files = regionDir.list();
-        if (files != null) {
-            for (String fileName : files) {
-                File mapFile = new File(regionDir, fileName);
-                lastModified = Math.max(lastModified, mapFile.lastModified());
-            }
+        String[] arr$ = regionDir.list();
+        for (String fileName : arr$) {
+            File mapFile = new File(regionDir, fileName);
+            lastModified = Math.max(lastModified, mapFile.lastModified());
         }
         return lastModified;
     }
 
-
+    /* loaded from: classes.dex */
     public static class WorldInfo {
-        public File mFile;
-        public boolean mIsCreative = true;
-        public long mModifiedAt;
-        public String mName;
+        public File file;
+        public boolean isCreative = true;
+        public long modifiedAt;
+        public String name;
 
-        public WorldInfo(@NonNull File file) {
-            this.mFile = file;
-            this.mName = file.getName();
+        public WorldInfo(File file) {
+            this.file = file;
+            this.name = file.getName();
         }
 
         public boolean isCreative() {
-            return this.mIsCreative;
+            return this.isCreative;
         }
 
         public boolean isSurvival() {
-            return !this.mIsCreative;
+            return !this.isCreative;
         }
 
-        @NonNull
         public String toString() {
-            return "[name: " + this.mName + "; modified_at: " + this.mModifiedAt + "; is_creative: " + this.mIsCreative;
+            return "[name: " + this.name + "; modified_at: " + this.modifiedAt + "; is_creative: " + this.isCreative;
         }
     }
 
-
+    /* loaded from: classes.dex */
     public static class StorageNotFoundException extends IOException {
         public StorageNotFoundException() {
             super("Storage not found");

@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import com.solverlabs.droid.rugl.geom.DoorBlock;
 import com.solverlabs.droid.rugl.input.TapPad;
 import com.solverlabs.droid.rugl.util.FPSCamera;
+import com.solverlabs.droid.rugl.util.FloatMath;
 import com.solverlabs.droid.rugl.util.geom.BoundingCuboid;
 import com.solverlabs.droid.rugl.util.geom.Vector2f;
 import com.solverlabs.droid.rugl.util.geom.Vector3f;
@@ -27,59 +28,32 @@ import com.solverlabs.worldcraft.nbt.Tag;
 import com.solverlabs.worldcraft.ui.GUI;
 import com.solverlabs.worldcraft.util.FallDetector;
 import com.solverlabs.worldcraft.util.GameTime;
-
 import java.util.ArrayList;
-
-import com.solverlabs.droid.rugl.util.FloatMath;
-
+import java.util.Iterator;
 
 public class Player implements Damagable {
     public static final float ATTACKING_ENEMY_EXHAUSTION = 0.3f;
     public static final float DESTROY_BLOCK_EXHAUSTION = 0.025f;
-    public static final float FOOD_POISONING_EXHAUSTION = 0.5f;
-    public static final float JUMP_EXHAUSTION = 0.2f;
-    public static final int MAX_FOOD_LEVEL = 20;
-    public static final int MIN_HUNGER_DAMAGE_HEALTH_POINTS = 2;
-    public static final float RECEIVING_DAMAGE_EXHAUSTION = 0.3f;
-    public static final float WALK_EXHAUSTION = 0.01f;
     private static final int EAT_TIMEOUT = 2000;
     private static final String FOOD_EXHAUSTION_LEVEL_TAG = "foodExhaustionLevel";
     private static final String FOOD_LEVEL_TAG = "foodLevel";
+    public static final float FOOD_POISONING_EXHAUSTION = 0.5f;
     private static final String FOOD_SATURATION_LEVEL_TAG = "foodSaturationLevel";
     private static final String FOOD_TIMER_TAG = "foodTimer";
     private static final int FOOD_TIMER_TIMEOUT = 4000;
     private static final int HEALTHY_FOOD_LEVEL = 17;
     private static final int HEALTH_IS_JUST_UPDATED_TIMEOUT = 200;
     private static final int HUNGRY_FOOD_LEVEL = 0;
+    public static final float JUMP_EXHAUSTION = 0.2f;
     private static final float MAX_FOOD_EXHAUSTION = 4.0f;
+    public static final int MAX_FOOD_LEVEL = 20;
     private static final int MAX_HEALTH_POINTS = 20;
+    public static final int MIN_HUNGER_DAMAGE_HEALTH_POINTS = 2;
     private static final String PLAYER_HEALTH_TAG = "Health";
+    public static final float RECEIVING_DAMAGE_EXHAUSTION = 0.3f;
     private static final int STEP_NOTIFICATION_DELAY = 400;
     private static final long TIMEOUT_BETWEEN_DAMAGE = 2000;
-    private final World mWorld;
-    private final Vector3f collideCorrection = new Vector3f();
-    private final BoundingCuboid blockBounds = new BoundingCuboid(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-    private final BoundingCuboid intersection = new BoundingCuboid(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-    private final Vector3f forward = new Vector3f();
-    private final FallDetector fallDetector = new FallDetector(this);
-    public float speed = MAX_FOOD_EXHAUSTION;
-    public float crouchedSpeed = 2.0f;
-    public float jumpSpeed = 6.0f;
-    public float gravity = -10.0f;
-    public boolean ghost = false;
-    public float width = 0.2f;
-    public float height = 1.8f;
-    public float eyeLevel = 0.9f;
-    public float crouchedEyeLevel = 0.65f;
-    public boolean onGround = false;
-    public Vector2f rotation = new Vector2f();
-    public Vector3f position = new Vector3f();
-    public Vector3f spawnPosition = new Vector3f();
-    public Vector3f velocity = new Vector3f();
-    public BoundingCuboid playerBounds = new BoundingCuboid(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-    public ArrayList<InventoryTapItem> hotbar = new ArrayList<>();
-    public InventoryItem inHand = null;
-    public Inventory inventory = new Inventory(this);
+    public static final float WALK_EXHAUSTION = 0.01f;
     private long eatingStartedAt;
     private float exhaustionWalkDistance;
     private float foodExhaustionLevel;
@@ -87,13 +61,38 @@ public class Player implements Damagable {
     private float foodSaturationLevel;
     private long foodTimer;
     private long healthUpdatedAt;
-    private long mKeptDownAt;
+    private long keptDownAt;
     private long lastAdvanceAt;
     private long lastAdvanceInterval;
     private long lastStepNotificationAt;
+    private final World world;
+    public float speed = MAX_FOOD_EXHAUSTION;
+    public float crouchedSpeed = 2.0f;
+    public float jumpSpeed = 6.0f;
+    public float gravity = -10.0f;
+    public boolean ghost = false;
+    public float width = 0.2f;
+    public float height = 1.8f;
+    public float eyeLevel = 1.2f; // 0.9f
+    public float crouchedEyeLevel = 0.65f;
+    public boolean onGround = false;
     private boolean crouched = false;
+    public Vector2f rotation = new Vector2f();
+    private BlockFactory.WorldSide currentWorldSide = BlockFactory.WorldSide.North;
+    public Vector3f position = new Vector3f();
+    public Vector3f spawnPosition = new Vector3f();
+    public Vector3f velocity = new Vector3f();
+    private final Vector3f collideCorrection = new Vector3f();
+    private short healthPoints = 20;
+    public BoundingCuboid playerBounds = new BoundingCuboid(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+    private final BoundingCuboid blockBounds = new BoundingCuboid(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+    private final BoundingCuboid intersection = new BoundingCuboid(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+    private final Vector3f forward = new Vector3f();
+    private Long damagedAt = System.currentTimeMillis();
+    public ArrayList<InventoryTapItem> hotbar = new ArrayList<>();
+    public InventoryItem inHand = null;
     public TapPad.Listener jumpCrouchListener = new TapPad.Listener() {
-        @Override
+        @Override 
         public void onTap(TapPad pad) {
             if (ghost) {
                 ghost = false;
@@ -101,7 +100,7 @@ public class Player implements Damagable {
             doJump();
         }
 
-        @Override
+        @Override 
         public void onFlick(TapPad pad, int horizontal, int vertical) {
             if (vertical == 1) {
                 onTap(pad);
@@ -110,36 +109,35 @@ public class Player implements Damagable {
             }
         }
 
-        @Override
+        @Override 
         public void onLongPress(TapPad pad) {
             crouched = true;
         }
 
-        @Override
+        @Override 
         public void onDoubleTap(TapPad pad) {
             if (GameMode.isCreativeMode()) {
                 ghost = true;
             }
         }
     };
-    private BlockFactory.WorldSide currentWorldSide = BlockFactory.WorldSide.North;
-    private short healthPoints = 20;
-    private Long damagedAt = System.currentTimeMillis();
-
-    public Player(World world) {
-        mWorld = world;
-        resetSavedPosition();
-    }
+    public Inventory inventory = new Inventory(this);
+    private final FallDetector fallDetector = new FallDetector(this);
 
     public void doJump() {
-        if (crouched) {
-            crouched = false;
-        } else if (onGround) {
-            velocity.y = jumpSpeed;
+        if (this.crouched) {
+            this.crouched = false;
+        } else if (this.onGround) {
+            this.velocity.y = this.jumpSpeed;
             if (GameMode.isSurvivalMode()) {
                 increaseExhaustionLevel(0.2f);
             }
         }
+    }
+
+    public Player(World world) {
+        this.world = world;
+        resetSavedPosition();
     }
 
     public void init(Tag levelTag) {
@@ -169,9 +167,9 @@ public class Player implements Damagable {
             float x = (Integer) levelTag.findTagByName("SpawnX").getValue();
             float y = (Integer) levelTag.findTagByName("SpawnY").getValue();
             float z = (Integer) levelTag.findTagByName("SpawnZ").getValue();
-            spawnPosition.set(x, y, z);
+            this.spawnPosition.set(x, y, z);
         } catch (Exception e) {
-            spawnPosition.set(50.0f, 80.0f, 50.0f);
+            this.spawnPosition.set(50.0f, 80.0f, 50.0f);
         }
     }
 
@@ -185,7 +183,7 @@ public class Player implements Damagable {
             boolean isInHotbar = (Integer) itemTag.findTagByName("Hotbar").getValue() == 1;
             if (count > 0) {
                 InventoryItem invItem = new InventoryItem(id, slot, damage, count, isInHotbar);
-                inventory.insertItem(invItem);
+                this.inventory.insertItem(invItem);
                 if (isInHotbar) {
                     addItemToHotBar(new InventoryTapItem(this, invItem));
                 }
@@ -196,8 +194,8 @@ public class Player implements Damagable {
     private void saveInventory(@NonNull Tag playerTag) {
         playerTag.removeSubTag(playerTag.findTagByName("Inventory"));
         Tag inventoryTag = new Tag("Inventory", Tag.Type.TAG_Compound);
-        for (int i = 0; i < inventory.getSize(); i++) {
-            InventoryItem element = inventory.getElement(i);
+        for (int i = 0; i < this.inventory.getSize(); i++) {
+            InventoryItem element = this.inventory.getElement(i);
             if (element.getItemID() != 0) {
                 Tag[] tags = new Tag[6];
                 tags[0] = new Tag(Tag.Type.TAG_Int, "Slot", element.getSlot());
@@ -216,12 +214,12 @@ public class Player implements Damagable {
     private void initHealth(@NonNull Tag levelTag) {
         Object healthValue = levelTag.getTagValue(PLAYER_HEALTH_TAG);
         if (healthValue != null) {
-            healthPoints = (Short) healthValue;
+            this.healthPoints = (Short) healthValue;
         }
     }
 
     private void saveHealth(@NonNull Tag playerTag) {
-        playerTag.saveTagValue(Tag.Type.TAG_Short, PLAYER_HEALTH_TAG, healthPoints);
+        playerTag.saveTagValue(Tag.Type.TAG_Short, PLAYER_HEALTH_TAG, this.healthPoints);
     }
 
     private void initFoodLevel(@NonNull Tag levelTag) {
@@ -229,132 +227,132 @@ public class Player implements Damagable {
         Object foodSaturationLevelValue = levelTag.getTagValue(FOOD_SATURATION_LEVEL_TAG);
         Object foodTimerValue = levelTag.getTagValue(FOOD_TIMER_TAG);
         Object foodExhaustionLevelValue = levelTag.getTagValue(FOOD_EXHAUSTION_LEVEL_TAG);
-        foodLevel = foodLevelValue != null ? (Short) foodLevelValue : (short) 20;
-        foodSaturationLevel = foodSaturationLevelValue != null ? (Float) foodSaturationLevelValue : foodLevel;
-        foodTimer = foodTimerValue != null ? (Long) foodTimerValue : 0L;
-        foodExhaustionLevel = foodExhaustionLevelValue != null ? (Float) foodExhaustionLevelValue : 0.0f;
+        this.foodLevel = foodLevelValue != null ? (Short) foodLevelValue : (short) 20;
+        this.foodSaturationLevel = foodSaturationLevelValue != null ? (Float) foodSaturationLevelValue : this.foodLevel;
+        this.foodTimer = foodTimerValue != null ? (Long) foodTimerValue : 0L;
+        this.foodExhaustionLevel = foodExhaustionLevelValue != null ? (Float) foodExhaustionLevelValue : 0.0f;
     }
 
     private void saveFoodLevel(@NonNull Tag playerTag) {
-        playerTag.saveTagValue(Tag.Type.TAG_Short, FOOD_LEVEL_TAG, foodLevel);
-        playerTag.saveTagValue(Tag.Type.TAG_Float, FOOD_SATURATION_LEVEL_TAG, foodSaturationLevel);
-        playerTag.saveTagValue(Tag.Type.TAG_Long, FOOD_TIMER_TAG, foodTimer);
-        playerTag.saveTagValue(Tag.Type.TAG_Float, FOOD_EXHAUSTION_LEVEL_TAG, foodExhaustionLevel);
+        playerTag.saveTagValue(Tag.Type.TAG_Short, FOOD_LEVEL_TAG, this.foodLevel);
+        playerTag.saveTagValue(Tag.Type.TAG_Float, FOOD_SATURATION_LEVEL_TAG, this.foodSaturationLevel);
+        playerTag.saveTagValue(Tag.Type.TAG_Long, FOOD_TIMER_TAG, this.foodTimer);
+        playerTag.saveTagValue(Tag.Type.TAG_Float, FOOD_EXHAUSTION_LEVEL_TAG, this.foodExhaustionLevel);
     }
 
     public void setSpawnPosition(Vector3i target) {
-        spawnPosition.set(target);
+        this.spawnPosition.set(target);
     }
 
     public void reSpawnPosition() {
-        position.set(spawnPosition);
-        fallDetector.reset(position);
-        velocity.set(0.0f, 0.0f, 0.0f);
+        this.position.set(this.spawnPosition);
+        this.fallDetector.reset(this.position);
+        this.velocity.set(0.0f, 0.0f, 0.0f);
     }
 
     public void resetSavedPosition() {
-        position.set(mWorld.mStartPosition);
-        fallDetector.reset(position);
-        velocity.set(0.0f, 0.0f, 0.0f);
+        this.position.set(this.world.startPosition);
+        this.fallDetector.reset(this.position);
+        this.velocity.set(0.0f, 0.0f, 0.0f);
     }
 
     public void setWorldStartPosAsSpawnPos() {
-        spawnPosition.set(mWorld.mStartPosition);
+        this.spawnPosition.set(this.world.startPosition);
     }
 
     public boolean spawnBedExists(int x, int y, int z) {
-        return spawnPosition.y - 1.0f == ((float) y) && spawnPosition.z == ((float) z) && spawnPosition.x >= ((float) (x + (-1))) && spawnPosition.x <= ((float) (x + 1));
+        return this.spawnPosition.y - 1.0f == ((float) y) && this.spawnPosition.z == ((float) z) && this.spawnPosition.x >= ((float) (x + (-1))) && this.spawnPosition.x <= ((float) (x + 1));
     }
 
     public void advance(float delta, FPSCamera cam, GUI gui) {
-        if (mWorld.getChunklet(position.x, position.y, position.z) != null) {
+        if (this.world.getChunklet(this.position.x, this.position.y, this.position.z) != null) {
             updateLastAdvanceInterval();
-            rotation.set(cam.getHeading(), cam.getElevation());
-            forward.set(cam.forward);
-            float s = crouched ? crouchedSpeed : speed;
-            float diffX = delta * s * ((gui.left.y * forward.x) - (gui.left.x * cam.right.x));
-            float diffZ = delta * s * ((gui.left.y * forward.z) - (gui.left.x * cam.right.z));
-            float nextPosX = position.x + diffX;
-            float nextPosZ = position.z + diffZ;
-            if (inHand != null && inHand.isEmpty()) {
-                inHand = null;
+            this.rotation.set(cam.getHeading(), cam.getElevation());
+            this.forward.set(cam.forward);
+            float s = this.crouched ? this.crouchedSpeed : this.speed;
+            float diffX = delta * s * ((gui.left.y * this.forward.x) - (gui.left.x * cam.right.x));
+            float diffZ = delta * s * ((gui.left.y * this.forward.z) - (gui.left.x * cam.right.z));
+            float nextPosX = this.position.x + diffX;
+            float nextPosZ = this.position.z + diffZ;
+            if (this.inHand != null && this.inHand.isEmpty()) {
+                this.inHand = null;
             }
             float headingAngle = Range.wrap(cam.getHeading(), 0.0f, 6.2831855f);
             setWorldSide(headingAngle);
-            if (ghost) {
-                if (mWorld.getChunklet(nextPosX, position.y, nextPosZ) != null) {
-                    position.x = nextPosX;
-                    position.z = nextPosZ;
-                    position.y += gui.left.y * delta * cam.forward.y * s;
-                    position.y += (-gui.left.x) * delta * cam.right.y * s;
-                    position.y = Range.limit(position.y, 1.0f, 127.0f);
-                    velocity.y = 0.0f;
-                    float w = width / 2.0f;
-                    float feet = height * (crouched ? crouchedEyeLevel : eyeLevel);
-                    float head = height - feet;
-                    playerBounds.set(position.x - w, position.y - feet, position.z - w, position.x + w, position.y + head, position.z + w);
-                    for (float x = FloatMath.floor(playerBounds.x.getMin()); x < playerBounds.x.getMax(); x += 1.0f) {
-                        for (float z = FloatMath.floor(playerBounds.z.getMin()); z < playerBounds.z.getMax(); z += 1.0f) {
-                            for (float y = FloatMath.floor(playerBounds.y.getMin()); y < playerBounds.y.getMax(); y += 1.0f) {
-                                collideCorrection.set(0.0f, 0.0f, 0.0f);
-                                collide(x, y, z, collideCorrection);
-                                playerBounds.translate(collideCorrection.x, collideCorrection.y, collideCorrection.z);
-                                Vector3f.add(position, collideCorrection, position);
+            if (this.ghost) {
+                if (this.world.getChunklet(nextPosX, this.position.y, nextPosZ) != null) {
+                    this.position.x = nextPosX;
+                    this.position.z = nextPosZ;
+                    this.position.y += gui.left.y * delta * cam.forward.y * s;
+                    this.position.y += (-gui.left.x) * delta * cam.right.y * s;
+                    this.position.y = Range.limit(this.position.y, 1.0f, 127.0f);
+                    this.velocity.y = 0.0f;
+                    float w = this.width / 2.0f;
+                    float feet = this.height * (this.crouched ? this.crouchedEyeLevel : this.eyeLevel);
+                    float head = this.height - feet;
+                    this.playerBounds.set(this.position.x - w, this.position.y - feet, this.position.z - w, this.position.x + w, this.position.y + head, this.position.z + w);
+                    for (float x = FloatMath.floor(this.playerBounds.x.getMin()); x < this.playerBounds.x.getMax(); x += 1.0f) {
+                        for (float z = FloatMath.floor(this.playerBounds.z.getMin()); z < this.playerBounds.z.getMax(); z += 1.0f) {
+                            for (float y = FloatMath.floor(this.playerBounds.y.getMin()); y < this.playerBounds.y.getMax(); y += 1.0f) {
+                                this.collideCorrection.set(0.0f, 0.0f, 0.0f);
+                                collide(x, y, z, this.collideCorrection);
+                                this.playerBounds.translate(this.collideCorrection.x, this.collideCorrection.y, this.collideCorrection.z);
+                                Vector3f.add(this.position, this.collideCorrection, this.position);
                             }
                         }
                     }
                 }
-            } else if (mWorld.getChunklet(nextPosX, position.y, nextPosZ) != null) {
-                forward.y = 0.0f;
-                forward.normalise();
-                position.x = nextPosX;
-                position.z = nextPosZ;
-                if (mWorld.blockType(position.x, position.y, position.z) == 76) {
-                    velocity.y = 0.0f;
-                    position.y += gui.left.y * delta * cam.forward.y * s;
-                    position.y += (-gui.left.x) * delta * cam.right.y * s;
+            } else if (this.world.getChunklet(nextPosX, this.position.y, nextPosZ) != null) {
+                this.forward.y = 0.0f;
+                this.forward.normalise();
+                this.position.x = nextPosX;
+                this.position.z = nextPosZ;
+                if (this.world.blockType(this.position.x, this.position.y, this.position.z) == 76) {
+                    this.velocity.y = 0.0f;
+                    this.position.y += gui.left.y * delta * cam.forward.y * s;
+                    this.position.y += (-gui.left.x) * delta * cam.right.y * s;
                 } else {
-                    velocity.y += gravity * delta;
+                    this.velocity.y += this.gravity * delta;
                 }
-                position.y += velocity.y * delta;
-                float w2 = width / 2.0f;
-                float feet2 = height * (crouched ? crouchedEyeLevel : eyeLevel);
-                float head2 = height - feet2;
-                playerBounds.set(position.x - w2, position.y - feet2, position.z - w2, position.x + w2, position.y + head2, position.z + w2);
+                this.position.y += this.velocity.y * delta;
+                float w2 = this.width / 2.0f;
+                float feet2 = this.height * (this.crouched ? this.crouchedEyeLevel : this.eyeLevel);
+                float head2 = this.height - feet2;
+                this.playerBounds.set(this.position.x - w2, this.position.y - feet2, this.position.z - w2, this.position.x + w2, this.position.y + head2, this.position.z + w2);
                 boolean groundHit = false;
                 BlockFactory.Block groundBlock = null;
-                for (float x2 = FloatMath.floor(playerBounds.x.getMin()); x2 < playerBounds.x.getMax(); x2 += 1.0f) {
-                    for (float z2 = FloatMath.floor(playerBounds.z.getMin()); z2 < playerBounds.z.getMax(); z2 += 1.0f) {
-                        for (float y2 = FloatMath.floor(playerBounds.y.getMin()); y2 < playerBounds.y.getMax(); y2 += 1.0f) {
-                            collideCorrection.set(0.0f, 0.0f, 0.0f);
-                            BlockFactory.Block collidedBlock = collide(x2, y2, z2, collideCorrection);
-                            playerBounds.translate(collideCorrection.x, collideCorrection.y, collideCorrection.z);
-                            Vector3f.add(position, collideCorrection, position);
-                            if (collideCorrection.y != 0.0f && Math.signum(collideCorrection.y) != Math.signum(velocity.y)) {
-                                velocity.y = 0.0f;
+                for (float x2 = FloatMath.floor(this.playerBounds.x.getMin()); x2 < this.playerBounds.x.getMax(); x2 += 1.0f) {
+                    for (float z2 = FloatMath.floor(this.playerBounds.z.getMin()); z2 < this.playerBounds.z.getMax(); z2 += 1.0f) {
+                        for (float y2 = FloatMath.floor(this.playerBounds.y.getMin()); y2 < this.playerBounds.y.getMax(); y2 += 1.0f) {
+                            this.collideCorrection.set(0.0f, 0.0f, 0.0f);
+                            BlockFactory.Block collidedBlock = collide(x2, y2, z2, this.collideCorrection);
+                            this.playerBounds.translate(this.collideCorrection.x, this.collideCorrection.y, this.collideCorrection.z);
+                            Vector3f.add(this.position, this.collideCorrection, this.position);
+                            if (this.collideCorrection.y != 0.0f && Math.signum(this.collideCorrection.y) != Math.signum(this.velocity.y)) {
+                                this.velocity.y = 0.0f;
                             }
-                            groundHit |= collideCorrection.y > 0.0f;
-                            if (collideCorrection.y > 0.0f) {
+                            groundHit |= this.collideCorrection.y > 0.0f;
+                            if (this.collideCorrection.y > 0.0f) {
                                 groundBlock = collidedBlock;
                             }
                         }
                     }
                 }
-                onGround = groundHit;
+                this.onGround = groundHit;
                 if (groundBlock != null) {
-                    if (Math.abs(diffX) + Math.abs(diffZ) > 0.0f && System.currentTimeMillis() - lastStepNotificationAt > 400) {
-                        lastStepNotificationAt = System.currentTimeMillis();
+                    if (Math.abs(diffX) + Math.abs(diffZ) > 0.0f && System.currentTimeMillis() - this.lastStepNotificationAt > 400) {
+                        this.lastStepNotificationAt = System.currentTimeMillis();
                         SoundManager.playStep(groundBlock.material, 0.0f);
                     }
-                    exhaustionWalkDistance += FloatMath.sqrt((diffX * diffX) + (diffZ * diffZ));
+                    this.exhaustionWalkDistance += FloatMath.sqrt((diffX * diffX) + (diffZ * diffZ));
                 }
                 if (GameMode.isSurvivalMode()) {
-                    fallDetector.set(position, onGround);
+                    this.fallDetector.set(this.position, this.onGround);
                     updateFoodLevel();
                 }
-                position.y = Range.limit(position.y, 1.0f, 127.0f);
+                this.position.y = Range.limit(this.position.y, 1.0f, 127.0f);
                 if (GameMode.isMultiplayerMode() && Multiplayer.instance.movementHandler != null) {
-                    Multiplayer.instance.movementHandler.set(position.x, position.y, position.z, cam.forward.x, cam.forward.y, cam.forward.z, cam.up.x, cam.up.y, cam.up.z);
+                    Multiplayer.instance.movementHandler.set(this.position.x, this.position.y, this.position.z, cam.forward.x, cam.forward.y, cam.forward.z, cam.up.x, cam.up.y, cam.up.z);
                 }
             }
         }
@@ -367,16 +365,16 @@ public class Player implements Damagable {
         }
         switch (side) {
             case 0:
-                currentWorldSide = BlockFactory.WorldSide.North;
+                this.currentWorldSide = BlockFactory.WorldSide.North;
                 return;
             case 1:
-                currentWorldSide = BlockFactory.WorldSide.West;
+                this.currentWorldSide = BlockFactory.WorldSide.West;
                 return;
             case 2:
-                currentWorldSide = BlockFactory.WorldSide.South;
+                this.currentWorldSide = BlockFactory.WorldSide.South;
                 return;
             case 3:
-                currentWorldSide = BlockFactory.WorldSide.East;
+                this.currentWorldSide = BlockFactory.WorldSide.East;
                 return;
             default:
                 return;
@@ -384,26 +382,26 @@ public class Player implements Damagable {
     }
 
     public BlockFactory.WorldSide getCurrentWorldSide() {
-        return currentWorldSide;
+        return this.currentWorldSide;
     }
 
     private void updateLastAdvanceInterval() {
         long currentGameTime = GameTime.getTime();
-        if (lastAdvanceAt > 0) {
-            lastAdvanceInterval = currentGameTime - lastAdvanceAt;
+        if (this.lastAdvanceAt > 0) {
+            this.lastAdvanceInterval = currentGameTime - this.lastAdvanceAt;
         }
-        lastAdvanceAt = currentGameTime;
+        this.lastAdvanceAt = currentGameTime;
     }
 
     public float getAngle() {
-        return MathUtils.normalizeAngle(Enemy.getAngle(forward.x, forward.y, forward.z));
+        return MathUtils.normalizeAngle(Enemy.getAngle(this.forward.x, this.forward.y, this.forward.z));
     }
 
     private BlockFactory.Block collide(float x, float y, float z, Vector3f correction) {
         byte upperBlockType;
-        byte bt = mWorld.blockType(x, y, z);
+        byte bt = this.world.blockType(x, y, z);
         if (y < 128.0f) {
-            upperBlockType = mWorld.blockType(x, y + 1.0f, z);
+            upperBlockType = this.world.blockType(x, y + 1.0f, z);
         } else {
             upperBlockType = 0;
         }
@@ -413,16 +411,16 @@ public class Player implements Damagable {
             float y2 = FloatMath.floor(y);
             float z2 = FloatMath.floor(z);
             if (DoorBlock.isDoor(b)) {
-                DoorBlock.updateBlockBounds(blockBounds, x2, y2, z2, mWorld);
+                DoorBlock.updateBlockBounds(this.blockBounds, x2, y2, z2, this.world);
             } else {
-                blockBounds.set(x2, y2, z2, x2 + 1.0f, y2 + 1.0f, z2 + 1.0f);
+                this.blockBounds.set(x2, y2, z2, x2 + 1.0f, y2 + 1.0f, z2 + 1.0f);
                 BlockFactory.Block upperBlock = BlockFactory.getBlock(upperBlockType);
                 if (b == BlockFactory.Block.Slab || upperBlockType == 0 || (upperBlock != null && !upperBlock.isCuboid)) {
-                    blockBounds.y.set(y2, 0.5f + y2);
+                    this.blockBounds.y.set(y2, 0.5f + y2);
                 }
             }
-            if (playerBounds.intersection(blockBounds, intersection)) {
-                correction(intersection, collideCorrection);
+            if (this.playerBounds.intersection(this.blockBounds, this.intersection)) {
+                correction(this.intersection, this.collideCorrection);
             }
         }
         return b;
@@ -432,12 +430,12 @@ public class Player implements Damagable {
         float mx = intersection.x.getSpan();
         float my = intersection.y.getSpan();
         float mz = intersection.z.getSpan();
-        float midpoint = playerBounds.y.toValue(0.5f);
+        float midpoint = this.playerBounds.y.toValue(0.5f);
         if (my < 0.51f && intersection.y.toValue(0.5f) < midpoint) {
             correction.set(0.0f, my, 0.0f);
             correction.y *= 0.3f;
         } else if (mx < my && mx < mz) {
-            if (intersection.x.toValue(0.5f) >= position.x) {
+            if (intersection.x.toValue(0.5f) >= this.position.x) {
                 mx = -mx;
             }
             correction.set(mx, 0.0f, 0.0f);
@@ -447,7 +445,7 @@ public class Player implements Damagable {
             }
             correction.set(0.0f, my, 0.0f);
         } else {
-            if (intersection.z.toValue(0.5f) >= position.z) {
+            if (intersection.z.toValue(0.5f) >= this.position.z) {
                 mz = -mz;
             }
             correction.set(0.0f, 0.0f, mz);
@@ -459,28 +457,28 @@ public class Player implements Damagable {
     }
 
     public void addItemToHotBar(InventoryTapItem invTapItem, boolean toTheEnd) {
-        for (int i = 0; i < hotbar.size(); i++) {
-            if (hotbar.get(i).getInventoryItem().getSlot() == invTapItem.getInventoryItem().getSlot()) {
-                hotbar.remove(i);
+        for (int i = 0; i < this.hotbar.size(); i++) {
+            if (this.hotbar.get(i).getInventoryItem().getSlot() == invTapItem.getInventoryItem().getSlot()) {
+                this.hotbar.remove(i);
                 invTapItem.getInventoryItem().isInHotbar = false;
             }
         }
         if (toTheEnd) {
-            if (hotbar.isEmpty()) {
-                inHand = invTapItem.getInventoryItem();
+            if (this.hotbar.isEmpty()) {
+                this.inHand = invTapItem.getInventoryItem();
             }
-            hotbar.add(invTapItem);
+            this.hotbar.add(invTapItem);
             invTapItem.getInventoryItem().isInHotbar = true;
             return;
         }
-        hotbar.add(0, invTapItem);
-        inHand = invTapItem.getInventoryItem();
+        this.hotbar.add(0, invTapItem);
+        this.inHand = invTapItem.getInventoryItem();
         invTapItem.getInventoryItem().isInHotbar = true;
     }
 
     public boolean isHotBarContainsItem(InventoryItem invItem) {
-        for (int i = 0; i < hotbar.size(); i++) {
-            if (hotbar.get(i).getInventoryItem().getSlot() == invItem.getSlot()) {
+        for (int i = 0; i < this.hotbar.size(); i++) {
+            if (this.hotbar.get(i).getInventoryItem().getSlot() == invItem.getSlot()) {
                 return true;
             }
         }
@@ -488,27 +486,27 @@ public class Player implements Damagable {
     }
 
     public short getHealthPoints() {
-        return healthPoints;
+        return this.healthPoints;
     }
 
     public BoundingCuboid getBounds() {
-        return playerBounds;
+        return this.playerBounds;
     }
 
     public boolean justAttacked() {
-        return System.currentTimeMillis() - damagedAt < 1000;
+        return System.currentTimeMillis() - this.damagedAt < 1000;
     }
 
     public void attacked(int attackPoints) {
         takeDamage(attackPoints);
     }
 
-    @Override
+    @Override 
     public void takeDamage(int healthPoints) {
         if (healthPoints > 0) {
-            synchronized (damagedAt) {
-                if (damagedAt + TIMEOUT_BETWEEN_DAMAGE < System.currentTimeMillis()) {
-                    damagedAt = System.currentTimeMillis();
+            synchronized (this.damagedAt) {
+                if (this.damagedAt + TIMEOUT_BETWEEN_DAMAGE < System.currentTimeMillis()) {
+                    this.damagedAt = System.currentTimeMillis();
                     updateHealth(-healthPoints);
                     increaseExhaustionLevel(0.3f);
                     SoundManager.playMaterialSound(Material.HUMAN, 0.0f);
@@ -518,15 +516,15 @@ public class Player implements Damagable {
     }
 
     public long getLastDamagedAt() {
-        return damagedAt;
+        return this.damagedAt;
     }
 
     private void updateHealth(int deltaPoints) {
         if (!isDead()) {
-            short newValue = (short) Math.max(0, Math.min(healthPoints + deltaPoints, 20));
-            if (healthPoints != newValue) {
-                healthPoints = newValue;
-                healthUpdatedAt = System.currentTimeMillis();
+            short newValue = (short) Math.max(0, Math.min(this.healthPoints + deltaPoints, 20));
+            if (this.healthPoints != newValue) {
+                this.healthPoints = newValue;
+                this.healthUpdatedAt = System.currentTimeMillis();
             }
             if (isDead()) {
                 die();
@@ -534,50 +532,50 @@ public class Player implements Damagable {
         }
     }
 
-    @Override
+    @Override 
     public boolean isDead() {
-        return healthPoints <= 0;
+        return this.healthPoints <= 0;
     }
 
     public void respawn() {
-        if (inventory != null) {
-            inventory.clear();
+        if (this.inventory != null) {
+            this.inventory.clear();
         }
-        if (hotbar != null) {
-            hotbar.clear();
+        if (this.hotbar != null) {
+            this.hotbar.clear();
         }
-        inHand = null;
+        this.inHand = null;
         reSpawnPosition();
-        healthPoints = (short) 20;
-        foodLevel = (short) 20;
-        foodSaturationLevel = foodLevel;
-        foodExhaustionLevel = 0.0f;
-        foodTimer = 0L;
+        this.healthPoints = (short) 20;
+        this.foodLevel = (short) 20;
+        this.foodSaturationLevel = this.foodLevel;
+        this.foodExhaustionLevel = 0.0f;
+        this.foodTimer = 0L;
     }
 
     private void die() {
         dropInventoryItems();
-        mWorld.showDeathMenu(this);
+        this.world.showDeathMenu(this);
     }
 
     private void dropInventoryItems() {
-        for (InventoryItem item : inventory.getAllInventoryItems()) {
-            mWorld.addDroppableItem(item.getItemID(), position.x, position.y, position.z, item.getCount());
+        for (InventoryItem item : this.inventory.getAllInventoryItems()) {
+            this.world.addDroppableItem(item.getItemID(), this.position.x, this.position.y, this.position.z, item.getCount());
         }
-        inventory.clear();
+        this.inventory.clear();
     }
 
     public boolean isFullInventory() {
-        return inventory.getSize() == 32;
+        return this.inventory.getSize() == 32;
     }
 
     public Chunk getChunk() {
-        return mWorld.getChunk(((int) position.x) / 16, ((int) position.z) / 16);
+        return this.world.getChunk(((int) this.position.x) / 16, ((int) this.position.z) / 16);
     }
 
     public int getWeaponDamage() {
-        if (inHand != null) {
-            return inHand.getDamage();
+        if (this.inHand != null) {
+            return this.inHand.getDamage();
         }
         return 1;
     }
@@ -587,57 +585,57 @@ public class Player implements Damagable {
     }
 
     private boolean isHungry() {
-        return foodLevel < 20;
+        return this.foodLevel < 20;
     }
 
     private boolean hasFoodInHand() {
-        return inHand != null && inHand.isFood();
+        return this.inHand != null && this.inHand.isFood();
     }
 
     public void decActiveItemDurability() {
-        if (inHand != null && inHand.isTool()) {
-            inHand.decDurability();
-            if (inHand.isEmpty()) {
-                inventory.remove(inHand);
+        if (this.inHand != null && this.inHand.isTool()) {
+            this.inHand.decDurability();
+            if (this.inHand.isEmpty()) {
+                this.inventory.remove(this.inHand);
             }
         }
     }
 
     public void dropItemFronHotbar(@NonNull InventoryItem inventoryItem) {
-        mWorld.addDroppableItem(inventoryItem.getItemID(), position.x, position.y, position.z, inventoryItem.getCount(), true);
+        this.world.addDroppableItem(inventoryItem.getItemID(), this.position.x, this.position.y, this.position.z, inventoryItem.getCount(), true);
     }
 
     public boolean isHealthJustUpdated() {
-        return System.currentTimeMillis() - healthUpdatedAt < 200;
+        return System.currentTimeMillis() - this.healthUpdatedAt < 200;
     }
 
-    public World getmWorld() {
-        return mWorld;
+    public World getWorld() {
+        return this.world;
     }
 
-    public long getmKeptDownAt() {
-        return mKeptDownAt;
+    public void setKeptDownAt(long keptDownAt) {
+        this.keptDownAt = keptDownAt;
     }
 
-    public void setmKeptDownAt(long keptDownAt) {
-        mKeptDownAt = keptDownAt;
+    public long getKeptDownAt() {
+        return this.keptDownAt;
     }
 
     private void updateFoodLevel() {
-        foodExhaustionLevel += exhaustionWalkDistance * 0.01f;
-        exhaustionWalkDistance = 0.0f;
-        int foodLevelDecrement = (int) (foodExhaustionLevel / MAX_FOOD_EXHAUSTION);
-        foodExhaustionLevel -= foodLevelDecrement * MAX_FOOD_EXHAUSTION;
-        if (foodSaturationLevel > 0.0f) {
-            foodSaturationLevel = Math.max(foodSaturationLevel - foodLevelDecrement, 0.0f);
+        this.foodExhaustionLevel += this.exhaustionWalkDistance * 0.01f;
+        this.exhaustionWalkDistance = 0.0f;
+        int foodLevelDecrement = (int) (this.foodExhaustionLevel / MAX_FOOD_EXHAUSTION);
+        this.foodExhaustionLevel -= foodLevelDecrement * MAX_FOOD_EXHAUSTION;
+        if (this.foodSaturationLevel > 0.0f) {
+            this.foodSaturationLevel = Math.max(this.foodSaturationLevel - foodLevelDecrement, 0.0f);
         } else {
-            foodLevel = (short) Math.max(foodLevel - foodLevelDecrement, 0);
+            this.foodLevel = (short) Math.max(this.foodLevel - foodLevelDecrement, 0);
         }
-        boolean isHealthy = foodLevel >= 17;
-        boolean isHungry = foodLevel <= 0 && getHealthPoints() >= 2;
-        foodTimer = (isHealthy || isHungry) ? foodTimer + lastAdvanceInterval : 0L;
-        int healthInfluence = (int) (foodTimer / 4000);
-        foodTimer %= 4000;
+        boolean isHealthy = this.foodLevel >= 17;
+        boolean isHungry = this.foodLevel <= 0 && getHealthPoints() >= 2;
+        this.foodTimer = (isHealthy || isHungry) ? this.foodTimer + this.lastAdvanceInterval : 0L;
+        int healthInfluence = (int) (this.foodTimer / 4000);
+        this.foodTimer %= 4000;
         if (healthInfluence > 0) {
             if (isHungry) {
                 takeDamage(healthInfluence);
@@ -648,23 +646,23 @@ public class Player implements Damagable {
     }
 
     public short getFoodLevel() {
-        return foodLevel;
+        return this.foodLevel;
     }
 
     public void eat() {
         if (!isEatingStarted()) {
-            eatingStartedAt = System.currentTimeMillis();
+            this.eatingStartedAt = System.currentTimeMillis();
         }
         if (isEatTimeoutElapsed()) {
-            Food food = inHand.getFood();
+            Food food = this.inHand.getFood();
             if (food == null) {
                 Log.e("Player", "eat() failed: food is null");
                 return;
             }
-            foodLevel = (short) Math.min(foodLevel + food.getFoodPoints(), 20);
-            foodSaturationLevel = Math.min(foodSaturationLevel + food.getSaturationPoints(), foodLevel);
-            eatingStartedAt = 0L;
-            inventory.decItem(inHand);
+            this.foodLevel = (short) Math.min(this.foodLevel + food.getFoodPoints(), 20);
+            this.foodSaturationLevel = Math.min(this.foodSaturationLevel + food.getSaturationPoints(), this.foodLevel);
+            this.eatingStartedAt = 0L;
+            this.inventory.decItem(this.inHand);
             if (!isHungry()) {
                 SoundManager.playDistancedSound(Sounds.BURP, 0.0f);
             }
@@ -672,14 +670,14 @@ public class Player implements Damagable {
     }
 
     private boolean isEatingStarted() {
-        return System.currentTimeMillis() - eatingStartedAt <= 4000;
+        return System.currentTimeMillis() - this.eatingStartedAt <= 4000;
     }
 
     private boolean isEatTimeoutElapsed() {
-        return System.currentTimeMillis() - eatingStartedAt > TIMEOUT_BETWEEN_DAMAGE;
+        return System.currentTimeMillis() - this.eatingStartedAt > TIMEOUT_BETWEEN_DAMAGE;
     }
 
     public void increaseExhaustionLevel(float increment) {
-        foodExhaustionLevel += increment;
+        this.foodExhaustionLevel += increment;
     }
 }

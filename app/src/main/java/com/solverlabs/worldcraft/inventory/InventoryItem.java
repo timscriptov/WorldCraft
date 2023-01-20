@@ -1,5 +1,7 @@
 package com.solverlabs.worldcraft.inventory;
 
+import androidx.annotation.NonNull;
+
 import com.solverlabs.droid.rugl.geom.BedBlock;
 import com.solverlabs.droid.rugl.geom.DoorBlock;
 import com.solverlabs.droid.rugl.geom.TexturedShape;
@@ -9,18 +11,17 @@ import com.solverlabs.worldcraft.factories.BlockFactory;
 import com.solverlabs.worldcraft.factories.ItemFactory;
 import com.solverlabs.worldcraft.material.Material;
 
-
 public class InventoryItem {
-    private final int slot;
-    public boolean isInHotbar;
     private BlockFactory.Block block;
     private int count;
     private int currentDurability;
+    public boolean isInHotbar;
     private ItemFactory.Item item;
-    private int maxCount;
-    private int maxDurability;
+    private final int maxCount;
+    private final int maxDurability;
+    private final int slot;
 
-    public InventoryItem(ItemFactory.Item item, int slot) {
+    public InventoryItem(@NonNull ItemFactory.Item item, int slot) {
         this.count = 0;
         this.isInHotbar = false;
         this.item = item;
@@ -30,7 +31,7 @@ public class InventoryItem {
         this.currentDurability = this.maxDurability;
     }
 
-    public InventoryItem(ItemFactory.Item item, int slot, int durability) {
+    public InventoryItem(@NonNull ItemFactory.Item item, int slot, int durability) {
         this.count = 0;
         this.isInHotbar = false;
         this.item = item;
@@ -62,8 +63,7 @@ public class InventoryItem {
         this.isInHotbar = isInHotbar;
     }
 
-    /* renamed from: clone */
-    public InventoryItem m83clone() {
+    public InventoryItem clone() {
         return this.item != null ? new InventoryItem(this.item, this.slot, this.currentDurability) : new InventoryItem(this.block, this.slot);
     }
 
@@ -103,11 +103,9 @@ public class InventoryItem {
 
     public BlockFactory.Block getBlock() {
         if (this.block == null) {
-            BlockFactory.Block b = this.item.block;
-            return b;
+            return this.item.block;
         }
-        BlockFactory.Block b2 = this.block;
-        return b2;
+        return this.block;
     }
 
     public Material getMaterial() {
@@ -166,17 +164,17 @@ public class InventoryItem {
     }
 
     public boolean isFood() {
-        return ItemFactory.FOOD_ID_LIST.containsKey(Byte.valueOf(getItemID()));
+        return ItemFactory.FOOD_ID_LIST.containsKey(getItemID());
     }
 
     public Food getFood() {
-        return ItemFactory.FOOD_ID_LIST.get(Byte.valueOf(getItemID()));
+        return ItemFactory.FOOD_ID_LIST.get(getItemID());
     }
 
     public int getDamage() {
-        Integer result = ItemFactory.WEAPON_ID_LIST.get(Byte.valueOf(getItemID()));
+        Integer result = ItemFactory.WEAPON_ID_LIST.get(getItemID());
         if (result != null) {
-            return result.intValue();
+            return result;
         }
         return 1;
     }

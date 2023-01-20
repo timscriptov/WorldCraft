@@ -5,8 +5,9 @@ import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.widget.RadioButton;
 
+import androidx.appcompat.widget.AppCompatRadioButton;
 
-public class MolotRadioButton extends RadioButton {
+public class MolotRadioButton extends AppCompatRadioButton {
     public MolotRadioButton(Context context) {
         super(context);
         setMolotTypeFace();

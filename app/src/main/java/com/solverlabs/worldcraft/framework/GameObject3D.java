@@ -3,7 +3,6 @@ package com.solverlabs.worldcraft.framework;
 import com.solverlabs.worldcraft.framework.math.Sphere;
 import com.solverlabs.worldcraft.framework.math.Vector3;
 
-
 public class GameObject3D {
     public final Sphere bounds;
     public final Vector3 position;

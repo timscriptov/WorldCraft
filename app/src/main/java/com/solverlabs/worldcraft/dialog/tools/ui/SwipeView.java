@@ -16,13 +16,13 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 
+import com.solverlabs.worldcraft.dialog.tools.ui.PageControl;
 import java.util.Collection;
-
 
 public class SwipeView extends HorizontalScrollView {
     private static int DEFAULT_SWIPE_THRESHOLD = 60;
-    protected boolean mCallScrollToPageInOnLayout;
     private int SCREEN_WIDTH;
+    protected boolean mCallScrollToPageInOnLayout;
     private final Context mContext;
     private int mCurrentPage;
     private boolean mJustInterceptedAndIgnored;
@@ -36,6 +36,10 @@ public class SwipeView extends HorizontalScrollView {
     private PageControl mPageControl;
     private int mPageWidth;
     private SwipeOnTouchListener mSwipeOnTouchListener;
+
+    public interface OnPageChangedListener {
+        void onPageChanged(int i, int i2);
+    }
 
     public SwipeView(Context context) {
         super(context);
@@ -79,9 +83,9 @@ public class SwipeView extends HorizontalScrollView {
         initSwipeView();
     }
 
-    @SuppressLint({"ClickableViewAccessibility", "LongLogTag"})
+    @SuppressLint("ClickableViewAccessibility")
     private void initSwipeView() {
-        Log.i("uk.co.jasonfry.android.tools.ui.SwipeView", "Initialising SwipeView");
+        Log.i("SwipeView", "Initialising SwipeView");
         this.mLinearLayout = new LinearLayout(this.mContext);
         this.mLinearLayout.setOrientation(LinearLayout.HORIZONTAL);
         super.addView(this.mLinearLayout, -1, new FrameLayout.LayoutParams(-1, -1));
@@ -223,7 +227,6 @@ public class SwipeView extends HorizontalScrollView {
     }
 
     private void scrollToPage(int page, boolean smooth) {
-        boolean z = false;
         int oldPage = this.mCurrentPage;
         if (page >= getPageCount() && getPageCount() > 0) {
             page--;
@@ -242,10 +245,7 @@ public class SwipeView extends HorizontalScrollView {
         if (this.mPageControl != null && oldPage != page) {
             this.mPageControl.setCurrentPage(page);
         }
-        if (!this.mCallScrollToPageInOnLayout) {
-            z = true;
-        }
-        this.mCallScrollToPageInOnLayout = z;
+        this.mCallScrollToPageInOnLayout = !this.mCallScrollToPageInOnLayout;
     }
 
     public int setPageWidth(int pageWidth) {
@@ -261,14 +261,10 @@ public class SwipeView extends HorizontalScrollView {
         return this.mPageWidth;
     }
 
-    public PageControl getPageControl() {
-        return this.mPageControl;
-    }
-
     public void setPageControl(@NonNull PageControl pageControl) {
         this.mPageControl = pageControl;
         pageControl.setPageCount(getPageCount());
-        pageControl.setCurrentPage(mCurrentPage);
+        pageControl.setCurrentPage(this.mCurrentPage);
         pageControl.setOnPageControlClickListener(new PageControl.OnPageControlClickListener() {
             @Override
             public void goForwards() {
@@ -282,12 +278,16 @@ public class SwipeView extends HorizontalScrollView {
         });
     }
 
-    public OnPageChangedListener getOnPageChangedListener() {
-        return this.mOnPageChangedListener;
+    public PageControl getPageControl() {
+        return this.mPageControl;
     }
 
     public void setOnPageChangedListener(OnPageChangedListener onPageChangedListener) {
         this.mOnPageChangedListener = onPageChangedListener;
+    }
+
+    public OnPageChangedListener getOnPageChangedListener() {
+        return this.mOnPageChangedListener;
     }
 
     @Override
@@ -325,11 +325,6 @@ public class SwipeView extends HorizontalScrollView {
         }
     }
 
-
-    public interface OnPageChangedListener {
-        void onPageChanged(int i, int i2);
-    }
-
     public class SwipeOnTouchListener implements View.OnTouchListener {
         private int mDistanceX;
         private boolean mFirstMotionEvent;
@@ -345,10 +340,10 @@ public class SwipeView extends HorizontalScrollView {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             if (((mOnTouchListener != null && !mJustInterceptedAndIgnored) || (mOnTouchListener != null && this.mSendingDummyMotionEvent)) && mOnTouchListener.onTouch(v, event)) {
-                if (event.getAction() != 1) {
+                if (event.getAction() == 1) {
+                    actionUp(event);
                     return true;
                 }
-                actionUp(event);
                 return true;
             } else if (this.mSendingDummyMotionEvent) {
                 this.mSendingDummyMotionEvent = false;

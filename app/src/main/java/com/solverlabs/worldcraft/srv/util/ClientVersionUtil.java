@@ -1,8 +1,9 @@
 package com.solverlabs.worldcraft.srv.util;
 
+import androidx.annotation.NonNull;
+
 import com.solverlabs.worldcraft.factories.DescriptionFactory;
 import com.solverlabs.worldcraft.srv.domain.Player;
-
 
 public class ClientVersionUtil {
     public static final String CLIENT_VERSION_2_4 = "2.4";
@@ -37,12 +38,13 @@ public class ClientVersionUtil {
         }
     }
 
-    private static String normalizeVersion(String str) {
+    @NonNull
+    private static String normalizeVersion(@NonNull String str) {
         int indexOf = str.indexOf(46);
         if (indexOf == -1) {
             return str;
         }
         String replaceAll = str.replaceAll("\\.", DescriptionFactory.emptyText);
-        return replaceAll.substring(0, indexOf) + "." + replaceAll.substring(indexOf, replaceAll.length());
+        return replaceAll.substring(0, indexOf) + "." + replaceAll.substring(indexOf);
     }
 }

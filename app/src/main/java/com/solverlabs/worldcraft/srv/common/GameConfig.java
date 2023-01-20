@@ -1,6 +1,5 @@
 package com.solverlabs.worldcraft.srv.common;
 
-
 public class GameConfig {
     public int getInt(String str, int i) {
         return 0;

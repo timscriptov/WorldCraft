@@ -1,11 +1,9 @@
 package com.solverlabs.worldcraft.mob.util;
 
 import android.opengl.GLES10;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-
 
 public class Piramide {
     private static final FloatBuffer colorBuffer;

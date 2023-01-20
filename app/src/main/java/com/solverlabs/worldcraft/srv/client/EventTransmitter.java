@@ -4,7 +4,6 @@ import com.solverlabs.worldcraft.client.common.EventQueue;
 import com.solverlabs.worldcraft.srv.common.WorldCraftGameEvent;
 import com.solverlabs.worldcraft.srv.util.Vector3f;
 
-
 public class EventTransmitter {
     private String androidApiLevel;
     private Vector3f at;
@@ -64,96 +63,48 @@ public class EventTransmitter {
         return this.androidApiLevel;
     }
 
-    public void setAndroidApiLevel(String str) {
-        this.androidApiLevel = str;
-    }
-
     public int getClientBuildNumber() {
         return this.clientBuildNumber;
-    }
-
-    public void setClientBuildNumber(int i) {
-        this.clientBuildNumber = i;
     }
 
     public String getClientVersion() {
         return this.clientVersion;
     }
 
-    public void setClientVersion(String str) {
-        this.clientVersion = str;
-    }
-
     public String getDeviceId() {
         return this.deviceId;
-    }
-
-    public void setDeviceId(String str) {
-        this.deviceId = str;
     }
 
     public String getDeviceName() {
         return this.deviceName;
     }
 
-    public void setDeviceName(String str) {
-        this.deviceName = str;
-    }
-
     public String getMarketName() {
         return this.marketName;
-    }
-
-    public void setMarketName(String str) {
-        this.marketName = str;
     }
 
     public String getOsVersion() {
         return this.osVersion;
     }
 
-    public void setOsVersion(String str) {
-        this.osVersion = str;
-    }
-
     public int getPlayerId() {
         return this.playerId;
-    }
-
-    public void setPlayerId(int i) {
-        this.playerId = i;
     }
 
     public String getPlayerName() {
         return this.playerName;
     }
 
-    public void setPlayerName(String str) {
-        this.playerName = str;
-    }
-
     public String getRoomName() {
         return this.roomName;
-    }
-
-    public void setRoomName(String str) {
-        this.roomName = str;
     }
 
     public String getRoomPassword() {
         return this.roomPassword;
     }
 
-    public void setRoomPassword(String str) {
-        this.roomPassword = str;
-    }
-
     public short getSkinType() {
         return this.skinType;
-    }
-
-    public void setSkinType(short s) {
-        this.skinType = s;
     }
 
     public void graphicsInited() {
@@ -207,12 +158,56 @@ public class EventTransmitter {
         enQueue(EventFactory.roomSearch(this.playerId, str, i));
     }
 
+    public void setAndroidApiLevel(String str) {
+        this.androidApiLevel = str;
+    }
+
+    public void setClientBuildNumber(int i) {
+        this.clientBuildNumber = i;
+    }
+
+    public void setClientVersion(String str) {
+        this.clientVersion = str;
+    }
+
+    public void setDeviceId(String str) {
+        this.deviceId = str;
+    }
+
+    public void setDeviceName(String str) {
+        this.deviceName = str;
+    }
+
+    public void setOsVersion(String str) {
+        this.osVersion = str;
+    }
+
     public void setOutQueue(EventQueue eventQueue) {
         this.outQueue = eventQueue;
+    }
+
+    public void setPlayerId(int i) {
+        this.playerId = i;
+    }
+
+    public void setPlayerName(String str) {
+        this.playerName = str;
     }
 
     public void setRoom(String str, String str2) {
         this.roomName = str;
         this.roomPassword = str2;
+    }
+
+    public void setRoomName(String str) {
+        this.roomName = str;
+    }
+
+    public void setRoomPassword(String str) {
+        this.roomPassword = str;
+    }
+
+    public void setSkinType(short s) {
+        this.skinType = s;
     }
 }

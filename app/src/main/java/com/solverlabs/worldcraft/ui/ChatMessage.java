@@ -9,7 +9,6 @@ import com.solverlabs.droid.rugl.text.Font;
 import com.solverlabs.droid.rugl.text.TextShape;
 import com.solverlabs.droid.rugl.util.Colour;
 
-
 public class ChatMessage extends TapPad {
     private static final float FADE_OUT_DURATION = 0.6f;
     private static final float OUTLINE_BORDER_WIDTH = 2.5f;
@@ -19,7 +18,6 @@ public class ChatMessage extends TapPad {
     private static final float TEXT_COLOR_R = 1.0f;
     private static final float TEXT_SCALE = 0.65f;
     private static final long TTL = 10000;
-    private final String title;
     private TextShape chatShape;
     private long createdAt;
     private float currentChatShapeAlpha;
@@ -29,6 +27,7 @@ public class ChatMessage extends TapPad {
     private boolean hided;
     private ColouredShape outlineBlack;
     private int position;
+    private final String title;
     private float x;
     private float y;
 

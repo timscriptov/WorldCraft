@@ -1,25 +1,37 @@
 package com.solverlabs.worldcraft.srv.common;
 
+import androidx.annotation.NonNull;
+
 import com.solverlabs.worldcraft.srv.domain.Player;
 import com.solverlabs.worldcraft.srv.util.BufferUtils;
-
-import org.jboss.netty.channel.Channel;
-
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
-
+import org.jboss.netty.channel.Channel;
+import org.jetbrains.annotations.Contract;
 
 public class WorldCraftGameEvent implements BaseGameEvent {
     private static final int DATA_POSITION = 20;
     private static final int DATA_SIZE_POSITION = 16;
     private static final int HEADER_SIZE = 8;
-    private static final Set<Byte> HEAVY_EVENTS = new HashSet();
+    private static final Set<Byte> HEAVY_EVENTS = new HashSet<>();
     private static final int MIN_EVENT_SIZE = 20;
     private static final int PAYLOAD_HEADER_SIZE = 12;
     private static final int PAYLOAD_SIZE_POSITION = 4;
+    private final ByteBuffer byteBuffer;
+    protected Channel channel;
+    private int clientVersionId;
+    protected int dataIndex;
+    protected int dataSize;
+    protected byte error;
+    protected byte eventType;
+    private String message;
+    private int pendingRecipients;
+    protected Player player;
+    protected int playerId;
+    protected LinkedList<Integer> recipients;
 
     static {
         HEAVY_EVENTS.add((byte) 1);
@@ -30,19 +42,6 @@ public class WorldCraftGameEvent implements BaseGameEvent {
         HEAVY_EVENTS.add((byte) 50);
         HEAVY_EVENTS.add((byte) 51);
     }
-
-    protected Channel channel;
-    protected int dataIndex;
-    protected int dataSize;
-    protected byte error;
-    protected byte eventType;
-    protected Player player;
-    protected int playerId;
-    protected LinkedList<Integer> recipients;
-    private ByteBuffer byteBuffer;
-    private int clientVersionId;
-    private String message;
-    private int pendingRecipients;
 
     private WorldCraftGameEvent() {
         this((byte) 0);
@@ -60,6 +59,8 @@ public class WorldCraftGameEvent implements BaseGameEvent {
         this.error = b2;
     }
 
+    @NonNull
+    @Contract(" -> new")
     public static BaseGameEvent create() {
         return new WorldCraftGameEvent();
     }
@@ -79,110 +80,77 @@ public class WorldCraftGameEvent implements BaseGameEvent {
         this.byteBuffer.position(getDataPosition());
     }
 
-    @Override
+    @Override 
     public void addRecipient(int i) {
-        this.recipients.add(Integer.valueOf(i));
+        this.recipients.add(i);
     }
 
-    @Override
+    @Override 
     public void addRecipients(Collection<Integer> collection) {
         this.recipients.addAll(collection);
     }
 
-    @Override
-    public void addRecipients(Collection<Integer> collection, int i) {
+    @Override 
+    public void addRecipients(@NonNull Collection<Integer> collection, int i) {
         for (Integer num : collection) {
-            if (num.intValue() != i) {
+            if (num != i) {
                 this.recipients.add(num);
             }
         }
     }
 
-    @Override
+    @Override 
     public Channel getChannel() {
         return this.channel;
     }
 
-    @Override
-    public void setChannel(Channel channel) {
-        this.channel = channel;
-    }
-
-    @Override
+    @Override 
     public int getClientVersionId() {
         return this.clientVersionId;
     }
 
-    @Override
-    public void setClientVersionId(int i) {
-        this.clientVersionId = i;
-    }
-
-    @Override
+    @Override 
     public byte getError() {
         return this.error;
     }
 
-    @Override
-    public void setError(byte b) {
-        this.error = b;
-    }
-
-    @Override
+    @Override 
     public ByteBuffer getInputBuffer() {
         return this.byteBuffer;
     }
 
-    @Override
+    @Override 
     public ByteBuffer getOutputBuffer() {
         skipBufferToData();
         return this.byteBuffer;
     }
 
-    @Override
+    @Override 
     public Player getPlayer() {
         return this.player;
     }
 
-    @Override
-    public void setPlayer(Player player) {
-        this.player = player;
-        if (player != null) {
-            setPlayerId(player.getId());
-        }
-    }
-
-    @Override
+    @Override 
     public int getPlayerId() {
         return this.playerId;
     }
 
-    @Override
-    public void setPlayerId(int i) {
-        this.playerId = i;
-    }
-
-    @Override
+    @Override 
     public Collection<Integer> getRecipients() {
         return this.recipients;
     }
 
-    @Override
+    @Override 
     public byte getType() {
         return this.eventType;
     }
 
-    @Override
-    public void setType(byte b) {
-        this.eventType = b;
-    }
-
-    @Override
+    @Override 
     public boolean isHeavy() {
-        return HEAVY_EVENTS.contains(Byte.valueOf(this.eventType));
+        return HEAVY_EVENTS.contains(this.eventType);
     }
 
-    @Override
+    @Override 
     public void prepareToSend() {
         int max = Math.max(this.byteBuffer.position(), 20) + getMessageSize();
         this.byteBuffer.position(0);
@@ -203,39 +171,71 @@ public class WorldCraftGameEvent implements BaseGameEvent {
         this.pendingRecipients = Math.max(1, this.pendingRecipients);
     }
 
-    @Override
+    @Override 
     public void putData(int i) {
         getOutputBuffer().putInt(i);
     }
 
-    @Override
+    @Override 
     public void putData(String str) {
         BufferUtils.writeStr(getOutputBuffer(), str, false);
     }
 
-    @Override
+    @Override 
     public void putData(ByteBuffer byteBuffer) {
         getOutputBuffer().put(byteBuffer);
     }
 
-    @Override
+    @Override 
     public void putData(byte[] bArr) {
         getOutputBuffer().put(bArr);
     }
 
-    @Override
+    @Override 
     public void putMessage(String str) {
         this.message = str;
     }
 
-    @Override
+    @Override 
+    public void setChannel(Channel channel) {
+        this.channel = channel;
+    }
+
+    @Override 
+    public void setClientVersionId(int i) {
+        this.clientVersionId = i;
+    }
+
+    @Override 
+    public void setError(byte b) {
+        this.error = b;
+    }
+
+    @Override 
+    public void setPlayer(Player player) {
+        this.player = player;
+        if (player != null) {
+            setPlayerId(player.getId());
+        }
+    }
+
+    @Override 
+    public void setPlayerId(int i) {
+        this.playerId = i;
+    }
+
+    @Override 
+    public void setType(byte b) {
+        this.eventType = b;
+    }
+
+    @Override 
     public ByteBuffer toByteBuffer() {
         return this.byteBuffer;
     }
 
+    @NonNull
     public String toString() {
-        StringBuffer stringBuffer = new StringBuffer();
-        stringBuffer.append("Event[type:").append((int) this.eventType).append(", playerId:").append(this.playerId).append("]");
-        return stringBuffer.toString();
+        return "Event[type:" + (int) this.eventType + ", playerId:" + this.playerId + "]";
     }
 }

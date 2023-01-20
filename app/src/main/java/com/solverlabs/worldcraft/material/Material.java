@@ -1,6 +1,5 @@
 package com.solverlabs.worldcraft.material;
 
-
 public enum Material {
     WOOD,
     STONE,

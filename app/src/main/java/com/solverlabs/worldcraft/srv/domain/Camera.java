@@ -1,7 +1,11 @@
 package com.solverlabs.worldcraft.srv.domain;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.solverlabs.worldcraft.srv.util.Vector3f;
 
+import org.jetbrains.annotations.Contract;
 
 public class Camera {
     public Vector3f at;
@@ -22,13 +26,14 @@ public class Camera {
         this.up = vector3f3;
     }
 
-    public static String pack(Camera camera) {
-        StringBuffer stringBuffer = new StringBuffer();
-        stringBuffer.append(camera.position.x).append(",").append(camera.position.y).append(",").append(camera.position.z).append(",").append(camera.at.x).append(",").append(camera.at.y).append(",").append(camera.at.z).append(",").append(camera.up.x).append(",").append(camera.up.y).append(",").append(camera.up.z).append(",");
-        return stringBuffer.toString();
+    @NonNull
+    @Contract(pure = true)
+    public static String pack(@NonNull Camera camera) {
+        return camera.position.x + "," + camera.position.y + "," + camera.position.z + "," + camera.at.x + "," + camera.at.y + "," + camera.at.z + "," + camera.up.x + "," + camera.up.y + "," + camera.up.z + ",";
     }
 
-    public static Camera unpack(String str) {
+    @Nullable
+    public static Camera unpack(@NonNull String str) {
         if (str.split(",").length != 9) {
             return null;
         }
@@ -45,8 +50,9 @@ public class Camera {
         return this.position != null && !zeroPosition();
     }
 
+    @NonNull
     public String toString() {
-        StringBuffer stringBuffer = new StringBuffer();
+        StringBuilder stringBuffer = new StringBuilder();
         stringBuffer.append("player id: ").append(this.playerId);
         if (this.position == null) {
             stringBuffer.append(" eye is null");
@@ -66,7 +72,7 @@ public class Camera {
         return stringBuffer.toString();
     }
 
-    public void updateFromPack(String str) {
+    public void updateFromPack(@NonNull String str) {
         String[] split = str.split(",");
         if (split.length != 9) {
             return;

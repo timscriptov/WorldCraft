@@ -1,6 +1,8 @@
 package com.solverlabs.worldcraft.activity;
 
+import android.app.AlertDialog;
 import android.app.ListActivity;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -9,22 +11,20 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
-
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.solverlabs.worldcraft.Persistence;
-import com.solverlabs.worldcraft.R;
 import com.solverlabs.worldcraft.SoundManager;
+import com.solverlabs.worldcraft.R;
 import com.solverlabs.worldcraft.multiplayer.dialogs.AddAdapter;
 import com.solverlabs.worldcraft.ui.EntryAdapter;
 import com.solverlabs.worldcraft.ui.EntryItem;
 import com.solverlabs.worldcraft.ui.OptionItem;
 import com.solverlabs.worldcraft.ui.SectionItem;
-
 import java.util.ArrayList;
 
 public class OptionActivity extends ListActivity {
     public static final String BACK = "BACK";
     public static final String CANCEL = "Cancel";
+    private static final int CHANGE_SOUND_ID = 6;
     public static final String DISABLE = "Disable";
     public static final String ENABLE = "Enable";
     public static final String ENTRY_CHUNK_LOAD_RADIUS = "Chunk load radius";
@@ -33,20 +33,173 @@ public class OptionActivity extends ListActivity {
     public static final String ENTRY_INVERT_Y = "Invert Y-axis";
     public static final String ENTRY_SKIN = "Skin";
     public static final String ENTRY_USERNAME = "Username";
+    private static final int FOG_DISTANCE_ID = 1;
+    private static final int INVERT_Y_AXIS_ID = 3;
     public static final String OK = "Ok";
     public static final String SELECTION_CONTROL = "Control";
     public static final String SELECTION_GRAPHICS = "Graphics";
     public static final String SELECTION_MULTIPLAYER = "Multiplayer";
     public static final String SELECTION_SOUND = "Sound";
     public static final short[] SKINS = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
+    private static final int SKIN_ID = 5;
+    private static final int USERNAME_ID = 4;
     public static final String WORLD_CRAFT_OPTION = "WorldCraft option";
-    private final ArrayList<OptionItem> items = new ArrayList<>();
     private float fogDistance;
     private boolean isInvertY;
     private boolean isSoundEnabled;
+    private final ArrayList<OptionItem> items = new ArrayList<>();
     private int loadRadius;
     private short skinType;
     private String userName;
+
+    @Override 
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setTitle(WORLD_CRAFT_OPTION);
+        Button b = new Button(this);
+        b.setText(BACK);
+        b.setOnClickListener(v -> {
+            finish();
+            items.clear();
+        });
+        getListView().addFooterView(b);
+        updateItems();
+    }
+
+    public void updateItems() {
+        this.items.clear();
+        this.isInvertY = Persistence.getInstance().isInvertY();
+        this.fogDistance = Persistence.getInstance().getFogDistance();
+        this.loadRadius = Persistence.getInstance().getLoadRadius();
+        this.userName = Persistence.getInstance().getPlayerName();
+        this.skinType = Persistence.getInstance().getPlayerSkin();
+        this.isSoundEnabled = SoundManager.isSoundEnabled();
+        this.items.add(new SectionItem(SELECTION_MULTIPLAYER));
+        this.items.add(new EntryItem(ENTRY_USERNAME, this.userName, 4));
+        this.items.add(new EntryItem(ENTRY_SKIN, null, 5, true, getSkinResID(this.skinType)));
+        this.items.add(new SectionItem(SELECTION_CONTROL));
+        this.items.add(new EntryItem(ENTRY_INVERT_Y, this.isInvertY ? ENABLE : DISABLE, 3));
+        this.items.add(new SectionItem(SELECTION_GRAPHICS));
+        this.items.add(new EntryItem(ENTRY_FOG_DISTANCE, String.valueOf(this.fogDistance), 1));
+        this.items.add(new SectionItem(SELECTION_SOUND));
+        this.items.add(new EntryItem(ENTRY_ENABLE_SOUND, this.isSoundEnabled ? ENABLE : DISABLE, 6));
+        EntryAdapter adapter = new EntryAdapter(this, this.items);
+        setListAdapter(adapter);
+    }
+
+    @Override 
+    protected void onListItemClick(ListView l, View v, int position, long id) {
+        if (!this.items.get(position).isSection()) {
+            EntryItem item = (EntryItem) this.items.get(position);
+            switch (item.ID) {
+                case 1:
+                    showFogDistanceDialog();
+                    item.subtitle = String.valueOf(this.fogDistance);
+                    break;
+                case 3:
+                    changeInverY();
+                    break;
+                case 4:
+                    showChangeUsernameDialog();
+                    break;
+                case 5:
+                    showChangeSkinDialog();
+                    break;
+                case 6:
+                    changeSound();
+                    break;
+            }
+        }
+        super.onListItemClick(l, v, position, id);
+    }
+
+    private void changeInverY() {
+        this.isInvertY = !this.isInvertY;
+        Persistence.getInstance().setInvertY(this.isInvertY);
+        updateItems();
+    }
+
+    private void showFogDistanceDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final EditText name = new EditText(this);
+        name.setText(String.valueOf(this.fogDistance));
+        builder.setTitle(ENTRY_FOG_DISTANCE).setView(name).setPositiveButton(OK, (dialog, id) -> {
+            try {
+                float fogDistance = Float.parseFloat(name.getText().toString());
+                if (fogDistance < 0.0f) {
+                    fogDistance = 0.0f;
+                }
+                Persistence.getInstance().setFogDistance(fogDistance);
+                updateItems();
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }).setNegativeButton(CANCEL, (dialog, id) -> dialog.dismiss());
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    private void changeSound() {
+        this.isSoundEnabled = !this.isSoundEnabled;
+        SoundManager.setSoundEnabled(this.isSoundEnabled);
+        updateItems();
+    }
+
+    private void showChangeChunkLoadRadiusDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final EditText name = new EditText(this);
+        name.setText(String.valueOf(this.loadRadius));
+        builder.setTitle(ENTRY_CHUNK_LOAD_RADIUS).setView(name).setPositiveButton(OK, (dialog, id) -> {
+            try {
+                int chunkCount = Integer.parseInt(name.getText().toString());
+                if (chunkCount < 1) {
+                    chunkCount = 1;
+                }
+                Persistence.getInstance().setLoadRadius(chunkCount);
+                updateItems();
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }).setNegativeButton(CANCEL, (dialog, id) -> dialog.dismiss());
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    private void showChangeUsernameDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final EditText name = new EditText(this);
+        name.setText(this.userName);
+        builder.setTitle(ENTRY_USERNAME).setView(name).setPositiveButton(OK, (dialog, id) -> {
+            String userName = name.getText().toString();
+            Persistence.getInstance().setPlayerName(userName);
+            updateItems();
+        }).setNegativeButton(CANCEL, (dialog, id) -> dialog.dismiss());
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    private void showChangeSkinDialog() {
+        AddAdapter mAdapter = new AddAdapter(this);
+        Spinner characterChooser = new Spinner(this);
+        characterChooser.setAdapter(mAdapter);
+        characterChooser.setSelection(this.skinType);
+        characterChooser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() { 
+            @Override 
+            public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+                skinType = SKINS[arg2];
+            }
+
+            @Override 
+            public void onNothingSelected(AdapterView<?> arg0) {
+            }
+        });
+        AlertDialog.Builder builder = new AlertDialog.Builder(this).setTitle(ENTRY_SKIN).setView(characterChooser).setPositiveButton(OK, (dialog, id) -> {
+            Persistence.getInstance().setPlayerSkin(skinType);
+            updateItems();
+        }).setNegativeButton(CANCEL, (dialog, id) -> dialog.dismiss());
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
 
     public static int getSkinResID(int skinType) {
         switch (skinType) {
@@ -93,164 +246,5 @@ public class OptionActivity extends ListActivity {
             default:
                 return R.drawable.man1;
         }
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setTitle(WORLD_CRAFT_OPTION);
-        Button b = new Button(this);
-        b.setText(BACK);
-        b.setOnClickListener(v -> {
-            finish();
-            items.clear();
-        });
-        getListView().addFooterView(b);
-        updateItems();
-    }
-
-    public void updateItems() {
-        items.clear();
-        isInvertY = Persistence.getInstance().isInvertY();
-        fogDistance = Persistence.getInstance().getFogDistance();
-        loadRadius = Persistence.getInstance().getLoadRadius();
-        userName = Persistence.getInstance().getPlayerName();
-        skinType = Persistence.getInstance().getPlayerSkin();
-        isSoundEnabled = SoundManager.isSoundEnabled();
-        items.add(new SectionItem(SELECTION_MULTIPLAYER));
-        items.add(new EntryItem(ENTRY_USERNAME, userName, 4));
-        items.add(new EntryItem(ENTRY_SKIN, null, 5, true, getSkinResID(skinType)));
-        items.add(new SectionItem(SELECTION_CONTROL));
-        items.add(new EntryItem(ENTRY_INVERT_Y, isInvertY ? ENABLE : DISABLE, 3));
-        items.add(new SectionItem(SELECTION_GRAPHICS));
-        items.add(new EntryItem(ENTRY_FOG_DISTANCE, String.valueOf(fogDistance), 1));
-        items.add(new SectionItem(SELECTION_SOUND));
-        items.add(new EntryItem(ENTRY_ENABLE_SOUND, isSoundEnabled ? ENABLE : DISABLE, 6));
-        EntryAdapter adapter = new EntryAdapter(this, items);
-        setListAdapter(adapter);
-    }
-
-    @Override
-    protected void onListItemClick(ListView l, View v, int position, long id) {
-        if (!items.get(position).isSection()) {
-            EntryItem item = (EntryItem) items.get(position);
-            switch (item.ID) {
-                case 1:
-                    showFogDistanceDialog();
-                    item.subtitle = String.valueOf(fogDistance);
-                    break;
-                case 3:
-                    changeInverY();
-                    break;
-                case 4:
-                    showChangeUsernameDialog();
-                    break;
-                case 5:
-                    showChangeSkinDialog();
-                    break;
-                case 6:
-                    changeSound();
-                    break;
-            }
-        }
-        super.onListItemClick(l, v, position, id);
-    }
-
-    private void changeInverY() {
-        isInvertY = !isInvertY;
-        Persistence.getInstance().setInvertY(isInvertY);
-        updateItems();
-    }
-
-    private void showFogDistanceDialog() {
-        final EditText name = new EditText(this);
-        name.setText(String.valueOf(fogDistance));
-
-        MaterialAlertDialogBuilder materialAlertDialogBuilder = new MaterialAlertDialogBuilder(this);
-        materialAlertDialogBuilder.setTitle(ENTRY_FOG_DISTANCE);
-        materialAlertDialogBuilder.setView(name).setPositiveButton(OK, (dialog, id) -> {
-            try {
-                float fogDistance = Float.parseFloat(name.getText().toString());
-                if (fogDistance < 0.0f) {
-                    fogDistance = 0.0f;
-                }
-                Persistence.getInstance().setFogDistance(fogDistance);
-                updateItems();
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-            }
-        });
-        materialAlertDialogBuilder.setNegativeButton(CANCEL, (dialog, id) -> dialog.dismiss());
-        materialAlertDialogBuilder.show();
-    }
-
-    private void changeSound() {
-        isSoundEnabled = !isSoundEnabled;
-        SoundManager.setSoundEnabled(isSoundEnabled);
-        updateItems();
-    }
-
-    private void showChangeChunkLoadRadiusDialog() {
-        final EditText name = new EditText(this);
-        name.setText(String.valueOf(loadRadius));
-
-        MaterialAlertDialogBuilder materialAlertDialogBuilder = new MaterialAlertDialogBuilder(this);
-        materialAlertDialogBuilder.setTitle(ENTRY_CHUNK_LOAD_RADIUS);
-        materialAlertDialogBuilder.setView(name);
-        materialAlertDialogBuilder.setPositiveButton(OK, (dialog, id) -> {
-            try {
-                int chunkCount = Integer.parseInt(name.getText().toString());
-                if (chunkCount < 1) {
-                    chunkCount = 1;
-                }
-                Persistence.getInstance().setLoadRadius(chunkCount);
-                updateItems();
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-            }
-        });
-        materialAlertDialogBuilder.setNegativeButton(CANCEL, (dialog, id) -> dialog.dismiss());
-        materialAlertDialogBuilder.show();
-    }
-
-    private void showChangeUsernameDialog() {
-        final EditText name = new EditText(this);
-        name.setText(userName);
-
-        MaterialAlertDialogBuilder materialAlertDialogBuilder = new MaterialAlertDialogBuilder(this);
-        materialAlertDialogBuilder.setTitle(ENTRY_USERNAME);
-        materialAlertDialogBuilder.setView(name).setPositiveButton(OK, (dialog, id) -> {
-            String userName = name.getText().toString();
-            Persistence.getInstance().setPlayerName(userName);
-            updateItems();
-        });
-        materialAlertDialogBuilder.setNegativeButton(CANCEL, (dialog, id) -> dialog.dismiss());
-        materialAlertDialogBuilder.show();
-    }
-
-    private void showChangeSkinDialog() {
-        AddAdapter mAdapter = new AddAdapter(this);
-        Spinner characterChooser = new Spinner(this);
-        characterChooser.setAdapter((SpinnerAdapter) mAdapter);
-        characterChooser.setSelection(skinType);
-        characterChooser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                skinType = SKINS[arg2];
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> arg0) {
-            }
-        });
-        MaterialAlertDialogBuilder materialAlertDialogBuilder = new MaterialAlertDialogBuilder(this);
-        materialAlertDialogBuilder.setTitle(ENTRY_SKIN);
-        materialAlertDialogBuilder.setView(characterChooser);
-        materialAlertDialogBuilder.setPositiveButton(OK, (dialog, id) -> {
-            Persistence.getInstance().setPlayerSkin(skinType);
-            updateItems();
-        });
-        materialAlertDialogBuilder.setNegativeButton(CANCEL, (dialog, id) -> dialog.dismiss());
-        materialAlertDialogBuilder.show();
     }
 }

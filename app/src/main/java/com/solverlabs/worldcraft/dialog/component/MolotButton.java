@@ -3,10 +3,10 @@ package com.solverlabs.worldcraft.dialog.component;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
-import android.widget.Button;
 
+import androidx.appcompat.widget.AppCompatButton;
 
-public class MolotButton extends Button {
+public class MolotButton extends AppCompatButton {
     public MolotButton(Context context) {
         super(context);
         setMolotTypeFace();

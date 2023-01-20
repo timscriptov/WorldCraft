@@ -1,14 +1,13 @@
 package com.solverlabs.droid.rugl.worldgenerator;
 
+import androidx.annotation.NonNull;
+
 import com.solverlabs.droid.rugl.util.geom.Vector3i;
 import com.solverlabs.worldcraft.chunk.Chunk;
 import com.solverlabs.worldcraft.factories.BlockFactory;
-
-import org.apache.commons.compress.archivers.cpio.CpioConstants;
-
 import java.util.Arrays;
 import java.util.Random;
-
+import org.apache.commons.compress.archivers.cpio.CpioConstants;
 
 public class StandardGenerationMethod extends BaseTerrainGenerator {
     private static final int COAL_ORE_PER_CHUNK = 4;
@@ -22,7 +21,7 @@ public class StandardGenerationMethod extends BaseTerrainGenerator {
     private Random random = new Random();
 
     @Override
-    public void generateTerrain(Chunk chunk, int noiseBlockOffset) {
+    public void generateTerrain(@NonNull Chunk chunk, int noiseBlockOffset) {
         int chunkBlockX = chunk.chunkX * 16;
         int chunkBlockZ = chunk.chunkZ * 16;
         Arrays.fill(chunk.blockData, (byte) 0);

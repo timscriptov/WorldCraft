@@ -1,5 +1,6 @@
 package com.solverlabs.worldcraft.dialog.tools.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
@@ -8,10 +9,8 @@ import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-
 import com.solverlabs.worldcraft.dialog.tools.ui.SwipeView;
 import com.solverlabs.worldcraft.dialog.tools.util.AnimationUtil;
-
 
 public class BounceSwipeView extends SwipeView {
     private static final int ANIMATION_DURATION = 120;
@@ -19,14 +18,14 @@ public class BounceSwipeView extends SwipeView {
     private static final boolean BOUNCING_ON_RIGHT = false;
     private static final int FRAME_DURATION = 30;
     private static final int NUMBER_OF_FRAMES = 4;
-    Handler mEaseAnimationFrameHandler;
     private boolean mAtEdge;
     private float mAtEdgePreviousPosition;
     private float mAtEdgeStartPosition;
     private boolean mBounceEnabled;
     private boolean mBouncingSide;
-    private Context mContext;
+    private final Context mContext;
     private int mCurrentAnimationFrame;
+    Handler mEaseAnimationFrameHandler;
     private View.OnTouchListener mOnTouchListener;
     private int mPaddingChange;
     private int mPaddingLeft;
@@ -58,27 +57,22 @@ public class BounceSwipeView extends SwipeView {
         initBounceSwipeView();
     }
 
-    static /* synthetic */ int access$108(BounceSwipeView x0) {
-        int i = x0.mCurrentAnimationFrame;
-        x0.mCurrentAnimationFrame = i + 1;
-        return i;
-    }
-
+    @SuppressLint({"ClickableViewAccessibility", "HandlerLeak"})
     private void initBounceSwipeView() {
         super.setOnTouchListener(new BounceViewOnTouchListener());
         this.mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.mContext);
         this.mEaseAnimationFrameHandler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
-                int newPadding = AnimationUtil.quadraticOutEase(BounceSwipeView.this.mCurrentAnimationFrame, BounceSwipeView.this.mPaddingStartValue, -BounceSwipeView.this.mPaddingChange, 4.0f);
-                if (BounceSwipeView.this.mBouncingSide) {
-                    BounceSwipeView.super.setPadding(newPadding, BounceSwipeView.this.getPaddingTop(), BounceSwipeView.this.getPaddingRight(), BounceSwipeView.this.getPaddingBottom());
-                } else if (!BounceSwipeView.this.mBouncingSide) {
-                    BounceSwipeView.super.setPadding(BounceSwipeView.this.getPaddingLeft(), BounceSwipeView.this.getPaddingTop(), newPadding, BounceSwipeView.this.getPaddingBottom());
+                int newPadding = AnimationUtil.quadraticOutEase(mCurrentAnimationFrame, mPaddingStartValue, -mPaddingChange, 4.0f);
+                if (mBouncingSide) {
+                    BounceSwipeView.super.setPadding(newPadding, getPaddingTop(), getPaddingRight(), getPaddingBottom());
+                } else {
+                    BounceSwipeView.super.setPadding(getPaddingLeft(), getPaddingTop(), newPadding, getPaddingBottom());
                 }
-                BounceSwipeView.access$108(BounceSwipeView.this);
-                if (BounceSwipeView.this.mCurrentAnimationFrame <= 4) {
-                    BounceSwipeView.this.mEaseAnimationFrameHandler.sendEmptyMessageDelayed(0, 30L);
+                mCurrentAnimationFrame += 1;
+                if (mCurrentAnimationFrame <= 4) {
+                    mEaseAnimationFrameHandler.sendEmptyMessageDelayed(0, 30L);
                 }
             }
         };
@@ -96,20 +90,68 @@ public class BounceSwipeView extends SwipeView {
         this.mOnTouchListener = onTouchListener;
     }
 
-    public boolean getBounceEnabled() {
-        return this.mBounceEnabled;
-    }
-
     public void setBounceEnabled(boolean enabled) {
         this.mBounceEnabled = enabled;
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
+    public boolean getBounceEnabled() {
+        return this.mBounceEnabled;
+    }
+
+    public class BounceViewOnTouchListener implements View.OnTouchListener {
+        @SuppressLint("ClickableViewAccessibility")
+        @Override
+        public boolean onTouch(View view, MotionEvent ev) {
+            if (mOnTouchListener == null || !mOnTouchListener.onTouch(view, ev)) {
+                if (mBounceEnabled) {
+                    switch (ev.getAction()) {
+                        case 1:
+                            if (mAtEdge) {
+                                mAtEdge = false;
+                                mAtEdgePreviousPosition = 0.0f;
+                                mAtEdgeStartPosition = 0.0f;
+                                doBounceBackEaseAnimation();
+                                return true;
+                            }
+                            break;
+                        case 2:
+                            int maxScrollAmount = ((getPageCount() - 1) * getPageWidth()) - (getPageWidth() % 2);
+                            if ((getScrollX() == 0 && !mAtEdge) || (getScrollX() == maxScrollAmount && !mAtEdge)) {
+                                mAtEdge = true;
+                                mAtEdgeStartPosition = ev.getX();
+                                mAtEdgePreviousPosition = ev.getX();
+                                break;
+                            } else if (getScrollX() == 0) {
+                                mAtEdgePreviousPosition = ev.getX();
+                                mBouncingSide = true;
+                                BounceSwipeView.super.setPadding(((int) (mAtEdgePreviousPosition - mAtEdgeStartPosition)) / 2, getPaddingTop(), getPaddingRight(), getPaddingBottom());
+                                return true;
+                            } else if (getScrollX() < maxScrollAmount) {
+                                mAtEdge = false;
+                                break;
+                            } else {
+                                mAtEdgePreviousPosition = ev.getX();
+                                mBouncingSide = false;
+                                int newRightPadding = ((int) (mAtEdgeStartPosition - mAtEdgePreviousPosition)) / 2;
+                                BounceSwipeView.super.setPadding(getPaddingLeft(), getPaddingTop(), Math.max(newRightPadding, mPaddingRight), getPaddingBottom());
+                                scrollTo((int) (maxScrollAmount + ((mAtEdgeStartPosition - mAtEdgePreviousPosition) / 2.0f)), getScrollY());
+                                return true;
+                            }
+                        default:
+                            break;
+                    }
+                }
+                return false;
+            }
+            return true;
+        }
+    }
+
     public void doBounceBackEaseAnimation() {
         if (this.mBouncingSide) {
             this.mPaddingChange = getPaddingLeft() - this.mPaddingLeft;
             this.mPaddingStartValue = getPaddingLeft();
-        } else if (!this.mBouncingSide) {
+        } else {
             this.mPaddingChange = getPaddingRight() - this.mPaddingRight;
             this.mPaddingStartValue = getPaddingRight();
         }
@@ -128,62 +170,5 @@ public class BounceSwipeView extends SwipeView {
             scrollTo(getScrollX() + 50, getScrollY());
         }
         doBounceBackEaseAnimation();
-    }
-
-    /* JADX INFO: Access modifiers changed from: private */
-
-    public class BounceViewOnTouchListener implements View.OnTouchListener {
-        private BounceViewOnTouchListener() {
-        }
-
-        @Override
-        public boolean onTouch(View view, MotionEvent ev) {
-            if (BounceSwipeView.this.mOnTouchListener == null || !BounceSwipeView.this.mOnTouchListener.onTouch(view, ev)) {
-                if (BounceSwipeView.this.mBounceEnabled) {
-                    switch (ev.getAction()) {
-                        case 1:
-                            if (BounceSwipeView.this.mAtEdge) {
-                                BounceSwipeView.this.mAtEdge = false;
-                                BounceSwipeView.this.mAtEdgePreviousPosition = 0.0f;
-                                BounceSwipeView.this.mAtEdgeStartPosition = 0.0f;
-                                BounceSwipeView.this.doBounceBackEaseAnimation();
-                                return true;
-                            }
-                            break;
-                        case 2:
-                            int maxScrollAmount = ((BounceSwipeView.this.getPageCount() - 1) * BounceSwipeView.this.getPageWidth()) - (BounceSwipeView.this.getPageWidth() % 2);
-                            if ((BounceSwipeView.this.getScrollX() == 0 && !BounceSwipeView.this.mAtEdge) || (BounceSwipeView.this.getScrollX() == maxScrollAmount && !BounceSwipeView.this.mAtEdge)) {
-                                BounceSwipeView.this.mAtEdge = true;
-                                BounceSwipeView.this.mAtEdgeStartPosition = ev.getX();
-                                BounceSwipeView.this.mAtEdgePreviousPosition = ev.getX();
-                                break;
-                            } else if (BounceSwipeView.this.getScrollX() == 0) {
-                                BounceSwipeView.this.mAtEdgePreviousPosition = ev.getX();
-                                BounceSwipeView.this.mBouncingSide = true;
-                                BounceSwipeView.super.setPadding(((int) (BounceSwipeView.this.mAtEdgePreviousPosition - BounceSwipeView.this.mAtEdgeStartPosition)) / 2, BounceSwipeView.this.getPaddingTop(), BounceSwipeView.this.getPaddingRight(), BounceSwipeView.this.getPaddingBottom());
-                                return true;
-                            } else if (BounceSwipeView.this.getScrollX() < maxScrollAmount) {
-                                BounceSwipeView.this.mAtEdge = false;
-                                break;
-                            } else {
-                                BounceSwipeView.this.mAtEdgePreviousPosition = ev.getX();
-                                BounceSwipeView.this.mBouncingSide = false;
-                                int newRightPadding = ((int) (BounceSwipeView.this.mAtEdgeStartPosition - BounceSwipeView.this.mAtEdgePreviousPosition)) / 2;
-                                if (newRightPadding >= BounceSwipeView.this.mPaddingRight) {
-                                    BounceSwipeView.super.setPadding(BounceSwipeView.this.getPaddingLeft(), BounceSwipeView.this.getPaddingTop(), newRightPadding, BounceSwipeView.this.getPaddingBottom());
-                                } else {
-                                    BounceSwipeView.super.setPadding(BounceSwipeView.this.getPaddingLeft(), BounceSwipeView.this.getPaddingTop(), BounceSwipeView.this.mPaddingRight, BounceSwipeView.this.getPaddingBottom());
-                                }
-                                BounceSwipeView.this.scrollTo((int) (maxScrollAmount + ((BounceSwipeView.this.mAtEdgeStartPosition - BounceSwipeView.this.mAtEdgePreviousPosition) / 2.0f)), BounceSwipeView.this.getScrollY());
-                                return true;
-                            }
-                        default:
-                            break;
-                    }
-                }
-                return false;
-            }
-            return true;
-        }
     }
 }

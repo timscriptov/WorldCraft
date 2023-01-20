@@ -5,8 +5,9 @@ import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.AppCompatTextView;
 
-public class MolotTextView extends TextView {
+public class MolotTextView extends AppCompatTextView {
     public MolotTextView(Context context) {
         super(context);
         setMolotTypeFace();

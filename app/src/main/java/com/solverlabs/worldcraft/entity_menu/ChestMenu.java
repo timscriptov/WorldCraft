@@ -1,7 +1,6 @@
 package com.solverlabs.worldcraft.entity_menu;
 
 import android.opengl.GLES10;
-
 import com.solverlabs.droid.rugl.Game;
 import com.solverlabs.droid.rugl.geom.ColouredShape;
 import com.solverlabs.droid.rugl.geom.Shape;
@@ -20,20 +19,19 @@ import com.solverlabs.worldcraft.chunk.tile_entity.Inventory;
 import com.solverlabs.worldcraft.chunk.tile_entity.TileEntity;
 import com.solverlabs.worldcraft.math.MathUtils;
 import com.solverlabs.worldcraft.ui.GUI;
-
 import java.util.ArrayList;
-
+import java.util.Iterator;
 
 public class ChestMenu extends CustomMenu {
-    private final ArrayList<CustomTapItem> chestTapItems;
-    private final ArrayList<CustomTapItem> inventoryTapItems;
-    public BoundingRectangle chestScissorBound;
-    public BoundingRectangle inventoryScissorBound;
     private Chest chest;
+    public BoundingRectangle chestScissorBound;
     private ColouredShape chestScissorBoundShape;
+    private final ArrayList<CustomTapItem> chestTapItems;
     private TextShape chestTextShape;
     private ColouredShape fillTitleShape;
+    public BoundingRectangle inventoryScissorBound;
     private ColouredShape inventoryScissorBoundShape;
+    private final ArrayList<CustomTapItem> inventoryTapItems;
     private TextShape inventoryTextShape;
     private boolean needToScrollChest;
     private boolean needToScrollInv;
@@ -246,10 +244,10 @@ public class ChestMenu extends CustomMenu {
         if (this.inventoryTextShape == null) {
             Font font = GUI.getFont();
             this.inventoryTextShape = font.buildTextShape("Inventory", Colour.white);
-            this.inventoryTextShape.translate(((340.0f - font.getStringLength(TileEntity.FURNACE_ID)) / 2.0f) + 20.0f, (Game.mGameHeight - font.size) - 20.0f, 0.0f);
+            this.inventoryTextShape.translate(((340.0f - font.getStringLength(TileEntity.FURNACE_ID)) / 2.0f) + 20.0f, (Game.gameHeight - font.size) - 20.0f, 0.0f);
             this.chestTextShape = font.buildTextShape(TileEntity.CHEST_ID, Colour.white);
-            this.chestTextShape.translate(((340.0f - font.getStringLength(TileEntity.CHEST_ID)) / 2.0f) + 380.0f, (Game.mGameHeight - font.size) - 20.0f, 0.0f);
-            Shape s = ShapeUtil.filledQuad(20.0f, Game.mGameHeight - 10.0f, 360.0f, Game.mGameHeight - 78.0f, 0.0f);
+            this.chestTextShape.translate(((340.0f - font.getStringLength(TileEntity.CHEST_ID)) / 2.0f) + 380.0f, (Game.gameHeight - font.size) - 20.0f, 0.0f);
+            Shape s = ShapeUtil.filledQuad(20.0f, Game.gameHeight - 10.0f, 360.0f, Game.gameHeight - 78.0f, 0.0f);
             this.fillTitleShape = new ColouredShape(s, Colour.packFloat(0.0f, 0.0f, 0.0f, 0.5f), (State) null);
         }
         sr.pushMatrix();
@@ -280,26 +278,26 @@ public class ChestMenu extends CustomMenu {
 
     @Override
     public boolean pointerAdded(Touch.Pointer p) {
-        if (this.touch != null || !this.bounds.contains(p.x, p.y) || !this.show) {
-            return false;
+        if (this.touch == null && this.bounds.contains(p.x, p.y) && this.show) {
+            this.touch = p;
+            this.exitTap.pointerAdded(this.touch);
+            if (this.chestScissorBound.contains(p.x, p.y)) {
+                this.needToScrollChest = true;
+                this.prevChestScrollY = this.touch.y;
+            }
+            if (this.inventoryScissorBound.contains(p.x, p.y)) {
+                this.needToScrollInv = true;
+                this.prevInvScrollY = this.touch.y;
+            }
+            for (int i = 0; i < this.chestTapItems.size(); i++) {
+                this.chestTapItems.get(i).pointerAdded(this.touch);
+            }
+            for (int i2 = 0; i2 < this.inventoryTapItems.size(); i2++) {
+                this.inventoryTapItems.get(i2).pointerAdded(this.touch);
+            }
+            return true;
         }
-        this.touch = p;
-        this.exitTap.pointerAdded(this.touch);
-        if (this.chestScissorBound.contains(p.x, p.y)) {
-            this.needToScrollChest = true;
-            this.prevChestScrollY = this.touch.y;
-        }
-        if (this.inventoryScissorBound.contains(p.x, p.y)) {
-            this.needToScrollInv = true;
-            this.prevInvScrollY = this.touch.y;
-        }
-        for (int i = 0; i < this.chestTapItems.size(); i++) {
-            this.chestTapItems.get(i).pointerAdded(this.touch);
-        }
-        for (int i2 = 0; i2 < this.inventoryTapItems.size(); i2++) {
-            this.inventoryTapItems.get(i2).pointerAdded(this.touch);
-        }
-        return true;
+        return false;
     }
 
     @Override

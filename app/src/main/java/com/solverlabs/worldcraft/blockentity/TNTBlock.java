@@ -19,30 +19,29 @@ import com.solverlabs.worldcraft.factories.BlockFactory;
 import com.solverlabs.worldcraft.factories.ItemFactory;
 import com.solverlabs.worldcraft.skin.geometry.Parallelepiped;
 
-
 public class TNTBlock implements BlockEntity {
     private static final float BLOCK_SIZE = 1.0f;
     private static final int COLOR = Colour.packFloat(BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
     private static final int DETONATION_SECONDS = 4;
     private static final float POWER = 4.0f;
-    private static final float sxtn = 0.0625f;
     private static State blockState = null;
     private static ItemFactory.Item item = null;
     private static State itemState = null;
     private static Parallelepiped parallelepiped = null;
+    private static final float sxtn = 0.0625f;
     private static TexturedShape texShape;
     private static Parallelepiped whiteParallelepiped;
     private static TexturedShape whiteTexShape;
-    private final Vector3i position;
-    private final World world;
     private long activatedAt;
     private TexturedShape activeTexShape;
     private boolean exploded = false;
     private boolean isActivated;
+    private final Vector3i position;
+    private final World world;
 
-    public TNTBlock(Vector3i position, World world) {
-        this.position = new Vector3i(position);
-        this.world = world;
+    public enum DetonationDelayType {
+        SHORT_DELAY,
+        NORMAL_DELAY
     }
 
     public static void init() {
@@ -51,8 +50,8 @@ public class TNTBlock implements BlockEntity {
         whiteParallelepiped = Parallelepiped.createParallelepiped(BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE, sxtn);
         blockState = BlockFactory.texture.applyTo(blockState);
         item = ItemFactory.Item.TNT;
-        parallelepiped.setTexCoords((Object) item.block.texCoords);
-        whiteParallelepiped.setTexCoords((Object) new int[]{8, 11, 8, 11, 8, 11, 8, 11, 8, 11, 8, 11});
+        parallelepiped.setTexCoords(item.block.texCoords);
+        whiteParallelepiped.setTexCoords(new int[]{8, 11, 8, 11, 8, 11, 8, 11, 8, 11, 8, 11});
         itemState = GLUtil.typicalState.with(MinFilter.NEAREST, MagFilter.NEAREST);
         if (ItemFactory.itemTexture != null) {
             itemState = ItemFactory.itemTexture.applyTo(itemState);
@@ -63,6 +62,11 @@ public class TNTBlock implements BlockEntity {
         whiteTexShape = createShapeBuilder(whiteParallelepiped, BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE, COLOR).compile();
         whiteTexShape.state = blockState;
         whiteTexShape.state.apply();
+    }
+
+    public TNTBlock(Vector3i position, World world) {
+        this.position = new Vector3i(position);
+        this.world = world;
     }
 
     @NonNull
@@ -108,7 +112,7 @@ public class TNTBlock implements BlockEntity {
             this.activeTexShape = getActiveTexShape();
         } else if (!this.isActivated) {
             this.isActivated = true;
-            Explosion.explode(this.world, this.position, (float) POWER, this);
+            Explosion.explode(this.world, this.position, POWER, this);
         }
     }
 
@@ -157,11 +161,5 @@ public class TNTBlock implements BlockEntity {
 
     public void setExploded(boolean exploded) {
         this.exploded = exploded;
-    }
-
-
-    public enum DetonationDelayType {
-        SHORT_DELAY,
-        NORMAL_DELAY
     }
 }

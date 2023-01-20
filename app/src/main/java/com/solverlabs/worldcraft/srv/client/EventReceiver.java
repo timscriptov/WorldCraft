@@ -1,5 +1,7 @@
 package com.solverlabs.worldcraft.srv.client;
 
+import androidx.annotation.NonNull;
+
 import com.solverlabs.worldcraft.client.common.EventQueue;
 import com.solverlabs.worldcraft.mob.MobFactory;
 import com.solverlabs.worldcraft.srv.common.WorldCraftGameEvent;
@@ -7,18 +9,16 @@ import com.solverlabs.worldcraft.srv.domain.Camera;
 import com.solverlabs.worldcraft.srv.domain.Player;
 import com.solverlabs.worldcraft.srv.domain.Room;
 import com.solverlabs.worldcraft.srv.util.ObjectCodec;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 public class EventReceiver {
     private Map<List<Short>, Room.BlockData> blocks;
     private EventReceiverListener listener;
-    private NetworkChecker networkChecker;
+    private final NetworkChecker networkChecker;
     private int receivedBlockPackets;
     private int receivedRoomByPlayerNumberPackets;
     private int receivedRoomByRatingPackets;
@@ -38,34 +38,34 @@ public class EventReceiver {
         }
         this.listener = eventReceiverListener;
         this.networkChecker = networkChecker;
-        this.roomsByPlayerNumber = new ArrayList();
-        this.roomsReadOnly = new ArrayList();
-        this.roomsByRating = new ArrayList();
-        this.roomsSearch = new ArrayList();
+        this.roomsByPlayerNumber = new ArrayList<>();
+        this.roomsReadOnly = new ArrayList<>();
+        this.roomsByRating = new ArrayList<>();
+        this.roomsSearch = new ArrayList<>();
         this.receivedBlockPackets = 0;
-        this.blocks = new HashMap();
+        this.blocks = new HashMap<>();
     }
 
     private void blockType(WorldCraftGameEvent worldCraftGameEvent) {
-        ArrayList arrayList = new ArrayList();
+        ArrayList<WorldCraftGameEvent> arrayList = new ArrayList<>();
         arrayList.add(worldCraftGameEvent);
         setBlockType(arrayList);
     }
 
-    private void checkVersion(WorldCraftGameEvent worldCraftGameEvent) {
+    private void checkVersion(@NonNull WorldCraftGameEvent worldCraftGameEvent) {
         this.listener.onCheckVersionResponse(worldCraftGameEvent.getError(), ObjectCodec.decodeString(worldCraftGameEvent.getInputBuffer()));
     }
 
-    private void createRoomResponse(WorldCraftGameEvent worldCraftGameEvent) {
+    private void createRoomResponse(@NonNull WorldCraftGameEvent worldCraftGameEvent) {
         this.listener.onCreateRoomResponse(worldCraftGameEvent.getError(), ObjectCodec.decodeString(worldCraftGameEvent.getInputBuffer()));
     }
 
-    private void enemyAction(WorldCraftGameEvent worldCraftGameEvent) {
+    private void enemyAction(@NonNull WorldCraftGameEvent worldCraftGameEvent) {
         ObjectCodec.PlayerAction decodePlayerAction = ObjectCodec.decodePlayerAction(worldCraftGameEvent.getInputBuffer());
         this.listener.onEnemyAction(decodePlayerAction.playerId, decodePlayerAction.action);
     }
 
-    private void enemyDisconnected(WorldCraftGameEvent worldCraftGameEvent) {
+    private void enemyDisconnected(@NonNull WorldCraftGameEvent worldCraftGameEvent) {
         this.listener.onEnemyDisconnected(worldCraftGameEvent.getInputBuffer().getInt());
     }
 
@@ -83,13 +83,12 @@ public class EventReceiver {
             return;
         }
         Player decodePlayer = ObjectCodec.decodePlayer(worldCraftGameEvent.getInputBuffer());
-        if (decodePlayer.getId() == worldCraftGameEvent.getPlayerId()) {
-            return;
+        if (decodePlayer.getId() != worldCraftGameEvent.getPlayerId()) {
+            this.listener.onEnemyInfo(decodePlayer);
         }
-        this.listener.onEnemyInfo(decodePlayer);
     }
 
-    private void enemyMove(WorldCraftGameEvent worldCraftGameEvent) {
+    private void enemyMove(@NonNull WorldCraftGameEvent worldCraftGameEvent) {
         Camera decodeCamera = ObjectCodec.decodeCamera(worldCraftGameEvent.getInputBuffer());
         if (decodeCamera != null) {
             this.listener.onEnemyMove(decodeCamera);
@@ -101,7 +100,7 @@ public class EventReceiver {
         this.blocks.clear();
     }
 
-    private void joinRoomResponse(WorldCraftGameEvent worldCraftGameEvent) {
+    private void joinRoomResponse(@NonNull WorldCraftGameEvent worldCraftGameEvent) {
         boolean z;
         boolean z2 = false;
         String str = null;
@@ -116,7 +115,7 @@ public class EventReceiver {
         this.listener.onJoinRoomResponse(worldCraftGameEvent.getError(), str, z, z2);
     }
 
-    private void loginResponse(WorldCraftGameEvent worldCraftGameEvent) {
+    private void loginResponse(@NonNull WorldCraftGameEvent worldCraftGameEvent) {
         int i = -1;
         String str = null;
         if (worldCraftGameEvent.getError() == 0) {
@@ -127,7 +126,7 @@ public class EventReceiver {
         this.listener.onLoginResponse(worldCraftGameEvent.getError(), i, str, ObjectCodec.decodeString(worldCraftGameEvent.getInputBuffer()));
     }
 
-    private void message(WorldCraftGameEvent worldCraftGameEvent) {
+    private void message(@NonNull WorldCraftGameEvent worldCraftGameEvent) {
         String decodeString = ObjectCodec.decodeString(worldCraftGameEvent.getInputBuffer());
         if (decodeString != null) {
             this.listener.onMessage(decodeString);
@@ -156,24 +155,24 @@ public class EventReceiver {
             return;
         }
         if (this.blocks == null) {
-            this.blocks = new HashMap();
+            this.blocks = new HashMap<>();
         }
         informModifiedBlocksReceived();
     }
 
-    private void moveResponse(WorldCraftGameEvent worldCraftGameEvent) {
+    private void moveResponse(@NonNull WorldCraftGameEvent worldCraftGameEvent) {
         this.listener.onMoveResponse(worldCraftGameEvent.getError());
     }
 
-    private void pingResponse(WorldCraftGameEvent worldCraftGameEvent) {
+    private void pingResponse(@NonNull WorldCraftGameEvent worldCraftGameEvent) {
         this.listener.onPingResponse(worldCraftGameEvent.getError());
     }
 
     private void playerGraphicsInited(WorldCraftGameEvent worldCraftGameEvent) {
-        this.listener.onModifiedBlocks(new HashMap());
+        this.listener.onModifiedBlocks(new HashMap<>());
     }
 
-    private void popupMessage(WorldCraftGameEvent worldCraftGameEvent) {
+    private void popupMessage(@NonNull WorldCraftGameEvent worldCraftGameEvent) {
         this.listener.onPopupMessage(ObjectCodec.decodeString(worldCraftGameEvent.getInputBuffer()));
     }
 
@@ -222,26 +221,25 @@ public class EventReceiver {
                 }
                 break;
         }
-        if (this.receivedRoomSearchPackets != 0 || this.receivedRoomReadOnly != 0 || this.receivedRoomByPlayerNumberPackets != 0 || this.receivedRoomByRatingPackets != 0) {
-            return;
+        if (this.receivedRoomSearchPackets == 0 && this.receivedRoomReadOnly == 0 && this.receivedRoomByPlayerNumberPackets == 0 && this.receivedRoomByRatingPackets == 0) {
+            this.listener.onRoomListResponse(worldCraftGameEvent.getError(), this.roomsByPlayerNumber, this.roomsReadOnly, this.roomsByRating, this.roomsSearch, decodeRoomsPacket.initRoomlistSize);
+            this.roomsReadOnly = new ArrayList<>();
+            this.roomsByPlayerNumber = new ArrayList<>();
+            this.roomsByRating = new ArrayList<>();
+            this.roomsSearch = new ArrayList<>();
         }
-        this.listener.onRoomListResponse(worldCraftGameEvent.getError(), this.roomsByPlayerNumber, this.roomsReadOnly, this.roomsByRating, this.roomsSearch, decodeRoomsPacket.initRoomlistSize);
-        this.roomsReadOnly = new ArrayList();
-        this.roomsByPlayerNumber = new ArrayList();
-        this.roomsByRating = new ArrayList();
-        this.roomsSearch = new ArrayList();
     }
 
-    private void setBlockType(List<WorldCraftGameEvent> list) {
-        HashMap hashMap = new HashMap();
+    private void setBlockType(@NonNull List<WorldCraftGameEvent> list) {
+        HashMap<List<Short>, Room.BlockData> hashMap = new HashMap<>();
         for (WorldCraftGameEvent worldCraftGameEvent : list) {
             ObjectCodec.BlockInfo decodeBlockInfo = ObjectCodec.decodeBlockInfo(worldCraftGameEvent.getInputBuffer());
-            ArrayList arrayList = new ArrayList();
-            arrayList.add(Short.valueOf(decodeBlockInfo.x));
-            arrayList.add(Short.valueOf(decodeBlockInfo.y));
-            arrayList.add(Short.valueOf(decodeBlockInfo.z));
-            arrayList.add(Short.valueOf(decodeBlockInfo.chunkX));
-            arrayList.add(Short.valueOf(decodeBlockInfo.chunkZ));
+            ArrayList<Short> arrayList = new ArrayList<>();
+            arrayList.add(decodeBlockInfo.x);
+            arrayList.add(decodeBlockInfo.y);
+            arrayList.add(decodeBlockInfo.z);
+            arrayList.add(decodeBlockInfo.chunkX);
+            arrayList.add(decodeBlockInfo.chunkZ);
             hashMap.put(arrayList, new Room.BlockData(decodeBlockInfo.blockType, decodeBlockInfo.blockData));
         }
         this.listener.onSetBlockResonse((byte) 0, hashMap);
@@ -253,7 +251,7 @@ public class EventReceiver {
         }
     }
 
-    private void unknownEvent(WorldCraftGameEvent worldCraftGameEvent) {
+    private void unknownEvent(@NonNull WorldCraftGameEvent worldCraftGameEvent) {
         this.listener.onUnknownEvent(worldCraftGameEvent.getError(), worldCraftGameEvent.getType());
     }
 
@@ -303,10 +301,10 @@ public class EventReceiver {
             case 38:
                 playerGraphicsInited(worldCraftGameEvent);
                 return;
-            case Room.MAX_USER_COUNT /* 40 */:
+            case 40:
                 modifiedBlocks(worldCraftGameEvent);
                 return;
-            case MobFactory.DISTANCE_TO_DESPAWN_MOB /* 45 */:
+            case 45:
                 enemyInfo(worldCraftGameEvent);
                 return;
             case 46:

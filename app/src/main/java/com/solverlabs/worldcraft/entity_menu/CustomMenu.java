@@ -14,15 +14,18 @@ import com.solverlabs.worldcraft.chunk.tile_entity.Inventory;
 import com.solverlabs.worldcraft.ui.CustomTapPad;
 import com.solverlabs.worldcraft.ui.GUI;
 
-
 public abstract class CustomMenu implements Touch.TouchListener {
-    protected static final float RATIO_Y = Game.mScreenHeight / Game.mGameHeight;
-    protected static final float RATIO_X = Game.mScreenWidth / Game.mGameWidth;
-    private final int innerColour = Colour.packInt(148, 134, 123, 255);
-    private final int boundsColour = Colour.packFloat(0.0f, 0.0f, 0.0f, 0.8f);
-    public BoundingRectangle bounds = new BoundingRectangle(0.0f, 0.0f, Game.mGameWidth, Game.mGameHeight);
+    private ColouredShape boundShape;
+    private ColouredShape innerShape;
     protected Inventory inventory;
     protected boolean show;
+    protected Touch.Pointer touch;
+    protected static final float RATIO_Y = Game.screenHeight / Game.gameHeight;
+    protected static final float RATIO_X = Game.screenWidth / Game.gameWidth;
+    public BoundingRectangle bounds = new BoundingRectangle(0.0f, 0.0f, Game.gameWidth, Game.gameHeight);
+    private final int innerColour = Colour.packInt(148, 134, 123, 255);
+    private final int boundsColour = Colour.packFloat(0.0f, 0.0f, 0.0f, 0.8f);
+    protected CustomTapPad exitTap = new CustomTapPad(Game.gameWidth - 68.0f, Game.gameHeight - 68.0f, 60.0f, 60.0f, GUI.getFont(), "X");
     private final TapPad.Listener exitTapListener = new TapPad.Listener() {
         @Override
         public void onTap(TapPad pad) {
@@ -41,10 +44,6 @@ public abstract class CustomMenu implements Touch.TouchListener {
         public void onDoubleTap(TapPad pad) {
         }
     };
-    protected Touch.Pointer touch;
-    protected CustomTapPad exitTap = new CustomTapPad(Game.mGameWidth - 68.0f, Game.mGameHeight - 68.0f, 60.0f, 60.0f, GUI.getFont(), "X");
-    private ColouredShape boundShape;
-    private ColouredShape innerShape;
 
     public CustomMenu(Inventory inventory) {
         this.inventory = inventory;
@@ -62,7 +61,7 @@ public abstract class CustomMenu implements Touch.TouchListener {
     protected void drawInnerBound(StackedRenderer sr) {
         if (this.innerShape == null) {
             Shape is = ShapeUtil.innerQuad(this.bounds.x.getMin(), this.bounds.y.getMin(), this.bounds.x.getMax(), this.bounds.y.getMax(), this.bounds.y.getSpan(), 0.0f);
-            this.innerShape = new ColouredShape(is, this.innerColour, (State) null);
+            this.innerShape = new ColouredShape(is, this.innerColour, null);
         }
         this.innerShape.render(sr);
     }
@@ -70,7 +69,7 @@ public abstract class CustomMenu implements Touch.TouchListener {
     protected void drawBound(StackedRenderer sr) {
         if (this.boundShape == null) {
             Shape bs = ShapeUtil.innerQuad(this.bounds.x.getMin(), this.bounds.y.getMin(), this.bounds.x.getMax(), this.bounds.y.getMax(), 8.0f, 0.0f);
-            this.boundShape = new ColouredShape(bs, this.boundsColour, (State) null);
+            this.boundShape = new ColouredShape(bs, this.boundsColour, null);
         }
         this.boundShape.render(sr);
     }

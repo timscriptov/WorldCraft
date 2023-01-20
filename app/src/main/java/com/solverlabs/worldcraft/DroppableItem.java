@@ -24,33 +24,40 @@ import com.solverlabs.worldcraft.skin.geometry.Parallelepiped;
 import com.solverlabs.worldcraft.util.GameTime;
 import com.solverlabs.worldcraft.util.RandomUtil;
 
-
 public class DroppableItem {
     private static final float BLOCK_SIZE = 0.2f;
     private static final int COLOR = Colour.packFloat(1.0f, 1.0f, 1.0f, 1.0f);
     private static final long INACTIVE_PERIOD = 500;
     private static final long LIVE_PERIOD = 180000;
-    private static final float sxtn = 0.0625f;
     private static State blockState = null;
     private static State itemState = null;
     private static Parallelepiped parallelepiped = null;
+    private static final float sxtn = 0.0625f;
+    private int count;
     private final long createTime;
     public float dx;
     public float dy;
     public float dz;
+    private boolean isItem;
     public ItemFactory.Item item;
+    private TexturedShape texShape;
     public float x;
+    private float xOffset;
     public float y;
     public float z;
-    public int angle = 0;
-    private int count;
-    private boolean isItem;
-    private TexturedShape texShape;
-    private float xOffset;
     private float zOffset;
+    public int angle = 0;
     private float yOffset = 0.0f;
     private boolean moveUp = false;
     private int currentStep = 10;
+
+    public static void init() {
+        blockState = GLUtil.typicalState.with(MinFilter.NEAREST, MagFilter.NEAREST);
+        parallelepiped = Parallelepiped.createParallelepiped(0.2f, 0.2f, 0.2f, sxtn);
+        blockState = BlockFactory.texture.applyTo(blockState);
+        itemState = GLUtil.typicalState.with(MinFilter.NEAREST, MagFilter.NEAREST);
+        itemState = ItemFactory.itemTexture.applyTo(itemState);
+    }
 
     public DroppableItem(byte itemID, float x, float y, float z, int count, boolean dropItemFromHotBar) {
         this.xOffset = 0.0f;
@@ -67,45 +74,20 @@ public class DroppableItem {
         if (this.item != null) {
             if (this.item.block != null && !DoorBlock.isDoor(this.item.block) && !BedBlock.isBed(this.item.block)) {
                 if (this.item.id == 90 || this.item.id == 122 || this.item.id == 76) {
-                    this.texShape = (TexturedShape) this.item.itemShape.clone();
+                    this.texShape = this.item.itemShape.clone();
                 } else {
                     parallelepiped.setTexCoords((Object) this.item.block.texCoords);
                     this.texShape = createShapeBuilder(parallelepiped, 1.0f, 1.0f, 1.0f, COLOR).compile();
                 }
                 this.texShape.state = blockState;
             } else {
-                this.texShape = (TexturedShape) this.item.itemShape.clone();
+                this.texShape = this.item.itemShape.clone();
                 this.texShape.state = itemState;
                 this.isItem = true;
             }
         }
         this.createTime = GameTime.getTime();
         this.count = count;
-    }
-
-    public static void init() {
-        blockState = GLUtil.typicalState.with(MinFilter.NEAREST, MagFilter.NEAREST);
-        parallelepiped = Parallelepiped.createParallelepiped(0.2f, 0.2f, 0.2f, sxtn);
-        blockState = BlockFactory.texture.applyTo(blockState);
-        itemState = GLUtil.typicalState.with(MinFilter.NEAREST, MagFilter.NEAREST);
-        itemState = ItemFactory.itemTexture.applyTo(itemState);
-    }
-
-    @NonNull
-    private static ShapeBuilder createShapeBuilder(Parallelepiped p, float width, float height, float depth, int color) {
-        ShapeBuilder shapeBuilder = new ShapeBuilder();
-        shapeBuilder.clear();
-        addFace(p, (-0.2f) * width, 0.0f, 0.0f, p.south, depth, height, color, shapeBuilder);
-        addFace(p, 0.2f * width, 0.0f, 0.0f, p.north, depth, height, color, shapeBuilder);
-        addFace(p, 0.0f, 0.0f, (-0.2f) * depth, p.west, width, height, color, shapeBuilder);
-        addFace(p, 0.0f, 0.0f, 0.2f * depth, p.east, width, height, color, shapeBuilder);
-        addFace(p, 0.0f, 0.0f, 0.0f, p.bottom, width, depth, color, shapeBuilder);
-        addFace(p, 0.0f, 0.0f, 0.0f, p.top, width, depth, color, shapeBuilder);
-        return shapeBuilder;
-    }
-
-    private static void addFace(@NonNull Parallelepiped facing, float x, float y, float z, Parallelepiped.Face f, float width, float height, int colour, ShapeBuilder shapBuilder) {
-        facing.face(f, x, y, z, width, height, colour, shapBuilder);
     }
 
     public TexturedShape getTexturedShape() {
@@ -130,7 +112,7 @@ public class DroppableItem {
         if (blockType == 0 || blockType == 8) {
             this.y = (float) (this.y - 0.05d);
         }
-        Player player = world.mPlayer;
+        Player player = world.player;
         float posX = player.position.x;
         float posZ = player.position.z;
         float posY = player.position.y;
@@ -175,18 +157,13 @@ public class DroppableItem {
     }
 
     public float getyOffset() {
-        int i = 1;
         if (this.yOffset <= 0.0f) {
             this.moveUp = true;
         }
         if (this.yOffset >= 0.15f) {
             this.moveUp = false;
         }
-        float f = this.yOffset;
-        if (!this.moveUp) {
-            i = -1;
-        }
-        this.yOffset = (i * 0.005f) + f;
+        this.yOffset = ((this.moveUp ? 1 : -1) * 0.005f) + this.yOffset;
         return this.yOffset;
     }
 
@@ -211,6 +188,23 @@ public class DroppableItem {
 
     public byte getBlockID() {
         return this.item.id;
+    }
+
+    @NonNull
+    private static ShapeBuilder createShapeBuilder(Parallelepiped p, float width, float height, float depth, int color) {
+        ShapeBuilder shapeBuilder = new ShapeBuilder();
+        shapeBuilder.clear();
+        addFace(p, (-0.2f) * width, 0.0f, 0.0f, p.south, depth, height, color, shapeBuilder);
+        addFace(p, 0.2f * width, 0.0f, 0.0f, p.north, depth, height, color, shapeBuilder);
+        addFace(p, 0.0f, 0.0f, (-0.2f) * depth, p.west, width, height, color, shapeBuilder);
+        addFace(p, 0.0f, 0.0f, 0.2f * depth, p.east, width, height, color, shapeBuilder);
+        addFace(p, 0.0f, 0.0f, 0.0f, p.bottom, width, depth, color, shapeBuilder);
+        addFace(p, 0.0f, 0.0f, 0.0f, p.top, width, depth, color, shapeBuilder);
+        return shapeBuilder;
+    }
+
+    private static void addFace(@NonNull Parallelepiped facing, float x, float y, float z, Parallelepiped.Face f, float width, float height, int colour, ShapeBuilder shapBuilder) {
+        facing.face(f, x, y, z, width, height, colour, shapBuilder);
     }
 
     public int getCount() {

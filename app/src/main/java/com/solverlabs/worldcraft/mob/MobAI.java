@@ -7,7 +7,6 @@ import com.solverlabs.worldcraft.math.MathUtils;
 import com.solverlabs.worldcraft.mob.zombie.Zombie;
 import com.solverlabs.worldcraft.util.RandomUtil;
 
-
 public class MobAI {
     private static final int ANGLE_TO_FOLLOW_PLAYER_UPDATE_TIMEOUT = 700;
     private static final long FOLLOWING_PLAYER_TIMEOUT = 1000;
@@ -41,14 +40,14 @@ public class MobAI {
             return;
         }
         switch (tag.state) {
-            case 1:
+            case STATE_MOVING:
                 stopMob(mob);
                 return;
-            case 2:
+            case STATE_STANDS_STILL:
             default:
                 moveMob(mob, getRandomAngle());
                 return;
-            case 3:
+            case STATE_RUNNING:
                 if (tag.nextUpdateAt > System.currentTimeMillis()) {
                     changeMobAngle(mob, getRandomAngle());
                     return;
@@ -56,7 +55,7 @@ public class MobAI {
                     stopMob(mob);
                     return;
                 }
-            case 4:
+            case STATE_FOLLOWING_PLAYER:
                 stopMob(mob);
                 return;
         }
@@ -77,28 +76,28 @@ public class MobAI {
     }
 
     private static void stopMob(Mob mob) {
-        updateMob(mob, 2, mob.getAngle(), getRandomUpdateTimeout());
+        updateMob(mob, STATE_STANDS_STILL, mob.getAngle(), getRandomUpdateTimeout());
         mob.stop();
     }
 
     private static void moveMob(Mob mob, float angle) {
-        updateMob(mob, 1, angle, getRandomUpdateTimeout());
+        updateMob(mob, STATE_MOVING, angle, getRandomUpdateTimeout());
         mob.move();
     }
 
     private static void runMob(Mob mob, float angle) {
-        updateMob(mob, 3, angle, RUNNING_ON_ATTACK_TIMEOUT);
+        updateMob(mob, STATE_RUNNING, angle, RUNNING_ON_ATTACK_TIMEOUT);
         mob.run();
     }
 
     private static void followPlayer(Mob mob, Player player) {
-        updateMob(mob, 4, getAngleToFollowPlayer(mob, player), 1000L);
+        updateMob(mob, STATE_FOLLOWING_PLAYER, getAngleToFollowPlayer(mob, player), FOLLOWING_PLAYER_TIMEOUT);
         mob.run();
     }
 
     private static float getAngleToFollowPlayer(@NonNull Mob mob, Player player) {
         MobTag tag = (MobTag) mob.getTag();
-        if (System.currentTimeMillis() - tag.angleToFollowPlayerCalculatedAt > 700) {
+        if (System.currentTimeMillis() - tag.angleToFollowPlayerCalculatedAt > ANGLE_TO_FOLLOW_PLAYER_UPDATE_TIMEOUT) {
             tag.angleToFollowPlayer = MathUtils.getAngleToFollowPoint(mob.getPosition().x, mob.getPosition().z, player.position.x, player.position.z);
             tag.angleToFollowPlayerCalculatedAt = System.currentTimeMillis();
         }
@@ -112,7 +111,7 @@ public class MobAI {
         }
         tag.nextUpdateAt = System.currentTimeMillis() + timeout;
         tag.state = state;
-        mob.setAngle(angle, state != 3 && state != 4);
+        mob.setAngle(angle, state != STATE_RUNNING && state != STATE_FOLLOWING_PLAYER);
         mob.setTag(tag);
     }
 

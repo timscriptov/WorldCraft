@@ -2,7 +2,6 @@ package com.solverlabs.worldcraft.framework;
 
 import com.solverlabs.worldcraft.framework.math.Vector3;
 
-
 public class DynamicGameObject3D extends GameObject3D {
     public final Vector3 accel;
     public final Vector3 velocity;

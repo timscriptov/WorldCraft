@@ -18,21 +18,57 @@ import com.solverlabs.droid.rugl.gl.enums.MinFilter;
 import com.solverlabs.droid.rugl.gl.facets.Fog;
 import com.solverlabs.droid.rugl.res.BitmapLoader;
 import com.solverlabs.droid.rugl.res.ResourceLoader;
-import com.solverlabs.droid.rugl.texture.BitmapImage;
-import com.solverlabs.droid.rugl.texture.Image;
 import com.solverlabs.droid.rugl.texture.Texture;
 import com.solverlabs.droid.rugl.texture.TextureFactory;
 import com.solverlabs.droid.rugl.util.Colour;
 import com.solverlabs.droid.rugl.util.Trig;
+import com.solverlabs.worldcraft.R;
 import com.solverlabs.worldcraft.material.Material;
 
 import java.util.HashMap;
 import java.util.Map;
 
-
 public class BlockFactory {
     public static final byte BARE_HANDS = 0;
+    public static final byte STONE_ID = 1;
+    public static final byte DIRT_WITH_GRASS_ID = 2;
+    public static final byte DIRT_ID = 3;
+    public static final byte COBBLE_ID = 4;
+    public static final byte WOODEN_PLANKS_ID = 5;
+
     public static final byte BEDROCK_ID = 7;
+    public static final byte WATER_ID = 8;
+    public static final byte STILL_WATER_ID = 9;
+    public static final byte LAVA_ID = 10;
+    public static final byte STILL_LAVA_ID = 11;
+    public static final byte SAND_ID = 12;
+    public static final byte GRAVEL_ID = 13;
+    public static final byte GOLD_ORE_ID = 14;
+    public static final byte IRON_ORE_ID = 15;
+    public static final byte COAL_ORE_ID = 16;
+    public static final byte WOOD_ID = 17;
+    public static final byte LEAVES_ID = 18;
+    public static final byte SPONGE_ID = 19;
+    public static final byte GLASS_ID = 20;
+    public static final byte LAPIS_LAZULI_ORE_ID = 21;
+    public static final byte LAPIS_LAZULI_BLOCK_ID = 22;
+    public static final byte DISPENSER_ID = 23;
+    public static final byte SAND_STONE_ID = 24;
+    public static final byte NOTE_BLOCK_ID = 25;
+    public static final byte WOOD_SWORD_ID = 26;
+    public static final byte WOOD_SHOVEL_ID = 27;
+    public static final byte WOOD_PICK_ID = 28;
+    public static final byte WOOD_AXE_ID = 29;
+    public static final byte STONE_SWORD_ID = 30;
+    public static final byte STONE_SHOVEL_ID = 31;
+    public static final byte STONE_PICK_ID = 32;
+    public static final byte STONE_AXE_ID = 33;
+    public static final byte IRON_SWORD_ID = 34;
+    public static final byte WOOL_ID = 35;
+    public static final byte IRON_SHOVEL_ID = 36;
+    public static final byte IRON_PICK_ID = 37;
+    public static final byte IRON_AXE_ID = 38;
+
     public static final byte BED_ID = 75;
     public static final byte BOOKSHELF_ID = 47;
     public static final byte BRICK_BLOCK_ID = 45;
@@ -42,8 +78,8 @@ public class BlockFactory {
     public static final byte CLAY_ORE_ID = 82;
     public static final byte CLOSED_IRON_DOOR_ID = 65;
     public static final byte CLOSED_WOOD_DOOR_ID = 62;
-    public static final byte COAL_ORE_ID = 16;
-    public static final byte COBBLE_ID = 4;
+
+
     public static final byte COOKED_PORKCHOP_ID = 74;
     public static final byte CRAFTING_TABLE_ID = 58;
     public static final byte DIAMOND_AXE_ID = 59;
@@ -53,48 +89,32 @@ public class BlockFactory {
     public static final byte DIAMOND_PICK_ID = 55;
     public static final byte DIAMOND_SHOVEL_ID = 53;
     public static final byte DIAMOND_SWORD_ID = 52;
-    public static final byte DIRT_ID = 3;
-    public static final byte DIRT_WITH_GRASS_ID = 2;
-    public static final byte DISPENSER_ID = 23;
     public static final byte DOUBLE_SLAB_ID = 43;
     public static final byte EMERALD_ID = 112;
     public static final byte FARMLAND_ID = 60;
     public static final byte FLOWER_ID = 122;
     public static final byte FURNACE_ACTIVE_ID = 119;
     public static final byte FURNACE_ID = 61;
-    public static final byte GLASS_ID = 20;
     public static final byte GLOW_STONE_ID = 89;
     public static final byte GOLD_AXE_ID = 51;
     public static final byte GOLD_BLOCK_ID = 41;
     public static final byte GOLD_INGOT_ID = 108;
-    public static final byte GOLD_ORE_ID = 14;
     public static final byte GOLD_PICK_ID = 50;
     public static final byte GOLD_SHOVEL_ID = 40;
     public static final byte GOLD_SWORD_ID = 39;
     public static final byte GRASS_ID = 121;
-    public static final byte GRAVEL_ID = 13;
     public static final byte ICE_ID = 80;
-    public static final byte IRON_AXE_ID = 38;
     public static final byte IRON_BLOCK_ID = 42;
     public static final byte IRON_INGOT_ID = 107;
-    public static final byte IRON_ORE_ID = 15;
-    public static final byte IRON_PICK_ID = 37;
-    public static final byte IRON_SHOVEL_ID = 36;
-    public static final byte IRON_SWORD_ID = 34;
     public static final byte ITEMS_LABEL_ID = 67;
     public static final byte JUKEBOX_ID = 84;
     public static final byte LADDER_ID = 76;
-    public static final byte LAPIS_LAZULI_BLOCK_ID = 22;
-    public static final byte LAPIS_LAZULI_ORE_ID = 21;
-    public static final byte LAVA_ID = 10;
-    public static final byte LEAVES_ID = 18;
     public static final byte LEAVES_JUNGLE_ID = 118;
     public static final byte MELON_ID = 110;
     public static final byte MOSS_STONE2_ID = 114;
     public static final byte MOSS_STONE_ID = 48;
     public static final byte NETHERRACK_ID = 87;
     public static final byte NETHER_BRICK_ID = 105;
-    public static final byte NOTE_BLOCK_ID = 25;
     public static final byte OBSIDIAN2_ID = 106;
     public static final byte OBSIDIAN_ID = 49;
     public static final byte OPENED_IRON_DOOR_ID = 66;
@@ -105,43 +125,25 @@ public class BlockFactory {
     public static final byte REDSTONE_ORE_ID = 73;
     public static final byte ROTTEN_FLESH_ID = 70;
     public static final byte SANDSTONE2_ID = 113;
-    public static final byte SAND_ID = 12;
-    public static final byte SAND_STONE_ID = 24;
     public static final byte SHEARS_ID = 71;
     public static final byte SLAB_ID = 44;
     public static final byte SNOWY_GRASS_ID = 78;
     public static final byte SNOW_ID = 79;
     public static final byte SOUL_SAND_ID = 88;
-    public static final byte SPONGE_ID = 19;
     public static final byte STEAK_ID = 72;
     public static final byte STICK_ID = 63;
-    public static final byte STILL_LAVA_ID = 11;
-    public static final byte STILL_WATER_ID = 9;
-    public static final byte STONE_AXE_ID = 33;
     public static final byte STONE_BRICK_ID = 109;
     public static final byte STONE_BRICK_MOSSY_ID = 115;
-    public static final byte STONE_ID = 1;
-    public static final byte STONE_PICK_ID = 32;
-    public static final byte STONE_SHOVEL_ID = 31;
-    public static final byte STONE_SWORD_ID = 30;
     public static final byte TNT_ID = 46;
     public static final byte TORCH_ID = 90;
-    public static final byte WATER_ID = 8;
-    public static final byte WOODEN_PLANKS_ID = 5;
-    public static final byte WOOD_AXE_ID = 29;
-    public static final byte WOOD_ID = 17;
-    public static final byte WOOD_PICK_ID = 28;
     public static final byte WOOD_PLANK_JUNGLE_ID = 117;
     public static final byte WOOD_PLANK_PINE_ID = 116;
-    public static final byte WOOD_SHOVEL_ID = 27;
-    public static final byte WOOD_SWORD_ID = 26;
     public static final byte WOOL_BLACK_ID = 91;
     public static final byte WOOL_BLUE_ID = 99;
     public static final byte WOOL_BROWN_ID = 97;
     public static final byte WOOL_CYAN_ID = 102;
     public static final byte WOOL_GRAY_ID = 92;
     public static final byte WOOL_GREEN_ID = 95;
-    public static final byte WOOL_ID = 35;
     public static final byte WOOL_LIGHT_BLUE_ID = 100;
     public static final byte WOOL_LIGHT_GRAY_ID = 104;
     public static final byte WOOL_LIME_ID = 96;
@@ -150,9 +152,12 @@ public class BlockFactory {
     public static final byte WOOL_PINK_ID = 94;
     public static final byte WOOL_RED_ID = 93;
     public static final byte WOOL_YELLOW_ID = 98;
+    private static HashMap<Byte, Material> blockMaterials = null;
     private static final Map<Byte, Block> blocks;
     private static final ColouredShape itemShape;
+    public static State state = null;
     private static final float sxtn = 0.0625f;
+    public static Texture texture;
     private static final float[] nbl = {0.0f, 0.0f, 0.0f};
     private static final float[] ntl = {0.0f, 1.0f, 0.0f};
     private static final float[] nbr = {1.0f, 0.0f, 0.0f};
@@ -161,9 +166,16 @@ public class BlockFactory {
     private static final float[] ftl = {0.0f, 1.0f, 1.0f};
     private static final float[] fbr = {1.0f, 0.0f, 1.0f};
     private static final float[] ftr = {1.0f, 1.0f, 1.0f};
-    public static State state = null;
-    public static Texture texture;
-    private static HashMap<Byte, Material> blockMaterials = null;
+
+    public enum WorldSide {
+        South,
+        West,
+        East,
+        North,
+        Top,
+        Bottom,
+        Empty
+    }
 
     static {
         float[] hexVerts = new float[14];
@@ -209,27 +221,26 @@ public class BlockFactory {
             colours[i14 + 4] = left;
             colours[i14 + 8] = right;
         }
-        itemShape = new ColouredShape(new Shape(itemCoords, tris), colours, (State) null);
+        itemShape = new ColouredShape(new Shape(itemCoords, tris), colours, null);
         state = GLUtil.typicalState.with(MinFilter.NEAREST, MagFilter.NEAREST).with(new Fog(FogMode.LINEAR, 0.5f, 30.0f, 40.0f, Colour.packFloat(0.7f, 0.7f, 0.9f, 1.0f)));
-        blocks = new HashMap();
+        blocks = new HashMap<>();
         Block[] arr$ = Block.values();
         for (Block b : arr$) {
-            blocks.put(Byte.valueOf(b.id), b);
+            blocks.put(b.id, b);
         }
     }
 
-    private static void addVert(float[] itemVerts, int index, float[] hexCoords, int vertIndex) {
+    private static void addVert(@NonNull float[] itemVerts, int index, @NonNull float[] hexCoords, int vertIndex) {
         itemVerts[index * 3] = hexCoords[vertIndex * 2];
         itemVerts[(index * 3) + 1] = hexCoords[(vertIndex * 2) + 1];
         itemVerts[(index * 3) + 2] = 0.0f;
     }
 
     public static void loadTexture() {
-        ResourceLoader.loadNow(new BitmapLoader("terrain.png") {
+        ResourceLoader.loadNow(new BitmapLoader(R.drawable.terrain) {
             @Override
             public void complete() {
-                Texture terrain = TextureFactory.buildTexture((Image) this.resource, true, true);
-                BlockFactory.texture = terrain;
+                BlockFactory.texture = TextureFactory.buildTexture(this.resource, true, true);
                 if (BlockFactory.texture != null) {
                     BlockFactory.state = BlockFactory.texture.applyTo(BlockFactory.state);
                     Block[] arr$ = Block.values();
@@ -239,151 +250,22 @@ public class BlockFactory {
                         }
                     }
                 }
-                ((BitmapImage) this.resource).bitmap.recycle();
+                this.resource.bitmap.recycle();
             }
         });
     }
 
     public static Block getBlock(byte id) {
-        return blocks.get(Byte.valueOf(id));
+        return blocks.get(id);
     }
 
     public static boolean opaque(byte id) {
-        Block b = blocks.get(Byte.valueOf(id));
+        Block b = blocks.get(id);
         if (b == null) {
             return false;
         }
         return b.opaque;
     }
-
-    private static void initBlockMaterials() {
-        blockMaterials = new HashMap<>();
-        blockMaterials.put((byte) 1, Material.STONE);
-        blockMaterials.put((byte) 2, Material.GRASS);
-        blockMaterials.put((byte) 3, Material.GRAVEL);
-        blockMaterials.put((byte) 4, Material.STONE);
-        blockMaterials.put((byte) 5, Material.WOOD);
-        blockMaterials.put((byte) 7, Material.STONE);
-        blockMaterials.put((byte) 8, Material.WATER);
-        blockMaterials.put((byte) 9, Material.WATER);
-        blockMaterials.put((byte) 10, Material.LAVA);
-        blockMaterials.put((byte) 11, Material.LAVA);
-        blockMaterials.put((byte) 12, Material.GRAVEL);
-        blockMaterials.put((byte) 13, Material.GRAVEL);
-        blockMaterials.put((byte) 14, Material.STONE);
-        blockMaterials.put((byte) 15, Material.STONE);
-        blockMaterials.put(Byte.valueOf((byte) COAL_ORE_ID), Material.STONE);
-        blockMaterials.put(Byte.valueOf((byte) WOOD_ID), Material.WOOD);
-        blockMaterials.put((byte) 18, Material.GRASS);
-        blockMaterials.put(Byte.valueOf((byte) GLASS_ID), Material.STONE);
-        blockMaterials.put((byte) 21, Material.STONE);
-        blockMaterials.put((byte) 22, Material.STONE);
-        blockMaterials.put(Byte.valueOf((byte) DISPENSER_ID), Material.STONE);
-        blockMaterials.put((byte) 24, Material.STONE);
-        blockMaterials.put(Byte.valueOf((byte) WOOD_SWORD_ID), Material.WOOD);
-        blockMaterials.put((byte) 27, Material.WOOD);
-        blockMaterials.put((byte) 28, Material.WOOD);
-        blockMaterials.put((byte) 29, Material.WOOD);
-        blockMaterials.put((byte) 30, Material.STONE);
-        blockMaterials.put((byte) 31, Material.STONE);
-        blockMaterials.put((byte) 32, Material.STONE);
-        blockMaterials.put((byte) 33, Material.STONE);
-        blockMaterials.put((byte) 34, Material.STONE);
-        blockMaterials.put((byte) 35, Material.GRAVEL);
-        blockMaterials.put((byte) 36, Material.STONE);
-        blockMaterials.put((byte) 37, Material.STONE);
-        blockMaterials.put((byte) 38, Material.STONE);
-        blockMaterials.put((byte) GOLD_SWORD_ID, Material.STONE);
-        blockMaterials.put((byte) 40, Material.STONE);
-        blockMaterials.put((byte) GOLD_BLOCK_ID, Material.STONE);
-        blockMaterials.put((byte) IRON_BLOCK_ID, Material.STONE);
-        blockMaterials.put((byte) DOUBLE_SLAB_ID, Material.STONE);
-        blockMaterials.put((byte) 44, Material.STONE);
-        blockMaterials.put((byte) 45, Material.STONE);
-        blockMaterials.put((byte) 46, Material.STONE);
-        blockMaterials.put((byte) 47, Material.WOOD);
-        blockMaterials.put((byte) 48, Material.STONE);
-        blockMaterials.put((byte) 49, Material.STONE);
-        blockMaterials.put((byte) 50, Material.STONE);
-        blockMaterials.put((byte) 51, Material.STONE);
-        blockMaterials.put((byte) 52, Material.STONE);
-        blockMaterials.put((byte) 53, Material.STONE);
-        blockMaterials.put((byte) 54, Material.WOOD);
-        blockMaterials.put((byte) 55, Material.STONE);
-        blockMaterials.put((byte) DIAMOND_ORE_ID, Material.STONE);
-        blockMaterials.put((byte) DIAMOND_BLOCK_ID, Material.STONE);
-        blockMaterials.put((byte) 58, Material.WOOD);
-        blockMaterials.put((byte) 59, Material.STONE);
-        blockMaterials.put((byte) FARMLAND_ID, Material.GRAVEL);
-        blockMaterials.put((byte) 61, Material.STONE);
-        blockMaterials.put((byte) CLOSED_WOOD_DOOR_ID, Material.WOOD);
-        blockMaterials.put((byte) STICK_ID, Material.WOOD);
-        blockMaterials.put((byte) OPENED_WOOD_DOOR_ID, Material.WOOD);
-        blockMaterials.put((byte) CLOSED_IRON_DOOR_ID, Material.STONE);
-        blockMaterials.put((byte) OPENED_IRON_DOOR_ID, Material.STONE);
-        blockMaterials.put((byte) ITEMS_LABEL_ID, Material.WOOD);
-        blockMaterials.put((byte) REDSTONE_ORE_ID, Material.STONE);
-        blockMaterials.put((byte) BED_ID, Material.WOOD);
-        blockMaterials.put((byte) 76, Material.WOOD);
-        blockMaterials.put((byte) SNOWY_GRASS_ID, Material.GRASS);
-        blockMaterials.put((byte) SNOW_ID, Material.GRAVEL);
-        blockMaterials.put((byte) ICE_ID, Material.STONE);
-        blockMaterials.put((byte) CACTUS_ID, Material.GRASS);
-        blockMaterials.put((byte) CLAY_ORE_ID, Material.STONE);
-        blockMaterials.put((byte) JUKEBOX_ID, Material.WOOD);
-        blockMaterials.put((byte) PUMPKIN_ID, Material.GRASS);
-        blockMaterials.put((byte) NETHERRACK_ID, Material.GRAVEL);
-        blockMaterials.put((byte) 88, Material.GRAVEL);
-        blockMaterials.put((byte) GLOW_STONE_ID, Material.STONE);
-        blockMaterials.put((byte) WOOL_BLACK_ID, Material.GRAVEL);
-        blockMaterials.put((byte) WOOL_GRAY_ID, Material.GRAVEL);
-        blockMaterials.put((byte) WOOL_RED_ID, Material.GRAVEL);
-        blockMaterials.put((byte) WOOL_PINK_ID, Material.GRAVEL);
-        blockMaterials.put((byte) WOOL_GREEN_ID, Material.GRAVEL);
-        blockMaterials.put((byte) WOOL_LIME_ID, Material.GRAVEL);
-        blockMaterials.put((byte) WOOL_BROWN_ID, Material.GRAVEL);
-        blockMaterials.put((byte) WOOL_YELLOW_ID, Material.GRAVEL);
-        blockMaterials.put((byte) WOOL_BLUE_ID, Material.GRAVEL);
-        blockMaterials.put((byte) WOOL_LIGHT_BLUE_ID, Material.GRAVEL);
-        blockMaterials.put((byte) WOOL_MAGENTA_ID, Material.GRAVEL);
-        blockMaterials.put((byte) WOOL_CYAN_ID, Material.GRAVEL);
-        blockMaterials.put((byte) 103, Material.GRAVEL);
-        blockMaterials.put((byte) WOOL_LIGHT_GRAY_ID, Material.GRAVEL);
-        blockMaterials.put((byte) NETHER_BRICK_ID, Material.STONE);
-        blockMaterials.put((byte) OBSIDIAN2_ID, Material.STONE);
-        blockMaterials.put((byte) STONE_BRICK_ID, Material.STONE);
-        blockMaterials.put((byte) EMERALD_ID, Material.STONE);
-        blockMaterials.put((byte) SANDSTONE2_ID, Material.STONE);
-        blockMaterials.put((byte) MOSS_STONE2_ID, Material.STONE);
-        blockMaterials.put((byte) STONE_BRICK_MOSSY_ID, Material.STONE);
-        blockMaterials.put((byte) WOOD_PLANK_PINE_ID, Material.WOOD);
-        blockMaterials.put((byte) WOOD_PLANK_JUNGLE_ID, Material.WOOD);
-        blockMaterials.put((byte) LEAVES_JUNGLE_ID, Material.GRASS);
-        blockMaterials.put((byte) FURNACE_ACTIVE_ID, Material.STONE);
-        blockMaterials.put((byte) 120, Material.STONE);
-        blockMaterials.put((byte) GRASS_ID, Material.GRASS);
-        blockMaterials.put((byte) FLOWER_ID, Material.GRASS);
-        blockMaterials.put((byte) TORCH_ID, Material.WOOD);
-    }
-
-    public static Material getBlockMaterial(byte id) {
-        if (blockMaterials == null) {
-            initBlockMaterials();
-        }
-        return blockMaterials.containsKey(id) ? blockMaterials.get(id) : Material.UNKNOWN;
-    }
-
-
-    public enum WorldSide {
-        South,
-        West,
-        East,
-        North,
-        Top,
-        Bottom,
-        Empty
-    }
-
 
     public enum Face {
         East(BlockFactory.fbl, BlockFactory.ftl, BlockFactory.nbl, BlockFactory.ntl),
@@ -402,55 +284,171 @@ public class BlockFactory {
         }
     }
 
+    private static void initBlockMaterials() {
+        blockMaterials = new HashMap<>();
+        blockMaterials.put(STONE_ID, Material.STONE);
+        blockMaterials.put(DIRT_WITH_GRASS_ID, Material.GRASS);
+        blockMaterials.put(DIRT_ID, Material.GRAVEL);
+        blockMaterials.put(COBBLE_ID, Material.STONE);
+        blockMaterials.put(WOODEN_PLANKS_ID, Material.WOOD);
+        blockMaterials.put(BEDROCK_ID, Material.STONE);
+        blockMaterials.put(WATER_ID, Material.WATER);
+        blockMaterials.put(STILL_WATER_ID, Material.WATER);
+        blockMaterials.put(LAVA_ID, Material.LAVA);
+        blockMaterials.put(STILL_LAVA_ID, Material.LAVA);
+        blockMaterials.put(SAND_ID, Material.GRAVEL);
+        blockMaterials.put(GRAVEL_ID, Material.GRAVEL);
+        blockMaterials.put(GOLD_ORE_ID, Material.STONE);
+        blockMaterials.put(IRON_ORE_ID, Material.STONE);
+        blockMaterials.put(COAL_ORE_ID, Material.STONE);
+        blockMaterials.put(WOOD_ID, Material.WOOD);
+        blockMaterials.put(LEAVES_ID, Material.GRASS);
+        blockMaterials.put(GLASS_ID, Material.STONE);
+        blockMaterials.put(LAPIS_LAZULI_ORE_ID, Material.STONE);
+        blockMaterials.put(LAPIS_LAZULI_BLOCK_ID, Material.STONE);
+        blockMaterials.put(DISPENSER_ID, Material.STONE);
+        blockMaterials.put(SAND_STONE_ID, Material.STONE);
+        blockMaterials.put(WOOD_SWORD_ID, Material.WOOD);
+        blockMaterials.put(WOOD_SHOVEL_ID, Material.WOOD);
+        blockMaterials.put(WOOD_PICK_ID, Material.WOOD);
+        blockMaterials.put(WOOD_AXE_ID, Material.WOOD);
+        blockMaterials.put(STONE_SWORD_ID, Material.STONE);
+        blockMaterials.put(STONE_SHOVEL_ID, Material.STONE);
+        blockMaterials.put(STONE_PICK_ID, Material.STONE);
+        blockMaterials.put(STONE_AXE_ID, Material.STONE);
+        blockMaterials.put(IRON_SWORD_ID, Material.STONE);
+        blockMaterials.put(WOOL_ID, Material.GRAVEL);
+        blockMaterials.put(IRON_SHOVEL_ID, Material.STONE);
+        blockMaterials.put(IRON_PICK_ID, Material.STONE);
+        blockMaterials.put(IRON_AXE_ID, Material.STONE);
+        blockMaterials.put(GOLD_SWORD_ID, Material.STONE);
+        blockMaterials.put(GOLD_SHOVEL_ID, Material.STONE);
+        blockMaterials.put(GOLD_BLOCK_ID, Material.STONE);
+        blockMaterials.put(IRON_BLOCK_ID, Material.STONE);
+        blockMaterials.put(DOUBLE_SLAB_ID, Material.STONE);
+        blockMaterials.put(SLAB_ID, Material.STONE);
+        blockMaterials.put(BRICK_BLOCK_ID, Material.STONE);
+        blockMaterials.put(TNT_ID, Material.STONE);
+        blockMaterials.put(BOOKSHELF_ID, Material.WOOD);
+        blockMaterials.put(MOSS_STONE_ID, Material.STONE);
+        blockMaterials.put(OBSIDIAN_ID, Material.STONE);
+        blockMaterials.put(GOLD_PICK_ID, Material.STONE);
+        blockMaterials.put(GOLD_AXE_ID, Material.STONE);
+        blockMaterials.put(DIAMOND_SWORD_ID, Material.STONE);
+        blockMaterials.put(DIAMOND_SHOVEL_ID, Material.STONE);
+        blockMaterials.put(CHEST_ID, Material.WOOD);
+        blockMaterials.put(DIAMOND_PICK_ID, Material.STONE);
+        blockMaterials.put(DIAMOND_ORE_ID, Material.STONE);
+        blockMaterials.put(DIAMOND_BLOCK_ID, Material.STONE);
+        blockMaterials.put(CRAFTING_TABLE_ID, Material.WOOD);
+        blockMaterials.put(DIAMOND_AXE_ID, Material.STONE);
+        blockMaterials.put(FARMLAND_ID, Material.GRAVEL);
+        blockMaterials.put(FURNACE_ID, Material.STONE);
+        blockMaterials.put(CLOSED_WOOD_DOOR_ID, Material.WOOD);
+        blockMaterials.put(STICK_ID, Material.WOOD);
+        blockMaterials.put(OPENED_WOOD_DOOR_ID, Material.WOOD);
+        blockMaterials.put(CLOSED_IRON_DOOR_ID, Material.STONE);
+        blockMaterials.put(OPENED_IRON_DOOR_ID, Material.STONE);
+        blockMaterials.put(ITEMS_LABEL_ID, Material.WOOD);
+        blockMaterials.put(REDSTONE_ORE_ID, Material.STONE);
+        blockMaterials.put(BED_ID, Material.WOOD);
+        blockMaterials.put(LADDER_ID, Material.WOOD);
+        blockMaterials.put(SNOWY_GRASS_ID, Material.GRASS);
+        blockMaterials.put(SNOW_ID, Material.GRAVEL);
+        blockMaterials.put(ICE_ID, Material.STONE);
+        blockMaterials.put(CACTUS_ID, Material.GRASS);
+        blockMaterials.put(CLAY_ORE_ID, Material.STONE);
+        blockMaterials.put(JUKEBOX_ID, Material.WOOD);
+        blockMaterials.put(PUMPKIN_ID, Material.GRASS);
+        blockMaterials.put(NETHERRACK_ID, Material.GRAVEL);
+        blockMaterials.put(SOUL_SAND_ID, Material.GRAVEL);
+        blockMaterials.put(GLOW_STONE_ID, Material.STONE);
+        blockMaterials.put(WOOL_BLACK_ID, Material.GRAVEL);
+        blockMaterials.put(WOOL_GRAY_ID, Material.GRAVEL);
+        blockMaterials.put(WOOL_RED_ID, Material.GRAVEL);
+        blockMaterials.put(WOOL_PINK_ID, Material.GRAVEL);
+        blockMaterials.put(WOOL_GREEN_ID, Material.GRAVEL);
+        blockMaterials.put(WOOL_LIME_ID, Material.GRAVEL);
+        blockMaterials.put(WOOL_BROWN_ID, Material.GRAVEL);
+        blockMaterials.put(WOOL_YELLOW_ID, Material.GRAVEL);
+        blockMaterials.put(WOOL_BLUE_ID, Material.GRAVEL);
+        blockMaterials.put(WOOL_LIGHT_BLUE_ID, Material.GRAVEL);
+        blockMaterials.put(WOOL_MAGENTA_ID, Material.GRAVEL);
+        blockMaterials.put(WOOL_CYAN_ID, Material.GRAVEL);
+        blockMaterials.put(WOOL_ORANGE_ID, Material.GRAVEL);
+        blockMaterials.put(WOOL_LIGHT_GRAY_ID, Material.GRAVEL);
+        blockMaterials.put(NETHER_BRICK_ID, Material.STONE);
+        blockMaterials.put(OBSIDIAN2_ID, Material.STONE);
+        blockMaterials.put(STONE_BRICK_ID, Material.STONE);
+        blockMaterials.put(EMERALD_ID, Material.STONE);
+        blockMaterials.put(SANDSTONE2_ID, Material.STONE);
+        blockMaterials.put(MOSS_STONE2_ID, Material.STONE);
+        blockMaterials.put(STONE_BRICK_MOSSY_ID, Material.STONE);
+        blockMaterials.put(WOOD_PLANK_PINE_ID, Material.WOOD);
+        blockMaterials.put(WOOD_PLANK_JUNGLE_ID, Material.WOOD);
+        blockMaterials.put(LEAVES_JUNGLE_ID, Material.GRASS);
+        blockMaterials.put(FURNACE_ACTIVE_ID, Material.STONE);
+        blockMaterials.put(BRICK_ID, Material.STONE);
+        blockMaterials.put(GRASS_ID, Material.GRASS);
+        blockMaterials.put(FLOWER_ID, Material.GRASS);
+        blockMaterials.put(TORCH_ID, Material.WOOD);
+    }
+
+    public static Material getBlockMaterial(byte id) {
+        if (blockMaterials == null) {
+            initBlockMaterials();
+        }
+        return blockMaterials.containsKey(id) ? blockMaterials.get(id) : Material.UNKNOWN;
+    }
 
     public enum Block {
-        Stone((byte) 1, true, 1, 0),
-        DirtWithGrass((byte) 2, true, 3, 0, 0, 0, 2, 0),
-        Dirt((byte) 3, true, 2, 0),
-        Cobble((byte) 4, true, 0, 1),
-        WoodenPlanks((byte) 5, true, 4, 0),
-        Bedrock((byte) 7, true, 1, 1),
-        Water((byte) 8, false, 15, 12),
-        StillWater((byte) 9, false, 15, 12),
-        Lava((byte) 10, true, 15, 15),
-        StillLava((byte) 11, true, 15, 15),
-        Sand((byte) 12, true, 2, 1),
-        Gravel((byte) 13, true, 3, 1),
-        GoldOre((byte) 14, true, 0, 2),
-        IronOre((byte) 15, true, 1, 2),
+        Stone(BlockFactory.STONE_ID, true, 1, 0),
+        DirtWithGrass(BlockFactory.DIRT_WITH_GRASS_ID, true, 3, 0, 0, 0, 2, 0),
+        Dirt(BlockFactory.DIRT_ID, true, 2, 0),
+        Cobble(BlockFactory.COBBLE_ID, true, 0, 1),
+        WoodenPlanks(BlockFactory.WOODEN_PLANKS_ID, true, 4, 0),
+        Bedrock(BlockFactory.BEDROCK_ID, true, 1, 1),
+        Water(BlockFactory.WATER_ID, false, 15, 12),
+        StillWater(BlockFactory.STILL_WATER_ID, false, 15, 12),
+        Lava(BlockFactory.LAVA_ID, true, 15, 15),
+        StillLava(BlockFactory.STILL_LAVA_ID, true, 15, 15),
+        Sand(BlockFactory.SAND_ID, true, 2, 1),
+        Gravel(BlockFactory.GRAVEL_ID, true, 3, 1),
+        GoldOre(BlockFactory.GOLD_ORE_ID, true, 0, 2),
+        IronOre(BlockFactory.IRON_ORE_ID, true, 1, 2),
         CoalOre(BlockFactory.COAL_ORE_ID, true, 2, 2),
         Wood(BlockFactory.WOOD_ID, true, 4, 1, 5, 1),
-        Leaves((byte) 18, true, 5, 3),
-        Sponge((byte) 19, true, 0, 3),
+        Leaves(BlockFactory.LEAVES_ID, true, 5, 3),
+        Sponge(BlockFactory.SPONGE_ID, true, 0, 3),
         Glass(BlockFactory.GLASS_ID, false, 1, 3),
-        LapisLazuliOre((byte) 21, true, 0, 10),
-        LapisLazuliBlock((byte) 22, true, 0, 9),
+        LapisLazuliOre(BlockFactory.LAPIS_LAZULI_ORE_ID, true, 0, 10),
+        LapisLazuliBlock(BlockFactory.LAPIS_LAZULI_BLOCK_ID, true, 0, 9),
         Dispenser(BlockFactory.DISPENSER_ID, true, 13, 2, 13, 2, 13, 2, 14, 2, 14, 3, 14, 3),
-        SandStone((byte) 24, true, 0, 12, 0, 11, 0, 13),
-        NoteBlock((byte) 25, true, 10, 4),
-        Wool((byte) 35, true, 0, 4),
+        SandStone(BlockFactory.SAND_STONE_ID, true, 0, 12, 0, 11, 0, 13),
+        NoteBlock(BlockFactory.NOTE_BLOCK_ID, true, 10, 4),
+        Wool(BlockFactory.WOOL_ID, true, 0, 4),
         GoldBlock(BlockFactory.GOLD_BLOCK_ID, true, 7, 1),
         IronBlock(BlockFactory.IRON_BLOCK_ID, true, 6, 1),
         DoubleSlab(BlockFactory.DOUBLE_SLAB_ID, true, 5, 0, 6, 0),
-        Slab((byte) 44, true, 5, 0, 6, 0),
-        BrickBlock((byte) 45, true, 7, 0),
-        TNT((byte) 46, true, 8, 0, 9, 0, 10, 0),
-        Bookshelf((byte) 47, true, 3, 2),
-        MossStone((byte) 48, true, 4, 2),
-        Obsidian((byte) 49, true, 5, 2),
-        Chest((byte) 54, true, 10, 1, 10, 1, 10, 1, 11, 1, 8, 2, 8, 2),
+        Slab(BlockFactory.SLAB_ID, true, 5, 0, 6, 0),
+        BrickBlock(BlockFactory.BRICK_BLOCK_ID, true, 7, 0),
+        TNT(BlockFactory.TNT_ID, true, 8, 0, 9, 0, 10, 0),
+        Bookshelf(BlockFactory.BOOKSHELF_ID, true, 3, 2),
+        MossStone(BlockFactory.MOSS_STONE_ID, true, 4, 2),
+        Obsidian(BlockFactory.OBSIDIAN_ID, true, 5, 2),
+        Chest(BlockFactory.CHEST_ID, true, 10, 1, 10, 1, 10, 1, 11, 1, 8, 2, 8, 2),
         DiamondOre(BlockFactory.DIAMOND_ORE_ID, true, 2, 3),
         DiamondBlock(BlockFactory.DIAMOND_BLOCK_ID, true, 8, 1),
-        CraftingTable((byte) 58, true, 11, 3, 12, 3, 11, 3, 12, 3, 11, 2, 11, 2),
+        CraftingTable(CRAFTING_TABLE_ID, true, 11, 3, 12, 3, 11, 3, 12, 3, 11, 2, 11, 2),
         Farmland(BlockFactory.FARMLAND_ID, true, 2, 0, 7, 5, 2, 0),
-        Furnace((byte) 61, true, 13, 2, 13, 2, 13, 2, 12, 2, 14, 3, 14, 3),
+        Furnace(BlockFactory.FURNACE_ID, true, 13, 2, 13, 2, 13, 2, 12, 2, 14, 3, 14, 3),
         FurnaceActive(BlockFactory.FURNACE_ACTIVE_ID, true, 13, 2, 13, 2, 13, 2, 13, 3, 14, 3, 14, 3),
         ClosedWoodDoor(BlockFactory.CLOSED_WOOD_DOOR_ID, false, 1, 5, 1, 6),
         OpenedWoodDoor(BlockFactory.OPENED_WOOD_DOOR_ID, false, 1, 5, 1, 6),
         ClosedIronDoor(BlockFactory.CLOSED_IRON_DOOR_ID, false, 2, 5, 2, 6),
         OpenedIronDoor(BlockFactory.OPENED_IRON_DOOR_ID, false, 2, 5, 2, 6),
         Bed(BlockFactory.BED_ID, false, 5, 9, 6, 9),
-        Ladder((byte) 76, false, false, 3, 5),
+        Ladder(BlockFactory.LADDER_ID, false, false, 3, 5),
         RedstoneOre(BlockFactory.REDSTONE_ORE_ID, true, 3, 3),
         SnowyGrass(BlockFactory.SNOWY_GRASS_ID, true, 4, 4, 2, 4, 2, 0),
         Snow(BlockFactory.SNOW_ID, true, 2, 4),
@@ -460,7 +458,7 @@ public class BlockFactory {
         Jukebox(BlockFactory.JUKEBOX_ID, true, 10, 4, 11, 4, 10, 4),
         Pumpkin(BlockFactory.PUMPKIN_ID, true, 6, 7, 6, 7, 6, 7, 7, 7, 6, 6, 6, 6),
         Netherrack(BlockFactory.NETHERRACK_ID, true, 7, 6),
-        SoulSand((byte) 88, true, 8, 6),
+        SoulSand(BlockFactory.SOUL_SAND_ID, true, 8, 6),
         GlowStone(BlockFactory.GLOW_STONE_ID, true, 9, 6),
         Torch(BlockFactory.TORCH_ID, false, false, 0, 5),
         Grass(BlockFactory.GRASS_ID, false, false, 7, 2),
@@ -477,7 +475,7 @@ public class BlockFactory {
         WoolLightBlue(BlockFactory.WOOL_LIGHT_BLUE_ID, true, 2, 11),
         WoolMagenta(BlockFactory.WOOL_MAGENTA_ID, true, 2, 12),
         WoolCyan(BlockFactory.WOOL_CYAN_ID, true, 1, 13),
-        WoolOrange((byte) 103, true, 2, 13),
+        WoolOrange(BlockFactory.WOOL_ORANGE_ID, true, 2, 13),
         WoolLightGray(BlockFactory.WOOL_LIGHT_GRAY_ID, true, 1, 14),
         NetherBrick(BlockFactory.NETHER_BRICK_ID, true, 0, 14),
         Obsidian2(BlockFactory.OBSIDIAN2_ID, true, 5, 2),
@@ -491,12 +489,12 @@ public class BlockFactory {
         WoodPlankJungle(BlockFactory.WOOD_PLANK_JUNGLE_ID, true, 7, 12),
         LeavesJungle(BlockFactory.LEAVES_JUNGLE_ID, true, 5, 12);
 
+        public TexturedShape blockItemShape;
         public final byte id;
+        public final boolean isCuboid;
         public final Material material;
         public final boolean opaque;
         public final int[] texCoords;
-        public final boolean isCuboid;
-        public TexturedShape blockItemShape;
 
         Block(byte id, boolean opaque, int... tc) {
             this(id, opaque, true, tc);
@@ -527,7 +525,7 @@ public class BlockFactory {
                     texCoords[i3] = texCoords[i3] / 16.0f;
                 }
                 Shape shape = ShapeUtil.filledQuad(-0.5f, -0.5f, 0.5f, 0.5f, 0.0f);
-                ColouredShape cs = new ColouredShape(shape, Colour.white, (State) null);
+                ColouredShape cs = new ColouredShape(shape, Colour.white, null);
                 this.blockItemShape = new TexturedShape(cs, texCoords, BlockFactory.texture);
                 return;
             }
@@ -590,7 +588,7 @@ public class BlockFactory {
                     float bv = BlockFactory.sxtn * (this.texCoords[txco + 1] + 1);
                     float tu = BlockFactory.sxtn * (this.texCoords[txco] + 1);
                     float tv = BlockFactory.sxtn * this.texCoords[txco + 1];
-                    if (this.id == 44 && f != Face.Bottom) {
+                    if (this.id == SLAB_ID && f != Face.Bottom) {
                         if (f == Face.Top) {
                             float[] fArr4 = sb.vertices;
                             int i6 = sb.vertexOffset - 2;

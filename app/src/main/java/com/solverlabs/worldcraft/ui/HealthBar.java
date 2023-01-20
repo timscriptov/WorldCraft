@@ -7,7 +7,6 @@ import com.solverlabs.droid.rugl.util.geom.BoundingRectangle;
 import com.solverlabs.worldcraft.Player;
 import com.solverlabs.worldcraft.factories.ItemFactory;
 
-
 public class HealthBar {
     private static final int EMPTY_HEART = 0;
     private static final int FULL_HEART = 2;
@@ -69,11 +68,11 @@ public class HealthBar {
 
     private TexturedShape getHeartTextureRest(byte heartType) {
         switch (heartType) {
-            case 0:
+            case EMPTY_HEART:
                 return emptyHeartShape;
-            case 1:
+            case HALF_HEART:
                 return halfHeartShape;
-            case 2:
+            case FULL_HEART:
                 return fullHeartShape;
             default:
                 return emptyHeartShape;
@@ -82,11 +81,11 @@ public class HealthBar {
 
     private TexturedShape getHeartTextureActive(byte heartType) {
         switch (heartType) {
-            case 0:
+            case EMPTY_HEART:
                 return emptyHeartActiveShape;
-            case 1:
+            case HALF_HEART:
                 return halfHeartActiveShape;
-            case 2:
+            case FULL_HEART:
                 return fullHeartActiveShape;
             default:
                 return emptyHeartActiveShape;

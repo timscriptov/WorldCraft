@@ -7,11 +7,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.solverlabs.worldcraft.R;
-
 import java.util.ArrayList;
-
 
 public class EntryAdapter extends ArrayAdapter<OptionItem> {
     private final Context context;
@@ -25,7 +22,7 @@ public class EntryAdapter extends ArrayAdapter<OptionItem> {
         this.vi = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
-    @Override
+    @Override 
     public View getView(int position, View convertView, ViewGroup parent) {
         OptionItem i = this.items.get(position);
         if (i == null) {
@@ -33,20 +30,20 @@ public class EntryAdapter extends ArrayAdapter<OptionItem> {
         }
         if (i.isSection()) {
             SectionItem si = (SectionItem) i;
-            View v = this.vi.inflate(R.layout.list_item_section, (ViewGroup) null);
+            View v = this.vi.inflate(R.layout.list_item_section, null);
             v.setOnClickListener(null);
             v.setOnLongClickListener(null);
             v.setLongClickable(false);
-            TextView sectionView = (TextView) v.findViewById(R.id.list_item_section_text);
+            TextView sectionView = v.findViewById(R.id.list_item_section_text);
             sectionView.setText(si.getTitle());
             return v;
         }
         EntryItem ei = (EntryItem) i;
-        View v2 = this.vi.inflate(R.layout.list_item_entry, (ViewGroup) null);
-        TextView title = (TextView) v2.findViewById(R.id.list_item_entry_title);
-        TextView subtitle = (TextView) v2.findViewById(R.id.list_item_entry_summary);
+        View v2 = this.vi.inflate(R.layout.list_item_entry, null);
+        TextView title = v2.findViewById(R.id.list_item_entry_title);
+        TextView subtitle = v2.findViewById(R.id.list_item_entry_summary);
         if (ei.hasImage()) {
-            ImageView image = (ImageView) v2.findViewById(R.id.list_item_image);
+            ImageView image = v2.findViewById(R.id.list_item_image);
             image.setImageResource(ei.resID);
         }
         if (title != null) {

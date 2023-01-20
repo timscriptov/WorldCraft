@@ -9,25 +9,23 @@ import com.solverlabs.droid.rugl.input.TapPad;
 import com.solverlabs.droid.rugl.text.Font;
 import com.solverlabs.droid.rugl.text.TextShape;
 import com.solverlabs.droid.rugl.util.Colour;
-
 import org.apache.commons.compress.archivers.cpio.CpioConstants;
 
-
 public class CustomButton extends TapPad {
-    private final Font font;
-    private final float height;
-    private final String text;
-    private final float width;
-    private final float x;
-    private final float y;
-    public boolean drawText;
-    public boolean isStroke;
     private ColouredShape buttonBottomBound;
     private ColouredShape buttonLeftBound;
     private ColouredShape buttonRightBound;
     private ColouredShape buttonUpBound;
+    public boolean drawText;
+    private final Font font;
+    private final float height;
     private ColouredShape innerShape;
+    public boolean isStroke;
+    private final String text;
     private TextShape textShape;
+    private final float width;
+    private final float x;
+    private final float y;
 
     public CustomButton(float x, float y, float width, float height, String text) {
         super(x, y, width, height);
@@ -38,6 +36,10 @@ public class CustomButton extends TapPad {
         this.width = width;
         this.height = height;
         this.font = GUI.getFont();
+        if (this.font != null) {
+            this.textShape = this.font.buildTextShape(text, Colour.white);
+            this.textShape.translate(((width - this.font.getStringLength(text)) / 2.0f) + x, ((height - this.font.size) / 2.0f) + y, 0.0f);
+        }
         this.text = text;
     }
 
@@ -45,11 +47,11 @@ public class CustomButton extends TapPad {
     public void draw(StackedRenderer sr) {
         if (this.buttonBottomBound == null) {
             Shape s = ShapeUtil.line(3.0f, 0.0f, 0.0f, this.width, 0.0f);
-            this.buttonUpBound = new ColouredShape(s, Colour.white, (State) null);
-            this.buttonBottomBound = new ColouredShape(s, Colour.darkgrey, (State) null);
+            this.buttonUpBound = new ColouredShape(s, Colour.white, null);
+            this.buttonBottomBound = new ColouredShape(s, Colour.darkgrey, null);
             Shape s2 = ShapeUtil.line(3.0f, 0.0f, 0.0f, 0.0f, this.height);
-            this.buttonLeftBound = new ColouredShape(s2, Colour.withAlphai(Colour.white, (int) CpioConstants.C_IWUSR), (State) null);
-            this.buttonRightBound = new ColouredShape(s2, Colour.withAlphai(Colour.darkgrey, (int) CpioConstants.C_IWUSR), (State) null);
+            this.buttonLeftBound = new ColouredShape(s2, Colour.withAlphai(Colour.white, CpioConstants.C_IWUSR), null);
+            this.buttonRightBound = new ColouredShape(s2, Colour.withAlphai(Colour.darkgrey, CpioConstants.C_IWUSR), null);
         }
         sr.pushMatrix();
         sr.translate(this.x, this.y, 0.0f);
@@ -96,10 +98,10 @@ public class CustomButton extends TapPad {
         if (this.innerShape == null) {
             if (!this.isStroke) {
                 Shape is = ShapeUtil.innerQuad(this.x, this.y, this.x + this.width, this.y + this.height, this.height, 0.0f);
-                this.innerShape = new ColouredShape(is, Colour.withAlphai(Colour.white, (int) CpioConstants.C_IWUSR), (State) null);
+                this.innerShape = new ColouredShape(is, Colour.withAlphai(Colour.white, CpioConstants.C_IWUSR), null);
             } else {
                 Shape is2 = ShapeUtil.innerQuad(this.x, this.y, this.x + this.width, this.y + this.height, 4.0f, 0.0f);
-                this.innerShape = new ColouredShape(is2, Colour.white, (State) null);
+                this.innerShape = new ColouredShape(is2, Colour.white, null);
             }
         }
         this.innerShape.render(sr);

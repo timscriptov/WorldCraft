@@ -1,23 +1,26 @@
 package com.solverlabs.worldcraft.skin.geometry;
 
+import androidx.annotation.NonNull;
+
 import com.solverlabs.droid.rugl.geom.ShapeBuilder;
 import com.solverlabs.worldcraft.math.MathUtils;
 
+import org.jetbrains.annotations.Contract;
+
 import java.util.Arrays;
 
-
 public class Parallelepiped {
-    public final boolean opaque;
     public Face bottom;
+    private float depth;
     public Face east;
+    private float height;
     public Face north;
+    public final boolean opaque;
     public Face south;
+    private final float sxtn;
     public float[] texCoords;
     public Face top;
     public Face west;
-    private float depth;
-    private float height;
-    private float sxtn;
     private float width;
 
     public Parallelepiped(boolean opaque, Face north, Face south, Face east, Face west, Face top, Face bottom, float sxtn, Object tc) {
@@ -59,50 +62,6 @@ public class Parallelepiped {
         this.opaque = opaque;
     }
 
-    public static Parallelepiped createParallelepiped(float width, float height, float depth, float stxtn, Object tc) {
-        float[] nbl = {0.0f, 0.0f, 0.0f};
-        float[] ntl = {0.0f, height, 0.0f};
-        float[] nbr = {width, 0.0f, 0.0f};
-        float[] ntr = {width, height, 0.0f};
-        float[] fbl = {0.0f, 0.0f, depth};
-        float[] ftl = {0.0f, height, depth};
-        float[] fbr = {width, 0.0f, depth};
-        float[] ftr = {width, height, depth};
-        Face faceNorth = new Face(fbl, ftl, nbl, ntl);
-        Face faceSouth = new Face(nbr, ntr, fbr, ftr);
-        Face faceEast = new Face(nbl, ntl, nbr, ntr);
-        Face faceWest = new Face(fbr, ftr, fbl, ftl);
-        Face faceTop = new Face(ntl, ftl, ntr, ftr);
-        Face faceBottom = new Face(nbl, fbl, nbr, fbr);
-        Parallelepiped p = new Parallelepiped(true, faceNorth, faceSouth, faceEast, faceWest, faceTop, faceBottom, stxtn, tc);
-        p.setWidth(width);
-        p.setDepth(depth);
-        p.setHeight(height);
-        return p;
-    }
-
-    public static Parallelepiped createParallelepiped(float width, float height, float depth, float stxtn) {
-        float[] nbl = {0.0f, 0.0f, 0.0f};
-        float[] ntl = {0.0f, height, 0.0f};
-        float[] nbr = {width, 0.0f, 0.0f};
-        float[] ntr = {width, height, 0.0f};
-        float[] fbl = {0.0f, 0.0f, depth};
-        float[] ftl = {0.0f, height, depth};
-        float[] fbr = {width, 0.0f, depth};
-        float[] ftr = {width, height, depth};
-        Face faceNorth = new Face(fbl, ftl, nbl, ntl);
-        Face faceSouth = new Face(nbr, ntr, fbr, ftr);
-        Face faceEast = new Face(nbl, ntl, nbr, ntr);
-        Face faceWest = new Face(fbr, ftr, fbl, ftl);
-        Face faceTop = new Face(ntl, ftl, ntr, ftr);
-        Face faceBottom = new Face(nbl, fbl, nbr, fbr);
-        Parallelepiped p = new Parallelepiped(true, faceNorth, faceSouth, faceEast, faceWest, faceTop, faceBottom, stxtn);
-        p.setWidth(width);
-        p.setDepth(depth);
-        p.setHeight(height);
-        return p;
-    }
-
     public void rotate(float angle, int axisx, int axisy, int axisz) {
         float[] nbl = {0.0f, 0.0f, 0.0f};
         rotateVertex(nbl, angle, axisx, axisy, axisz);
@@ -128,7 +87,7 @@ public class Parallelepiped {
         this.bottom = new Face(nbl, fbl, nbr, fbr);
     }
 
-    private void rotateVertex(float[] vertices, float angle, int axisx, int axisy, int axisz) {
+    private void rotateVertex(@NonNull float[] vertices, float angle, int axisx, int axisy, int axisz) {
         float c = MathUtils.cos(angle);
         float s = MathUtils.sin(angle);
         float oneminusc = 1.0f - c;
@@ -174,6 +133,8 @@ public class Parallelepiped {
         }
     }
 
+    @NonNull
+    @Contract(pure = true)
     private float[] getFloatTc(Object tc) {
         if (tc instanceof float[]) {
             return (float[]) tc;
@@ -213,7 +174,7 @@ public class Parallelepiped {
         face(f, bx, by, bz, width, height, colour, sb, false);
     }
 
-    public void face(Face f, float bx, float by, float bz, float width, float height, int colour, ShapeBuilder sb, boolean invertTexture) {
+    public void face(@NonNull Face f, float bx, float by, float bz, float width, float height, int colour, @NonNull ShapeBuilder sb, boolean invertTexture) {
         sb.ensureCapacity(4, 2);
         System.arraycopy(f.verts, 0, sb.vertices, sb.vertexOffset, f.verts.length);
         for (int i = 0; i < 4; i++) {
@@ -311,8 +272,8 @@ public class Parallelepiped {
         sb.vertexCount += 4;
     }
 
-    /* renamed from: clone */
-    public Parallelepiped m84clone() {
+    @NonNull
+    public Parallelepiped clone() {
         Parallelepiped p = new Parallelepiped(this.opaque, this.north, this.south, this.east, this.west, this.top, this.bottom, this.sxtn);
         p.setTexCoords(this.texCoords);
         p.setDepth(this.depth);
@@ -321,11 +282,56 @@ public class Parallelepiped {
         return p;
     }
 
+    @NonNull
+    public static Parallelepiped createParallelepiped(float width, float height, float depth, float stxtn, Object tc) {
+        float[] nbl = {0.0f, 0.0f, 0.0f};
+        float[] ntl = {0.0f, height, 0.0f};
+        float[] nbr = {width, 0.0f, 0.0f};
+        float[] ntr = {width, height, 0.0f};
+        float[] fbl = {0.0f, 0.0f, depth};
+        float[] ftl = {0.0f, height, depth};
+        float[] fbr = {width, 0.0f, depth};
+        float[] ftr = {width, height, depth};
+        Face faceNorth = new Face(fbl, ftl, nbl, ntl);
+        Face faceSouth = new Face(nbr, ntr, fbr, ftr);
+        Face faceEast = new Face(nbl, ntl, nbr, ntr);
+        Face faceWest = new Face(fbr, ftr, fbl, ftl);
+        Face faceTop = new Face(ntl, ftl, ntr, ftr);
+        Face faceBottom = new Face(nbl, fbl, nbr, fbr);
+        Parallelepiped p = new Parallelepiped(true, faceNorth, faceSouth, faceEast, faceWest, faceTop, faceBottom, stxtn, tc);
+        p.setWidth(width);
+        p.setDepth(depth);
+        p.setHeight(height);
+        return p;
+    }
+
+    @NonNull
+    public static Parallelepiped createParallelepiped(float width, float height, float depth, float stxtn) {
+        float[] nbl = {0.0f, 0.0f, 0.0f};
+        float[] ntl = {0.0f, height, 0.0f};
+        float[] nbr = {width, 0.0f, 0.0f};
+        float[] ntr = {width, height, 0.0f};
+        float[] fbl = {0.0f, 0.0f, depth};
+        float[] ftl = {0.0f, height, depth};
+        float[] fbr = {width, 0.0f, depth};
+        float[] ftr = {width, height, depth};
+        Face faceNorth = new Face(fbl, ftl, nbl, ntl);
+        Face faceSouth = new Face(nbr, ntr, fbr, ftr);
+        Face faceEast = new Face(nbl, ntl, nbr, ntr);
+        Face faceWest = new Face(fbr, ftr, fbl, ftl);
+        Face faceTop = new Face(ntl, ftl, ntr, ftr);
+        Face faceBottom = new Face(nbl, fbl, nbr, fbr);
+        Parallelepiped p = new Parallelepiped(true, faceNorth, faceSouth, faceEast, faceWest, faceTop, faceBottom, stxtn);
+        p.setWidth(width);
+        p.setDepth(depth);
+        p.setHeight(height);
+        return p;
+    }
 
     public static class Face {
         public final float[] verts = new float[12];
 
-        public Face(float[]... verts) {
+        public Face(@NonNull float[]... verts) {
             for (int i = 0; i < verts.length; i++) {
                 System.arraycopy(verts[i], 0, this.verts, i * 3, 3);
             }

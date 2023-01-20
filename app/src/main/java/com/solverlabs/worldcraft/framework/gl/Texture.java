@@ -1,5 +1,7 @@
 package com.solverlabs.worldcraft.framework.gl;
 
+import static org.apache.commons.compress.archivers.tar.TarConstants.DEFAULT_BLKSIZE;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.opengl.GLES10;
@@ -8,22 +10,18 @@ import android.opengl.GLUtils;
 import androidx.annotation.NonNull;
 
 import com.solverlabs.worldcraft.framework.io.FileIO;
-
-import org.apache.commons.compress.archivers.tar.TarConstants;
-
 import java.io.IOException;
 import java.io.InputStream;
 
-
 public class Texture {
-    public int height;
-    public int width;
     FileIO fileIO;
     String fileName;
+    public int height;
     int magFilter;
     int minFilter;
     boolean mipmapped;
     int textureId;
+    public int width;
 
     public Texture(FileIO fileIO, String fileName) {
         this(fileIO, fileName, false);
@@ -68,10 +66,10 @@ public class Texture {
                 throw new RuntimeException("Couldn't load texture '" + this.fileName + "'", e2);
             }
         } catch (Throwable th) {
-            try {
-                in.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
             }
             throw th;
         }
@@ -113,7 +111,7 @@ public class Texture {
         this.minFilter = minFilter;
         this.magFilter = magFilter;
         GLES10.glTexParameterf(3553, 10241, minFilter);
-        GLES10.glTexParameterf(3553, TarConstants.DEFAULT_BLKSIZE, magFilter);
+        GLES10.glTexParameterf(3553, DEFAULT_BLKSIZE, magFilter);
     }
 
     public void bind() {

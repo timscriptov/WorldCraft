@@ -24,32 +24,30 @@ import com.solverlabs.worldcraft.Player;
 import com.solverlabs.worldcraft.World;
 import com.solverlabs.worldcraft.chunk.Chunk;
 import com.solverlabs.worldcraft.chunk.entity.MobEntity;
-
+import com.solverlabs.worldcraft.mob.Mob;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 public abstract class MobFactory implements Mob.MobInteractionListener {
-    public static final int DISTANCE_TO_DESPAWN_MOB = 45;
     private static final float DEFAULT_SPAWN_CHANCE = 1.0E-4f;
+    public static final int DISTANCE_TO_DESPAWN_MOB = 45;
     private static final int MAX_MOB_COUNT = 100;
     private static final float SHIFT_ON_ATTACKED = 0.75f;
     private static final Collection<Mob> allMobs = new ArrayList<>();
-    private final StackedRenderer renderer = new StackedRenderer();
     protected World world;
     protected Collection<Mob> mobs = new ArrayList<>(100);
     protected HashMap<Mob, MobView> mobViews = new HashMap<>(100);
     protected State state = GLUtil.typicalState.with(MinFilter.NEAREST, MagFilter.NEAREST).with(new Fog(FogMode.LINEAR, 0.5f, 30.0f, 40.0f, Colour.packFloat(0.7f, 0.7f, 0.9f, 1.0f)));
+    private final StackedRenderer renderer = new StackedRenderer();
 
-    public MobFactory() {
-    }
+    public abstract Mob createMob(Vector3f vector3f);
 
-    public MobFactory(String name) {
-        loadTexture(name);
-    }
+    public abstract int getMaxMobCountAroundPlayer();
+
+    protected abstract MobView getMobView(Mob mob);
 
     public static void updateAllMobs(@NonNull Collection<Mob>... mobCollections) {
         synchronized (allMobs) {
@@ -105,90 +103,22 @@ public abstract class MobFactory implements Mob.MobInteractionListener {
         return bounds != null && mob != null && mob.intersection(bounds, intersection);
     }
 
-    public static Mob closestMobOnRay(float x, float y, float z, float directionX, float directionY, float directionZ) {
-        return closestMobOnRay(getAllMobsCopy(), x, y, z, directionX, directionY, directionZ);
+    public MobFactory() {
     }
 
-    public static Mob closestMobOnRay(@NonNull Collection<Mob> mobCollection, float x, float y, float z, float directionX, float directionY, float directionZ) {
-        Mob closestMob = null;
-        float distanceToMob = -1.0f;
-        for (Mob mob : mobCollection) {
-            if (mob != null && mob.isOnRay(x, y, z, directionX, directionY, directionZ)) {
-                float distance = mob.distance(x, y, z);
-                if (distanceToMob == -1.0f || Float.compare(distanceToMob, distance) > 0) {
-                    closestMob = mob;
-                    distanceToMob = distance;
-                }
-            }
-        }
-        return closestMob;
+    public MobFactory(int drawableId) {
+        loadTexture(drawableId);
     }
 
-    @Nullable
-    public static Collection<Mob> getAllMobsCopy() {
-        Collection<Mob> allMobsCopy;
-        synchronized (allMobs) {
-            try {
-                allMobsCopy = new ArrayList<>(allMobs);
-                return allMobsCopy;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
-    }
-
-    @NonNull
-    public static List<Mob> getMobs(Chunk chunk) {
-        List<Mob> result = new ArrayList<>();
-        for (Mob mob : getAllMobsCopy()) {
-            if (chunk.contains(mob.getPosition())) {
-                result.add(mob);
-            }
-        }
-        return result;
-    }
-
-    @NonNull
-    public static List<MobEntity> getMobEntities(Chunk chunk) {
-        List<MobEntity> result = new ArrayList<>();
-        for (Mob mob : getMobs(chunk)) {
-            result.add(mob.getEntity());
-        }
-        return result;
-    }
-
-    public static void updateMobsLight() {
-        for (Mob mob : getAllMobsCopy()) {
-            mob.updateLight();
-        }
-    }
-
-    public static void printAllMobs() {
-        Collection<Mob> allMobsCopy = getAllMobsCopy();
-        if (allMobsCopy != null) {
-            System.out.println("ALL MOBS: " + allMobsCopy.size());
-            for (Mob mob : allMobsCopy) {
-                System.out.println(" " + mob);
-            }
-        }
-    }
-
-    public abstract Mob createMob(Vector3f vector3f);
-
-    public abstract int getMaxMobCountAroundPlayer();
-
-    protected abstract MobView getMobView(Mob mob);
-
-    public void loadTexture(String name) {
-        ResourceLoader.loadNow(new BitmapLoader(name) {
-            @Override
+    public void loadTexture(int drawableId) {
+        ResourceLoader.loadNow(new BitmapLoader(drawableId) { 
+            @Override 
             public void complete() {
-                Texture texture = TextureFactory.buildTexture((Image) this.resource, true, false);
+                Texture texture = TextureFactory.buildTexture(this.resource, true, false);
                 if (texture != null) {
                     MobFactory.this.state = texture.applyTo(MobFactory.this.state);
                 }
-                ((BitmapImage) this.resource).bitmap.recycle();
+                this.resource.bitmap.recycle();
             }
         });
     }
@@ -260,6 +190,25 @@ public abstract class MobFactory implements Mob.MobInteractionListener {
         return false;
     }
 
+    public static Mob closestMobOnRay(float x, float y, float z, float directionX, float directionY, float directionZ) {
+        return closestMobOnRay(getAllMobsCopy(), x, y, z, directionX, directionY, directionZ);
+    }
+
+    public static Mob closestMobOnRay(@NonNull Collection<Mob> mobCollection, float x, float y, float z, float directionX, float directionY, float directionZ) {
+        Mob closestMob = null;
+        float distanceToMob = -1.0f;
+        for (Mob mob : mobCollection) {
+            if (mob != null && mob.isOnRay(x, y, z, directionX, directionY, directionZ)) {
+                float distance = mob.distance(x, y, z);
+                if (distanceToMob == -1.0f || Float.compare(distanceToMob, distance) > 0) {
+                    closestMob = mob;
+                    distanceToMob = distance;
+                }
+            }
+        }
+        return closestMob;
+    }
+
     public Mob getClosestMob(float x, float y, float z) {
         Mob closestMob = null;
         float distanceToMob = -1.0f;
@@ -284,6 +233,19 @@ public abstract class MobFactory implements Mob.MobInteractionListener {
     }
 
     @Nullable
+    public static Collection<Mob> getAllMobsCopy() {
+        Collection<Mob> allMobsCopy;
+        synchronized (allMobs) {
+            try {
+                allMobsCopy = new ArrayList<>(allMobs);
+                return allMobsCopy;
+            } catch (Throwable th) {
+            }
+        }
+        return null;
+    }
+
+    @Nullable
     private Collection<Mob> getMobsCopy() {
         Collection<Mob> mobsCopy;
         synchronized (this.mobs) {
@@ -291,7 +253,6 @@ public abstract class MobFactory implements Mob.MobInteractionListener {
                 mobsCopy = new ArrayList<>(this.mobs);
                 return mobsCopy;
             } catch (Throwable th) {
-                th.printStackTrace();
             }
         }
         return null;
@@ -354,8 +315,34 @@ public abstract class MobFactory implements Mob.MobInteractionListener {
         return size;
     }
 
+    @NonNull
+    public static List<Mob> getMobs(Chunk chunk) {
+        List<Mob> result = new ArrayList<>();
+        for (Mob mob : getAllMobsCopy()) {
+            if (chunk.contains(mob.getPosition())) {
+                result.add(mob);
+            }
+        }
+        return result;
+    }
+
+    @NonNull
+    public static List<MobEntity> getMobEntities(Chunk chunk) {
+        List<MobEntity> result = new ArrayList<>();
+        for (Mob mob : getMobs(chunk)) {
+            result.add(mob.getEntity());
+        }
+        return result;
+    }
+
     public State getState() {
         return this.state;
+    }
+
+    public static void updateMobsLight() {
+        for (Mob mob : getAllMobsCopy()) {
+            mob.updateLight();
+        }
     }
 
     public float getSpawnChange() {
@@ -370,7 +357,7 @@ public abstract class MobFactory implements Mob.MobInteractionListener {
         return 4;
     }
 
-    @Override
+    @Override 
     public void mobAttacked(@NonNull Mob mob, @NonNull Player player) {
         mob.takeDamage(player.getWeaponDamage());
         shiftMobOnAttack(mob, player);
@@ -381,7 +368,7 @@ public abstract class MobFactory implements Mob.MobInteractionListener {
         mob.shift(player.getAngle(), SHIFT_ON_ATTACKED);
     }
 
-    @Override
+    @Override 
     public void dead(Mob mob) {
         removeMob(mob);
         dropItems(mob, mob.getDeathDrops());
@@ -392,6 +379,14 @@ public abstract class MobFactory implements Mob.MobInteractionListener {
             for (int i = 0; i < entry.getValue(); i++) {
                 this.world.addDroppableItem(entry.getKey(), mob.getPosition().x, mob.getPosition().y + 0.5f, mob.getPosition().z);
             }
+        }
+    }
+
+    public static void printAllMobs() {
+        Collection<Mob> allMobsCopy = getAllMobsCopy();
+        System.out.println("ALL MOBS: " + allMobsCopy.size());
+        for (Mob mob : allMobsCopy) {
+            System.out.println(" " + mob);
         }
     }
 

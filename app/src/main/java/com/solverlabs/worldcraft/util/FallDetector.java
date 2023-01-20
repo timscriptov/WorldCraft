@@ -3,7 +3,6 @@ package com.solverlabs.worldcraft.util;
 import com.solverlabs.droid.rugl.util.geom.Vector3f;
 import com.solverlabs.worldcraft.domain.Damagable;
 
-
 public class FallDetector {
     public static final int BLOCK_COUNT_DAMAGE_ON_FALL = 3;
     private final Damagable damagable;

@@ -3,16 +3,15 @@ package com.solverlabs.worldcraft.client.common;
 import com.solverlabs.worldcraft.srv.common.WorldCraftGameEvent;
 import com.solverlabs.worldcraft.srv.log.WcLog;
 
-
 public abstract class Wrap implements Runnable, EventHandler {
     protected static final long WORKER_SLEEP_MILLIS = 10;
     protected EventQueue eventQueue;
     protected WcLog log;
-    protected boolean running = false;
     private String shortname;
     private int spareCount;
     private Thread[] workers;
-    private Object countLock = new Object();
+    protected boolean running = false;
+    private final Object countLock = new Object();
 
     public void handleEvent(WorldCraftGameEvent worldCraftGameEvent) {
         this.eventQueue.enQueue(worldCraftGameEvent);
@@ -47,8 +46,8 @@ public abstract class Wrap implements Runnable, EventHandler {
             }
             try {
                 Thread.sleep(10L);
-            } catch (InterruptedException e2) {
-                e2.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }

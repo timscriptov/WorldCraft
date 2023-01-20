@@ -1,6 +1,5 @@
 package com.solverlabs.worldcraft.mob;
 
-
 import androidx.annotation.NonNull;
 
 public class TexturedBlockProperties {

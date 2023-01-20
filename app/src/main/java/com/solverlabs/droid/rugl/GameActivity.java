@@ -1,10 +1,9 @@
 package com.solverlabs.droid.rugl;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
 import android.text.InputFilter;
 import android.view.KeyEvent;
 import android.view.View;
@@ -12,14 +11,11 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.solverlabs.droid.rugl.res.ResourceLoader;
 import com.solverlabs.worldcraft.BlockView;
 import com.solverlabs.worldcraft.Enemy;
@@ -38,55 +34,23 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.TreeSet;
 
-/**
- * Handy activity that can be simply subclassed. Just remember to call
- * {@link #start(Game, String)} in your
- * {@link #onCreate(android.os.Bundle)} or nothing will happen.
- * Handles starting the {@link ResourceLoader} and key input
- */
 public abstract class GameActivity extends CommonActivity implements Runnable {
     private static final String CHAT_COMMAND_HOME = "/home";
-    /**
-     * The {@link Game}
-     */
-    protected Game mGame;
-    protected ProgressDialog mLoadingDialog;
-    protected AlertDialog mReadOnlyMapNotificationDialog;
-    private GameView mGameView;
+    protected Game game;
+    private GameView gameView;
+    protected ProgressDialog loadingDialog;
+    protected AlertDialog readOnlyMapNotificationDialog;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
-    /**
-     * Call this in your {@link #onCreate(android.os.Bundle)}
-     * implementation
-     *
-     * @param game
-     */
     public void start(Game game) {
-        mGame = game;
+        this.game = game;
         ResourceLoader.start(getResources());
         setContentView(R.layout.main_without_banner);
-        mGameView = (GameView) findViewById(R.id.gameViewWithoutBanner);
-        mGameView.init(game);
+        this.gameView = findViewById(R.id.gameViewWithoutBanner);
+        this.gameView.init(game);
         Thread reportAbuseCatcher = new Thread(this);
         reportAbuseCatcher.start();
     }
 
-    /**
-     * Displays a short message to the user
-     *
-     * @param message
-     * @param longShow <code>true</code> for {@link Toast#LENGTH_LONG},
-     *                 <code>false</code> for {@link Toast#LENGTH_SHORT}
-     */
     public void showToast(final String message, final boolean longShow) {
         runOnUiThread(() -> {
             Toast t = Toast.makeText(getApplicationContext(), message, longShow ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT);
@@ -98,9 +62,9 @@ public abstract class GameActivity extends CommonActivity implements Runnable {
         final Dialog menuDialog = new Dialog(this);
         menuDialog.setContentView(R.layout.menulayout);
         menuDialog.setTitle("Game menu");
-        Button quitButton = (Button) menuDialog.findViewById(R.id.quitButton);
-        Button backButton = (Button) menuDialog.findViewById(R.id.backButton);
-        Button playersList = (Button) menuDialog.findViewById(R.id.playerListButton);
+        Button quitButton = menuDialog.findViewById(R.id.quitButton);
+        Button backButton = menuDialog.findViewById(R.id.backButton);
+        Button playersList = menuDialog.findViewById(R.id.playerListButton);
         if (GameMode.isMultiplayerMode()) {
             playersList.setVisibility(View.VISIBLE);
         } else {
@@ -127,16 +91,18 @@ public abstract class GameActivity extends CommonActivity implements Runnable {
         final Dialog playerListDialog = new Dialog(this);
         playerListDialog.setContentView(R.layout.playerlist);
         ArrayList<String> list = new ArrayList<>();
-        playerListDialog.setTitle("Player list       Room name:  " + Multiplayer.instance.roomName);
-        list.add(Multiplayer.instance.playerName + "   (you)");
-        Set<Enemy> sortedEnemies = new TreeSet<>(Multiplayer.getEnemiesCopy());
-        for (Enemy enemy : sortedEnemies) {
-            list.add(enemy.name);
+        if (Multiplayer.instance != null) {
+            playerListDialog.setTitle("Player list       Room name:  " + Multiplayer.instance.roomName);
+            list.add(Multiplayer.instance.playerName + "   (you)");
+            Set<Enemy> sortedEnemies = new TreeSet<>(Multiplayer.getEnemiesCopy());
+            for (Enemy enemy : sortedEnemies) {
+                list.add(enemy.name);
+            }
         }
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(this, R.layout.custom_list_content, R.id.list_content, list);
-        ListView playerList = (ListView) playerListDialog.findViewById(R.id.playerListView);
-        playerList.setAdapter((ListAdapter) dataAdapter);
-        Button cancelButton = (Button) playerListDialog.findViewById(R.id.cancel);
+        ListView playerList = playerListDialog.findViewById(R.id.playerListView);
+        playerList.setAdapter(dataAdapter);
+        Button cancelButton = playerListDialog.findViewById(R.id.cancel);
         cancelButton.setOnClickListener(v -> playerListDialog.dismiss());
         playerListDialog.show();
     }
@@ -145,9 +111,9 @@ public abstract class GameActivity extends CommonActivity implements Runnable {
         try {
             runOnUiThread(() -> {
                 if (!isFinishing()) {
-                    mLoadingDialog = ProgressDialog.show(GameActivity.this, DescriptionFactory.emptyText, message, true);
-                    mLoadingDialog.setCancelable(false);
-                    mLoadingDialog.show();
+                    loadingDialog = ProgressDialog.show(GameActivity.this, DescriptionFactory.emptyText, message, true);
+                    loadingDialog.setCancelable(false);
+                    loadingDialog.show();
                 }
             });
         } catch (Exception e) {
@@ -158,8 +124,8 @@ public abstract class GameActivity extends CommonActivity implements Runnable {
     public void dismissLoadingDialog() {
         try {
             runOnUiThread(() -> {
-                if (mLoadingDialog != null && !mLoadingDialog.isShowing()) {
-                    mLoadingDialog.dismiss();
+                if (loadingDialog != null && !loadingDialog.isShowing()) {
+                    loadingDialog.dismiss();
                 }
             });
         } catch (Exception e) {
@@ -172,7 +138,7 @@ public abstract class GameActivity extends CommonActivity implements Runnable {
             @Override
             public void run() {
                 try {
-                    mGameView.mGame.getBlockView().saveWorld(worldName);
+                    gameView.game.getBlockView().saveWorld(worldName);
                 } catch (Throwable th) {
                     th.printStackTrace();
                 }
@@ -190,7 +156,7 @@ public abstract class GameActivity extends CommonActivity implements Runnable {
             @Override
             public void run() {
                 try {
-                    mGameView.mGame.getBlockView().complete(needSaveWorld);
+                    gameView.game.getBlockView().complete(needSaveWorld);
                 } catch (Throwable th) {
                     th.printStackTrace();
                 }
@@ -222,58 +188,52 @@ public abstract class GameActivity extends CommonActivity implements Runnable {
 
     public void showSaveWorldDialog(final int stringId, final int noButtonResourseId, final boolean completePhaseOnNoClick) {
         runOnUiThread(() -> {
-            if (mReadOnlyMapNotificationDialog == null || !mReadOnlyMapNotificationDialog.isShowing()) {
+            if (readOnlyMapNotificationDialog == null || !readOnlyMapNotificationDialog.isShowing()) {
                 final EditText input = new EditText(GameActivity.this);
                 input.setHint(R.string.world_name);
                 input.setText(Multiplayer.instance.roomName);
                 KeyboardUtils.hideKeyboardOnEnter(GameActivity.this, input);
-                MaterialAlertDialogBuilder materialAlertDialogBuilder = new MaterialAlertDialogBuilder(GameActivity.this);
-                materialAlertDialogBuilder.setTitle(R.string.save_world);
-                materialAlertDialogBuilder.setMessage(stringId);
-                materialAlertDialogBuilder.setView(input);
-                materialAlertDialogBuilder.setCancelable(false);
-                materialAlertDialogBuilder.setPositiveButton(R.string.save_world, (dialog, id) -> {
-                    String worldName = input.getText().toString();
-                    if (!DescriptionFactory.emptyText.equals(worldName)) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(GameActivity.this);
+                builder.setTitle(R.string.save_world).setMessage(stringId).setView(input).setCancelable(false).setPositiveButton(R.string.save_world, (dialog, id) -> {
+                    String worldName = String.valueOf(input.getText());
+                    if (worldName != null && !DescriptionFactory.emptyText.equals(worldName) && !"null".equals(worldName)) {
                         saveWorld(worldName);
                         hideKeyBoard(input);
                         return;
                     }
                     Toast.makeText(GameActivity.this, R.string.wrong_world_name, Toast.LENGTH_LONG).show();
-                });
-                materialAlertDialogBuilder.setNeutralButton(noButtonResourseId, (dialog, id) -> {
+                }).setNeutralButton(noButtonResourseId, (dialog, id) -> {
                     if (completePhaseOnNoClick) {
                         completeCurrentPhase(false);
                     }
                 });
-                mReadOnlyMapNotificationDialog = materialAlertDialogBuilder.create();
-                materialAlertDialogBuilder.show();
+                readOnlyMapNotificationDialog = builder.create();
+                readOnlyMapNotificationDialog.getWindow().setSoftInputMode(2);
+                readOnlyMapNotificationDialog.show();
             }
         });
     }
 
     public void showLikeDialog() {
-        MaterialAlertDialogBuilder materialAlertDialogBuilder = new MaterialAlertDialogBuilder(this);
-        materialAlertDialogBuilder.setTitle(R.string.like_it);
-        materialAlertDialogBuilder.setMessage(R.string.did_you_like_this_world);
-        materialAlertDialogBuilder.setCancelable(false).setPositiveButton(R.string.like, (dialog, id) -> {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.like_it).setMessage(R.string.did_you_like_this_world).setCancelable(false).setPositiveButton(R.string.like, (dialog, id) -> {
             Multiplayer.instance.likeWorld();
             dialog.dismiss();
             showSaveWorldDialog();
-        });
-        materialAlertDialogBuilder.setNegativeButton(R.string.dislike, (dialog, id) -> {
+        }).setNegativeButton(R.string.dislike, (dialog, id) -> {
             Multiplayer.instance.dislikeWorld();
             dialog.dismiss();
             showSaveWorldDialog();
         });
-        materialAlertDialogBuilder.show();
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 
     public void sendChatMessage(@NonNull final EditText msg) {
         BlockView phase;
         final String messageText = String.valueOf(msg.getText());
         if (CHAT_COMMAND_HOME.equals(messageText)) {
-            if (mGame != null && mGame.getBlockView() != null && (phase = mGame.getBlockView()) != null) {
+            if (this.game != null && this.game.getBlockView() != null && (phase = this.game.getBlockView()) != null && (phase instanceof BlockView)) {
                 phase.resetPlayerLocation();
                 return;
             }
@@ -290,15 +250,11 @@ public abstract class GameActivity extends CommonActivity implements Runnable {
     }
 
     public void showChatDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
         final EditText msg = new EditText(this);
         msg.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ChatBox.getMaxChatMessageLength())});
-
-        MaterialAlertDialogBuilder materialAlertDialogBuilder = new MaterialAlertDialogBuilder(this);
-        materialAlertDialogBuilder.setTitle(R.string.your_message);
-        materialAlertDialogBuilder.setView(msg);
-        materialAlertDialogBuilder.setPositiveButton(android.R.string.ok, (dialog, id) -> sendChatMessage(msg));
-        materialAlertDialogBuilder.setNegativeButton(R.string.cancel, (dialog, id) -> dialog.dismiss());
-        final AlertDialog alert = materialAlertDialogBuilder.create();
+        builder.setTitle(R.string.your_message).setView(msg).setPositiveButton(android.R.string.ok, (dialog, id) -> sendChatMessage(msg)).setNegativeButton(R.string.cancel, (dialog, id) -> dialog.dismiss());
+        final AlertDialog alert = builder.create();
         msg.setOnEditorActionListener((v, actionId, event) -> {
             if (event == null || event.getKeyCode() != 66) {
                 return false;
@@ -314,37 +270,30 @@ public abstract class GameActivity extends CommonActivity implements Runnable {
     public void onPause() {
         super.onPause();
         dismissLoadingDialog();
-        if (mGameView != null) {
-            mGameView.onPause();
+        if (this.gameView != null) {
+            this.gameView.onPause();
         }
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if (mGameView != null) {
-            mGameView.onResume();
+        if (this.gameView != null) {
+            this.gameView.onResume();
         }
-        if (mGame != null) {
-            mGame.resetTouches();
+        if (this.game != null) {
+            this.game.resetTouches();
         }
     }
 
     @Override
     public boolean onKeyDown(int keyCode, @NonNull KeyEvent event) {
-        if (event.getRepeatCount() == 0 && mGameView != null && mGameView.mGame != null) {
-            BlockView p = mGameView.mGame.getBlockView();
-            if (p != null) {
-                if (keyCode == 4) {
-                    showGameMenuDialog();
-                } else {
-                    p.onKeyDown(keyCode, event);
-                }
+        BlockView p;
+        if (event.getRepeatCount() == 0 && this.gameView != null && this.gameView.game != null && (p = this.gameView.game.getBlockView()) != null) {
+            if (keyCode == 4 && (p instanceof BlockView)) {
+                showGameMenuDialog();
+            } else {
+                p.onKeyDown(keyCode, event);
             }
         }
         return super.onKeyDown(keyCode, event);
@@ -352,12 +301,10 @@ public abstract class GameActivity extends CommonActivity implements Runnable {
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if (mGameView != null && mGameView.mGame != null) {
-            BlockView p = mGameView.mGame.getBlockView();
-            if (p != null) {
-                p.onKeyUp(keyCode, event);
-                return true;
-            }
+        BlockView p;
+        if (this.gameView != null && this.gameView.game != null && (p = this.gameView.game.getBlockView()) != null) {
+            p.onKeyUp(keyCode, event);
+            return true;
         }
         return true;
     }

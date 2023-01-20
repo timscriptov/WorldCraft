@@ -2,9 +2,8 @@ package com.solverlabs.worldcraft.multiplayer;
 
 import com.solverlabs.droid.rugl.util.geom.Vector3f;
 import com.solverlabs.worldcraft.GameMode;
-
 import java.math.BigDecimal;
-
+import java.math.RoundingMode;
 
 public class MovementHandler {
     public static final byte ACTION_CLICK = 1;
@@ -13,20 +12,19 @@ public class MovementHandler {
     private static final long DELAY = 25;
     private static final float MIN_MOVE_DISTANCE = 0.1f;
     private static final long RESPONSE_WAIT_TIME = 5000;
-    public boolean responseReceived = true;
     private long lastAccessMillis;
     private MovementHandlerListener listener;
-    private Vector3f eye = new Vector3f();
-    private Vector3f at = new Vector3f();
-    private Vector3f up = new Vector3f();
+    public boolean responseReceived = true;
+    private final Vector3f eye = new Vector3f();
+    private final Vector3f at = new Vector3f();
+    private final Vector3f up = new Vector3f();
 
-    public static boolean coordsEqual(float v1, float v2) {
-        return roundDownScale((double) v1, 2) == roundDownScale((double) v2, 2);
-    }
+    public interface MovementHandlerListener {
+        void myAction(byte b);
 
-    public static float roundDownScale(double aValue, int scale) {
-        BigDecimal decimal = new BigDecimal(aValue);
-        return decimal.setScale(scale, 4).floatValue();
+        void myGraphicsInited(Vector3f vector3f, Vector3f vector3f2, Vector3f vector3f3);
+
+        void myLocationChanged(Vector3f vector3f, Vector3f vector3f2, Vector3f vector3f3);
     }
 
     public Vector3f getEye() {
@@ -35,6 +33,15 @@ public class MovementHandler {
 
     public void setListener(MovementHandlerListener listener) {
         this.listener = listener;
+    }
+
+    public static boolean coordsEqual(float v1, float v2) {
+        return roundDownScale((double) v1, 2) == roundDownScale((double) v2, 2);
+    }
+
+    public static float roundDownScale(double aValue, int scale) {
+        BigDecimal decimal = new BigDecimal(aValue);
+        return decimal.setScale(scale, RoundingMode.HALF_UP).floatValue();
     }
 
     private boolean isMovedEnough(float eyeX, float eyeY, float eyeZ, float atX, float atY, float atZ, float upX, float upY, float upZ) {
@@ -78,14 +85,5 @@ public class MovementHandler {
         if (this.listener != null) {
             this.listener.myGraphicsInited(this.eye, this.at, this.up);
         }
-    }
-
-
-    public interface MovementHandlerListener {
-        void myAction(byte b);
-
-        void myGraphicsInited(Vector3f vector3f, Vector3f vector3f2, Vector3f vector3f3);
-
-        void myLocationChanged(Vector3f vector3f, Vector3f vector3f2, Vector3f vector3f3);
     }
 }

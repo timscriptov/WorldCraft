@@ -5,7 +5,6 @@ import androidx.annotation.NonNull;
 import java.util.HashSet;
 import java.util.Set;
 
-
 public class FurnaceItemFactory {
     private static final long TIME_OFFSET = 100;
 
@@ -24,15 +23,13 @@ public class FurnaceItemFactory {
     @NonNull
     public static Set<Byte> getFuelList() {
         Set<Byte> fuels = new HashSet<>();
-        FurnaceItem[] arr$ = FurnaceItem.values();
-        for (FurnaceItem furnaceItem : arr$) {
+        for (FurnaceItem furnaceItem : FurnaceItem.values()) {
             if (furnaceItem.getBurningTime() > 0) {
                 fuels.add(furnaceItem.getId());
             }
         }
         return fuels;
     }
-
 
     public enum FurnaceItem {
         Coal(BlockFactory.COAL_ORE_ID, 80, (byte) 0),
@@ -49,7 +46,7 @@ public class FurnaceItemFactory {
         Chest((byte) 54, 15, (byte) 0),
         Stone((byte) 1, 0, (byte) 4),
         ClayOre(BlockFactory.CLAY_ORE_ID, 0, (byte) 120);
-
+        
         private final int burningTime;
         private final byte craftedItemId;
         private final byte id;
@@ -58,6 +55,18 @@ public class FurnaceItemFactory {
             this.id = id;
             this.craftedItemId = craftedItemId;
             this.burningTime = burningTime;
+        }
+
+        public byte getId() {
+            return this.id;
+        }
+
+        public int getBurningTime() {
+            return this.burningTime;
+        }
+
+        public byte getCraftedItemId() {
+            return this.craftedItemId;
         }
 
         public static int getBurningTime(byte id) {
@@ -76,18 +85,6 @@ public class FurnaceItemFactory {
                 }
             }
             return (byte) 0;
-        }
-
-        public byte getId() {
-            return this.id;
-        }
-
-        public int getBurningTime() {
-            return this.burningTime;
-        }
-
-        public byte getCraftedItemId() {
-            return this.craftedItemId;
         }
     }
 }

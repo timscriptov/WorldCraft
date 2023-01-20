@@ -1,6 +1,5 @@
 package com.solverlabs.worldcraft.framework.math;
 
-
 import androidx.annotation.NonNull;
 
 import org.jetbrains.annotations.Contract;

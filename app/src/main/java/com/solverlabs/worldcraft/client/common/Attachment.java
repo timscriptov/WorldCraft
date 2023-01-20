@@ -2,35 +2,33 @@ package com.solverlabs.worldcraft.client.common;
 
 import com.solverlabs.worldcraft.srv.common.Globals;
 import com.solverlabs.worldcraft.srv.log.WcLog;
-
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
-
 
 public class Attachment {
     public static final int HEADER_SIZE = 12;
     private static final WcLog log = WcLog.getLogger("Attachment");
+    int clientId;
     public int gameNameHash;
+    private boolean gotHeader;
+    int payloadSize;
     public byte[] payload = new byte[Globals.MAX_EVENT_SIZE];
     public ByteBuffer readBuff = ByteBuffer.allocateDirect(512);
-    int clientId;
-    int payloadSize;
-    private boolean gotHeader;
 
     private boolean checkHeader() throws IllegalArgumentException {
         if (this.gotHeader) {
             return true;
         }
-        if (this.readBuff.remaining() < 12) {
-            return false;
+        if (this.readBuff.remaining() >= 12) {
+            this.clientId = this.readBuff.getInt();
+            this.payloadSize = this.readBuff.getInt();
+            if (this.payloadSize > 5000) {
+                throw new IllegalArgumentException("Header specifies payload size (" + this.payloadSize + ") greater than MAX_EVENT_SIZE(" + Globals.MAX_EVENT_SIZE + ")");
+            }
+            this.gotHeader = true;
+            return true;
         }
-        this.clientId = this.readBuff.getInt();
-        this.payloadSize = this.readBuff.getInt();
-        if (this.payloadSize > 5000) {
-            throw new IllegalArgumentException("Header specifies payload size (" + this.payloadSize + ") greater than MAX_EVENT_SIZE(" + Globals.MAX_EVENT_SIZE + ")");
-        }
-        this.gotHeader = true;
-        return true;
+        return false;
     }
 
     private boolean checkPayload() {

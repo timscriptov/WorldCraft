@@ -18,7 +18,6 @@ import com.solverlabs.droid.rugl.util.geom.Vector3i;
 import com.solverlabs.droid.rugl.util.math.Range;
 import com.solverlabs.worldcraft.GameMode;
 import com.solverlabs.worldcraft.Player;
-import com.solverlabs.worldcraft.R;
 import com.solverlabs.worldcraft.SoundManager;
 import com.solverlabs.worldcraft.Sounds;
 import com.solverlabs.worldcraft.World;
@@ -30,54 +29,53 @@ import com.solverlabs.worldcraft.chunk.tile_entity.Furnace;
 import com.solverlabs.worldcraft.factories.BlockFactory;
 import com.solverlabs.worldcraft.factories.ItemFactory;
 import com.solverlabs.worldcraft.inventory.InventoryItem;
+import com.solverlabs.worldcraft.R;
 import com.solverlabs.worldcraft.material.Material;
 import com.solverlabs.worldcraft.mob.Mob;
 import com.solverlabs.worldcraft.mob.MobPainter;
 import com.solverlabs.worldcraft.multiplayer.Multiplayer;
 import com.solverlabs.worldcraft.srv.domain.Room;
 import com.solverlabs.worldcraft.util.Distance;
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
 public class Interaction implements Touch.TouchListener {
-    public static final int NOISE_NOTIFICATION_DELAY = 200;
     private static final float MIN_HOSTILE_MOB_DISTANCE_TO_SLEEP = 5.0f;
-    private final FPSCamera camera;
-    private final BlockEntityPainter entityPainter;
-    private final Hand hand;
-    private final MobPainter mobAggregator;
-    private final Player player;
-    private final World world;
+    public static final int NOISE_NOTIFICATION_DELAY = 200;
     private final Vector3f actionDirection;
     private final BoundingCuboid blockBounds;
     private final Vector3i breakingLocation;
+    private float breakingProgress;
+    private final FPSCamera camera;
     private final ChatBox chatBox;
     private final Context context;
-    private final GridIterate gridIterate;
-    private final Vector3i placementTargetBlock;
-    private final Vector3i targetBlockLocation;
     public float creativeModeToolTime;
+    private final BlockEntityPainter entityPainter;
+    private final GridIterate gridIterate;
+    private final Hand hand;
+    private boolean justBroken;
+    private float lastInteractionX;
+    private float lastInteractionY;
+    private long lastNoiseNotificationAt;
+    private final MobPainter mobAggregator;
+    private final Vector3i placementTargetBlock;
+    private final Player player;
     public float range = 6.0f;
     public boolean showChestMenu;
     public boolean showCraftingTable;
     public boolean showFurnaceMenu;
     public Touch.Pointer stickTouch;
-    public BlockFactory.WorldSide targetBlockSide;
-    public boolean touchSticksHeld;
-    protected Vector3i tileEntityLocation;
-    private float breakingProgress;
-    private boolean justBroken;
-    private float lastInteractionX;
-    private float lastInteractionY;
-    private long lastNoiseNotificationAt;
     private ItemFactory.Item sweptItem;
+    private final Vector3i targetBlockLocation;
+    public BlockFactory.WorldSide targetBlockSide;
     private boolean targetValid;
+    protected Vector3i tileEntityLocation;
     private Touch.Pointer touch;
+    public boolean touchSticksHeld;
+    private final World world;
 
     public Interaction(Player player, World world, FPSCamera camera, Hand hand, MobPainter mobAggregator, BlockEntityPainter entityPainter, ChatBox chatBox, Context context) {
         this.creativeModeToolTime = GameMode.isMultiplayerMode() ? 2.4f : 0.6f;
@@ -136,8 +134,8 @@ public class Interaction implements Touch.TouchListener {
                 }
             }
         }
-        if (this.world.mBreakingShape != null) {
-            this.world.mBreakingShape.updateBreakingProgress(this.breakingProgress);
+        if (this.world.breakingShape != null) {
+            this.world.breakingShape.updateBreakingProgress(this.breakingProgress);
         }
     }
 
@@ -345,7 +343,7 @@ public class Interaction implements Touch.TouchListener {
             }
         } else {
             this.player.setSpawnPosition(getBedHeadBlock());
-            this.player.setmKeptDownAt(System.currentTimeMillis());
+            this.player.setKeptDownAt(System.currentTimeMillis());
         }
     }
 
@@ -457,42 +455,42 @@ public class Interaction implements Touch.TouchListener {
         }
         this.camera.unProject(x2, y2, this.actionDirection);
         this.actionDirection.scale(this.range);
-        if (this.world.getChunklet(this.player.position.x + this.actionDirection.x, this.player.position.y + this.actionDirection.y, this.player.position.z + this.actionDirection.z) == null) {
-            return null;
-        }
-        if (this.mobAggregator.selectMobOnRay(this.player.position.x, this.player.position.y, this.player.position.z, this.actionDirection.x, this.actionDirection.y, this.actionDirection.z)) {
-            this.targetBlockLocation.set(0, 0, 0);
-            return null;
-        }
-        this.gridIterate.setSeg(this.player.position.x, this.player.position.y, this.player.position.z, this.player.position.x + this.actionDirection.x, this.player.position.y + this.actionDirection.y, this.player.position.z + this.actionDirection.z);
-        this.targetBlockLocation.set(this.gridIterate.lastGridCoords);
-        this.placementTargetBlock.set(this.gridIterate.lastGridCoords);
-        this.targetValid = false;
-        do {
-            chunklet = this.world.getChunklet(this.gridIterate.lastGridCoords.x, this.gridIterate.lastGridCoords.y, this.gridIterate.lastGridCoords.z);
-            if (chunklet != null) {
-                byte bt = chunklet.parent.blockTypeForPosition(this.gridIterate.lastGridCoords.x, this.gridIterate.lastGridCoords.y, this.gridIterate.lastGridCoords.z);
-                if (bt == 0 || bt == BlockFactory.Block.Water.id || bt == BlockFactory.Block.StillWater.id || isPlayerInTransparentBlock(bt) || BlockFactory.getBlock(bt) == null) {
-                    this.placementTargetBlock.set(this.gridIterate.lastGridCoords);
-                    this.gridIterate.next();
+        if (this.world.getChunklet(this.player.position.x + this.actionDirection.x, this.player.position.y + this.actionDirection.y, this.player.position.z + this.actionDirection.z) != null) {
+            if (this.mobAggregator.selectMobOnRay(this.player.position.x, this.player.position.y, this.player.position.z, this.actionDirection.x, this.actionDirection.y, this.actionDirection.z)) {
+                this.targetBlockLocation.set(0, 0, 0);
+                return null;
+            }
+            this.gridIterate.setSeg(this.player.position.x, this.player.position.y, this.player.position.z, this.player.position.x + this.actionDirection.x, this.player.position.y + this.actionDirection.y, this.player.position.z + this.actionDirection.z);
+            this.targetBlockLocation.set(this.gridIterate.lastGridCoords);
+            this.placementTargetBlock.set(this.gridIterate.lastGridCoords);
+            this.targetValid = false;
+            do {
+                chunklet = this.world.getChunklet(this.gridIterate.lastGridCoords.x, this.gridIterate.lastGridCoords.y, this.gridIterate.lastGridCoords.z);
+                if (chunklet != null) {
+                    byte bt = chunklet.parent.blockTypeForPosition(this.gridIterate.lastGridCoords.x, this.gridIterate.lastGridCoords.y, this.gridIterate.lastGridCoords.z);
+                    if (bt == 0 || bt == BlockFactory.Block.Water.id || bt == BlockFactory.Block.StillWater.id || isPlayerInTransparentBlock(bt) || BlockFactory.getBlock(bt) == null) {
+                        this.placementTargetBlock.set(this.gridIterate.lastGridCoords);
+                        this.gridIterate.next();
+                    } else {
+                        this.targetBlockLocation.set(this.gridIterate.lastGridCoords);
+                        this.targetBlockSide = findBlockSide(this.gridIterate.lastGridExit);
+                        this.targetValid = true;
+                    }
                 } else {
-                    this.targetBlockLocation.set(this.gridIterate.lastGridCoords);
-                    this.targetBlockSide = findBlockSide(this.gridIterate.lastGridExit);
-                    this.targetValid = true;
+                    this.targetValid = false;
+                    this.gridIterate.setDone(true);
                 }
-            } else {
-                this.targetValid = false;
-                this.gridIterate.setDone(true);
+                if (this.targetValid) {
+                    break;
+                }
+            } while (!this.gridIterate.isDone());
+            if (this.gridIterate.isDone()) {
+                this.lastInteractionX = x2;
+                this.lastInteractionY = y2;
             }
-            if (this.targetValid) {
-                break;
-            }
-        } while (!this.gridIterate.isDone());
-        if (this.gridIterate.isDone()) {
-            this.lastInteractionX = x2;
-            this.lastInteractionY = y2;
+            return chunklet == null ? null : chunklet.parent;
         }
-        return chunklet == null ? null : chunklet.parent;
+        return null;
     }
 
     private boolean isPlayerInTransparentBlock(byte bt) {
@@ -500,7 +498,7 @@ public class Interaction implements Touch.TouchListener {
         blockCenter.x += 0.5f;
         blockCenter.y += 0.5f;
         blockCenter.z += 0.5f;
-        float distance = Distance.getDistanceBetweenPoints(this.world.mPlayer.position, blockCenter, 999.0f);
+        float distance = Distance.getDistanceBetweenPoints(this.world.player.position, blockCenter, 999.0f);
         return distance < 1.0f && isTransparentBlock(bt);
     }
 
