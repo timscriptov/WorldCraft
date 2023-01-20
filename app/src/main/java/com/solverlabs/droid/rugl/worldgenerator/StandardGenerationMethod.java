@@ -18,7 +18,7 @@ public class StandardGenerationMethod extends BaseTerrainGenerator {
     private int generatedDiamondCount;
     private int generatedGoldCount;
     private int generatedIronCount;
-    private Random random = new Random();
+    private final Random random = new Random();
 
     @Override
     public void generateTerrain(@NonNull Chunk chunk, int noiseBlockOffset) {
