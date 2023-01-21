@@ -34,7 +34,7 @@ public class TapPad implements Touch.TouchListener {
     private long downTime = -1;
     private boolean tapped = false;
     private boolean longPressed = false;
-    private int inlineColour = Colour.packFloat(1.0f, 1.0f, 1.0f, 1.0f);
+    private final int inlineColour = Colour.packFloat(1.0f, 1.0f, 1.0f, 1.0f);
 
     public TapPad(float x, float y, float width, float height) {
         this.offset = 0.0f;

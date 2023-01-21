@@ -1,5 +1,7 @@
 package com.solverlabs.droid.rugl.input;
 
+import androidx.annotation.NonNull;
+
 import com.solverlabs.droid.rugl.geom.ColouredShape;
 import com.solverlabs.droid.rugl.geom.ShapeUtil;
 import com.solverlabs.droid.rugl.gl.StackedRenderer;
@@ -105,7 +107,7 @@ public class TouchStick extends AbstractTouchStick {
     }
 
     @Override
-    public boolean pointerAdded(Touch.Pointer p) {
+    public boolean pointerAdded(@NonNull Touch.Pointer p) {
         if (Math.hypot(p.x - this.xPos, p.y - this.yPos) < this.radius) {
             this.touch = p;
             this.touchTime = System.currentTimeMillis();

@@ -1,6 +1,10 @@
 package com.solverlabs.droid.rugl.input;
 
 import android.view.MotionEvent;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.solverlabs.droid.rugl.Game;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -9,13 +13,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Touch {
     private static final Queue<MotionEvent> touchEvents;
-    private static ArrayList<TouchListener> listeners = new ArrayList<>();
+    private static final ArrayList<TouchListener> listeners = new ArrayList<>();
     private static float xScale = 1.0f;
     private static float yScale = 1.0f;
     public static final Pointer[] pointers = new Pointer[2];
     private static final boolean[] wasActive = new boolean[2];
 
-    /* loaded from: classes.dex */
     public interface TouchListener {
         boolean pointerAdded(Pointer pointer);
 
@@ -28,7 +31,7 @@ public class Touch {
         for (int i = 0; i < pointers.length; i++) {
             pointers[i] = new Pointer(i);
         }
-        touchEvents = new ConcurrentLinkedQueue();
+        touchEvents = new ConcurrentLinkedQueue<>();
     }
 
     public static void onTouchEvent(MotionEvent me) {
@@ -53,7 +56,7 @@ public class Touch {
         }
     }
 
-    private static void onPointerUp(Pointer pointer) {
+    private static void onPointerUp(@NonNull Pointer pointer) {
         if (pointer.active) {
             pointer.active = false;
             for (int j = 0; j < listeners.size(); j++) {
@@ -62,6 +65,7 @@ public class Touch {
         }
     }
 
+    @Nullable
     private static Pointer getPoinerByEvent(MotionEvent event) {
         try {
             return pointers[event.getPointerId(event.getAction() >> 8)];
@@ -101,6 +105,7 @@ public class Touch {
                 }
             }
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -125,7 +130,6 @@ public class Touch {
         listeners.remove(l);
     }
 
-    /* loaded from: classes.dex */
     public static class Pointer {
         public boolean active;
         public final int id;
@@ -140,16 +144,12 @@ public class Touch {
             this.id = id;
         }
 
+        @NonNull
         public String toString() {
             if (!this.active) {
-                StringBuilder buff = new StringBuilder();
-                buff.append("Inactive: ").append(this.x).append(", ").append(this.y);
-                return buff.toString();
+                return "Inactive: " + this.x + ", " + this.y;
             }
-            StringBuilder buff2 = new StringBuilder();
-            buff2.append(this.id).append(" ( ").append(this.x).append(", ");
-            buff2.append(this.y).append(" ) ").append(this.size);
-            return buff2.toString();
+            return this.id + " ( " + this.x + ", " + this.y + " ) " + this.size;
         }
     }
 
