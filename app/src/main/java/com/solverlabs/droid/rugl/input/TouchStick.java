@@ -5,12 +5,11 @@ import com.solverlabs.droid.rugl.geom.ShapeUtil;
 import com.solverlabs.droid.rugl.gl.StackedRenderer;
 import com.solverlabs.droid.rugl.gl.State;
 import com.solverlabs.droid.rugl.util.Colour;
+import com.solverlabs.droid.rugl.util.FloatMath;
 import com.solverlabs.droid.rugl.util.Trig;
 import com.solverlabs.droid.rugl.util.math.Range;
 
 import org.apache.commons.compress.archivers.cpio.CpioConstants;
-
-import com.solverlabs.droid.rugl.util.FloatMath;
 
 
 public class TouchStick extends AbstractTouchStick {

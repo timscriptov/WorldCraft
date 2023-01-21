@@ -4,16 +4,11 @@ import java.nio.ByteOrder;
 
 /* loaded from: classes.dex */
 public class Colour {
-    private static int alphaMask;
-    private static final int alphaOffset;
     public static final int black;
     public static final int blue;
-    private static final int blueOffset;
-    private static int colourmask;
     public static final int cyan;
     public static final int darkgrey;
     public static final int green;
-    private static final int greenOffset;
     public static final int grey;
     public static final int lightgrey;
     public static final int magenta;
@@ -21,15 +16,17 @@ public class Colour {
     public static final int orange;
     public static final int raspberry;
     public static final int red;
-    private static final int redOffset;
     public static final int springGreen;
     public static final int turquoise;
     public static final int violet;
     public static final int white;
     public static final int yellow;
-
-    private Colour() {
-    }
+    private static final int alphaOffset;
+    private static final int blueOffset;
+    private static final int greenOffset;
+    private static final int redOffset;
+    private static int alphaMask;
+    private static int colourmask;
 
     static {
         boolean big = ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN;
@@ -56,6 +53,9 @@ public class Colour {
         raspberry = packFloat(1.0f, 0.0f, 0.5f, 1.0f);
         alphaMask = 255 << alphaOffset;
         colourmask = alphaMask ^ (-1);
+    }
+
+    private Colour() {
     }
 
     public static int toBigEndian(int rgba) {

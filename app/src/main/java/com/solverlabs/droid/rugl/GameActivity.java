@@ -37,9 +37,9 @@ import java.util.TreeSet;
 public abstract class GameActivity extends CommonActivity implements Runnable {
     private static final String CHAT_COMMAND_HOME = "/home";
     protected Game game;
-    private GameView gameView;
     protected ProgressDialog loadingDialog;
     protected AlertDialog readOnlyMapNotificationDialog;
+    private GameView gameView;
 
     public void start(Game game) {
         this.game = game;

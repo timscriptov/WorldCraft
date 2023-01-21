@@ -17,8 +17,8 @@ import java.nio.ShortBuffer;
 
 
 public class VBOShape {
-    private static int contextID;
     private static final int vertexBytes;
+    private static int contextID;
 
     static {
         Game.addSurfaceLIstener(new Game.SurfaceListener() {
@@ -34,8 +34,8 @@ public class VBOShape {
     private final ShortBuffer indexBuffer;
     private final int indexCount;
     private final int vertexCount;
-    public State state;
     private final ByteBuffer dataBuffer;
+    public State state;
     private int uploadedContextID;
     private int dataVBOID = -1;
     private int indexVBOID = -1;
