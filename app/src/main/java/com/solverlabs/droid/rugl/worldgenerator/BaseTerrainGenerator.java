@@ -25,6 +25,7 @@ public abstract class BaseTerrainGenerator {
             chunk.blockData[index] = blockType;
         }
     }
+
     public byte getBlockType(Chunk chunk, int bx, int by, int bz) {
         if (by < 0 || by >= 128 || bx > 15 || bx < 0 || bz > 15 || bz < 0) {
             return (byte) 0;

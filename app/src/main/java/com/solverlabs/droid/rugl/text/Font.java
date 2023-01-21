@@ -9,7 +9,6 @@ import com.solverlabs.droid.rugl.geom.Shape;
 import com.solverlabs.droid.rugl.geom.ShapeUtil;
 import com.solverlabs.droid.rugl.geom.TexturedShape;
 import com.solverlabs.droid.rugl.gl.GLUtil;
-import com.solverlabs.droid.rugl.gl.State;
 import com.solverlabs.droid.rugl.gl.enums.MagFilter;
 import com.solverlabs.droid.rugl.gl.enums.MinFilter;
 import com.solverlabs.droid.rugl.gl.facets.TextureState;
@@ -31,7 +30,6 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -61,10 +59,10 @@ public final class Font {
     public final int leading;
     public final String name;
     public final int size;
-    public KerningSource kerningSource = null;
-    private Glyph[] map;
     private final List<Glyph> glyphs = new LinkedList<>();
     private final Set<GlyphImage> glyphImages = new HashSet<>();
+    public KerningSource kerningSource = null;
+    private Glyph[] map;
     private transient TextureFactory.GLTexture texture = null;
 
     public Font(String name, boolean bold, boolean italic, int size, int ascent, int descent, int leading, boolean distanceField) {

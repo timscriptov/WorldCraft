@@ -12,8 +12,8 @@ import java.util.Random;
 
 
 public class TreeDecorator {
-    private Chunk currentChunk;
     private final Random random = new Random();
+    private Chunk currentChunk;
 
     public void decorate(int blockX, int blockY, int blockZ, @NonNull Chunk chunk) {
         this.currentChunk = chunk;

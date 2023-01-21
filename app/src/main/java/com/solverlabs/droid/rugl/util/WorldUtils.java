@@ -3,9 +3,6 @@ package com.solverlabs.droid.rugl.util;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.ContextWrapper;
-import android.content.DialogInterface;
-import android.os.Environment;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -26,18 +23,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
-import java.util.Iterator;
 import java.util.Stack;
 import java.util.TreeSet;
 
 public class WorldUtils {
     private static final String WORLDS_HOME = "games/worldcraft/";
-    public static File WORLD_DIR = null;
     private static final ArrayList<File> worlds = new ArrayList<>();
     private static final ArrayList<File> creativeModeWorlds = new ArrayList<>();
     private static final ArrayList<File> survivalModeWorlds = new ArrayList<>();
     private static final FileFilter DIR_FILTER = pathname -> pathname.isDirectory() && pathname.listFiles() != null;
+    public static File WORLD_DIR = null;
 
     public static boolean isStorageAvailable(Context context) {
         try {

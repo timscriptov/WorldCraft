@@ -6,26 +6,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.solverlabs.droid.rugl.Game;
+
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Touch {
+    public static final Pointer[] pointers = new Pointer[2];
     private static final Queue<MotionEvent> touchEvents;
     private static final ArrayList<TouchListener> listeners = new ArrayList<>();
+    private static final boolean[] wasActive = new boolean[2];
     private static float xScale = 1.0f;
     private static float yScale = 1.0f;
-    public static final Pointer[] pointers = new Pointer[2];
-    private static final boolean[] wasActive = new boolean[2];
-
-    public interface TouchListener {
-        boolean pointerAdded(Pointer pointer);
-
-        void pointerRemoved(Pointer pointer);
-
-        void reset();
-    }
 
     static {
         for (int i = 0; i < pointers.length; i++) {
@@ -130,9 +122,26 @@ public class Touch {
         listeners.remove(l);
     }
 
+    public static void reset() {
+        for (int i = 0; i < pointers.length; i++) {
+            pointers[i].active = false;
+        }
+        for (TouchListener l : listeners) {
+            l.reset();
+        }
+    }
+
+    public interface TouchListener {
+        boolean pointerAdded(Pointer pointer);
+
+        void pointerRemoved(Pointer pointer);
+
+        void reset();
+    }
+
     public static class Pointer {
-        public boolean active;
         public final int id;
+        public boolean active;
         public boolean isUse;
         public float size;
         public float x;
@@ -150,15 +159,6 @@ public class Touch {
                 return "Inactive: " + this.x + ", " + this.y;
             }
             return this.id + " ( " + this.x + ", " + this.y + " ) " + this.size;
-        }
-    }
-
-    public static void reset() {
-        for (int i = 0; i < pointers.length; i++) {
-            pointers[i].active = false;
-        }
-        for (TouchListener l : listeners) {
-            l.reset();
         }
     }
 }

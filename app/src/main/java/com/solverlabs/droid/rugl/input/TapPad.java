@@ -13,6 +13,7 @@ import com.solverlabs.droid.rugl.util.geom.BoundingRectangle;
 public class TapPad implements Touch.TouchListener {
     private static final long DOUBLE_TAP_TIME = 250;
     public final BoundingRectangle pad = new BoundingRectangle();
+    private final int inlineColour = Colour.packFloat(1.0f, 1.0f, 1.0f, 1.0f);
     public boolean isSelected;
     public Touch.Pointer touch;
     public boolean needDraw = true;
@@ -34,7 +35,6 @@ public class TapPad implements Touch.TouchListener {
     private long downTime = -1;
     private boolean tapped = false;
     private boolean longPressed = false;
-    private final int inlineColour = Colour.packFloat(1.0f, 1.0f, 1.0f, 1.0f);
 
     public TapPad(float x, float y, float width, float height) {
         this.offset = 0.0f;
