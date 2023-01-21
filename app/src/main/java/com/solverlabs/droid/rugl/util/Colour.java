@@ -1,8 +1,9 @@
 package com.solverlabs.droid.rugl.util;
 
+import androidx.annotation.NonNull;
+
 import java.nio.ByteOrder;
 
-/* loaded from: classes.dex */
 public class Colour {
     public static final int black;
     public static final int blue;
@@ -25,8 +26,8 @@ public class Colour {
     private static final int blueOffset;
     private static final int greenOffset;
     private static final int redOffset;
-    private static int alphaMask;
-    private static int colourmask;
+    private static final int alphaMask;
+    private static final int colourmask;
 
     static {
         boolean big = ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN;
@@ -52,7 +53,7 @@ public class Colour {
         violet = packFloat(0.5f, 0.0f, 1.0f, 1.0f);
         raspberry = packFloat(1.0f, 0.0f, 0.5f, 1.0f);
         alphaMask = 255 << alphaOffset;
-        colourmask = alphaMask ^ (-1);
+        colourmask = ~alphaMask;
     }
 
     private Colour() {
@@ -70,6 +71,7 @@ public class Colour {
         return packInt(r, g, b, a);
     }
 
+    @NonNull
     public static float[] toArray(int rgba, float[] array) {
         if (array == null) {
             array = new float[4];
@@ -128,7 +130,7 @@ public class Colour {
         return (colour & colourmask) | ((alpha & 255) << alphaOffset);
     }
 
-    public static void withAlphai(int[] colours, int alpha) {
+    public static void withAlphai(@NonNull int[] colours, int alpha) {
         for (int i = 0; i < colours.length; i++) {
             colours[i] = withAlphai(colours[i], alpha);
         }
@@ -141,6 +143,7 @@ public class Colour {
         return packInt(red2, green2, blue2, alphai(colour));
     }
 
+    @NonNull
     public static String toString(int rgba) {
         return redi(rgba) + ":" + greeni(rgba) + ":" + bluei(rgba) + ":" + alphai(rgba);
     }
