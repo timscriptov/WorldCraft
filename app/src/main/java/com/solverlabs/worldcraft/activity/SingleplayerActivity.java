@@ -1,14 +1,12 @@
 package com.solverlabs.worldcraft.activity;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
@@ -18,13 +16,14 @@ import androidx.annotation.NonNull;
 
 import com.solverlabs.droid.rugl.util.WorldUtils;
 import com.solverlabs.worldcraft.MyApplication;
+import com.solverlabs.worldcraft.R;
 import com.solverlabs.worldcraft.dialog.component.MolotButton;
 import com.solverlabs.worldcraft.dialog.component.MolotTextView;
 import com.solverlabs.worldcraft.dialog.tools.ui.SwipeView;
-import com.solverlabs.worldcraft.R;
 import com.solverlabs.worldcraft.ui.GUI;
 import com.solverlabs.worldcraft.util.GameStarter;
 import com.solverlabs.worldcraft.util.WorldGenerator;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,7 +33,7 @@ public class SingleplayerActivity extends CommonActivity {
     private RotateAnimation rotateAnimation = null;
     private SwipeView swipeView = null;
 
-    @Override 
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.singleplayer);
@@ -49,13 +48,13 @@ public class SingleplayerActivity extends CommonActivity {
         });
     }
 
-    @Override 
+    @Override
     protected void onResume() {
         updateMapList();
         super.onResume();
     }
 
-    @Override 
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1 && resultCode == -1 && data.getBooleanExtra(SHOULD_FINISH, false)) {
             finish();
@@ -86,8 +85,8 @@ public class SingleplayerActivity extends CommonActivity {
 
     public void updateMapList() {
         if (this.swipeView != null) {
-            new Thread() { 
-                @Override 
+            new Thread() {
+                @Override
                 public void run() {
                     startLoadingSpinnerAnimation();
                     if (WorldUtils.isStorageAvailable(SingleplayerActivity.this)) {

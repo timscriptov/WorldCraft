@@ -3,7 +3,6 @@ package com.solverlabs.worldcraft.dialog.tools.widget;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
-import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageView;
@@ -27,10 +26,6 @@ public class RotatableImageView extends AppCompatImageView {
         this.mYPivot = 0.0f;
     }
 
-    public void setRotation(int rotation) {
-        setRotation(rotation, 0.5f, 0.5f);
-    }
-
     public void setRotation(int rotation, float xPivot, float yPivot) {
         this.mRotation = rotation;
         this.mXPivot = xPivot;
@@ -40,6 +35,10 @@ public class RotatableImageView extends AppCompatImageView {
     @Override
     public float getRotation() {
         return this.mRotation;
+    }
+
+    public void setRotation(int rotation) {
+        setRotation(rotation, 0.5f, 0.5f);
     }
 
     public float getXPivot() {

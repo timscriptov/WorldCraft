@@ -4,9 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,9 +14,8 @@ import com.solverlabs.droid.rugl.util.WorldUtils;
 import com.solverlabs.droid.rugl.util.geom.Vector3f;
 import com.solverlabs.worldcraft.MyApplication;
 import com.solverlabs.worldcraft.Persistence;
-import com.solverlabs.worldcraft.factories.DescriptionFactory;
 import com.solverlabs.worldcraft.R;
-import com.solverlabs.worldcraft.multiplayer.MovementHandler;
+import com.solverlabs.worldcraft.factories.DescriptionFactory;
 import com.solverlabs.worldcraft.multiplayer.compress.CompressedWorldDownloader;
 import com.solverlabs.worldcraft.multiplayer.compress.CompressedWorldUploader;
 import com.solverlabs.worldcraft.multiplayer.dialogs.CreateRoomDialog;
@@ -36,6 +32,7 @@ import com.solverlabs.worldcraft.srv.util.ObjectCodec;
 import com.solverlabs.worldcraft.util.GameStarter;
 import com.solverlabs.worldcraft.util.Properties;
 import com.solverlabs.worldcraft.util.WorldGenerator;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -43,7 +40,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import org.jboss.netty.util.internal.jzlib.JZlib;
 
 public class MultiplayerActivityHelper implements AndroidClient.MultiplayerListener, MovementHandler.MovementHandlerListener {
     private Activity activity;
@@ -84,14 +80,14 @@ public class MultiplayerActivityHelper implements AndroidClient.MultiplayerListe
         this.loadingDialog = null;
     }
 
-    @Override 
+    @Override
     public void myLocationChanged(Vector3f eye, Vector3f at, Vector3f up) {
         if (Multiplayer.instance.gameClient != null) {
             Multiplayer.instance.gameClient.move(Vector3fUtils.convert(eye), Vector3fUtils.convert(at), Vector3fUtils.convert(up));
         }
     }
 
-    @Override 
+    @Override
     public void myGraphicsInited(Vector3f eye, Vector3f at, Vector3f up) {
         if (Multiplayer.instance.gameClient != null) {
             Multiplayer.instance.invalidateEnemies();
@@ -99,21 +95,21 @@ public class MultiplayerActivityHelper implements AndroidClient.MultiplayerListe
         }
     }
 
-    @Override 
+    @Override
     public void myAction(byte action) {
         if (Multiplayer.instance.gameClient != null) {
             Multiplayer.instance.gameClient.action(action);
         }
     }
 
-    @Override 
+    @Override
     public void onConnectionEstablished() {
         if (Multiplayer.instance.gameClient != null) {
             Multiplayer.checkVersion();
         }
     }
 
-    @Override 
+    @Override
     public void onConnectionFailed(String message, Throwable e) {
         if (this.activity != null) {
             this.activity.runOnUiThread(() -> {
@@ -128,14 +124,14 @@ public class MultiplayerActivityHelper implements AndroidClient.MultiplayerListe
         }
     }
 
-    @Override 
+    @Override
     public void onLoginOk(int playerId, String playerName) {
         Multiplayer.instance.playerId = playerId;
         Multiplayer.setPlayerName(playerName);
         roomlistRequest();
     }
 
-    @Override 
+    @Override
     public void onLoginFail(final byte errorCode, final String message) {
         try {
             shutdownMultiplayer();
@@ -148,17 +144,17 @@ public class MultiplayerActivityHelper implements AndroidClient.MultiplayerListe
         });
     }
 
-    @Override 
+    @Override
     public void onCheckVersionCritical(String message) {
         showCheckVersionCriticalDialog(message);
     }
 
-    @Override 
+    @Override
     public void onCheckVersionWarning(String message) {
         showCheckVersionWarningDialog(message);
     }
 
-    @Override 
+    @Override
     public void onCheckVersionOk() {
         Multiplayer.instance.gameClient.login();
     }
@@ -184,19 +180,19 @@ public class MultiplayerActivityHelper implements AndroidClient.MultiplayerListe
         }
     }
 
-    @Override 
+    @Override
     public void onRoomListLoaded(final Collection<ObjectCodec.RoomPack> roomsReadOnly, final Collection<ObjectCodec.RoomPack> roomsByPlayerNumber, final Collection<ObjectCodec.RoomPack> roomsByRating, final Collection<ObjectCodec.RoomPack> roomsSearch, final short initRoomlistSize) {
         this.activity.runOnUiThread(() -> roomlistDialog.onRoomlistLoaded(roomsReadOnly, roomsByPlayerNumber, roomsByRating, roomsSearch, initRoomlistSize));
     }
 
-    @Override 
+    @Override
     public void onCreateRoomOk(final String uploadToken) {
         if (this.selectWorldDialog != null) {
             this.selectWorldDialog.dismiss();
         }
         showLoadingDialog();
-        new Thread() { 
-            @Override 
+        new Thread() {
+            @Override
             public void run() {
                 WorldCopier wc = new WorldCopier(createWorldName);
                 wc.copyWorld();
@@ -215,7 +211,7 @@ public class MultiplayerActivityHelper implements AndroidClient.MultiplayerListe
         }.start();
     }
 
-    @Override 
+    @Override
     public void onCreateRoomFailed(final byte error, final String message) {
         this.activity.runOnUiThread(() -> {
             Toast.makeText(activity, getCreateRoomErrorMessage(error, message), Toast.LENGTH_LONG).show();
@@ -249,7 +245,7 @@ public class MultiplayerActivityHelper implements AndroidClient.MultiplayerListe
         }
     }
 
-    @Override 
+    @Override
     public void onJoinRoomOk(boolean isOwner, boolean isReadOnly) {
         if (this.currentRoomPack != null && this.activity != null) {
             this.roomlistDialog.dismiss();
@@ -257,8 +253,8 @@ public class MultiplayerActivityHelper implements AndroidClient.MultiplayerListe
             Multiplayer.setRoomOwner(isOwner);
             Multiplayer.setReadOnly(isReadOnly);
             final CompressedWorldDownloader downloader = new CompressedWorldDownloader(downloadUrl);
-            new Thread() { 
-                @Override 
+            new Thread() {
+                @Override
                 public void run() {
                     if (downloader.download()) {
                         activity.runOnUiThread(() -> startGameActivity());
@@ -274,7 +270,7 @@ public class MultiplayerActivityHelper implements AndroidClient.MultiplayerListe
         }
     }
 
-    @Override 
+    @Override
     public void onJoinRoomFailed(final byte errorCode, final String message) {
         this.activity.runOnUiThread(() -> {
             dismissLoadingDialog();
@@ -297,30 +293,30 @@ public class MultiplayerActivityHelper implements AndroidClient.MultiplayerListe
         }
     }
 
-    @Override 
+    @Override
     public void onEnemyInfo(Player player) {
         Multiplayer.instance.playerInfo(player);
     }
 
-    @Override 
+    @Override
     public void onEnemyMove(Camera camera) {
         Multiplayer.instance.moveEnemy(camera);
     }
 
-    @Override 
+    @Override
     public void onEnemyAction(Integer playerId, byte action) {
         if (playerId != null && Multiplayer.instance != null) {
             Multiplayer.instance.actionEnemy(playerId, action);
         }
     }
 
-    @Override 
+    @Override
     public void onEnemyDisconnected(Integer enemyId) {
         Multiplayer.removeMessages(enemyId);
         Multiplayer.instance.removeEnemy(enemyId);
     }
 
-    @Override 
+    @Override
     public void onSetBlockType(int x, int y, int z, int chunkX, int chunkZ, byte blockType, byte blockData) {
         List<Short> arrayList = new ArrayList<>();
         arrayList.add((short) x);
@@ -333,7 +329,7 @@ public class MultiplayerActivityHelper implements AndroidClient.MultiplayerListe
         onModifiedBlocksRecieved(blockMap);
     }
 
-    @Override 
+    @Override
     public void onChatMesssageReceived(String msg) {
         Multiplayer.addMessage(msg);
         if (Multiplayer.instance.blockView != null && Multiplayer.instance.blockView.gui != null && Multiplayer.instance.blockView.gui.chatBox != null) {
@@ -341,12 +337,12 @@ public class MultiplayerActivityHelper implements AndroidClient.MultiplayerListe
         }
     }
 
-    @Override 
+    @Override
     public void onMoveResponse() {
         Multiplayer.instance.movementHandler.responseReceived = true;
     }
 
-    @Override 
+    @Override
     public void onModifiedBlocksRecieved(Map<List<Short>, Room.BlockData> blockMap) {
         if (blockMap == null) {
             blockMap = new HashMap<>();
@@ -365,17 +361,17 @@ public class MultiplayerActivityHelper implements AndroidClient.MultiplayerListe
         }
     }
 
-    @Override 
+    @Override
     public void onReconnectFinished() {
         Multiplayer.instance.clearEnemies();
     }
 
-    @Override 
+    @Override
     public void onPopupMessage(String message) {
         Multiplayer.addPopupMessage(message);
     }
 
-    @Override 
+    @Override
     public void onReadOnlyRoomModification() {
         Multiplayer.showReadOnlyRoomModificationDialog();
     }
@@ -402,7 +398,7 @@ public class MultiplayerActivityHelper implements AndroidClient.MultiplayerListe
                     onCreateRoom();
                 }
 
-                @Override 
+                @Override
                 public void noCreativeModeWorlds() {
                     showPleaseCreateWorldDialog(activity);
                 }
@@ -480,8 +476,8 @@ public class MultiplayerActivityHelper implements AndroidClient.MultiplayerListe
     public void roomlistRequest() {
         showLoadingDialog();
         if (Multiplayer.instance != null && Multiplayer.instance.gameClient != null) {
-            new Thread() { 
-                @Override 
+            new Thread() {
+                @Override
                 public void run() {
                     try {
                         Multiplayer.instance.gameClient.roomList((byte) 1, 0);

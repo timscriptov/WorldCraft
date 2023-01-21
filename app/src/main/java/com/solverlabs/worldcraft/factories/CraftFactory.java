@@ -47,7 +47,7 @@ public class CraftFactory {
         Diamond(BlockFactory.DIAMOND_INGOT_ID, 9, 3, false, new byte[]{BlockFactory.DIAMOND_BLOCK_ID, 1}),
         GoldIgnot(BlockFactory.GOLD_INGOT_ID, 9, 3, false, new byte[]{BlockFactory.GOLD_BLOCK_ID, 1}),
         IronIgnot(BlockFactory.IRON_INGOT_ID, 9, 3, false, new byte[]{BlockFactory.IRON_BLOCK_ID, 1});
-        
+
         private final int count;
         private final int group;
         private final byte id;

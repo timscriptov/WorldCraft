@@ -23,8 +23,6 @@ public class WcLog {
     private static Object log4jLogger;
     private static Method warnMethod;
     private static Method warnThrowableMethod;
-    private final String name;
-    private boolean useEvque;
 
     static {
         log4jLogger = null;
@@ -55,6 +53,9 @@ public class WcLog {
             th.printStackTrace();
         }
     }
+
+    private final String name;
+    private boolean useEvque;
 
     protected WcLog(String str) {
         this.useEvque = false;

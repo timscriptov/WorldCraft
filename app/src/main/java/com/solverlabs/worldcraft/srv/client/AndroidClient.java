@@ -7,6 +7,7 @@ import com.solverlabs.worldcraft.srv.domain.Room;
 import com.solverlabs.worldcraft.srv.log.WcLog;
 import com.solverlabs.worldcraft.srv.util.ObjectCodec;
 import com.solverlabs.worldcraft.srv.util.Vector3f;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -15,50 +16,6 @@ public class AndroidClient extends GameClient implements EventReceiverListener {
     protected static final WcLog log = WcLog.getLogger("AndroidClient");
     private Reconnector reconnector;
     private EventTransmitter transmitter;
-
-    public interface MultiplayerListener extends GameClient.ConnectionListener {
-        void onChatMesssageReceived(String str);
-
-        void onCheckVersionCritical(String str);
-
-        void onCheckVersionOk();
-
-        void onCheckVersionWarning(String str);
-
-        void onCreateRoomFailed(byte b, String str);
-
-        void onCreateRoomOk(String str);
-
-        void onEnemyAction(Integer num, byte b);
-
-        void onEnemyDisconnected(Integer num);
-
-        void onEnemyInfo(Player player);
-
-        void onEnemyMove(Camera camera);
-
-        void onJoinRoomFailed(byte b, String str);
-
-        void onJoinRoomOk(boolean z, boolean z2);
-
-        void onLoginFail(byte b, String str);
-
-        void onLoginOk(int i, String str);
-
-        void onModifiedBlocksRecieved(Map<List<Short>, Room.BlockData> map);
-
-        void onMoveResponse();
-
-        void onPopupMessage(String str);
-
-        void onReadOnlyRoomModification();
-
-        void onReconnectFinished();
-
-        void onRoomListLoaded(Collection<ObjectCodec.RoomPack> collection, Collection<ObjectCodec.RoomPack> collection2, Collection<ObjectCodec.RoomPack> collection3, Collection<ObjectCodec.RoomPack> collection4, short s);
-
-        void onSetBlockType(int i, int i2, int i3, int i4, int i5, byte b, byte b2);
-    }
 
     private boolean isMultiplayerListenerValid() {
         return this.gameListener != null && (this.gameListener instanceof MultiplayerListener);
@@ -141,7 +98,7 @@ public class AndroidClient extends GameClient implements EventReceiverListener {
         this.transmitter.move(vector3f, vector3f2, vector3f3);
     }
 
-    @Override 
+    @Override
     public void onCheckVersionResponse(byte b, String str) {
         if (isMultiplayerListenerValid()) {
             if (b == 0) {
@@ -154,7 +111,7 @@ public class AndroidClient extends GameClient implements EventReceiverListener {
         }
     }
 
-    @Override 
+    @Override
     protected void onConnectionLost(String str, Throwable th) {
         if (this.reconnector.isReconnectAllowed() && hasUsefullGameEventsDueIdleTime()) {
             System.out.println("try reconnect");
@@ -174,7 +131,7 @@ public class AndroidClient extends GameClient implements EventReceiverListener {
         notifyListenerConnectionError(str, th);
     }
 
-    @Override 
+    @Override
     public void onCreateRoomResponse(byte b, String str) {
         if (isMultiplayerListenerValid()) {
             if (b == 0) {
@@ -185,35 +142,35 @@ public class AndroidClient extends GameClient implements EventReceiverListener {
         }
     }
 
-    @Override 
+    @Override
     public void onEnemyAction(int i, byte b) {
         if (isMultiplayerListenerValid()) {
             ((MultiplayerListener) this.gameListener).onEnemyAction(i, b);
         }
     }
 
-    @Override 
+    @Override
     public void onEnemyDisconnected(int i) {
         if (isMultiplayerListenerValid()) {
             ((MultiplayerListener) this.gameListener).onEnemyDisconnected(i);
         }
     }
 
-    @Override 
+    @Override
     public void onEnemyInfo(Player player) {
         if (isMultiplayerListenerValid()) {
             ((MultiplayerListener) this.gameListener).onEnemyInfo(player);
         }
     }
 
-    @Override 
+    @Override
     public void onEnemyMove(Camera camera) {
         if (isMultiplayerListenerValid()) {
             ((MultiplayerListener) this.gameListener).onEnemyMove(camera);
         }
     }
 
-    @Override 
+    @Override
     public void onJoinRoomResponse(byte b, String str, boolean z, boolean z2) {
         if (isMultiplayerListenerValid()) {
             if (b != 0) {
@@ -225,7 +182,7 @@ public class AndroidClient extends GameClient implements EventReceiverListener {
         }
     }
 
-    @Override 
+    @Override
     public void onLoginResponse(byte b, int i, String str, String str2) {
         if (b != 0) {
             if (isMultiplayerListenerValid()) {
@@ -240,39 +197,39 @@ public class AndroidClient extends GameClient implements EventReceiverListener {
         }
     }
 
-    @Override 
+    @Override
     public void onMessage(String str) {
         if (isMultiplayerListenerValid()) {
             ((MultiplayerListener) this.gameListener).onChatMesssageReceived(str);
         }
     }
 
-    @Override 
+    @Override
     public void onModifiedBlocks(Map<List<Short>, Room.BlockData> map) {
         if (isMultiplayerListenerValid()) {
             ((MultiplayerListener) this.gameListener).onModifiedBlocksRecieved(map);
         }
     }
 
-    @Override 
+    @Override
     public void onMoveResponse(byte b) {
         if (isMultiplayerListenerValid()) {
             ((MultiplayerListener) this.gameListener).onMoveResponse();
         }
     }
 
-    @Override 
+    @Override
     public void onPingResponse(byte b) {
     }
 
-    @Override 
+    @Override
     public void onPopupMessage(String str) {
         if (isMultiplayerListenerValid()) {
             ((MultiplayerListener) this.gameListener).onPopupMessage(str);
         }
     }
 
-    @Override 
+    @Override
     public void onReadOnlyRoomModification() {
         if (isMultiplayerListenerValid()) {
             ((MultiplayerListener) this.gameListener).onReadOnlyRoomModification();
@@ -285,25 +242,25 @@ public class AndroidClient extends GameClient implements EventReceiverListener {
         }
     }
 
-    @Override 
+    @Override
     public void onRoomListResponse(byte b, List<ObjectCodec.RoomPack> list, List<ObjectCodec.RoomPack> list2, List<ObjectCodec.RoomPack> list3, List<ObjectCodec.RoomPack> list4, short s) {
         if (isMultiplayerListenerValid()) {
             ((MultiplayerListener) this.gameListener).onRoomListLoaded(list2, list, list3, list4, s);
         }
     }
 
-    @Override 
+    @Override
     public void onSetBlockResonse(byte b, Map<List<Short>, Room.BlockData> map) {
         if (isMultiplayerListenerValid()) {
             ((MultiplayerListener) this.gameListener).onModifiedBlocksRecieved(map);
         }
     }
 
-    @Override 
+    @Override
     public void onUnknownEvent(byte b, byte b2) {
     }
 
-    @Override 
+    @Override
     protected void ping() {
         this.transmitter.ping();
     }
@@ -324,12 +281,56 @@ public class AndroidClient extends GameClient implements EventReceiverListener {
         this.transmitter.roomSearch(str, i);
     }
 
-    @Override 
+    @Override
     public void shutdown() {
         super.shutdown();
     }
 
     public void start() {
         new Thread(this).start();
+    }
+
+    public interface MultiplayerListener extends GameClient.ConnectionListener {
+        void onChatMesssageReceived(String str);
+
+        void onCheckVersionCritical(String str);
+
+        void onCheckVersionOk();
+
+        void onCheckVersionWarning(String str);
+
+        void onCreateRoomFailed(byte b, String str);
+
+        void onCreateRoomOk(String str);
+
+        void onEnemyAction(Integer num, byte b);
+
+        void onEnemyDisconnected(Integer num);
+
+        void onEnemyInfo(Player player);
+
+        void onEnemyMove(Camera camera);
+
+        void onJoinRoomFailed(byte b, String str);
+
+        void onJoinRoomOk(boolean z, boolean z2);
+
+        void onLoginFail(byte b, String str);
+
+        void onLoginOk(int i, String str);
+
+        void onModifiedBlocksRecieved(Map<List<Short>, Room.BlockData> map);
+
+        void onMoveResponse();
+
+        void onPopupMessage(String str);
+
+        void onReadOnlyRoomModification();
+
+        void onReconnectFinished();
+
+        void onRoomListLoaded(Collection<ObjectCodec.RoomPack> collection, Collection<ObjectCodec.RoomPack> collection2, Collection<ObjectCodec.RoomPack> collection3, Collection<ObjectCodec.RoomPack> collection4, short s);
+
+        void onSetBlockType(int i, int i2, int i3, int i4, int i5, byte b, byte b2);
     }
 }

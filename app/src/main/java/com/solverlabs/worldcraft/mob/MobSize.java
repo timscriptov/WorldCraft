@@ -8,6 +8,9 @@ public class MobSize {
     private static final float BODY_COLLIDE_HEAD_Z = 0.3f;
     private static final float ZOOM = 0.85f;
     private final TexturedBlockProperties bodyBox;
+    private final TexturedBlockProperties handBox;
+    private final TexturedBlockProperties headBox;
+    private final TexturedBlockProperties legBox;
     protected float bodyCollideHeadY;
     protected float bodyCollideHeadZ;
     protected float bodyDepth;
@@ -17,13 +20,11 @@ public class MobSize {
     protected float bodyY;
     protected float bodyZ;
     protected float handActionYOffset;
-    private final TexturedBlockProperties handBox;
     protected float handDepth;
     protected float handHeight;
     protected float handLegZOffset;
     protected float handWidth;
     protected float handY;
-    private final TexturedBlockProperties headBox;
     protected float headDepth;
     protected float headHeight;
     protected float headWidth;
@@ -35,7 +36,6 @@ public class MobSize {
     protected float leftLegX;
     protected float leftLegZ;
     protected float legActionYOffset;
-    private final TexturedBlockProperties legBox;
     protected float legDepth;
     protected float legHeight;
     protected float legWidth;

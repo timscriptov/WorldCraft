@@ -17,9 +17,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Room {
     public static final int DENIED_RADIUS = 5;
+    public static final int MAX_USER_COUNT = 40;
     private static final int MAX_IDLE_IN_MEMORY_TIME = 900000;
     private static final int MAX_IDLE_TIME = 604800000;
-    public static final int MAX_USER_COUNT = 40;
     private static int nextId = 0;
     private final Map<List<Short>, BlockData> blocks;
     private int dislikes;
@@ -43,61 +43,6 @@ public class Room {
     private byte[] unmutableBlocks;
     private String uploadToken;
     private Map<Integer, Player> users;
-
-    public static class BlockData {
-        public byte blockData;
-        public byte blockType;
-
-        public BlockData(byte b, byte b2) {
-            this.blockType = b;
-            this.blockData = b2;
-        }
-    }
-
-    public static class RoomComparatorByEneranceCount implements Comparator<Room> {
-        @Override
-        public int compare(@NonNull Room room, @NonNull Room room2) {
-            if (room.entrancesNumber > room2.entrancesNumber) {
-                return -1;
-            }
-            if (room.entrancesNumber < room2.entrancesNumber) {
-                return 1;
-            }
-            return room.name.compareToIgnoreCase(room2.name);
-        }
-    }
-
-    public static class RoomComparatorByRaiting implements Comparator<Room> {
-        @Override
-        public int compare(@NonNull Room room, @NonNull Room room2) {
-            if (room.getRating() > room2.getRating()) {
-                return -1;
-            }
-            if (room.getRating() < room2.getRating()) {
-                return 1;
-            }
-            return room.name.compareToIgnoreCase(room2.name);
-        }
-    }
-
-    public static class RoomComparatorByUsers implements Comparator<Room> {
-        @Override
-        public int compare(Room room, Room room2) {
-            if (room == null && room2 == null) {
-                return 0;
-            }
-            if (room != null) {
-                if (room2 != null && room.users.size() <= room2.users.size()) {
-                    if (room.users.size() >= room2.users.size()) {
-                        return room.name.compareToIgnoreCase(room2.name);
-                    }
-                    return 1;
-                }
-                return -1;
-            }
-            return 1;
-        }
-    }
 
     private Room() {
         this.users = new ConcurrentHashMap<>();
@@ -181,40 +126,80 @@ public class Room {
         return this.owner;
     }
 
+    public void setCreator(Player player) {
+        this.owner = player;
+    }
+
     public int getDislikes() {
         return this.dislikes;
+    }
+
+    public void setDislikes(int i) {
+        this.dislikes = i;
     }
 
     public int getEntrancesNumber() {
         return this.entrancesNumber;
     }
 
+    public void setEntrancesNumber(int i) {
+        this.entrancesNumber = i;
+    }
+
     public long getId() {
         return this.id;
+    }
+
+    public void setId(long j) {
+        this.id = j;
     }
 
     public long getLastActivity() {
         return this.lastActivity;
     }
 
+    public void setLastActivity(long j) {
+        this.lastActivity = j;
+    }
+
     public int getLikes() {
         return this.likes;
+    }
+
+    public void setLikes(int i) {
+        this.likes = i;
     }
 
     public String getName() {
         return this.name;
     }
 
+    public void setName(String str) {
+        this.name = str;
+    }
+
     public String getOwnerDeviceId() {
         return this.ownerDeviceId;
+    }
+
+    public void setOwnerDeviceId(String str) {
+        this.ownerDeviceId = str;
     }
 
     public String getPassword() {
         return this.password;
     }
 
+    public void setPassword(String str) {
+        this.password = str;
+    }
+
     public Map<Integer, Player> getPlayers() {
         return this.users;
+    }
+
+    public void setPlayers(Map<Integer, Player> map) {
+        this.users = map;
     }
 
     public int getRating() {
@@ -227,6 +212,10 @@ public class Room {
 
     public String getUploadToken() {
         return this.uploadToken;
+    }
+
+    public void setUploadToken(String str) {
+        this.uploadToken = str;
     }
 
     public boolean hasPassword() {
@@ -253,8 +242,16 @@ public class Room {
         return this.isInited;
     }
 
+    public void setInited(boolean z) {
+        this.isInited = z;
+    }
+
     public boolean isLoaded() {
         return this.isLoaded;
+    }
+
+    public void setLoaded(boolean z) {
+        this.isLoaded = z;
     }
 
     public boolean isOwner(Player player) {
@@ -263,6 +260,10 @@ public class Room {
 
     public boolean isReadOnly() {
         return this.isReadOnly;
+    }
+
+    public void setReadOnly(boolean z) {
+        this.isReadOnly = z;
     }
 
     public void like() {
@@ -327,67 +328,66 @@ public class Room {
         return true;
     }
 
-    public void setCreator(Player player) {
-        this.owner = player;
-    }
-
-    public void setDislikes(int i) {
-        this.dislikes = i;
-    }
-
-    public void setEntrancesNumber(int i) {
-        this.entrancesNumber = i;
-    }
-
-    public void setId(long j) {
-        this.id = j;
-    }
-
-    public void setInited(boolean z) {
-        this.isInited = z;
-    }
-
-    public void setLastActivity(long j) {
-        this.lastActivity = j;
-    }
-
-    public void setLikes(int i) {
-        this.likes = i;
-    }
-
-    public void setLoaded(boolean z) {
-        this.isLoaded = z;
-    }
-
-    public void setName(String str) {
-        this.name = str;
-    }
-
-    public void setOwnerDeviceId(String str) {
-        this.ownerDeviceId = str;
-    }
-
-    public void setPassword(String str) {
-        this.password = str;
-    }
-
-    public void setPlayers(Map<Integer, Player> map) {
-        this.users = map;
-    }
-
-    public void setReadOnly(boolean z) {
-        this.isReadOnly = z;
-    }
-
-    public void setUploadToken(String str) {
-        this.uploadToken = str;
-    }
-
     public void startGame() {
     }
 
     @NonNull
     public String toString() {
         return "Room [" + this.id + ":" + this.name + "]";
+    }
+
+    public static class BlockData {
+        public byte blockData;
+        public byte blockType;
+
+        public BlockData(byte b, byte b2) {
+            this.blockType = b;
+            this.blockData = b2;
+        }
+    }
+
+    public static class RoomComparatorByEneranceCount implements Comparator<Room> {
+        @Override
+        public int compare(@NonNull Room room, @NonNull Room room2) {
+            if (room.entrancesNumber > room2.entrancesNumber) {
+                return -1;
+            }
+            if (room.entrancesNumber < room2.entrancesNumber) {
+                return 1;
+            }
+            return room.name.compareToIgnoreCase(room2.name);
+        }
+    }
+
+    public static class RoomComparatorByRaiting implements Comparator<Room> {
+        @Override
+        public int compare(@NonNull Room room, @NonNull Room room2) {
+            if (room.getRating() > room2.getRating()) {
+                return -1;
+            }
+            if (room.getRating() < room2.getRating()) {
+                return 1;
+            }
+            return room.name.compareToIgnoreCase(room2.name);
+        }
+    }
+
+    public static class RoomComparatorByUsers implements Comparator<Room> {
+        @Override
+        public int compare(Room room, Room room2) {
+            if (room == null && room2 == null) {
+                return 0;
+            }
+            if (room != null) {
+                if (room2 != null && room.users.size() <= room2.users.size()) {
+                    if (room.users.size() >= room2.users.size()) {
+                        return room.name.compareToIgnoreCase(room2.name);
+                    }
+                    return 1;
+                }
+                return -1;
+            }
+            return 1;
+        }
     }
 }

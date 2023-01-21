@@ -8,32 +8,27 @@ import com.solverlabs.droid.rugl.util.WorldUtils;
 import com.solverlabs.worldcraft.srv.compress.DirectoryTarCompressor;
 import com.solverlabs.worldcraft.util.HttpPostBodyUtil2;
 import com.solverlabs.worldcraft.util.Properties;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.zip.GZIPInputStream;
+
 import org.apache.commons.compress.archivers.ArchiveException;
-import org.apache.commons.compress.utils.CharsetNames;
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseInterceptor;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.HttpEntityWrapper;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.HttpContext;
 import org.jetbrains.annotations.Contract;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.zip.GZIPInputStream;
 
 public class CompressedWorldUploader {
     private static final String ENCODING_GZIP = "gzip";

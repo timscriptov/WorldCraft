@@ -152,12 +152,9 @@ public class BlockFactory {
     public static final byte WOOL_PINK_ID = 94;
     public static final byte WOOL_RED_ID = 93;
     public static final byte WOOL_YELLOW_ID = 98;
-    private static HashMap<Byte, Material> blockMaterials = null;
     private static final Map<Byte, Block> blocks;
     private static final ColouredShape itemShape;
-    public static State state = null;
     private static final float sxtn = 0.0625f;
-    public static Texture texture;
     private static final float[] nbl = {0.0f, 0.0f, 0.0f};
     private static final float[] ntl = {0.0f, 1.0f, 0.0f};
     private static final float[] nbr = {1.0f, 0.0f, 0.0f};
@@ -166,16 +163,9 @@ public class BlockFactory {
     private static final float[] ftl = {0.0f, 1.0f, 1.0f};
     private static final float[] fbr = {1.0f, 0.0f, 1.0f};
     private static final float[] ftr = {1.0f, 1.0f, 1.0f};
-
-    public enum WorldSide {
-        South,
-        West,
-        East,
-        North,
-        Top,
-        Bottom,
-        Empty
-    }
+    public static State state = null;
+    public static Texture texture;
+    private static HashMap<Byte, Material> blockMaterials = null;
 
     static {
         float[] hexVerts = new float[14];
@@ -265,23 +255,6 @@ public class BlockFactory {
             return false;
         }
         return b.opaque;
-    }
-
-    public enum Face {
-        East(BlockFactory.fbl, BlockFactory.ftl, BlockFactory.nbl, BlockFactory.ntl),
-        West(BlockFactory.nbr, BlockFactory.ntr, BlockFactory.fbr, BlockFactory.ftr),
-        South(BlockFactory.nbl, BlockFactory.ntl, BlockFactory.nbr, BlockFactory.ntr),
-        North(BlockFactory.fbr, BlockFactory.ftr, BlockFactory.fbl, BlockFactory.ftl),
-        Top(BlockFactory.ntl, BlockFactory.ftl, BlockFactory.ntr, BlockFactory.ftr),
-        Bottom(BlockFactory.nbl, BlockFactory.fbl, BlockFactory.nbr, BlockFactory.fbr);
-
-        private final float[] verts = new float[12];
-
-        Face(@NonNull float[]... verts) {
-            for (int i = 0; i < verts.length; i++) {
-                System.arraycopy(verts[i], 0, this.verts, i * 3, 3);
-            }
-        }
     }
 
     private static void initBlockMaterials() {
@@ -401,6 +374,33 @@ public class BlockFactory {
         return blockMaterials.containsKey(id) ? blockMaterials.get(id) : Material.UNKNOWN;
     }
 
+    public enum WorldSide {
+        South,
+        West,
+        East,
+        North,
+        Top,
+        Bottom,
+        Empty
+    }
+
+    public enum Face {
+        East(BlockFactory.fbl, BlockFactory.ftl, BlockFactory.nbl, BlockFactory.ntl),
+        West(BlockFactory.nbr, BlockFactory.ntr, BlockFactory.fbr, BlockFactory.ftr),
+        South(BlockFactory.nbl, BlockFactory.ntl, BlockFactory.nbr, BlockFactory.ntr),
+        North(BlockFactory.fbr, BlockFactory.ftr, BlockFactory.fbl, BlockFactory.ftl),
+        Top(BlockFactory.ntl, BlockFactory.ftl, BlockFactory.ntr, BlockFactory.ftr),
+        Bottom(BlockFactory.nbl, BlockFactory.fbl, BlockFactory.nbr, BlockFactory.fbr);
+
+        private final float[] verts = new float[12];
+
+        Face(@NonNull float[]... verts) {
+            for (int i = 0; i < verts.length; i++) {
+                System.arraycopy(verts[i], 0, this.verts, i * 3, 3);
+            }
+        }
+    }
+
     public enum Block {
         Stone(BlockFactory.STONE_ID, true, 1, 0),
         DirtWithGrass(BlockFactory.DIRT_WITH_GRASS_ID, true, 3, 0, 0, 0, 2, 0),
@@ -489,12 +489,12 @@ public class BlockFactory {
         WoodPlankJungle(BlockFactory.WOOD_PLANK_JUNGLE_ID, true, 7, 12),
         LeavesJungle(BlockFactory.LEAVES_JUNGLE_ID, true, 5, 12);
 
-        public TexturedShape blockItemShape;
         public final byte id;
         public final boolean isCuboid;
         public final Material material;
         public final boolean opaque;
         public final int[] texCoords;
+        public TexturedShape blockItemShape;
 
         Block(byte id, boolean opaque, int... tc) {
             this(id, opaque, true, tc);

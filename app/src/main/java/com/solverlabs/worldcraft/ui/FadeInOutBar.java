@@ -10,24 +10,14 @@ public class FadeInOutBar implements Touch.TouchListener {
     private static final int ALPHA_OFFSET = 24;
     private static final int MAX_ALPHA_VALUE = 256;
     private final int color;
-    private int currentAlpha;
     private final long duration;
     private final FadingType fadingType;
-    private FadingType lastFadeType;
     private final float maxFading;
     protected OnChangedListener onChangedListener;
+    private int currentAlpha;
+    private FadingType lastFadeType;
     private ColouredShape shape;
     private long startedAt;
-
-    public enum FadingType {
-        FadeOut,
-        FadeIn,
-        FadeOutThanFadeIn
-    }
-
-    public interface OnChangedListener {
-        void fadeOutDone();
-    }
 
     public FadeInOutBar(int color, long duration, float maxFading, FadingType fadingType) {
         this.fadingType = fadingType;
@@ -118,16 +108,26 @@ public class FadeInOutBar implements Touch.TouchListener {
         this.lastFadeType = FadingType.FadeIn;
     }
 
-    @Override 
+    @Override
     public boolean pointerAdded(Touch.Pointer p) {
         return false;
     }
 
-    @Override 
+    @Override
     public void pointerRemoved(Touch.Pointer p) {
     }
 
-    @Override 
+    @Override
     public void reset() {
+    }
+
+    public enum FadingType {
+        FadeOut,
+        FadeIn,
+        FadeOutThanFadeIn
+    }
+
+    public interface OnChangedListener {
+        void fadeOutDone();
     }
 }

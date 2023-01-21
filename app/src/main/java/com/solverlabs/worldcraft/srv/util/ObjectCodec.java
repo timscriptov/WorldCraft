@@ -23,211 +23,6 @@ import java.util.TreeSet;
 public class ObjectCodec {
     private static final String OWNER = "owner";
 
-    public static class BlockInfo {
-        public static final int BLOCKS_PER_CHUNK = 16;
-        private static final int EMPTY_BLOCK_ID = 0;
-        public static final int LAST_BLOCK_ID = 118;
-        public static final int MAX_CHUNK_X_POS = 31;
-        public static final int MAX_CHUNK_Z_POS = 31;
-        private static final int MIN_CHUNK_X_POS = 0;
-        private static final int MIN_CHUNK_Z_POS = 0;
-        public byte blockData;
-        public byte blockType;
-        public short chunkX;
-        public short chunkZ;
-        public byte prevBlockData;
-        public byte prevBlockType = -1;
-        public short x;
-        public short y;
-        public short z;
-
-        private boolean inRange(int i, int i2, int i3) {
-            return i >= i2 && i <= i3;
-        }
-
-        public boolean isValid() {
-            return inRange((short) (this.chunkX + (this.x / 16)), 0, 31) && inRange((short) (this.chunkZ + (this.z / 16)), 0, 31) && inRange(this.blockType, 0, LAST_BLOCK_ID);
-        }
-    }
-
-    public static class CheckVersion {
-        public int clientBuildNumber;
-        public String marketName;
-
-        public CheckVersion() {
-        }
-
-        public CheckVersion(String str, int i) {
-            this.marketName = str;
-            this.clientBuildNumber = i;
-        }
-    }
-
-    public static class Login {
-        public String clientBuildNumber;
-        public String clientVersion;
-        public String deviceId;
-        public String deviceName;
-        public String osVersion;
-        public String playerName;
-        public short skin;
-    }
-
-    public static class LoginResponse {
-        public int playerId;
-        public String playerName;
-    }
-
-    public static class ModifiedBlockPack {
-        public Map<List<Short>, Room.BlockData> blocks;
-        public int curPacket;
-        public int packetCount;
-
-        public ModifiedBlockPack(Map<List<Short>, Room.BlockData> map, int i, int i2) {
-            this.blocks = map;
-            this.curPacket = i;
-            this.packetCount = i2;
-        }
-    }
-
-    public static class PlayerAction {
-        public byte action;
-        public int playerId;
-    }
-
-    public static class ReportAbuse {
-        public String abuseText;
-        public int playerId;
-    }
-
-    public static class RoomPack implements Comparable<RoomPack> {
-        public int entrancesNumber;
-        public boolean hasPassword;
-        public int id;
-        public boolean isReadOnly;
-        public short maxUserCount;
-        public String name;
-        public String password;
-        public int rating;
-        public short userCount;
-
-        public static class RoomComparatorByEneranceCount implements Comparator<RoomPack> {
-            @Override
-            public int compare(@NonNull RoomPack roomPack, @NonNull RoomPack roomPack2) {
-                if (roomPack.entrancesNumber > roomPack2.entrancesNumber) {
-                    return -1;
-                }
-                if (roomPack.entrancesNumber < roomPack2.entrancesNumber) {
-                    return 1;
-                }
-                return roomPack.name.compareToIgnoreCase(roomPack2.name);
-            }
-        }
-
-        public static class RoomComparatorByRaiting implements Comparator<RoomPack> {
-            @Override
-            public int compare(@NonNull RoomPack roomPack, @NonNull RoomPack roomPack2) {
-                if (roomPack.rating > roomPack2.rating) {
-                    return -1;
-                }
-                if (roomPack.rating < roomPack2.rating) {
-                    return 1;
-                }
-                return roomPack.name.compareToIgnoreCase(roomPack2.name);
-            }
-        }
-
-        public static class RoomComparatorByUsers implements Comparator<RoomPack> {
-            @Override
-            public int compare(@NonNull RoomPack roomPack, @NonNull RoomPack roomPack2) {
-                if (roomPack.userCount > roomPack2.userCount) {
-                    return -1;
-                }
-                if (roomPack.userCount < roomPack2.userCount) {
-                    return 1;
-                }
-                return roomPack.name.compareToIgnoreCase(roomPack2.name);
-            }
-        }
-
-        @Override
-        public int compareTo(RoomPack roomPack) {
-            if (roomPack == null) {
-                return 1;
-            }
-            if (this == null) {
-                return -1;
-            }
-            return this.name.compareTo(roomPack.name);
-        }
-
-        public boolean equals(Object obj) {
-            if (obj == null || !(obj instanceof RoomPack)) {
-                return false;
-            }
-            RoomPack roomPack = (RoomPack) obj;
-            return (this.name == null && roomPack.name == null) || (this.name != null && this.name.equals(roomPack.name));
-        }
-
-        public int hashCode() {
-            return this.name.hashCode();
-        }
-    }
-
-    public static class RoomResponse {
-        public boolean isOwner;
-        public boolean isReadOnly;
-
-        public RoomResponse() {
-        }
-
-        public RoomResponse(boolean z, boolean z2) {
-            this.isOwner = z;
-            this.isReadOnly = z2;
-        }
-    }
-
-    public static class RoomSearchRequest {
-        public int fromIndex;
-        public String searchString;
-    }
-
-    public static class RoomlistRequest {
-        public static final byte ROOMLIST_SEARCH_RESULT = 0;
-        public static final byte ROOMLIST_TYPE_ACTIVE_PLAYERS = 1;
-        public static final byte ROOMLIST_TYPE_ENTRANCE_NUMBER = 2;
-        public static final byte ROOMLIST_TYPE_RATING = 3;
-        public static final byte ROOMLIST_TYPE_READONLY = 4;
-        public int fromIndex;
-        public byte roomlistType;
-    }
-
-    public static class RoomsPacket {
-        public int curPacket;
-        public short initRoomlistSize;
-        public int packetCount;
-        public Collection<RoomPack> rooms;
-        public byte sortType;
-
-        public RoomsPacket(Collection<RoomPack> collection, int i, int i2, byte b, short s) {
-            this.rooms = collection;
-            this.curPacket = i;
-            this.packetCount = i2;
-            this.sortType = b;
-            this.initRoomlistSize = s;
-        }
-
-        @NonNull
-        public String toString() {
-            return "RoomsPacket(" + " rooms: " + this.rooms.size() + " curpack: " + this.curPacket + " packcount: " + this.packetCount + " sorttype: " + (int) this.sortType + " initsize: " + (int) this.initRoomlistSize + " )";
-        }
-    }
-
-    public static class Warning {
-        public String abuseText;
-        public int warningCount;
-    }
-
     @NonNull
     private static byte[] byteBufferToArray(@NonNull ByteBuffer byteBuffer) {
         byteBuffer.flip();
@@ -948,5 +743,210 @@ public class ObjectCodec {
         allocate.put(bArr);
         allocate.flip();
         return allocate;
+    }
+
+    public static class BlockInfo {
+        public static final int BLOCKS_PER_CHUNK = 16;
+        public static final int LAST_BLOCK_ID = 118;
+        public static final int MAX_CHUNK_X_POS = 31;
+        public static final int MAX_CHUNK_Z_POS = 31;
+        private static final int EMPTY_BLOCK_ID = 0;
+        private static final int MIN_CHUNK_X_POS = 0;
+        private static final int MIN_CHUNK_Z_POS = 0;
+        public byte blockData;
+        public byte blockType;
+        public short chunkX;
+        public short chunkZ;
+        public byte prevBlockData;
+        public byte prevBlockType = -1;
+        public short x;
+        public short y;
+        public short z;
+
+        private boolean inRange(int i, int i2, int i3) {
+            return i >= i2 && i <= i3;
+        }
+
+        public boolean isValid() {
+            return inRange((short) (this.chunkX + (this.x / 16)), 0, 31) && inRange((short) (this.chunkZ + (this.z / 16)), 0, 31) && inRange(this.blockType, 0, LAST_BLOCK_ID);
+        }
+    }
+
+    public static class CheckVersion {
+        public int clientBuildNumber;
+        public String marketName;
+
+        public CheckVersion() {
+        }
+
+        public CheckVersion(String str, int i) {
+            this.marketName = str;
+            this.clientBuildNumber = i;
+        }
+    }
+
+    public static class Login {
+        public String clientBuildNumber;
+        public String clientVersion;
+        public String deviceId;
+        public String deviceName;
+        public String osVersion;
+        public String playerName;
+        public short skin;
+    }
+
+    public static class LoginResponse {
+        public int playerId;
+        public String playerName;
+    }
+
+    public static class ModifiedBlockPack {
+        public Map<List<Short>, Room.BlockData> blocks;
+        public int curPacket;
+        public int packetCount;
+
+        public ModifiedBlockPack(Map<List<Short>, Room.BlockData> map, int i, int i2) {
+            this.blocks = map;
+            this.curPacket = i;
+            this.packetCount = i2;
+        }
+    }
+
+    public static class PlayerAction {
+        public byte action;
+        public int playerId;
+    }
+
+    public static class ReportAbuse {
+        public String abuseText;
+        public int playerId;
+    }
+
+    public static class RoomPack implements Comparable<RoomPack> {
+        public int entrancesNumber;
+        public boolean hasPassword;
+        public int id;
+        public boolean isReadOnly;
+        public short maxUserCount;
+        public String name;
+        public String password;
+        public int rating;
+        public short userCount;
+
+        @Override
+        public int compareTo(RoomPack roomPack) {
+            if (roomPack == null) {
+                return 1;
+            }
+            if (this == null) {
+                return -1;
+            }
+            return this.name.compareTo(roomPack.name);
+        }
+
+        public boolean equals(Object obj) {
+            if (obj == null || !(obj instanceof RoomPack)) {
+                return false;
+            }
+            RoomPack roomPack = (RoomPack) obj;
+            return (this.name == null && roomPack.name == null) || (this.name != null && this.name.equals(roomPack.name));
+        }
+
+        public int hashCode() {
+            return this.name.hashCode();
+        }
+
+        public static class RoomComparatorByEneranceCount implements Comparator<RoomPack> {
+            @Override
+            public int compare(@NonNull RoomPack roomPack, @NonNull RoomPack roomPack2) {
+                if (roomPack.entrancesNumber > roomPack2.entrancesNumber) {
+                    return -1;
+                }
+                if (roomPack.entrancesNumber < roomPack2.entrancesNumber) {
+                    return 1;
+                }
+                return roomPack.name.compareToIgnoreCase(roomPack2.name);
+            }
+        }
+
+        public static class RoomComparatorByRaiting implements Comparator<RoomPack> {
+            @Override
+            public int compare(@NonNull RoomPack roomPack, @NonNull RoomPack roomPack2) {
+                if (roomPack.rating > roomPack2.rating) {
+                    return -1;
+                }
+                if (roomPack.rating < roomPack2.rating) {
+                    return 1;
+                }
+                return roomPack.name.compareToIgnoreCase(roomPack2.name);
+            }
+        }
+
+        public static class RoomComparatorByUsers implements Comparator<RoomPack> {
+            @Override
+            public int compare(@NonNull RoomPack roomPack, @NonNull RoomPack roomPack2) {
+                if (roomPack.userCount > roomPack2.userCount) {
+                    return -1;
+                }
+                if (roomPack.userCount < roomPack2.userCount) {
+                    return 1;
+                }
+                return roomPack.name.compareToIgnoreCase(roomPack2.name);
+            }
+        }
+    }
+
+    public static class RoomResponse {
+        public boolean isOwner;
+        public boolean isReadOnly;
+
+        public RoomResponse() {
+        }
+
+        public RoomResponse(boolean z, boolean z2) {
+            this.isOwner = z;
+            this.isReadOnly = z2;
+        }
+    }
+
+    public static class RoomSearchRequest {
+        public int fromIndex;
+        public String searchString;
+    }
+
+    public static class RoomlistRequest {
+        public static final byte ROOMLIST_SEARCH_RESULT = 0;
+        public static final byte ROOMLIST_TYPE_ACTIVE_PLAYERS = 1;
+        public static final byte ROOMLIST_TYPE_ENTRANCE_NUMBER = 2;
+        public static final byte ROOMLIST_TYPE_RATING = 3;
+        public static final byte ROOMLIST_TYPE_READONLY = 4;
+        public int fromIndex;
+        public byte roomlistType;
+    }
+
+    public static class RoomsPacket {
+        public int curPacket;
+        public short initRoomlistSize;
+        public int packetCount;
+        public Collection<RoomPack> rooms;
+        public byte sortType;
+
+        public RoomsPacket(Collection<RoomPack> collection, int i, int i2, byte b, short s) {
+            this.rooms = collection;
+            this.curPacket = i;
+            this.packetCount = i2;
+            this.sortType = b;
+            this.initRoomlistSize = s;
+        }
+
+        @NonNull
+        public String toString() {
+            return "RoomsPacket(" + " rooms: " + this.rooms.size() + " curpack: " + this.curPacket + " packcount: " + this.packetCount + " sorttype: " + (int) this.sortType + " initsize: " + (int) this.initRoomlistSize + " )";
+        }
+    }
+
+    public static class Warning {
+        public String abuseText;
+        public int warningCount;
     }
 }

@@ -4,28 +4,28 @@ import com.solverlabs.droid.rugl.geom.ColouredShape;
 import com.solverlabs.droid.rugl.geom.Shape;
 import com.solverlabs.droid.rugl.geom.ShapeUtil;
 import com.solverlabs.droid.rugl.gl.StackedRenderer;
-import com.solverlabs.droid.rugl.gl.State;
 import com.solverlabs.droid.rugl.input.TapPad;
 import com.solverlabs.droid.rugl.text.Font;
 import com.solverlabs.droid.rugl.text.TextShape;
 import com.solverlabs.droid.rugl.util.Colour;
+
 import org.apache.commons.compress.archivers.cpio.CpioConstants;
 
 public class CustomButton extends TapPad {
+    private final Font font;
+    private final float height;
+    private final String text;
+    private final float width;
+    private final float x;
+    private final float y;
+    public boolean drawText;
+    public boolean isStroke;
     private ColouredShape buttonBottomBound;
     private ColouredShape buttonLeftBound;
     private ColouredShape buttonRightBound;
     private ColouredShape buttonUpBound;
-    public boolean drawText;
-    private final Font font;
-    private final float height;
     private ColouredShape innerShape;
-    public boolean isStroke;
-    private final String text;
     private TextShape textShape;
-    private final float width;
-    private final float x;
-    private final float y;
 
     public CustomButton(float x, float y, float width, float height, String text) {
         super(x, y, width, height);

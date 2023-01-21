@@ -12,15 +12,23 @@ import com.solverlabs.droid.rugl.util.geom.BoundingRectangle;
 import com.solverlabs.worldcraft.GameMode;
 import com.solverlabs.worldcraft.Player;
 import com.solverlabs.worldcraft.ui.GUI;
+
 import org.apache.commons.compress.archivers.cpio.CpioConstants;
 
 public class InventoryTapItem implements Touch.TouchListener {
-    private static final long DROP_TIME = 2000;
     public static final float HALF_WIDTH = 40.0f;
     public static final float HEIGHT = 80.0f;
-    private static final float TAP_TIME = 0.6f;
     public static final float WIDTH = 80.0f;
+    private static final long DROP_TIME = 2000;
+    private static final float TAP_TIME = 0.6f;
+    private final int durabilityBrokeColor;
+    private final int durabilityFullColor;
+    private final int durabilityHalfColor;
+    private final float longPressTime;
+    private final Player player;
     public BoundingRectangle bounds;
+    public boolean isDrawBounds;
+    protected InventoryItem item;
     private ColouredShape buttonBottomBound;
     private ColouredShape buttonLeftBound;
     private ColouredShape buttonRightBound;
@@ -29,18 +37,11 @@ public class InventoryTapItem implements Touch.TouchListener {
     private long downTime;
     private float dropProgresRatio;
     private ColouredShape dropProgresShape;
-    private final int durabilityBrokeColor;
-    private final int durabilityFullColor;
-    private final int durabilityHalfColor;
     private ColouredShape durabilityShape;
     private ColouredShape innerShape;
-    public boolean isDrawBounds;
-    protected InventoryItem item;
     private long longPressPeriod;
     private long longPressStartTime;
-    private final float longPressTime;
     private boolean longPressed;
-    private final Player player;
     private Touch.Pointer touch;
     private float x;
     private float y;
@@ -265,12 +266,12 @@ public class InventoryTapItem implements Touch.TouchListener {
         }
     }
 
-    public void setYOffset(float f) {
-        this.yOffset = f;
-    }
-
     public float getYOffset() {
         return this.yOffset;
+    }
+
+    public void setYOffset(float f) {
+        this.yOffset = f;
     }
 
     public void translateYOffset(float yOffset) {
@@ -281,14 +282,14 @@ public class InventoryTapItem implements Touch.TouchListener {
         return this.y;
     }
 
-    public void setX(float x) {
-        this.x = x;
-        this.bounds.x.set(x);
-    }
-
     public void setY(float y) {
         this.y = y;
         this.bounds.y.set(y);
+    }
+
+    public void setX(float x) {
+        this.x = x;
+        this.bounds.x.set(x);
     }
 
     public void setPosition(float x, float y) {

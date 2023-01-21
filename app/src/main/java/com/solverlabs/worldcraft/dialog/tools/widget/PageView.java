@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.Adapter;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
+
 import com.solverlabs.worldcraft.dialog.tools.ui.SwipeView;
 
 public class PageView extends BounceSwipeView {
@@ -47,17 +48,13 @@ public class PageView extends BounceSwipeView {
         return this.mOffset;
     }
 
-    public void setCarouselEnabled(boolean enabled) {
-        this.mCarouselMode = enabled;
-        setBounceEnabled(!enabled);
-    }
-
     public boolean getCarouselEnabled() {
         return this.mCarouselMode;
     }
 
-    public void setAdapter(BaseAdapter adapter) {
-        setAdapter(adapter, 0);
+    public void setCarouselEnabled(boolean enabled) {
+        this.mCarouselMode = enabled;
+        setBounceEnabled(!enabled);
     }
 
     public void setAdapter(BaseAdapter adapter, final int startPosition) {
@@ -84,6 +81,10 @@ public class PageView extends BounceSwipeView {
 
     public Adapter getAdapter() {
         return this.mAdapter;
+    }
+
+    public void setAdapter(BaseAdapter adapter) {
+        setAdapter(adapter, 0);
     }
 
     private int getAdapterPageCount() {
@@ -144,13 +145,13 @@ public class PageView extends BounceSwipeView {
     }
 
     @Override
-    public void setOnPageChangedListener(SwipeView.OnPageChangedListener onPageChangedListener) {
-        this.mOnPageChangedListener = onPageChangedListener;
+    public SwipeView.OnPageChangedListener getOnPageChangedListener() {
+        return this.mOnPageChangedListener;
     }
 
     @Override
-    public SwipeView.OnPageChangedListener getOnPageChangedListener() {
-        return this.mOnPageChangedListener;
+    public void setOnPageChangedListener(SwipeView.OnPageChangedListener onPageChangedListener) {
+        this.mOnPageChangedListener = onPageChangedListener;
     }
 
     private void loadPage(int page, int position, View convertView) {

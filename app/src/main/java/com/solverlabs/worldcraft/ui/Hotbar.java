@@ -4,22 +4,20 @@ import com.solverlabs.droid.rugl.geom.ColouredShape;
 import com.solverlabs.droid.rugl.geom.Shape;
 import com.solverlabs.droid.rugl.geom.ShapeUtil;
 import com.solverlabs.droid.rugl.gl.StackedRenderer;
-import com.solverlabs.droid.rugl.gl.State;
 import com.solverlabs.droid.rugl.input.Touch;
 import com.solverlabs.droid.rugl.util.Colour;
 import com.solverlabs.droid.rugl.util.geom.BoundingRectangle;
 import com.solverlabs.worldcraft.Player;
 import com.solverlabs.worldcraft.inventory.InventoryTapItem;
-import java.util.Iterator;
 
 public class Hotbar implements Touch.TouchListener {
-    private ColouredShape boundsShape;
     private final Player player;
-    private Touch.Pointer touch;
     public BoundingRectangle bounds = new BoundingRectangle(150.0f, 0.0f, 420.0f, 90.0f);
     public int boundsColour = Colour.packFloat(1.0f, 1.0f, 1.0f, 0.8f);
     public float maxZoom = 2.0f;
     public float zoomTime = 0.15f;
+    private ColouredShape boundsShape;
+    private Touch.Pointer touch;
 
     public Hotbar(Player player) {
         this.player = player;

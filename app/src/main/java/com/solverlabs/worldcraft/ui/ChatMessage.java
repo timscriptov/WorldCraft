@@ -18,6 +18,7 @@ public class ChatMessage extends TapPad {
     private static final float TEXT_COLOR_R = 1.0f;
     private static final float TEXT_SCALE = 0.65f;
     private static final long TTL = 10000;
+    private final String title;
     private TextShape chatShape;
     private long createdAt;
     private float currentChatShapeAlpha;
@@ -27,7 +28,6 @@ public class ChatMessage extends TapPad {
     private boolean hided;
     private ColouredShape outlineBlack;
     private int position;
-    private final String title;
     private float x;
     private float y;
 

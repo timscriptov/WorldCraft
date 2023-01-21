@@ -1,22 +1,102 @@
 package com.solverlabs.worldcraft.multiplayer.util;
 
 import android.util.Log;
+
 import com.solverlabs.droid.rugl.util.WorldUtils;
 import com.solverlabs.worldcraft.World;
 import com.solverlabs.worldcraft.util.Properties;
+
+import org.apache.commons.compress.utils.IOUtils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import org.apache.commons.compress.utils.IOUtils;
 
 public class WorldCopier {
     private final String worldId;
 
     public WorldCopier(String worldId) {
         this.worldId = worldId;
+    }
+
+    public static void copyDirectory(File sourceLocation, File targetLocation) throws IOException {
+        if (sourceLocation.isDirectory()) {
+            if (!targetLocation.exists() && !targetLocation.mkdirs()) {
+                throw new IOException("Cannot create dir " + targetLocation.getAbsolutePath());
+            }
+            String[] children = sourceLocation.list();
+            for (int i = 0; i < children.length; i++) {
+                copyDirectory(new File(sourceLocation, children[i]), new File(targetLocation, children[i]));
+            }
+            return;
+        }
+        File directory = targetLocation.getParentFile();
+        if (directory != null && !directory.exists() && !directory.mkdirs()) {
+            throw new IOException("Cannot create dir " + directory.getAbsolutePath());
+        }
+        InputStream in = null;
+        OutputStream out = null;
+        try {
+            InputStream in2 = new FileInputStream(sourceLocation);
+            try {
+                OutputStream out2 = new FileOutputStream(targetLocation);
+                try {
+                    IOUtils.copy(in2, out2);
+                    if (in2 != null) {
+                        try {
+                            in2.close();
+                        } catch (Throwable t) {
+                            t.printStackTrace();
+                        }
+                    }
+                    if (out2 != null) {
+                        try {
+                            out2.close();
+                        } catch (Throwable t2) {
+                            t2.printStackTrace();
+                        }
+                    }
+                } catch (Throwable th) {
+                    th = th;
+                    out = out2;
+                    in = in2;
+                    if (in != null) {
+                        try {
+                            in.close();
+                        } catch (Throwable t3) {
+                            t3.printStackTrace();
+                        }
+                    }
+                    if (out != null) {
+                        try {
+                            out.close();
+                        } catch (Throwable t4) {
+                            t4.printStackTrace();
+                        }
+                    }
+                    throw th;
+                }
+            } catch (Throwable th2) {
+                in = in2;
+            }
+        } catch (Throwable th3) {
+        }
+    }
+
+    public static void deleteAllFilesFromDirectory(File dir) {
+        String[] list = dir.list();
+        for (String str : list) {
+            File file = new File(dir, str);
+            if (file.isFile() && !file.delete()) {
+                Log.d("FILE", file.getName() + "  not deleted");
+            }
+            if (file.isDirectory()) {
+                deleteAllFilesFromDirectory(file);
+            }
+        }
     }
 
     private void copyFile(File srcDir, String srcFileName, File destDir, String destFileName) {
@@ -140,83 +220,6 @@ public class WorldCopier {
                 } catch (Throwable th2) {
                 }
             } catch (Throwable th3) {
-            }
-        }
-    }
-
-    public static void copyDirectory(File sourceLocation, File targetLocation) throws IOException {
-        if (sourceLocation.isDirectory()) {
-            if (!targetLocation.exists() && !targetLocation.mkdirs()) {
-                throw new IOException("Cannot create dir " + targetLocation.getAbsolutePath());
-            }
-            String[] children = sourceLocation.list();
-            for (int i = 0; i < children.length; i++) {
-                copyDirectory(new File(sourceLocation, children[i]), new File(targetLocation, children[i]));
-            }
-            return;
-        }
-        File directory = targetLocation.getParentFile();
-        if (directory != null && !directory.exists() && !directory.mkdirs()) {
-            throw new IOException("Cannot create dir " + directory.getAbsolutePath());
-        }
-        InputStream in = null;
-        OutputStream out = null;
-        try {
-            InputStream in2 = new FileInputStream(sourceLocation);
-            try {
-                OutputStream out2 = new FileOutputStream(targetLocation);
-                try {
-                    IOUtils.copy(in2, out2);
-                    if (in2 != null) {
-                        try {
-                            in2.close();
-                        } catch (Throwable t) {
-                            t.printStackTrace();
-                        }
-                    }
-                    if (out2 != null) {
-                        try {
-                            out2.close();
-                        } catch (Throwable t2) {
-                            t2.printStackTrace();
-                        }
-                    }
-                } catch (Throwable th) {
-                    th = th;
-                    out = out2;
-                    in = in2;
-                    if (in != null) {
-                        try {
-                            in.close();
-                        } catch (Throwable t3) {
-                            t3.printStackTrace();
-                        }
-                    }
-                    if (out != null) {
-                        try {
-                            out.close();
-                        } catch (Throwable t4) {
-                            t4.printStackTrace();
-                        }
-                    }
-                    throw th;
-                }
-            } catch (Throwable th2) {
-                in = in2;
-            }
-        } catch (Throwable th3) {
-        }
-    }
-
-    public static void deleteAllFilesFromDirectory(File dir) {
-        String[] list = dir.list();
-        for (String str : list) {
-            File file = new File(dir, str);
-            if (file.isFile() && !file.delete()) {
-                Log.d("FILE", file.getName() + "  not deleted");
-            }
-            if (file.isDirectory()) {
-                deleteAllFilesFromDirectory(file);
             }
         }
     }

@@ -14,6 +14,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import com.solverlabs.worldcraft.R;
+
 import java.util.ArrayList;
 
 public class AddAdapter extends BaseAdapter {
@@ -23,23 +24,6 @@ public class AddAdapter extends BaseAdapter {
     public static final int ITEM_WALLPAPER = 3;
     private final LayoutInflater mInflater;
     private final ArrayList<ListItem> mItems = new ArrayList<>();
-
-    public static class ListItem {
-        public final int actionTag;
-        public final Drawable image;
-        public final CharSequence text;
-
-        @SuppressLint("UseCompatLoadingForDrawables")
-        public ListItem(@NonNull Resources res, int textResourceId, int imageResourceId, int actionTag) {
-            this.text = res.getString(textResourceId);
-            if (imageResourceId != -1) {
-                this.image = res.getDrawable(imageResourceId);
-            } else {
-                this.image = null;
-            }
-            this.actionTag = actionTag;
-        }
-    }
 
     public AddAdapter(@NonNull Activity launcher) {
         this.mInflater = (LayoutInflater) launcher.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -92,5 +76,22 @@ public class AddAdapter extends BaseAdapter {
     @Override
     public long getItemId(int position) {
         return position;
+    }
+
+    public static class ListItem {
+        public final int actionTag;
+        public final Drawable image;
+        public final CharSequence text;
+
+        @SuppressLint("UseCompatLoadingForDrawables")
+        public ListItem(@NonNull Resources res, int textResourceId, int imageResourceId, int actionTag) {
+            this.text = res.getString(textResourceId);
+            if (imageResourceId != -1) {
+                this.image = res.getDrawable(imageResourceId);
+            } else {
+                this.image = null;
+            }
+            this.actionTag = actionTag;
+        }
     }
 }

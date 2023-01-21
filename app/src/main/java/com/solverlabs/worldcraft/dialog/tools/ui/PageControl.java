@@ -13,23 +13,18 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+
 import java.util.ArrayList;
 
 public class PageControl extends LinearLayout {
+    private final Context mContext;
     private Drawable activeDrawable;
     private Drawable inactiveDrawable;
     private ArrayList<ImageView> indicators;
-    private final Context mContext;
     private int mCurrentPage;
     private int mIndicatorSize;
     private OnPageControlClickListener mOnPageControlClickListener;
     private int mPageCount;
-
-    public interface OnPageControlClickListener {
-        void goBackwards();
-
-        void goForwards();
-    }
 
     public PageControl(Context context) {
         super(context);
@@ -75,7 +70,7 @@ public class PageControl extends LinearLayout {
         ((ShapeDrawable) this.activeDrawable).setShape(s1);
         ((ShapeDrawable) this.inactiveDrawable).setShape(s2);
         this.mIndicatorSize = (int) (this.mIndicatorSize * getResources().getDisplayMetrics().density);
-        setOnTouchListener(( View v, MotionEvent event) -> {
+        setOnTouchListener((View v, MotionEvent event) -> {
             if (mOnPageControlClickListener != null) {
                 if (event.getAction() == 1) {
                     if (getOrientation() == LinearLayout.HORIZONTAL) {
@@ -100,13 +95,17 @@ public class PageControl extends LinearLayout {
         });
     }
 
+    public Drawable getActiveDrawable() {
+        return this.activeDrawable;
+    }
+
     public void setActiveDrawable(Drawable d) {
         this.activeDrawable = d;
         this.indicators.get(this.mCurrentPage).setBackgroundDrawable(this.activeDrawable);
     }
 
-    public Drawable getActiveDrawable() {
-        return this.activeDrawable;
+    public Drawable getInactiveDrawable() {
+        return this.inactiveDrawable;
     }
 
     public void setInactiveDrawable(Drawable d) {
@@ -117,8 +116,8 @@ public class PageControl extends LinearLayout {
         this.indicators.get(this.mCurrentPage).setBackgroundDrawable(this.activeDrawable);
     }
 
-    public Drawable getInactiveDrawable() {
-        return this.inactiveDrawable;
+    public int getPageCount() {
+        return this.mPageCount;
     }
 
     public void setPageCount(int pageCount) {
@@ -134,8 +133,8 @@ public class PageControl extends LinearLayout {
         }
     }
 
-    public int getPageCount() {
-        return this.mPageCount;
+    public int getCurrentPage() {
+        return this.mCurrentPage;
     }
 
     public void setCurrentPage(int currentPage) {
@@ -146,8 +145,8 @@ public class PageControl extends LinearLayout {
         }
     }
 
-    public int getCurrentPage() {
-        return this.mCurrentPage;
+    public int getIndicatorSize() {
+        return this.mIndicatorSize;
     }
 
     public void setIndicatorSize(int indicatorSize) {
@@ -157,15 +156,17 @@ public class PageControl extends LinearLayout {
         }
     }
 
-    public int getIndicatorSize() {
-        return this.mIndicatorSize;
+    public OnPageControlClickListener getOnPageControlClickListener() {
+        return this.mOnPageControlClickListener;
     }
 
     public void setOnPageControlClickListener(OnPageControlClickListener onPageControlClickListener) {
         this.mOnPageControlClickListener = onPageControlClickListener;
     }
 
-    public OnPageControlClickListener getOnPageControlClickListener() {
-        return this.mOnPageControlClickListener;
+    public interface OnPageControlClickListener {
+        void goBackwards();
+
+        void goForwards();
     }
 }

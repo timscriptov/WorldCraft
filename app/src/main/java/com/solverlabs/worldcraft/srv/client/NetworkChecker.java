@@ -6,12 +6,6 @@ public class NetworkChecker {
     protected long lastServerPacketTime;
     protected NetworkCheckListener listener;
 
-    public interface NetworkCheckListener {
-        void connectionLost();
-
-        void sendPingRequest();
-    }
-
     public NetworkChecker() {
         updatePacketTime();
     }
@@ -31,5 +25,11 @@ public class NetworkChecker {
 
     public void updatePacketTime() {
         this.lastServerPacketTime = System.currentTimeMillis();
+    }
+
+    public interface NetworkCheckListener {
+        void connectionLost();
+
+        void sendPingRequest();
     }
 }

@@ -12,12 +12,10 @@ import com.solverlabs.droid.rugl.util.geom.Vector3f;
 public abstract class MobView {
     private static final float HAND_LEG_WALK_RESET_ANGLE = 0.0f;
     private static final float MAX_LEG_ANGLE = 0.7853982f;
-    private float handLegWalkAngle;
-    private float legMultiplyParam;
     protected Mob mob;
     protected MobSize mobSize;
-
-    public abstract MobTexturePack getTexturePack();
+    private float handLegWalkAngle;
+    private float legMultiplyParam;
 
     public MobView(Mob mob, State state) {
         this(mob, state, false);
@@ -28,6 +26,8 @@ public abstract class MobView {
         this.mob = mob;
         this.mobSize = this.mob.getSize();
     }
+
+    public abstract MobTexturePack getTexturePack();
 
     public void advance(float delta, FPSCamera cam) {
         if (isMobValid()) {

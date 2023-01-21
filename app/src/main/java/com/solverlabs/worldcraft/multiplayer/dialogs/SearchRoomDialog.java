@@ -2,37 +2,26 @@ package com.solverlabs.worldcraft.multiplayer.dialogs;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 
-import com.solverlabs.worldcraft.factories.DescriptionFactory;
 import com.solverlabs.worldcraft.R;
+import com.solverlabs.worldcraft.factories.DescriptionFactory;
 import com.solverlabs.worldcraft.srv.util.ObjectCodec;
 import com.solverlabs.worldcraft.ui.JoinRoomListAdapter;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
 public class SearchRoomDialog extends Dialog {
+    private final EditText searchText;
     private JoinRoomListAdapter adapterSearch;
     private OnCloseListener onCloseListener;
     private OnRoomClickListener onRoomClickListener;
-    private final EditText searchText;
-
-    public interface OnCloseListener {
-        void onClose();
-    }
-
-    public interface OnRoomClickListener {
-        void onRoomClick(ObjectCodec.RoomPack roomPack);
-    }
 
     public SearchRoomDialog(final Context context) {
         super(context);
@@ -88,7 +77,7 @@ public class SearchRoomDialog extends Dialog {
         roomlist.setOnScrollListener(new JoinRoomListAdapter.JoinRoomOnScrollListener(this.adapterSearch));
     }
 
-    @Override 
+    @Override
     public void show() {
         if (this.adapterSearch != null) {
             this.adapterSearch.clear();
@@ -107,5 +96,13 @@ public class SearchRoomDialog extends Dialog {
 
     public boolean isRoomlistLoading() {
         return this.adapterSearch != null && this.adapterSearch.isRoomlistLoading();
+    }
+
+    public interface OnCloseListener {
+        void onClose();
+    }
+
+    public interface OnRoomClickListener {
+        void onRoomClick(ObjectCodec.RoomPack roomPack);
     }
 }

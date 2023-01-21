@@ -11,19 +11,29 @@ import com.solverlabs.worldcraft.skin.geometry.Parallelepiped;
 
 public class MobTexturePack {
     protected static final float STXTN = 0.0078125f;
+    private static final int DEFAULT_COLOR = Colour.packFloat(0.5f, 0.5f, 0.5f, 1.0f);
+    private static final int SELECTED_COLOR = Colour.packFloat(0.8f, 0.8f, 0.8f, 1.0f);
+    private static final int ATTACKED_COLOR = Colour.packFloat(1.0f, 0.6f, 0.6f, 1.0f);
+    private final Mob mob;
+    private final MobSize mobSize;
+    private final State state;
     private TexturedShape body;
     private TexturedShape head;
     private TexturedShape leftHand;
     private TexturedShape leftLeg;
     private float light;
-    private final Mob mob;
-    private final MobSize mobSize;
     private TexturedShape rightHand;
     private TexturedShape rightLeg;
-    private final State state;
-    private static final int DEFAULT_COLOR = Colour.packFloat(0.5f, 0.5f, 0.5f, 1.0f);
-    private static final int SELECTED_COLOR = Colour.packFloat(0.8f, 0.8f, 0.8f, 1.0f);
-    private static final int ATTACKED_COLOR = Colour.packFloat(1.0f, 0.6f, 0.6f, 1.0f);
+
+    public MobTexturePack(@NonNull Mob mob, State state) {
+        this.mob = mob;
+        this.mobSize = new MobSize(mob.getSize());
+        this.state = state;
+    }
+
+    private static void addFace(@NonNull Parallelepiped facing, float x, float y, float z, Parallelepiped.Face f, float width, float height, int colour, ShapeBuilder shapBuilder) {
+        facing.face(f, x, y, z, width, height, colour, shapBuilder, true);
+    }
 
     public ShapeBuilder createShapeBuilder(Parallelepiped p, int width, int height, int depth, int color) {
         ShapeBuilder shapeBuilder = new ShapeBuilder();
@@ -36,12 +46,6 @@ public class MobTexturePack {
         addFace(p, 0.0f, 0.0f, 0.0f, p.bottom, width, depth, color, shapeBuilder);
         addFace(p, 0.0f, 0.0f, 0.0f, p.top, width, depth, color, shapeBuilder);
         return shapeBuilder;
-    }
-
-    public MobTexturePack(@NonNull Mob mob, State state) {
-        this.mob = mob;
-        this.mobSize = new MobSize(mob.getSize());
-        this.state = state;
     }
 
     public void shiftTc(int xOffset, int yOffset) {
@@ -200,9 +204,5 @@ public class MobTexturePack {
         s.translate(0.0f, this.mobSize.getLegY(), 0.0f);
         s.backup();
         return s;
-    }
-
-    private static void addFace(@NonNull Parallelepiped facing, float x, float y, float z, Parallelepiped.Face f, float width, float height, int colour, ShapeBuilder shapBuilder) {
-        facing.face(f, x, y, z, width, height, colour, shapBuilder, true);
     }
 }

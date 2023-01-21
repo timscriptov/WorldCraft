@@ -11,35 +11,27 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.solverlabs.worldcraft.factories.DescriptionFactory;
 import com.solverlabs.worldcraft.R;
+import com.solverlabs.worldcraft.factories.DescriptionFactory;
 import com.solverlabs.worldcraft.multiplayer.util.TextUtils;
 import com.solverlabs.worldcraft.util.KeyboardUtils;
+
 import java.io.File;
 import java.util.Collection;
 
 public class CreateRoomDialog extends Dialog {
     public static final int MAX_ROOM_NAME_LENGTH = 16;
     public static final int MAX_ROOM_PASSWORD_LENGTH = 16;
-    private OnCancelClickListener onCancelClickListener;
-    private OnCreateRoomClickListener onCreateRoomClickListener;
     private final CheckBox readOnlyCheckBox;
     private final EditText roomNameEditText;
     private final EditText roomPasswordEditText;
+    private OnCancelClickListener onCancelClickListener;
+    private OnCreateRoomClickListener onCreateRoomClickListener;
     private String worldName;
-
-    public interface OnCancelClickListener {
-        void onCancelClick();
-    }
-
-    public interface OnCreateRoomClickListener {
-        void onCreateRoomClick(String str, String str2, String str3, boolean z);
-    }
 
     public CreateRoomDialog(Context context, Collection<File> worlds) {
         super(context);
@@ -129,5 +121,13 @@ public class CreateRoomDialog extends Dialog {
         if (this.onCancelClickListener != null) {
             this.onCancelClickListener.onCancelClick();
         }
+    }
+
+    public interface OnCancelClickListener {
+        void onCancelClick();
+    }
+
+    public interface OnCreateRoomClickListener {
+        void onCreateRoomClick(String str, String str2, String str3, boolean z);
     }
 }

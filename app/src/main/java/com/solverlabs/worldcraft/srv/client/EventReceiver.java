@@ -3,12 +3,12 @@ package com.solverlabs.worldcraft.srv.client;
 import androidx.annotation.NonNull;
 
 import com.solverlabs.worldcraft.client.common.EventQueue;
-import com.solverlabs.worldcraft.mob.MobFactory;
 import com.solverlabs.worldcraft.srv.common.WorldCraftGameEvent;
 import com.solverlabs.worldcraft.srv.domain.Camera;
 import com.solverlabs.worldcraft.srv.domain.Player;
 import com.solverlabs.worldcraft.srv.domain.Room;
 import com.solverlabs.worldcraft.srv.util.ObjectCodec;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,9 +16,9 @@ import java.util.List;
 import java.util.Map;
 
 public class EventReceiver {
+    private final NetworkChecker networkChecker;
     private Map<List<Short>, Room.BlockData> blocks;
     private EventReceiverListener listener;
-    private final NetworkChecker networkChecker;
     private int receivedBlockPackets;
     private int receivedRoomByPlayerNumberPackets;
     private int receivedRoomByRatingPackets;

@@ -17,20 +17,20 @@ public class BadWord {
         return this.id;
     }
 
-    public String getReplacement() {
-        return this.replacement;
-    }
-
-    public String getWord() {
-        return this.word;
-    }
-
     public void setId(long j) {
         this.id = j;
     }
 
+    public String getReplacement() {
+        return this.replacement;
+    }
+
     public void setReplacement(String str) {
         this.replacement = str;
+    }
+
+    public String getWord() {
+        return this.word;
     }
 
     public void setWord(String str) {

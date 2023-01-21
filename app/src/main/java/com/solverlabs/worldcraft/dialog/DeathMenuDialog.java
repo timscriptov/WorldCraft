@@ -1,16 +1,16 @@
 package com.solverlabs.worldcraft.dialog;
 
 import android.app.Dialog;
-import android.view.View;
 import android.widget.Button;
+
 import com.solverlabs.worldcraft.Player;
-import com.solverlabs.worldcraft.activity.WorldCraftActivity;
 import com.solverlabs.worldcraft.R;
+import com.solverlabs.worldcraft.activity.WorldCraftActivity;
 
 public class DeathMenuDialog {
     private final WorldCraftActivity activity;
-    private Dialog dialog;
     private final Player player;
+    private Dialog dialog;
 
     public DeathMenuDialog(WorldCraftActivity activity, Player player) {
         this.activity = activity;

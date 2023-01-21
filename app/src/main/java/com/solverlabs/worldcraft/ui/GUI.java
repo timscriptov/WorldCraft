@@ -2,6 +2,7 @@ package com.solverlabs.worldcraft.ui;
 
 import android.opengl.GLES10;
 import android.util.Log;
+
 import com.solverlabs.droid.rugl.Game;
 import com.solverlabs.droid.rugl.gl.GLUtil;
 import com.solverlabs.droid.rugl.gl.StackedRenderer;
@@ -18,23 +19,32 @@ import com.solverlabs.droid.rugl.util.FPSCamera;
 import com.solverlabs.droid.rugl.util.geom.Vector3i;
 import com.solverlabs.worldcraft.GameMode;
 import com.solverlabs.worldcraft.Player;
+import com.solverlabs.worldcraft.R;
 import com.solverlabs.worldcraft.World;
 import com.solverlabs.worldcraft.blockentity.BlockEntityPainter;
 import com.solverlabs.worldcraft.entity_menu.ChestMenu;
 import com.solverlabs.worldcraft.entity_menu.FurnaceMenu;
-import com.solverlabs.worldcraft.R;
 import com.solverlabs.worldcraft.mob.MobPainter;
 import com.solverlabs.worldcraft.multiplayer.Multiplayer;
+
 import java.util.ArrayList;
 
 public class GUI {
-    private static final String BAN_PLAYER = "Ban Player";
     public static final int HEIGHT = 480;
-    private static final String REPORT_ABUSE = "Report Abuse";
     public static final int WIDTH = 800;
-    private static Font font = null;
+    private static final String BAN_PLAYER = "Ban Player";
+    private static final String REPORT_ABUSE = "Report Abuse";
     private static final float radius = 50.0f;
     private static final float size = 150.0f;
+    private static Font font = null;
+    public final TouchStickArea left = new TouchStickArea(0.0f, 0.0f, size, size, radius);
+    public final TouchStickArea right = new TouchStickArea(160.0f, 75.0f, 650.0f, 405.0f, 400.0f);
+    public final TapPad blockMenuTap = new TapPad(570.0f, 0.0f, 100.0f, 90.0f);
+    private final Game game;
+    private final Player player;
+    private final World world;
+    private final ArrayList<Touch.TouchListener> widgets = new ArrayList<>();
+    private final StackedRenderer r = new StackedRenderer();
     public ChatBox chatBox;
     public ImageSwitcherTapPad chatSwitcherTap;
     public TapPad.Listener chatSwitcherTapListener;
@@ -48,7 +58,6 @@ public class GUI {
     public TapPad.Listener exitTapListener;
     public FoodBar foodBar;
     public FurnaceMenu furnaceMenu;
-    private final Game game;
     public Hand hand;
     public HealthBar healthBar;
     public Hotbar hotbar;
@@ -58,19 +67,12 @@ public class GUI {
     public CustomTapPad leaveBedTap;
     public TapPad.Listener leaveBedTapListener;
     public CustomTapPad menuTap;
-    private TextShape notification;
-    private final Player player;
     public CustomTapPad reportAbuseTap;
     public TapPad.Listener reportAbuseTapListener;
     public TapPad.Listener selectBlocksListener;
     public SleepBar sleepBar;
+    private TextShape notification;
     private Touch.TouchListener touchListener;
-    private final World world;
-    public final TouchStickArea left = new TouchStickArea(0.0f, 0.0f, size, size, radius);
-    public final TouchStickArea right = new TouchStickArea(160.0f, 75.0f, 650.0f, 405.0f, 400.0f);
-    public final TapPad blockMenuTap = new TapPad(570.0f, 0.0f, 100.0f, 90.0f);
-    private final ArrayList<Touch.TouchListener> widgets = new ArrayList<>();
-    private final StackedRenderer r = new StackedRenderer();
     private float notifyTime = 0.0f;
 
     public GUI(final Player player, World world, FPSCamera camera, MobPainter mobAggregator, BlockEntityPainter entityPainter, Game game) {
@@ -135,18 +137,22 @@ public class GUI {
                 }
             }
 
-            @Override 
+            @Override
             public void onMove() {
                 interaction.stickTouch = right.getPointer();
             }
 
-            @Override 
+            @Override
             public void onUp() {
                 interaction.stickTouch = null;
             }
         };
         this.right.draw = false;
         this.right.listener = strikeyRight;
+    }
+
+    public static Font getFont() {
+        return font;
     }
 
     private void initWidgets() {
@@ -176,141 +182,141 @@ public class GUI {
     }
 
     private void initListeners() {
-        this.exitTapListener = new TapPad.Listener() { 
-            @Override 
+        this.exitTapListener = new TapPad.Listener() {
+            @Override
             public void onTap(TapPad pad) {
                 if (world != null) {
                     world.showGameMenu();
                 }
             }
 
-            @Override 
+            @Override
             public void onLongPress(TapPad pad) {
             }
 
-            @Override 
+            @Override
             public void onFlick(TapPad pad, int horizontal, int vertical) {
             }
 
-            @Override 
+            @Override
             public void onDoubleTap(TapPad pad) {
             }
         };
-        this.selectBlocksListener = new TapPad.Listener() { 
-            @Override 
+        this.selectBlocksListener = new TapPad.Listener() {
+            @Override
             public void onTap(TapPad pad) {
                 inventoryMenu.show();
             }
 
-            @Override 
+            @Override
             public void onLongPress(TapPad pad) {
             }
 
-            @Override 
+            @Override
             public void onFlick(TapPad pad, int horizontal, int vertical) {
             }
 
-            @Override 
+            @Override
             public void onDoubleTap(TapPad pad) {
             }
         };
-        this.chatTapListener = new TapPad.Listener() { 
-            @Override 
+        this.chatTapListener = new TapPad.Listener() {
+            @Override
             public void onTap(TapPad pad) {
                 if (world != null) {
                     world.showChat();
                 }
             }
 
-            @Override 
+            @Override
             public void onLongPress(TapPad pad) {
             }
 
-            @Override 
+            @Override
             public void onFlick(TapPad pad, int horizontal, int vertical) {
             }
 
-            @Override 
+            @Override
             public void onDoubleTap(TapPad pad) {
             }
         };
-        this.chatSwitcherTapListener = new TapPad.Listener() { 
-            @Override 
+        this.chatSwitcherTapListener = new TapPad.Listener() {
+            @Override
             public void onTap(TapPad pad) {
                 chatSwitcherTap.switchState();
                 chatBox.setVisible(!chatSwitcherTap.isOn());
             }
 
-            @Override 
+            @Override
             public void onLongPress(TapPad pad) {
             }
 
-            @Override 
+            @Override
             public void onFlick(TapPad pad, int horizontal, int vertical) {
             }
 
-            @Override 
+            @Override
             public void onDoubleTap(TapPad pad) {
             }
         };
-        this.reportAbuseTapListener = new TapPad.Listener() { 
-            @Override 
+        this.reportAbuseTapListener = new TapPad.Listener() {
+            @Override
             public void onTap(TapPad pad) {
                 if (world != null) {
                     world.showReportAbuse();
                 }
             }
 
-            @Override 
+            @Override
             public void onLongPress(TapPad pad) {
             }
 
-            @Override 
+            @Override
             public void onFlick(TapPad pad, int horizontal, int vertical) {
             }
 
-            @Override 
+            @Override
             public void onDoubleTap(TapPad pad) {
             }
         };
-        this.leaveBedTapListener = new TapPad.Listener() { 
-            @Override 
+        this.leaveBedTapListener = new TapPad.Listener() {
+            @Override
             public void onTap(TapPad pad) {
                 player.setKeptDownAt(0L);
             }
 
-            @Override 
+            @Override
             public void onLongPress(TapPad pad) {
             }
 
-            @Override 
+            @Override
             public void onFlick(TapPad pad, int horizontal, int vertical) {
             }
 
-            @Override 
+            @Override
             public void onDoubleTap(TapPad pad) {
             }
         };
-        this.craftTapListener = new TapPad.Listener() { 
-            @Override 
+        this.craftTapListener = new TapPad.Listener() {
+            @Override
             public void onTap(TapPad pad) {
                 showCraftMenu(false);
             }
 
-            @Override 
+            @Override
             public void onLongPress(TapPad pad) {
             }
 
-            @Override 
+            @Override
             public void onFlick(TapPad pad, int horizontal, int vertical) {
             }
 
-            @Override 
+            @Override
             public void onDoubleTap(TapPad pad) {
             }
         };
-        this.touchListener = new Touch.TouchListener() { 
-            @Override 
+        this.touchListener = new Touch.TouchListener() {
+            @Override
             public void pointerRemoved(Touch.Pointer p) {
                 for (int i = 0; i < widgets.size(); i++) {
                     widgets.get(i).pointerRemoved(p);
@@ -318,7 +324,7 @@ public class GUI {
                 }
             }
 
-            @Override 
+            @Override
             public boolean pointerAdded(Touch.Pointer p) {
                 boolean eaten = false;
                 for (int i = 0; i < widgets.size() && !eaten; i++) {
@@ -327,7 +333,7 @@ public class GUI {
                 return false;
             }
 
-            @Override 
+            @Override
             public void reset() {
                 for (int i = 0; i < widgets.size(); i++) {
                     widgets.get(i).reset();
@@ -337,8 +343,8 @@ public class GUI {
     }
 
     private void loadFont() {
-        ResourceLoader.loadNow(new FontLoader(R.raw.font, false) { 
-            @Override 
+        ResourceLoader.loadNow(new FontLoader(R.raw.font, false) {
+            @Override
             public void fontLoaded() {
                 GUI.font = this.resource;
             }
@@ -482,9 +488,5 @@ public class GUI {
     public void showChestMenu(Vector3i pos) {
         this.chestMenu.setChest(this.world.getChest(pos));
         this.chestMenu.showOrHide();
-    }
-
-    public static Font getFont() {
-        return font;
     }
 }

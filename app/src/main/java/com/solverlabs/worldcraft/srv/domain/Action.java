@@ -36,28 +36,28 @@ public class Action {
         return this.createdAt;
     }
 
-    public long getId() {
-        return this.id;
-    }
-
-    public long getRecordId() {
-        return this.recordId;
-    }
-
-    public int getType() {
-        return this.type;
-    }
-
     public void setCreatedAt(long j) {
         this.createdAt = j;
+    }
+
+    public long getId() {
+        return this.id;
     }
 
     public void setId(long j) {
         this.id = j;
     }
 
+    public long getRecordId() {
+        return this.recordId;
+    }
+
     public void setRecordId(long j) {
         this.recordId = j;
+    }
+
+    public int getType() {
+        return this.type;
     }
 
     public void setType(String str) {

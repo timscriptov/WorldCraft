@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import com.solverlabs.droid.rugl.util.FloatMath;
 import com.solverlabs.droid.rugl.util.geom.Vector3f;
 import com.solverlabs.droid.rugl.util.geom.Vector3i;
+
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 

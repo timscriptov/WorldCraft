@@ -20,22 +20,24 @@ import com.solverlabs.worldcraft.factories.BlockFactory;
 import com.solverlabs.worldcraft.factories.ItemFactory;
 import com.solverlabs.worldcraft.util.RandomUtil;
 
-import org.jetbrains.annotations.Contract;
-
 import java.util.Random;
 
 public class BlockParticle {
+    private static final float sxtn = 0.0625f;
+    private static final long ACTIVE_PERIOD = 400;
+    private static final int MAX_TIME_DELAY = 500;
+    private static final int[] EXPLOSION_SHAPE_COORDS = {2, 11, 3, 11, 4, 11, 5, 11, 2, 12, 3, 12, 4, 12, 5, 12, 2, 13, 3, 13, 4, 13, 5, 13, 2, 14, 3, 14, 4, 14, 5, 14};
+    private static final Random random = new Random(System.currentTimeMillis());
     private static ColouredShape blockColouredShape = null;
     private static State blockState = null;
     private static ColouredShape itemColouredShape = null;
     private static State itemState = null;
-    private static final float sxtn = 0.0625f;
     private final BlockFactory.WorldSide blockSide;
     private final long createTime;
     private final int horizontalOffsetSign;
+    float[] itc;
     private boolean isExplosion;
     private boolean isOrtho2D;
-    float[] itc;
     private boolean moveUp;
     private float scale;
     private long timeDelay;
@@ -46,20 +48,6 @@ public class BlockParticle {
     private float yOffset;
     private float z;
     private float zOffset;
-    private static final long ACTIVE_PERIOD = 400;
-    private static final int MAX_TIME_DELAY = 500;
-    private static final int[] EXPLOSION_SHAPE_COORDS = {2, 11, 3, 11, 4, 11, 5, 11, 2, 12, 3, 12, 4, 12, 5, 12, 2, 13, 3, 13, 4, 13, 5, 13, 2, 14, 3, 14, 4, 14, 5, 14};
-    private static final Random random = new Random(System.currentTimeMillis());
-
-    public static void init() {
-        blockState = GLUtil.typicalState.with(MinFilter.NEAREST, MagFilter.NEAREST);
-        blockState = BlockFactory.texture.applyTo(blockState);
-        itemState = GLUtil.typicalState.with(MinFilter.NEAREST, MagFilter.NEAREST);
-        itemState = BlockFactory.texture.applyTo(itemState);
-        Shape shape = ShapeUtil.filledQuad(0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
-        blockColouredShape = new ColouredShape(shape, Colour.packFloat(0.9f, 0.9f, 0.9f, 0.9f), blockState);
-        itemColouredShape = new ColouredShape(shape, Colour.packFloat(0.9f, 0.9f, 0.9f, 0.9f), itemState);
-    }
 
     public BlockParticle(byte blockID, float x, float y, float z, BlockFactory.WorldSide blockSide) {
         this(blockID, x, y, z, blockSide, false);
@@ -90,6 +78,16 @@ public class BlockParticle {
             this.ts = new TexturedShape(itemColouredShape, this.itc, ItemFactory.itemTexture);
         }
         this.horizontalOffsetSign = random.nextBoolean() ? 1 : -1;
+    }
+
+    public static void init() {
+        blockState = GLUtil.typicalState.with(MinFilter.NEAREST, MagFilter.NEAREST);
+        blockState = BlockFactory.texture.applyTo(blockState);
+        itemState = GLUtil.typicalState.with(MinFilter.NEAREST, MagFilter.NEAREST);
+        itemState = BlockFactory.texture.applyTo(itemState);
+        Shape shape = ShapeUtil.filledQuad(0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
+        blockColouredShape = new ColouredShape(shape, Colour.packFloat(0.9f, 0.9f, 0.9f, 0.9f), blockState);
+        itemColouredShape = new ColouredShape(shape, Colour.packFloat(0.9f, 0.9f, 0.9f, 0.9f), itemState);
     }
 
     private void initOffsets(byte blockID) {

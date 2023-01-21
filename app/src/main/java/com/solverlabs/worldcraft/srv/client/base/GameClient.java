@@ -15,41 +15,36 @@ import com.solverlabs.worldcraft.srv.common.WorldCraftGameEvent;
 import com.solverlabs.worldcraft.srv.domain.PlayerDefault;
 import com.solverlabs.worldcraft.srv.log.WcLog;
 import com.solverlabs.worldcraft.srv.util.UsefullGameEvents;
-import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.util.concurrent.Executors;
+
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.jboss.netty.util.HashedWheelTimer;
 
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.util.concurrent.Executors;
+
 public abstract class GameClient implements Runnable, NIOEventReader.OnEventReaderStartedListener {
     protected static final ByteBuffer WRITE_BUFFER = ByteBuffer.allocate(Globals.MAX_EVENT_SIZE);
     protected static final WcLog log = WcLog.getLogger("GameClient");
-    private ClientBootstrap bootstrap;
-    private ClientHandler clientHandler;
     protected NIOEventReader.OnEventReaderStartedListener eventReaderStartedListener;
     protected ConnectionListener gameListener;
     protected EventQueue inQueue;
-    private long lastUsefullEventSentAt;
-    private Channel nettyChannel;
     protected NetworkChecker networkChecker;
     protected EventQueue outQueue;
     protected EventReceiver receiver;
     protected boolean running = true;
     protected String serverName;
+    private ClientBootstrap bootstrap;
+    private ClientHandler clientHandler;
+    private long lastUsefullEventSentAt;
+    private Channel nettyChannel;
     private HashedWheelTimer timer;
-
-    public interface ConnectionListener {
-        void onConnectionEstablished();
-
-        void onConnectionFailed(String str, Throwable th);
-    }
 
     public void connect() {
         this.timer = new HashedWheelTimer();
@@ -163,13 +158,13 @@ public abstract class GameClient implements Runnable, NIOEventReader.OnEventRead
         this.outQueue = new EventQueue("GameClient-out");
         this.serverName = str;
         this.networkChecker = new NetworkChecker();
-        this.networkChecker.setListener(new NetworkChecker.NetworkCheckListener() { 
-            @Override 
+        this.networkChecker.setListener(new NetworkChecker.NetworkCheckListener() {
+            @Override
             public void connectionLost() {
                 errorOccurs("Connection lost", null);
             }
 
-            @Override 
+            @Override
             public void sendPingRequest() {
                 ping();
             }
@@ -180,12 +175,12 @@ public abstract class GameClient implements Runnable, NIOEventReader.OnEventRead
 
     protected abstract void onConnectionLost(String str, Throwable th);
 
-    @Override 
+    @Override
     public void onEventReaderErrorOccurs(String str, Exception exc) {
         errorOccurs(str, exc);
     }
 
-    @Override 
+    @Override
     public void onEventReaderListenerStarted() {
         if (this.gameListener != null) {
             this.gameListener.onConnectionEstablished();
@@ -194,7 +189,7 @@ public abstract class GameClient implements Runnable, NIOEventReader.OnEventRead
 
     protected abstract void ping();
 
-    @Override 
+    @Override
     public void run() {
         while (this.running) {
             writeOutgoingEvents();
@@ -237,5 +232,11 @@ public abstract class GameClient implements Runnable, NIOEventReader.OnEventRead
         } else {
             connectionLost();
         }
+    }
+
+    public interface ConnectionListener {
+        void onConnectionEstablished();
+
+        void onConnectionFailed(String str, Throwable th);
     }
 }

@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 
 import com.solverlabs.worldcraft.material.Material;
 import com.solverlabs.worldcraft.util.RandomUtil;
+
 import java.util.HashMap;
 
 public class SoundManager {
@@ -20,12 +21,12 @@ public class SoundManager {
     private static final float NORMAL_VOLUME = 1.0f;
     private static final float STEP_BLOCK_SPEED = 1.0f;
     private static final float STEP_BLOCK_VOLUME = 0.1f;
+    private static final HashMap<Material, int[]> materialSounds = new HashMap<>();
     private static AudioManager mAudioManager;
     @SuppressLint("StaticFieldLeak")
     private static Context mContext;
     private static SoundPool mSoundPool;
     private static HashMap<Integer, Integer> mSoundPoolMap;
-    private static final HashMap<Material, int[]> materialSounds = new HashMap<>();
     private static boolean isSoundEnabled = true;
 
     private SoundManager() {
@@ -112,13 +113,13 @@ public class SoundManager {
         }
     }
 
+    public static boolean isSoundEnabled() {
+        return isSoundEnabled;
+    }
+
     public static void setSoundEnabled(boolean isSoundEnabled2) {
         isSoundEnabled = isSoundEnabled2;
         Persistence.getInstance().setSoundEnabled(isSoundEnabled2);
-    }
-
-    public static boolean isSoundEnabled() {
-        return isSoundEnabled;
     }
 
     public static void cleanup() {

@@ -5,13 +5,13 @@ import com.solverlabs.worldcraft.srv.log.WcLog;
 
 public abstract class Wrap implements Runnable, EventHandler {
     protected static final long WORKER_SLEEP_MILLIS = 10;
+    private final Object countLock = new Object();
     protected EventQueue eventQueue;
     protected WcLog log;
+    protected boolean running = false;
     private String shortname;
     private int spareCount;
     private Thread[] workers;
-    protected boolean running = false;
-    private final Object countLock = new Object();
 
     public void handleEvent(WorldCraftGameEvent worldCraftGameEvent) {
         this.eventQueue.enQueue(worldCraftGameEvent);

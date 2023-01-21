@@ -61,68 +61,68 @@ import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 
 public class World {
+    public static final String LEVEL_DAT_FILE_NAME = "level.dat";
+    public static final int LOADED_CHUNK_COUNT_FOR_WORLD_READY = 24;
+    public static final int MAP_SIZE = 3;
+    public static final String REGION_DIR_NAME = "region";
     private static final int DAY_PHASE = 0;
     private static final long DAY_TIME_PERIOD = 600000;
     private static final long ECLIPSE_TIME_PERIOD = 90000;
     private static final long FULL_DAY_TIME_PERIOD = 1200000;
-    public static final String LEVEL_DAT_FILE_NAME = "level.dat";
-    public static final int LOADED_CHUNK_COUNT_FOR_WORLD_READY = 24;
     private static final int LOADING_LIMIT_ON_MAP_CREATE = 148;
-    public static final int MAP_SIZE = 3;
     private static final int NIGHT_PHASE = 2;
     private static final long NIGHT_TIME_PERIOD = 420000;
     private static final long PARTICLE_PERIOD = 80;
-    public static final String REGION_DIR_NAME = "region";
     private static final int SUN_DOWN_PHASE = 1;
     private static final int SUN_UP_PHASE = 3;
-    private Furnace activeFurnace;
-    private BlockEntityPainter blockEntityPainter;
-    private ColouredShape blockPreviewShape;
-    public BreakingShape breakingShape;
-    public int chunkPosX;
-    public int chunkPosZ;
-    public File dir;
-    private long eclipseTime;
-    public boolean isCancelLoad;
-    private boolean isChunksInited;
-    private long lastSavedAt;
-    private final Tag levelTag;
-    private int mapType;
-    public Player player;
-    private Vector3f playerPos;
-    public final ReadableVector3f startPosition;
-    public static int renderedChunklets = 0;
     private static final ChunkSorter cs = new ChunkSorter();
-    private int loadedChunkCount = 0;
-    public boolean drawOutlines = false;
-    public boolean drawEnemies = true;
+    public static int renderedChunklets = 0;
+    public final ReadableVector3f startPosition;
+    private final Tag levelTag;
     private final StackedRenderer renderer = new StackedRenderer();
-    public int loadradius = 3;
-    public Chunk[][] chunks = (Chunk[][]) Array.newInstance(Chunk.class, 7, 7);
     private final Queue<Chunklet> floodQueue = new ArrayBlockingQueue<>(50);
-    private Chunklet[] renderList = new Chunklet[64];
-    private int renderListSize = 0;
-    private int drawFlag = Integer.MIN_VALUE;
-    private boolean blockPreview = false;
     private final Vector3i blockPreviewLocation = new Vector3i();
-    public boolean isNewGame = false;
     private final LightProcessor lightProcessor = new LightProcessor(this);
     private final TreeDecorator treeDecorator = new TreeDecorator();
     private final ArrayList<DroppableItem> droppableItems = new ArrayList<>();
     private final ArrayList<BlockParticle> blockParticles = new ArrayList<>();
-    private int sunlight = 15;
     private final ArrayList<TileEntity> tileEntitiesList = new ArrayList<>();
     private final Vector3f playerNormPosition = new Vector3f();
     private final Vector3f playerSpawnPosition = new Vector3f();
     private final List<Runnable> onInitedRunnableList = new ArrayList<>();
-    private long lastParticleTime = System.currentTimeMillis();
     private final BaseTerrainGenerator generator = new StandardGenerationMethod();
+    public BreakingShape breakingShape;
+    public int chunkPosX;
+    public int chunkPosZ;
+    public File dir;
+    public boolean isCancelLoad;
+    public Player player;
+    public boolean drawOutlines = false;
+    public boolean drawEnemies = true;
+    public int loadradius = 3;
+    public Chunk[][] chunks = (Chunk[][]) Array.newInstance(Chunk.class, 7, 7);
+    public boolean isNewGame = false;
+    private Furnace activeFurnace;
+    private BlockEntityPainter blockEntityPainter;
+    private ColouredShape blockPreviewShape;
+    private long eclipseTime;
+    private boolean isChunksInited;
+    private long lastSavedAt;
+    private int mapType;
+    private Vector3f playerPos;
+    private int loadedChunkCount = 0;
+    private Chunklet[] renderList = new Chunklet[64];
     private final Game.SurfaceListener surfaceListener = new Game.SurfaceListener() {
         @Override
         public void onSurfaceCreated() {
             loadChunkCache();
         }
     };
+    private int renderListSize = 0;
+    private int drawFlag = Integer.MIN_VALUE;
+    private boolean blockPreview = false;
+    private int sunlight = 15;
+    private long lastParticleTime = System.currentTimeMillis();
 
     public World(File dir, @NonNull Vector3f startPosition, Tag levelTag) {
         this.isCancelLoad = false;
@@ -133,6 +133,13 @@ public class World {
         this.chunkPosX = (int) Math.floor(startPosition.getX() / 16.0f);
         this.chunkPosZ = (int) Math.floor(startPosition.getZ() / 16.0f);
         Game.addSurfaceLIstener(this.surfaceListener);
+    }
+
+    public static int getLoadingLimit(boolean isNewGame) {
+        if (isNewGame) {
+            return LOADING_LIMIT_ON_MAP_CREATE;
+        }
+        return 24;
     }
 
     protected void setInited(boolean value) {
@@ -165,13 +172,6 @@ public class World {
         this.blockPreviewShape = new ColouredShape(ShapeUtil.cuboid(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f), Colour.packFloat(1.0f, 1.0f, 1.0f, 0.3f), ShapeUtil.state);
         this.breakingShape = new BreakingShape();
         save();
-    }
-
-    public static int getLoadingLimit(boolean isNewGame) {
-        if (isNewGame) {
-            return LOADING_LIMIT_ON_MAP_CREATE;
-        }
-        return 24;
     }
 
     public void loadChunkCache() {
@@ -1022,21 +1022,6 @@ public class World {
         return this.loadradius;
     }
 
-    public static class ChunkSorter implements Comparator<Chunklet> {
-        private final Vector3f eye;
-
-        private ChunkSorter() {
-            this.eye = new Vector3f();
-        }
-
-        @Override
-        public int compare(@NonNull Chunklet a, @NonNull Chunklet b) {
-            float ad = a.distanceSq(this.eye.x, this.eye.y, this.eye.z);
-            float bd = b.distanceSq(this.eye.x, this.eye.y, this.eye.z);
-            return (int) Math.signum(ad - bd);
-        }
-    }
-
     public void clearCache() {
         for (int i = 0; i < this.chunks.length; i++) {
             for (int j = 0; j < this.chunks[i].length; j++) {
@@ -1119,10 +1104,6 @@ public class World {
         this.lightProcessor.lightChunk(c);
     }
 
-    public void setMapType(int mapType) {
-        this.mapType = mapType;
-    }
-
     public boolean isCancelLoad() {
         return this.isCancelLoad;
     }
@@ -1183,6 +1164,10 @@ public class World {
 
     public int getMapType() {
         return this.mapType;
+    }
+
+    public void setMapType(int mapType) {
+        this.mapType = mapType;
     }
 
     public Furnace getFurnace(@NonNull Vector3i vec) {
@@ -1342,5 +1327,20 @@ public class World {
 
     public void activateTNT(Vector3f targetBlockLocation, TNTBlock.DetonationDelayType detonationType, boolean removeBlock) {
         activateTNT(new Vector3i(targetBlockLocation), detonationType, removeBlock);
+    }
+
+    public static class ChunkSorter implements Comparator<Chunklet> {
+        private final Vector3f eye;
+
+        private ChunkSorter() {
+            this.eye = new Vector3f();
+        }
+
+        @Override
+        public int compare(@NonNull Chunklet a, @NonNull Chunklet b) {
+            float ad = a.distanceSq(this.eye.x, this.eye.y, this.eye.z);
+            float bd = b.distanceSq(this.eye.x, this.eye.y, this.eye.z);
+            return (int) Math.signum(ad - bd);
+        }
     }
 }

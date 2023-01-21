@@ -11,36 +11,36 @@ import com.solverlabs.worldcraft.SkinFactory;
 import com.solverlabs.worldcraft.skin.geometry.Parallelepiped;
 
 public class SkinGeometryGenerator {
-    private static final int BLOCKS_IN_TEXTURE = 16;
     public static final float BLOCK_SIZE = 0.125f;
+    public static final float HALF_OF_PI = 1.5707964f;
+    public static final int HAND_HEIGHT = 3;
+    public static final int LEG_HEIGHT = 3;
+    public static final float ONE_AND_HALF_OF_PI = 4.712389f;
+    public static final int SKIN_COUNT = 20;
+    public static final float ZOOM = 1.5f;
+    private static final int BLOCKS_IN_TEXTURE = 16;
     private static final int BODY_DEPTH = 1;
     private static final int BODY_HEIGHT = 3;
     private static final int BODY_WIDTH = 2;
-    public static final float HALF_OF_PI = 1.5707964f;
     private static final int HAND_DEPTH = 1;
-    public static final int HAND_HEIGHT = 3;
     private static final int HAND_WIDTH = 1;
     private static final int HEAD_DEPTH = 2;
     private static final int HEAD_HEIGHT = 2;
     private static final int HEAD_WIDTH = 2;
     private static final int LEG_DEPTH = 1;
-    public static final int LEG_HEIGHT = 3;
     private static final int LEG_WIDTH = 1;
-    public static final float ONE_AND_HALF_OF_PI = 4.712389f;
-    public static final int SKIN_COUNT = 20;
     private static final float STXTN = 0.015625f;
     private static final int TEXTURE_COORD_COUNT = 12;
-    public static final float ZOOM = 1.5f;
-    private static TexturedShape[] bodyShape;
-    private static TexturedShape[] handShape;
-    private static TexturedShape[] headShape;
-    private static TexturedShape[] legShape;
-    private static TexturedShape playerHandShape;
     private static final int COLOR = Colour.packFloat(0.5f, 0.5f, 0.5f, 1.0f);
     private static final int[] headTc = {4, 2, 0, 2, 2, 2, 6, 2, 2, 0, 4, 0};
     private static final int[] bodyTc = {9, 5, 4, 5, 5, 5, 7, 5, 5, 4, 7, 4};
     private static final int[] handTc = {13, 5, 10, 5, 11, 5, 12, 5, 11, 4, 12, 4};
     private static final int[] legTc = {3, 5, 0, 5, 1, 5, 2, 5, 1, 4, 2, 4};
+    private static TexturedShape[] bodyShape;
+    private static TexturedShape[] handShape;
+    private static TexturedShape[] headShape;
+    private static TexturedShape[] legShape;
+    private static TexturedShape playerHandShape;
 
     public static void init() {
         headShape = new TexturedShape[20];

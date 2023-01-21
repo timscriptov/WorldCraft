@@ -8,8 +8,6 @@ import com.solverlabs.droid.rugl.gl.enums.MinFilter;
 import com.solverlabs.droid.rugl.gl.facets.Fog;
 import com.solverlabs.droid.rugl.res.BitmapLoader;
 import com.solverlabs.droid.rugl.res.ResourceLoader;
-import com.solverlabs.droid.rugl.texture.BitmapImage;
-import com.solverlabs.droid.rugl.texture.Image;
 import com.solverlabs.droid.rugl.texture.Texture;
 import com.solverlabs.droid.rugl.texture.TextureFactory;
 import com.solverlabs.droid.rugl.util.Colour;

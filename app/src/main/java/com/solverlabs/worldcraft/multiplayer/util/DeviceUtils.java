@@ -5,7 +5,9 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
+
 import com.solverlabs.worldcraft.factories.DescriptionFactory;
+
 import java.util.UUID;
 
 public class DeviceUtils {

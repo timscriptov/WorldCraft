@@ -12,12 +12,12 @@ import com.solverlabs.droid.rugl.util.Colour;
 public class CustomTapPad extends TapPad {
     private final Font font;
     private final float height;
-    private ColouredShape outlineBlack;
-    private ColouredShape outlineWhite;
-    private TextShape textShape;
     private final float width;
     private final float x;
     private final float y;
+    private ColouredShape outlineBlack;
+    private ColouredShape outlineWhite;
+    private TextShape textShape;
 
     public CustomTapPad(float x, float y, float width, float height, Font font, String text) {
         this(x, y, width, height, font, text, false);

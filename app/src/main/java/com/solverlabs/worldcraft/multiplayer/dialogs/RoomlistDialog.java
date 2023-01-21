@@ -3,29 +3,29 @@ package com.solverlabs.worldcraft.multiplayer.dialogs;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 
 import com.solverlabs.droid.rugl.util.WorldUtils;
+import com.solverlabs.worldcraft.R;
 import com.solverlabs.worldcraft.activity.OptionActivity;
 import com.solverlabs.worldcraft.factories.DescriptionFactory;
-import com.solverlabs.worldcraft.R;
-import com.solverlabs.worldcraft.multiplayer.dialogs.SearchRoomDialog;
 import com.solverlabs.worldcraft.srv.util.ObjectCodec;
 import com.solverlabs.worldcraft.ui.JoinRoomListAdapter;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
 public class RoomlistDialog extends Dialog {
+    private final ListView roomListRatingView;
+    private final ListView roomListReadOnly;
+    private final ListView roomListUsersView;
     private JoinRoomListAdapter adapterPlayerNumber;
     private JoinRoomListAdapter adapterRating;
     private JoinRoomListAdapter adapterReadOnly;
@@ -34,33 +34,8 @@ public class RoomlistDialog extends Dialog {
     private OnRefreshClickListener onRefreshClickListener;
     private OnRoomClickListener onRoomClickListener;
     private AlertDialog passwordDialog;
-    private final ListView roomListRatingView;
-    private final ListView roomListReadOnly;
-    private final ListView roomListUsersView;
     private ObjectCodec.RoomPack roomPack;
     private SearchRoomDialog searchRoomDialog;
-
-    /* loaded from: classes.dex */
-    public interface OnCancelClickListener {
-        void onCancelClick();
-    }
-
-    /* loaded from: classes.dex */
-    public interface OnCreateRoomClickListener {
-        void noCreativeModeWorlds();
-
-        void onCreateRoomClick();
-    }
-
-    /* loaded from: classes.dex */
-    public interface OnRefreshClickListener {
-        void onRefreshClick();
-    }
-
-    /* loaded from: classes.dex */
-    public interface OnRoomClickListener {
-        void onRoomClick(ObjectCodec.RoomPack roomPack);
-    }
 
     public RoomlistDialog(Context context) {
         super(context);
@@ -152,12 +127,12 @@ public class RoomlistDialog extends Dialog {
         }
     }
 
-    @Override 
+    @Override
     public void show() {
         super.show();
     }
 
-    @Override 
+    @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == 4) {
             onCancel();
@@ -215,7 +190,7 @@ public class RoomlistDialog extends Dialog {
         }
     }
 
-    @Override 
+    @Override
     public void dismiss() {
         if (this.passwordDialog != null) {
             this.passwordDialog.dismiss();
@@ -224,5 +199,27 @@ public class RoomlistDialog extends Dialog {
             this.searchRoomDialog.dismiss();
         }
         super.dismiss();
+    }
+
+    /* loaded from: classes.dex */
+    public interface OnCancelClickListener {
+        void onCancelClick();
+    }
+
+    /* loaded from: classes.dex */
+    public interface OnCreateRoomClickListener {
+        void noCreativeModeWorlds();
+
+        void onCreateRoomClick();
+    }
+
+    /* loaded from: classes.dex */
+    public interface OnRefreshClickListener {
+        void onRefreshClick();
+    }
+
+    /* loaded from: classes.dex */
+    public interface OnRoomClickListener {
+        void onRoomClick(ObjectCodec.RoomPack roomPack);
     }
 }

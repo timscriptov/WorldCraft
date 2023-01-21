@@ -8,15 +8,25 @@ import com.solverlabs.droid.rugl.text.Font;
 import com.solverlabs.droid.rugl.util.FPSCamera;
 import com.solverlabs.droid.rugl.util.geom.Vector3f;
 import com.solverlabs.worldcraft.multiplayer.Multiplayer;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
 public class CharactersPainter {
     private static final int MAX_ENEMY_COUNT = 100;
     public static Font font;
-    public boolean shouldDraw = true;
     private final StackedRenderer renderer = new StackedRenderer();
     private final Collection<Enemy> enemies = new ArrayList<>(100);
+    public boolean shouldDraw = true;
+
+    public static void loadFont() {
+        ResourceLoader.loadNow(new FontLoader(R.raw.font, false) {
+            @Override
+            public void fontLoaded() {
+                CharactersPainter.font = this.resource;
+            }
+        });
+    }
 
     public void advance(float delta, int worldLoadRadius, FPSCamera cam) {
         Collection<Enemy> enemiesCopy = Multiplayer.getEnemiesCopy();
@@ -59,14 +69,5 @@ public class CharactersPainter {
                 GLUtil.checkGLError();
             }
         }
-    }
-
-    public static void loadFont() {
-        ResourceLoader.loadNow(new FontLoader(R.raw.font, false) {
-            @Override
-            public void fontLoaded() {
-                CharactersPainter.font = this.resource;
-            }
-        });
     }
 }

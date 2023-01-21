@@ -5,7 +5,6 @@ import androidx.annotation.NonNull;
 import com.solverlabs.droid.rugl.util.Colour;
 import com.solverlabs.worldcraft.Player;
 import com.solverlabs.worldcraft.World;
-import com.solverlabs.worldcraft.ui.FadeInOutBar;
 
 public class SleepBar extends FadeInOutBar {
     private static final long FADE_OUT_DURATION = 5000;

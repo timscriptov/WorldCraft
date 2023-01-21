@@ -5,7 +5,6 @@ import com.solverlabs.droid.rugl.geom.ColouredShape;
 import com.solverlabs.droid.rugl.geom.Shape;
 import com.solverlabs.droid.rugl.geom.ShapeUtil;
 import com.solverlabs.droid.rugl.gl.StackedRenderer;
-import com.solverlabs.droid.rugl.gl.State;
 import com.solverlabs.droid.rugl.input.TapPad;
 import com.solverlabs.droid.rugl.input.Touch;
 import com.solverlabs.droid.rugl.util.Colour;
@@ -15,17 +14,13 @@ import com.solverlabs.worldcraft.ui.CustomTapPad;
 import com.solverlabs.worldcraft.ui.GUI;
 
 public abstract class CustomMenu implements Touch.TouchListener {
-    private ColouredShape boundShape;
-    private ColouredShape innerShape;
-    protected Inventory inventory;
-    protected boolean show;
-    protected Touch.Pointer touch;
     protected static final float RATIO_Y = Game.screenHeight / Game.gameHeight;
     protected static final float RATIO_X = Game.screenWidth / Game.gameWidth;
-    public BoundingRectangle bounds = new BoundingRectangle(0.0f, 0.0f, Game.gameWidth, Game.gameHeight);
     private final int innerColour = Colour.packInt(148, 134, 123, 255);
     private final int boundsColour = Colour.packFloat(0.0f, 0.0f, 0.0f, 0.8f);
-    protected CustomTapPad exitTap = new CustomTapPad(Game.gameWidth - 68.0f, Game.gameHeight - 68.0f, 60.0f, 60.0f, GUI.getFont(), "X");
+    public BoundingRectangle bounds = new BoundingRectangle(0.0f, 0.0f, Game.gameWidth, Game.gameHeight);
+    protected Inventory inventory;
+    protected boolean show;
     private final TapPad.Listener exitTapListener = new TapPad.Listener() {
         @Override
         public void onTap(TapPad pad) {
@@ -44,6 +39,10 @@ public abstract class CustomMenu implements Touch.TouchListener {
         public void onDoubleTap(TapPad pad) {
         }
     };
+    protected Touch.Pointer touch;
+    protected CustomTapPad exitTap = new CustomTapPad(Game.gameWidth - 68.0f, Game.gameHeight - 68.0f, 60.0f, 60.0f, GUI.getFont(), "X");
+    private ColouredShape boundShape;
+    private ColouredShape innerShape;
 
     public CustomMenu(Inventory inventory) {
         this.inventory = inventory;

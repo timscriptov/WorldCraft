@@ -22,11 +22,6 @@ public class WorldGenerator {
     public static final String LAST_PLAYED = "LastPlayed";
     public static final String MAP_TYPE = "MapType";
 
-    public enum Mode {
-        SURVIVAL,
-        CREATIVE
-    }
-
     @Nullable
     public static String generateRandomMap(Activity activity, String worldName, int mapType, @NonNull Mode mode) {
         if (mode.equals(Mode.SURVIVAL)) {
@@ -121,5 +116,10 @@ public class WorldGenerator {
         tags[1].addTag(new Tag(Tag.Type.TAG_Float, "heading", 0.0f));
         tags[1].addTag(new Tag(Tag.Type.TAG_Float, "elevation", 0.0f));
         return new Tag(Tag.Type.TAG_Compound, "Player", tags);
+    }
+
+    public enum Mode {
+        SURVIVAL,
+        CREATIVE
     }
 }

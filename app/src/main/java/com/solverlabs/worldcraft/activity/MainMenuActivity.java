@@ -1,29 +1,24 @@
 package com.solverlabs.worldcraft.activity;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
+
 import com.solverlabs.droid.rugl.res.ResourceLoader;
 import com.solverlabs.worldcraft.GameMode;
-import com.solverlabs.worldcraft.MyApplication;
 import com.solverlabs.worldcraft.Persistence;
-import com.solverlabs.worldcraft.factories.DescriptionFactory;
 import com.solverlabs.worldcraft.R;
+import com.solverlabs.worldcraft.factories.DescriptionFactory;
 import com.solverlabs.worldcraft.multiplayer.MultiplayerActivityHelper;
 import com.solverlabs.worldcraft.srv.Consts;
 import com.solverlabs.worldcraft.util.KeyboardUtils;
-import java.util.Hashtable;
 
 public class MainMenuActivity extends CommonActivity {
     public static final int MAP_TYPE_FLAT = 1;

@@ -7,7 +7,9 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import com.solverlabs.worldcraft.R;
+
 import java.util.ArrayList;
 
 public class EntryAdapter extends ArrayAdapter<OptionItem> {
@@ -22,7 +24,7 @@ public class EntryAdapter extends ArrayAdapter<OptionItem> {
         this.vi = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
-    @Override 
+    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         OptionItem i = this.items.get(position);
         if (i == null) {

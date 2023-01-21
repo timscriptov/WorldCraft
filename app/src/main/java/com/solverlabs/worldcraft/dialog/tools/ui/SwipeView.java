@@ -16,14 +16,13 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 
-import com.solverlabs.worldcraft.dialog.tools.ui.PageControl;
 import java.util.Collection;
 
 public class SwipeView extends HorizontalScrollView {
     private static int DEFAULT_SWIPE_THRESHOLD = 60;
-    private int SCREEN_WIDTH;
-    protected boolean mCallScrollToPageInOnLayout;
     private final Context mContext;
+    protected boolean mCallScrollToPageInOnLayout;
+    private int SCREEN_WIDTH;
     private int mCurrentPage;
     private boolean mJustInterceptedAndIgnored;
     private LinearLayout mLinearLayout;
@@ -36,10 +35,6 @@ public class SwipeView extends HorizontalScrollView {
     private PageControl mPageControl;
     private int mPageWidth;
     private SwipeOnTouchListener mSwipeOnTouchListener;
-
-    public interface OnPageChangedListener {
-        void onPageChanged(int i, int i2);
-    }
 
     public SwipeView(Context context) {
         super(context);
@@ -261,6 +256,10 @@ public class SwipeView extends HorizontalScrollView {
         return this.mPageWidth;
     }
 
+    public PageControl getPageControl() {
+        return this.mPageControl;
+    }
+
     public void setPageControl(@NonNull PageControl pageControl) {
         this.mPageControl = pageControl;
         pageControl.setPageCount(getPageCount());
@@ -278,16 +277,12 @@ public class SwipeView extends HorizontalScrollView {
         });
     }
 
-    public PageControl getPageControl() {
-        return this.mPageControl;
+    public OnPageChangedListener getOnPageChangedListener() {
+        return this.mOnPageChangedListener;
     }
 
     public void setOnPageChangedListener(OnPageChangedListener onPageChangedListener) {
         this.mOnPageChangedListener = onPageChangedListener;
-    }
-
-    public OnPageChangedListener getOnPageChangedListener() {
-        return this.mOnPageChangedListener;
     }
 
     @Override
@@ -323,6 +318,10 @@ public class SwipeView extends HorizontalScrollView {
                 this.mMostlyScrollingInX = true;
             }
         }
+    }
+
+    public interface OnPageChangedListener {
+        void onPageChanged(int i, int i2);
     }
 
     public class SwipeOnTouchListener implements View.OnTouchListener {

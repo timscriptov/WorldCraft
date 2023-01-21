@@ -24,24 +24,24 @@ public class TNTBlock implements BlockEntity {
     private static final int COLOR = Colour.packFloat(BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
     private static final int DETONATION_SECONDS = 4;
     private static final float POWER = 4.0f;
+    private static final float sxtn = 0.0625f;
     private static State blockState = null;
     private static ItemFactory.Item item = null;
     private static State itemState = null;
     private static Parallelepiped parallelepiped = null;
-    private static final float sxtn = 0.0625f;
     private static TexturedShape texShape;
     private static Parallelepiped whiteParallelepiped;
     private static TexturedShape whiteTexShape;
+    private final Vector3i position;
+    private final World world;
     private long activatedAt;
     private TexturedShape activeTexShape;
     private boolean exploded = false;
     private boolean isActivated;
-    private final Vector3i position;
-    private final World world;
 
-    public enum DetonationDelayType {
-        SHORT_DELAY,
-        NORMAL_DELAY
+    public TNTBlock(Vector3i position, World world) {
+        this.position = new Vector3i(position);
+        this.world = world;
     }
 
     public static void init() {
@@ -62,11 +62,6 @@ public class TNTBlock implements BlockEntity {
         whiteTexShape = createShapeBuilder(whiteParallelepiped, BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE, COLOR).compile();
         whiteTexShape.state = blockState;
         whiteTexShape.state.apply();
-    }
-
-    public TNTBlock(Vector3i position, World world) {
-        this.position = new Vector3i(position);
-        this.world = world;
     }
 
     @NonNull
@@ -161,5 +156,10 @@ public class TNTBlock implements BlockEntity {
 
     public void setExploded(boolean exploded) {
         this.exploded = exploded;
+    }
+
+    public enum DetonationDelayType {
+        SHORT_DELAY,
+        NORMAL_DELAY
     }
 }

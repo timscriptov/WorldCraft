@@ -9,15 +9,18 @@ import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.solverlabs.worldcraft.factories.DescriptionFactory;
+
 import com.solverlabs.worldcraft.R;
+import com.solverlabs.worldcraft.factories.DescriptionFactory;
 import com.solverlabs.worldcraft.multiplayer.Multiplayer;
 import com.solverlabs.worldcraft.srv.util.ObjectCodec;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
 public class JoinRoomListAdapter extends ArrayAdapter<ObjectCodec.RoomPack> {
     public static final int ROOMS_PER_REQUEST = 50;
+    private final LayoutInflater vi;
     private boolean isRoomlistFull;
     private ArrayList<ObjectCodec.RoomPack> items;
     private boolean noItems;
@@ -25,7 +28,6 @@ public class JoinRoomListAdapter extends ArrayAdapter<ObjectCodec.RoomPack> {
     private byte roomlistType;
     private String searchValue;
     private boolean showLoading;
-    private final LayoutInflater vi;
 
     public JoinRoomListAdapter(Context context, ArrayList<ObjectCodec.RoomPack> items, byte roomlistType) {
         super(context, 0, items);
@@ -60,12 +62,12 @@ public class JoinRoomListAdapter extends ArrayAdapter<ObjectCodec.RoomPack> {
         this.items.add(new ObjectCodec.RoomPack());
     }
 
-    @Override 
+    @Override
     public boolean areAllItemsEnabled() {
         return false;
     }
 
-    @Override 
+    @Override
     public boolean isEnabled(int position) {
         return !this.items.isEmpty() && (position != this.items.size() + (-1) || !this.showLoading);
     }
@@ -158,7 +160,7 @@ public class JoinRoomListAdapter extends ArrayAdapter<ObjectCodec.RoomPack> {
             this.adapter = adapter;
         }
 
-        @Override 
+        @Override
         public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
             boolean loadMore = firstVisibleItem != 0 && visibleItemCount != 0 && totalItemCount != 0 && firstVisibleItem + visibleItemCount >= totalItemCount;
             if (loadMore) {
@@ -166,7 +168,7 @@ public class JoinRoomListAdapter extends ArrayAdapter<ObjectCodec.RoomPack> {
             }
         }
 
-        @Override 
+        @Override
         public void onScrollStateChanged(AbsListView view, int scrollState) {
         }
     }

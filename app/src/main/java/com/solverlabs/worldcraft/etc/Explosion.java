@@ -32,15 +32,9 @@ public class Explosion {
     private static final float EXPLOSION_STEP = 0.3f;
     private static final float MAX_BLAST_FACTOR = 1.3f;
     private static final float MIN_BLAST_FACTOR = 0.7f;
-    private static Set<Vector3f> RAY_VECTORS = null;
     private static final float STEP = 0.125f;
     private static final int STEP_COUNT_PER_AXIS = 16;
-
-    public enum CoordOrder {
-        XYZ,
-        YXZ,
-        ZXY
-    }
+    private static Set<Vector3f> RAY_VECTORS = null;
 
     static {
         initRayVectors();
@@ -165,6 +159,12 @@ public class Explosion {
             }
         }
         return result;
+    }
+
+    public enum CoordOrder {
+        XYZ,
+        YXZ,
+        ZXY
     }
 
     public static class ExplosionCube {

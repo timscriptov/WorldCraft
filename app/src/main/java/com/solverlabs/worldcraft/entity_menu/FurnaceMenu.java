@@ -27,6 +27,7 @@ import com.solverlabs.worldcraft.inventory.InventoryItem;
 import com.solverlabs.worldcraft.math.MathUtils;
 import com.solverlabs.worldcraft.ui.CustomButton;
 import com.solverlabs.worldcraft.ui.GUI;
+
 import java.util.ArrayList;
 
 public class FurnaceMenu extends CustomMenu {
@@ -34,28 +35,28 @@ public class FurnaceMenu extends CustomMenu {
     private static final int MATERIAL_SELECTED = 1;
     private static final float SCALE_VALUE = 100.0f;
     private static final int crafteItemColour = Colour.packFloat(0.8f, 0.8f, 0.8f, 0.5f);
-    private TexturedShape activeArrowShape;
-    private TexturedShape activeFireShape;
-    private TexturedShape arrowShape;
     private final TapPad.Listener buttonGroupListener;
     private final ArrayList<CustomButton> buttonsGroup;
     private final CustomButton craftedItemButton;
     private final TapPad.Listener craftedItemButtonListener;
+    private final CustomButton fuelButton;
+    private final CustomButton materialButton;
+    private final ArrayList<CustomTapItem> tapItems;
+    public BoundingRectangle scissorBound;
+    private TexturedShape activeArrowShape;
+    private TexturedShape activeFireShape;
+    private TexturedShape arrowShape;
     private CustomTapItem craftedTapItem;
     private TextLayout descriptionLayout;
     private ColouredShape fillTitleShape;
     private TexturedShape fireShape;
-    private final CustomButton fuelButton;
     private CustomTapItem fuelTapItem;
     private Furnace furnace;
-    private final CustomButton materialButton;
     private CustomTapItem materialTapItem;
     private boolean needToScroll;
     private float prevYpoint;
-    public BoundingRectangle scissorBound;
     private ColouredShape scissorBoundShape;
     private int selectedItemNumber;
-    private final ArrayList<CustomTapItem> tapItems;
     private TextShape title;
     private float touchDelta;
 
@@ -75,27 +76,27 @@ public class FurnaceMenu extends CustomMenu {
         this.fuelButton.drawText = false;
         this.fuelButton.isStroke = true;
         this.buttonsGroup.add(this.fuelButton);
-        this.buttonGroupListener = new TapPad.Listener() { 
-            @Override 
+        this.buttonGroupListener = new TapPad.Listener() {
+            @Override
             public void onTap(TapPad pad) {
                 removeItemFromFurance(pad);
             }
 
-            @Override 
+            @Override
             public void onLongPress(TapPad pad) {
                 removeItemFromFurance(pad);
             }
 
-            @Override 
+            @Override
             public void onFlick(TapPad pad, int horizontal, int vertical) {
             }
 
-            @Override 
+            @Override
             public void onDoubleTap(TapPad pad) {
             }
         };
-        this.craftedItemButtonListener = new TapPad.Listener() { 
-            @Override 
+        this.craftedItemButtonListener = new TapPad.Listener() {
+            @Override
             public void onTap(TapPad pad) {
                 InventoryItem craftedItem;
                 if (furnace != null && (craftedItem = furnace.getCraftedItem()) != null && !craftedItem.isEmpty()) {
@@ -112,15 +113,15 @@ public class FurnaceMenu extends CustomMenu {
                 }
             }
 
-            @Override 
+            @Override
             public void onLongPress(TapPad pad) {
             }
 
-            @Override 
+            @Override
             public void onFlick(TapPad pad, int horizontal, int vertical) {
             }
 
-            @Override 
+            @Override
             public void onDoubleTap(TapPad pad) {
             }
         };
@@ -189,13 +190,13 @@ public class FurnaceMenu extends CustomMenu {
         for (int i = 0; i < inventory.getSize(); i++) {
             final InventoryItem inventoryItem = inventory.getAllInventoryItems().get(i);
             if (!inventoryItem.isEmpty() && ((this.selectedItemNumber == 2 && inventoryItem.isUseAsFuel()) || (this.selectedItemNumber == 1 && inventoryItem.isUseAsMaterial()))) {
-                CustomTapItem furnaceTapItem = new CustomTapItem(inventoryItem) { 
-                    @Override 
+                CustomTapItem furnaceTapItem = new CustomTapItem(inventoryItem) {
+                    @Override
                     protected void onTap() {
                         addItemToFurnace(inventoryItem);
                     }
 
-                    @Override 
+                    @Override
                     protected void onLongPress() {
                         addItemToFurnace(inventoryItem);
                     }
@@ -205,7 +206,7 @@ public class FurnaceMenu extends CustomMenu {
         }
     }
 
-    @Override 
+    @Override
     public boolean pointerAdded(Touch.Pointer p) {
         if (this.touch == null && this.bounds.contains(p.x, p.y) && this.show) {
             this.touch = p;
@@ -225,7 +226,7 @@ public class FurnaceMenu extends CustomMenu {
         return false;
     }
 
-    @Override 
+    @Override
     public void pointerRemoved(Touch.Pointer p) {
         if (this.touch == p && this.touch != null) {
             this.exitTap.pointerRemoved(this.touch);
@@ -242,11 +243,11 @@ public class FurnaceMenu extends CustomMenu {
         }
     }
 
-    @Override 
+    @Override
     public void reset() {
     }
 
-    @Override 
+    @Override
     public void draw(StackedRenderer sr) {
         super.draw(sr);
         if (this.show) {

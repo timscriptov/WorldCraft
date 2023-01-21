@@ -16,34 +16,35 @@ import com.solverlabs.droid.rugl.util.geom.BoundingRectangle;
 import com.solverlabs.worldcraft.chunk.tile_entity.Inventory;
 import com.solverlabs.worldcraft.factories.CraftFactory;
 import com.solverlabs.worldcraft.factories.ItemFactory;
+
 import org.apache.commons.compress.archivers.cpio.CpioConstants;
 
 public class CraftMenuTapItem {
+    public static final float HEIGHT = 70.0f;
+    public static final float WIDTH = 300.0f;
     private static final float HALF_HEIGHT = 35.0f;
     private static final float HALF_WIDTH = 150.0f;
-    public static final float HEIGHT = 70.0f;
     private static final float TAP_TIME = 0.3f;
-    public static final float WIDTH = 300.0f;
     public static boolean isResetFocus = false;
-    private ColouredShape bottomBound;
-    public BoundingRectangle bounds;
-    public boolean canBeCrafted;
-    private int count;
-    private Readout countTextShape;
     private final CraftFactory.CraftItem craftItem;
-    private long downTime = -1;
-    public int innerColour = Colour.packInt(241, 241, 249, CpioConstants.C_IWUSR);
-    private ColouredShape innerShape;
     private final Inventory inventory;
-    public boolean isSelected;
     private final ItemFactory.Item item;
     private final String name;
-    private TextShape nameShape;
     private final TexturedShape texShape;
-    private Touch.Pointer touch;
-    private ColouredShape upBound;
     private final float x;
     private final float y;
+    public BoundingRectangle bounds;
+    public boolean canBeCrafted;
+    public int innerColour = Colour.packInt(241, 241, 249, CpioConstants.C_IWUSR);
+    public boolean isSelected;
+    private ColouredShape bottomBound;
+    private int count;
+    private Readout countTextShape;
+    private long downTime = -1;
+    private ColouredShape innerShape;
+    private TextShape nameShape;
+    private Touch.Pointer touch;
+    private ColouredShape upBound;
     private float yOffset;
 
     public CraftMenuTapItem(@NonNull CraftFactory.CraftItem craftItem, Inventory inventory, float x, float y) {
@@ -176,12 +177,12 @@ public class CraftMenuTapItem {
         }
     }
 
-    public void setYOffset(float f) {
-        this.yOffset = f;
-    }
-
     public float getYOffset() {
         return this.yOffset;
+    }
+
+    public void setYOffset(float f) {
+        this.yOffset = f;
     }
 
     public float getY() {

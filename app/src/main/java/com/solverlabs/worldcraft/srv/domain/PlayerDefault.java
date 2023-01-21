@@ -52,158 +52,158 @@ public class PlayerDefault implements Player {
         return false;
     }
 
-    @Override 
+    @Override
     public String getAndroidApiLevel() {
         return this.androidApiLevel;
     }
 
-    @Override 
+    @Override
+    public void setAndroidApiLevel(String str) {
+        this.androidApiLevel = str;
+    }
+
+    @Override
     public Camera getCamera() {
         return this.camera;
     }
 
-    @Override 
+    @Override
+    public void setCamera(Camera camera) {
+        this.camera = camera;
+    }
+
+    @Override
     public String getClientVersion() {
         return this.clientVersion;
     }
 
-    @Override 
+    @Override
+    public void setClientVersion(String str) {
+        this.clientVersion = str;
+    }
+
+    @Override
     public long getDevId() {
         return 0L;
     }
 
-    @Override 
+    @Override
     public String getDeviceId() {
         return this.deviceId;
     }
 
-    @Override 
+    @Override
+    public void setDeviceId(String str) {
+        this.deviceId = str;
+    }
+
+    @Override
     public String getDeviceName() {
         return this.deviceName;
     }
 
-    @Override 
+    @Override
+    public void setDeviceName(String str) {
+        this.deviceName = str;
+    }
+
+    @Override
     public int getId() {
         return this.id;
     }
 
-    @Override 
+    @Override
+    public void setId(int i) {
+        this.id = i;
+    }
+
+    @Override
     public String getIp() {
         return this.playerName;
     }
 
-    @Override 
+    @Override
     public long getLastRequestTime() {
         return this.lastRequestTime;
     }
 
-    @Override 
+    @Override
+    public void setLastRequestTime(long j) {
+        this.lastRequestTime = j;
+    }
+
+    @Override
     public String getOsVersion() {
         return this.osVersion;
     }
 
-    @Override 
+    @Override
+    public void setOsVersion(String str) {
+        this.osVersion = str;
+    }
+
+    @Override
     public String getPlayerName() {
         return this.playerName;
     }
 
-    @Override 
+    @Override
+    public void setPlayerName(String str) {
+        this.playerName = str;
+    }
+
+    @Override
     public Room getRoom() {
         return this.room;
     }
 
-    @Override 
+    @Override
+    public void setRoom(Room room) {
+        this.room = room;
+    }
+
+    @Override
     public short getSkin() {
         return this.skin;
+    }
+
+    @Override
+    public void setSkin(short s) {
+        this.skin = s;
     }
 
     public int hashCode() {
         return this.playerName.hashCode();
     }
 
-    @Override 
+    @Override
     public boolean inRoom() {
         return this.room != null;
     }
 
-    @Override 
+    @Override
     public boolean isGraphicsInited() {
         return this.isGraphicsInited;
     }
 
-    @Override 
-    public boolean loggedIn() {
-        return this.loggedIn;
-    }
-
-    @Override 
-    public boolean requiresRemove() {
-        return System.currentTimeMillis() - this.lastRequestTime > MAX_IDLE_TIME;
-    }
-
-    @Override 
-    public void setAndroidApiLevel(String str) {
-        this.androidApiLevel = str;
-    }
-
-    @Override 
-    public void setCamera(Camera camera) {
-        this.camera = camera;
-    }
-
-    @Override 
-    public void setClientVersion(String str) {
-        this.clientVersion = str;
-    }
-
-    @Override 
-    public void setDeviceId(String str) {
-        this.deviceId = str;
-    }
-
-    @Override 
-    public void setDeviceName(String str) {
-        this.deviceName = str;
-    }
-
-    @Override 
+    @Override
     public void setGraphicsInited(boolean z) {
         this.isGraphicsInited = z;
     }
 
-    @Override 
-    public void setId(int i) {
-        this.id = i;
+    @Override
+    public boolean loggedIn() {
+        return this.loggedIn;
     }
 
-    @Override 
-    public void setLastRequestTime(long j) {
-        this.lastRequestTime = j;
+    @Override
+    public boolean requiresRemove() {
+        return System.currentTimeMillis() - this.lastRequestTime > MAX_IDLE_TIME;
     }
 
-    @Override 
+    @Override
     public void setLoggedIn(boolean z) {
         this.loggedIn = z;
-    }
-
-    @Override 
-    public void setOsVersion(String str) {
-        this.osVersion = str;
-    }
-
-    @Override 
-    public void setPlayerName(String str) {
-        this.playerName = str;
-    }
-
-    @Override 
-    public void setRoom(Room room) {
-        this.room = room;
-    }
-
-    @Override 
-    public void setSkin(short s) {
-        this.skin = s;
     }
 
     @NonNull
@@ -211,7 +211,7 @@ public class PlayerDefault implements Player {
         return "Player @, id:" + this.id + " name: " + this.playerName + " skin: " + (int) this.skin + " camera: " + this.camera;
     }
 
-    @Override 
+    @Override
     public void updateCamera(@NonNull Camera camera) {
         this.camera.playerId = camera.playerId;
         this.camera.position.x = camera.position.x;

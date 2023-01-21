@@ -9,6 +9,7 @@ import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+
 import com.solverlabs.worldcraft.dialog.tools.ui.SwipeView;
 import com.solverlabs.worldcraft.dialog.tools.util.AnimationUtil;
 
@@ -18,14 +19,14 @@ public class BounceSwipeView extends SwipeView {
     private static final boolean BOUNCING_ON_RIGHT = false;
     private static final int FRAME_DURATION = 30;
     private static final int NUMBER_OF_FRAMES = 4;
+    private final Context mContext;
+    Handler mEaseAnimationFrameHandler;
     private boolean mAtEdge;
     private float mAtEdgePreviousPosition;
     private float mAtEdgeStartPosition;
     private boolean mBounceEnabled;
     private boolean mBouncingSide;
-    private final Context mContext;
     private int mCurrentAnimationFrame;
-    Handler mEaseAnimationFrameHandler;
     private View.OnTouchListener mOnTouchListener;
     private int mPaddingChange;
     private int mPaddingLeft;
@@ -90,12 +91,37 @@ public class BounceSwipeView extends SwipeView {
         this.mOnTouchListener = onTouchListener;
     }
 
+    public boolean getBounceEnabled() {
+        return this.mBounceEnabled;
+    }
+
     public void setBounceEnabled(boolean enabled) {
         this.mBounceEnabled = enabled;
     }
 
-    public boolean getBounceEnabled() {
-        return this.mBounceEnabled;
+    public void doBounceBackEaseAnimation() {
+        if (this.mBouncingSide) {
+            this.mPaddingChange = getPaddingLeft() - this.mPaddingLeft;
+            this.mPaddingStartValue = getPaddingLeft();
+        } else {
+            this.mPaddingChange = getPaddingRight() - this.mPaddingRight;
+            this.mPaddingStartValue = getPaddingRight();
+        }
+        this.mCurrentAnimationFrame = 0;
+        this.mEaseAnimationFrameHandler.removeMessages(0);
+        this.mEaseAnimationFrameHandler.sendEmptyMessage(0);
+    }
+
+    public void doAtEdgeAnimation() {
+        if (getCurrentPage() == 0) {
+            this.mBouncingSide = true;
+            super.setPadding(getPaddingLeft() + 50, getPaddingTop(), getPaddingRight(), getPaddingBottom());
+        } else if (getCurrentPage() == getPageCount() - 1) {
+            this.mBouncingSide = false;
+            super.setPadding(getPaddingLeft(), getPaddingTop(), getPaddingRight() + 50, getPaddingBottom());
+            scrollTo(getScrollX() + 50, getScrollY());
+        }
+        doBounceBackEaseAnimation();
     }
 
     public class BounceViewOnTouchListener implements View.OnTouchListener {
@@ -145,30 +171,5 @@ public class BounceSwipeView extends SwipeView {
             }
             return true;
         }
-    }
-
-    public void doBounceBackEaseAnimation() {
-        if (this.mBouncingSide) {
-            this.mPaddingChange = getPaddingLeft() - this.mPaddingLeft;
-            this.mPaddingStartValue = getPaddingLeft();
-        } else {
-            this.mPaddingChange = getPaddingRight() - this.mPaddingRight;
-            this.mPaddingStartValue = getPaddingRight();
-        }
-        this.mCurrentAnimationFrame = 0;
-        this.mEaseAnimationFrameHandler.removeMessages(0);
-        this.mEaseAnimationFrameHandler.sendEmptyMessage(0);
-    }
-
-    public void doAtEdgeAnimation() {
-        if (getCurrentPage() == 0) {
-            this.mBouncingSide = true;
-            super.setPadding(getPaddingLeft() + 50, getPaddingTop(), getPaddingRight(), getPaddingBottom());
-        } else if (getCurrentPage() == getPageCount() - 1) {
-            this.mBouncingSide = false;
-            super.setPadding(getPaddingLeft(), getPaddingTop(), getPaddingRight() + 50, getPaddingBottom());
-            scrollTo(getScrollX() + 50, getScrollY());
-        }
-        doBounceBackEaseAnimation();
     }
 }

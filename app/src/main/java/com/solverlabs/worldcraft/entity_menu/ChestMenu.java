@@ -1,6 +1,7 @@
 package com.solverlabs.worldcraft.entity_menu;
 
 import android.opengl.GLES10;
+
 import com.solverlabs.droid.rugl.Game;
 import com.solverlabs.droid.rugl.geom.ColouredShape;
 import com.solverlabs.droid.rugl.geom.Shape;
@@ -19,19 +20,19 @@ import com.solverlabs.worldcraft.chunk.tile_entity.Inventory;
 import com.solverlabs.worldcraft.chunk.tile_entity.TileEntity;
 import com.solverlabs.worldcraft.math.MathUtils;
 import com.solverlabs.worldcraft.ui.GUI;
+
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class ChestMenu extends CustomMenu {
-    private Chest chest;
-    public BoundingRectangle chestScissorBound;
-    private ColouredShape chestScissorBoundShape;
     private final ArrayList<CustomTapItem> chestTapItems;
+    private final ArrayList<CustomTapItem> inventoryTapItems;
+    public BoundingRectangle chestScissorBound;
+    public BoundingRectangle inventoryScissorBound;
+    private Chest chest;
+    private ColouredShape chestScissorBoundShape;
     private TextShape chestTextShape;
     private ColouredShape fillTitleShape;
-    public BoundingRectangle inventoryScissorBound;
     private ColouredShape inventoryScissorBoundShape;
-    private final ArrayList<CustomTapItem> inventoryTapItems;
     private TextShape inventoryTextShape;
     private boolean needToScrollChest;
     private boolean needToScrollInv;

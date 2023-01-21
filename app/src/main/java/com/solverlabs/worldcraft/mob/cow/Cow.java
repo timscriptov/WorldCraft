@@ -7,9 +7,11 @@ import com.solverlabs.worldcraft.mob.Mob;
 import com.solverlabs.worldcraft.mob.MobSize;
 import com.solverlabs.worldcraft.mob.TexturedBlockProperties;
 import com.solverlabs.worldcraft.util.RandomUtil;
+
 import java.util.HashMap;
 
 public class Cow extends Mob {
+    public static final String SAVE_ID = "Cow";
     private static final int BEEF_MAX_COUNT = 3;
     private static final int BEEF_MIN_COUNT = 1;
     private static final int BODY_BLOCK_HEIGHT = 20;
@@ -25,7 +27,6 @@ public class Cow extends Mob {
     private static final int LEG_BLOCK_DEPTH = 8;
     private static final int LEG_BLOCK_HEIGHT = 24;
     private static final int LEG_BLOCK_WIDTH = 8;
-    public static final String SAVE_ID = "Cow";
     private static final int[] HEAD_TC = {28, 12, 0, 12, 12, 12, 40, 12, 12, 0, 28, 0};
     private static final int[] BODY_TC = {92, 48, 92, 28, 44, 28, 68, 28, 68, 48, 44, 48};
     private static final int[] HAND_TC = {16, 40, 0, 40, 8, 40, 24, 40, 8, 32, 16, 32};

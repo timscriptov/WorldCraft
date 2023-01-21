@@ -12,14 +12,14 @@ import com.solverlabs.worldcraft.factories.ItemFactory;
 import com.solverlabs.worldcraft.material.Material;
 
 public class InventoryItem {
-    private BlockFactory.Block block;
-    private int count;
-    private int currentDurability;
-    public boolean isInHotbar;
-    private ItemFactory.Item item;
     private final int maxCount;
     private final int maxDurability;
     private final int slot;
+    public boolean isInHotbar;
+    private BlockFactory.Block block;
+    private int count;
+    private int currentDurability;
+    private ItemFactory.Item item;
 
     public InventoryItem(@NonNull ItemFactory.Item item, int slot) {
         this.count = 0;

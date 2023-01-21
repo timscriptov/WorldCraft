@@ -8,7 +8,7 @@ public enum Food {
     RAW_PORKCHOP(BlockFactory.RAW_PORKCHOP_ID, 3, 1.8f, 0.0f),
     RAW_BEEF(BlockFactory.RAW_BEEF_ID, 3, 1.8f, 0.0f),
     ROTTEN_FLESH(BlockFactory.ROTTEN_FLESH_ID, 4, 0.8f, 0.8f);
-    
+
     private final int foodPoints;
     private final byte id;
     private final float poisoningChance;

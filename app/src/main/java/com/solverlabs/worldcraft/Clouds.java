@@ -13,8 +13,6 @@ import com.solverlabs.droid.rugl.gl.enums.MagFilter;
 import com.solverlabs.droid.rugl.gl.enums.MinFilter;
 import com.solverlabs.droid.rugl.res.BitmapLoader;
 import com.solverlabs.droid.rugl.res.ResourceLoader;
-import com.solverlabs.droid.rugl.texture.BitmapImage;
-import com.solverlabs.droid.rugl.texture.Image;
 import com.solverlabs.droid.rugl.texture.Texture;
 import com.solverlabs.droid.rugl.texture.TextureFactory;
 import com.solverlabs.droid.rugl.util.Colour;
@@ -25,11 +23,18 @@ public class Clouds {
     private static final int CLOUD_HEIGHT = 128;
     private static final int CLOUD_SIZE = 2560;
     private static Clouds instance;
+    private final CloudPosition[] clouds = new CloudPosition[4];
+    protected State state = GLUtil.typicalState.with(MinFilter.NEAREST, MagFilter.NEAREST);
     private Texture texture;
     private TexturedShape ts;
     private float xOffset;
-    protected State state = GLUtil.typicalState.with(MinFilter.NEAREST, MagFilter.NEAREST);
-    private final CloudPosition[] clouds = new CloudPosition[4];
+
+    public static Clouds getInstance() {
+        if (instance == null) {
+            instance = new Clouds();
+        }
+        return instance;
+    }
 
     public void init(World world) {
         loadTexture();
@@ -87,13 +92,6 @@ public class Clouds {
         renderer.popMatrix();
     }
 
-    public static Clouds getInstance() {
-        if (instance == null) {
-            instance = new Clouds();
-        }
-        return instance;
-    }
-
     public void loadTexture() {
         ResourceLoader.loadNow(new BitmapLoader(R.drawable.clouds) {
             @Override
@@ -113,8 +111,8 @@ public class Clouds {
     }
 
     public static class CloudPosition {
-        private float x;
         public float xOffset;
+        private float x;
         private float z;
 
         public CloudPosition(float x, float z) {

@@ -3,7 +3,6 @@ package com.solverlabs.worldcraft.dialog.component;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
-import android.widget.EditText;
 
 import androidx.appcompat.widget.AppCompatEditText;
 

@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 
 import com.solverlabs.worldcraft.srv.client.EventReceiver;
 import com.solverlabs.worldcraft.srv.common.WorldCraftGameEvent;
+
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
@@ -22,25 +23,25 @@ public class ClientHandler extends SimpleChannelHandler {
         this.gameClient = gameClient;
     }
 
-    @Override 
+    @Override
     public void channelClosed(ChannelHandlerContext channelHandlerContext, ChannelStateEvent channelStateEvent) throws Exception {
         System.out.println("closed");
         super.channelClosed(channelHandlerContext, channelStateEvent);
     }
 
-    @Override 
+    @Override
     public void channelConnected(ChannelHandlerContext channelHandlerContext, ChannelStateEvent channelStateEvent) throws Exception {
         super.channelConnected(channelHandlerContext, channelStateEvent);
     }
 
-    @Override 
+    @Override
     public void channelDisconnected(ChannelHandlerContext channelHandlerContext, ChannelStateEvent channelStateEvent) throws Exception {
         System.out.println("disconnected");
         super.channelDisconnected(channelHandlerContext, channelStateEvent);
         this.gameClient.connectionLost();
     }
 
-    @Override 
+    @Override
     public void exceptionCaught(ChannelHandlerContext channelHandlerContext, @NonNull ExceptionEvent exceptionEvent) {
         exceptionEvent.getCause().printStackTrace();
         exceptionEvent.getChannel().close();
@@ -54,7 +55,7 @@ public class ClientHandler extends SimpleChannelHandler {
         return this.lastEventSentAt;
     }
 
-    @Override 
+    @Override
     public void messageReceived(ChannelHandlerContext channelHandlerContext, MessageEvent messageEvent) {
         this.lastEventReceivedAt = System.currentTimeMillis();
         if (this.receiver != null) {

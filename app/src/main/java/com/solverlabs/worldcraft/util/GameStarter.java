@@ -10,7 +10,7 @@ import com.solverlabs.worldcraft.GameMode;
 import com.solverlabs.worldcraft.MyApplication;
 import com.solverlabs.worldcraft.activity.WorldCraftActivity;
 import com.solverlabs.worldcraft.factories.DescriptionFactory;
-import com.solverlabs.worldcraft.util.WorldGenerator;
+
 import java.io.File;
 
 public class GameStarter {

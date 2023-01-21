@@ -7,9 +7,11 @@ import com.solverlabs.worldcraft.mob.Mob;
 import com.solverlabs.worldcraft.mob.MobSize;
 import com.solverlabs.worldcraft.mob.TexturedBlockProperties;
 import com.solverlabs.worldcraft.util.RandomUtil;
+
 import java.util.HashMap;
 
 public class Pig extends Mob {
+    public static final String SAVE_ID = "Pig";
     private static final int BODY_BLOCK_DEPTH = 32;
     private static final int BODY_BLOCK_HEIGHT = 16;
     private static final int BODY_BLOCK_WIDTH = 20;
@@ -26,7 +28,6 @@ public class Pig extends Mob {
     private static final int LEG_BLOCK_WIDTH = 8;
     private static final int PORKCHOP_MAX_COUNT = 3;
     private static final int PORKCHOP_MIN_COUNT = 1;
-    public static final String SAVE_ID = "Pig";
     private static final int SNOUT_BLOCK_DEPTH = 2;
     private static final int SNOUT_BLOCK_HEIGHT = 6;
     private static final int SNOUT_BLOCK_WIDTH = 8;
@@ -56,29 +57,29 @@ public class Pig extends Mob {
         this.healthPoints = (short) 10;
     }
 
-    @Override 
+    @Override
     public HashMap<Byte, Integer> getDeathDrops() {
         HashMap<Byte, Integer> result = new HashMap<>();
         result.put(BlockFactory.RAW_PORKCHOP_ID, RandomUtil.getRandomInRangeInclusive(1, 3));
         return result;
     }
 
-    @Override 
+    @Override
     public String getSaveId() {
         return SAVE_ID;
     }
 
-    @Override 
+    @Override
     public float getQuietVelocity() {
         return DEFAULT_QUIET_VELOCITY;
     }
 
-    @Override 
+    @Override
     public float getRunVelocity() {
         return DEFAULT_RUN_VELOCITY;
     }
 
-    @Override 
+    @Override
     public Material getMaterial() {
         return Material.PIG;
     }

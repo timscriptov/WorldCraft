@@ -28,32 +28,56 @@ import com.solverlabs.worldcraft.nbt.Tag;
 import com.solverlabs.worldcraft.ui.GUI;
 import com.solverlabs.worldcraft.util.FallDetector;
 import com.solverlabs.worldcraft.util.GameTime;
+
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class Player implements Damagable {
     public static final float ATTACKING_ENEMY_EXHAUSTION = 0.3f;
     public static final float DESTROY_BLOCK_EXHAUSTION = 0.025f;
+    public static final float FOOD_POISONING_EXHAUSTION = 0.5f;
+    public static final float JUMP_EXHAUSTION = 0.2f;
+    public static final int MAX_FOOD_LEVEL = 20;
+    public static final int MIN_HUNGER_DAMAGE_HEALTH_POINTS = 2;
+    public static final float RECEIVING_DAMAGE_EXHAUSTION = 0.3f;
+    public static final float WALK_EXHAUSTION = 0.01f;
     private static final int EAT_TIMEOUT = 2000;
     private static final String FOOD_EXHAUSTION_LEVEL_TAG = "foodExhaustionLevel";
     private static final String FOOD_LEVEL_TAG = "foodLevel";
-    public static final float FOOD_POISONING_EXHAUSTION = 0.5f;
     private static final String FOOD_SATURATION_LEVEL_TAG = "foodSaturationLevel";
     private static final String FOOD_TIMER_TAG = "foodTimer";
     private static final int FOOD_TIMER_TIMEOUT = 4000;
     private static final int HEALTHY_FOOD_LEVEL = 17;
     private static final int HEALTH_IS_JUST_UPDATED_TIMEOUT = 200;
     private static final int HUNGRY_FOOD_LEVEL = 0;
-    public static final float JUMP_EXHAUSTION = 0.2f;
     private static final float MAX_FOOD_EXHAUSTION = 4.0f;
-    public static final int MAX_FOOD_LEVEL = 20;
     private static final int MAX_HEALTH_POINTS = 20;
-    public static final int MIN_HUNGER_DAMAGE_HEALTH_POINTS = 2;
     private static final String PLAYER_HEALTH_TAG = "Health";
-    public static final float RECEIVING_DAMAGE_EXHAUSTION = 0.3f;
     private static final int STEP_NOTIFICATION_DELAY = 400;
     private static final long TIMEOUT_BETWEEN_DAMAGE = 2000;
-    public static final float WALK_EXHAUSTION = 0.01f;
+    private final World world;
+    private final Vector3f collideCorrection = new Vector3f();
+    private final BoundingCuboid blockBounds = new BoundingCuboid(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+    private final BoundingCuboid intersection = new BoundingCuboid(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+    private final Vector3f forward = new Vector3f();
+    private final FallDetector fallDetector = new FallDetector(this);
+    public float speed = MAX_FOOD_EXHAUSTION;
+    public float crouchedSpeed = 2.0f;
+    public float jumpSpeed = 6.0f;
+    public float gravity = -10.0f;
+    public boolean ghost = false;
+    public float width = 0.2f;
+    public float height = 1.8f;
+    public float eyeLevel = 1.2f; // 0.9f
+    public float crouchedEyeLevel = 0.65f;
+    public boolean onGround = false;
+    public Vector2f rotation = new Vector2f();
+    public Vector3f position = new Vector3f();
+    public Vector3f spawnPosition = new Vector3f();
+    public Vector3f velocity = new Vector3f();
+    public BoundingCuboid playerBounds = new BoundingCuboid(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+    public ArrayList<InventoryTapItem> hotbar = new ArrayList<>();
+    public InventoryItem inHand = null;
+    public Inventory inventory = new Inventory(this);
     private long eatingStartedAt;
     private float exhaustionWalkDistance;
     private float foodExhaustionLevel;
@@ -65,34 +89,9 @@ public class Player implements Damagable {
     private long lastAdvanceAt;
     private long lastAdvanceInterval;
     private long lastStepNotificationAt;
-    private final World world;
-    public float speed = MAX_FOOD_EXHAUSTION;
-    public float crouchedSpeed = 2.0f;
-    public float jumpSpeed = 6.0f;
-    public float gravity = -10.0f;
-    public boolean ghost = false;
-    public float width = 0.2f;
-    public float height = 1.8f;
-    public float eyeLevel = 1.2f; // 0.9f
-    public float crouchedEyeLevel = 0.65f;
-    public boolean onGround = false;
     private boolean crouched = false;
-    public Vector2f rotation = new Vector2f();
-    private BlockFactory.WorldSide currentWorldSide = BlockFactory.WorldSide.North;
-    public Vector3f position = new Vector3f();
-    public Vector3f spawnPosition = new Vector3f();
-    public Vector3f velocity = new Vector3f();
-    private final Vector3f collideCorrection = new Vector3f();
-    private short healthPoints = 20;
-    public BoundingCuboid playerBounds = new BoundingCuboid(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-    private final BoundingCuboid blockBounds = new BoundingCuboid(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-    private final BoundingCuboid intersection = new BoundingCuboid(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-    private final Vector3f forward = new Vector3f();
-    private Long damagedAt = System.currentTimeMillis();
-    public ArrayList<InventoryTapItem> hotbar = new ArrayList<>();
-    public InventoryItem inHand = null;
     public TapPad.Listener jumpCrouchListener = new TapPad.Listener() {
-        @Override 
+        @Override
         public void onTap(TapPad pad) {
             if (ghost) {
                 ghost = false;
@@ -100,7 +99,7 @@ public class Player implements Damagable {
             doJump();
         }
 
-        @Override 
+        @Override
         public void onFlick(TapPad pad, int horizontal, int vertical) {
             if (vertical == 1) {
                 onTap(pad);
@@ -109,20 +108,26 @@ public class Player implements Damagable {
             }
         }
 
-        @Override 
+        @Override
         public void onLongPress(TapPad pad) {
             crouched = true;
         }
 
-        @Override 
+        @Override
         public void onDoubleTap(TapPad pad) {
             if (GameMode.isCreativeMode()) {
                 ghost = true;
             }
         }
     };
-    public Inventory inventory = new Inventory(this);
-    private final FallDetector fallDetector = new FallDetector(this);
+    private BlockFactory.WorldSide currentWorldSide = BlockFactory.WorldSide.North;
+    private short healthPoints = 20;
+    private Long damagedAt = System.currentTimeMillis();
+
+    public Player(World world) {
+        this.world = world;
+        resetSavedPosition();
+    }
 
     public void doJump() {
         if (this.crouched) {
@@ -133,11 +138,6 @@ public class Player implements Damagable {
                 increaseExhaustionLevel(0.2f);
             }
         }
-    }
-
-    public Player(World world) {
-        this.world = world;
-        resetSavedPosition();
     }
 
     public void init(Tag levelTag) {
@@ -501,7 +501,7 @@ public class Player implements Damagable {
         takeDamage(attackPoints);
     }
 
-    @Override 
+    @Override
     public void takeDamage(int healthPoints) {
         if (healthPoints > 0) {
             synchronized (this.damagedAt) {
@@ -532,7 +532,7 @@ public class Player implements Damagable {
         }
     }
 
-    @Override 
+    @Override
     public boolean isDead() {
         return this.healthPoints <= 0;
     }
@@ -613,12 +613,12 @@ public class Player implements Damagable {
         return this.world;
     }
 
-    public void setKeptDownAt(long keptDownAt) {
-        this.keptDownAt = keptDownAt;
-    }
-
     public long getKeptDownAt() {
         return this.keptDownAt;
+    }
+
+    public void setKeptDownAt(long keptDownAt) {
+        this.keptDownAt = keptDownAt;
     }
 
     private void updateFoodLevel() {

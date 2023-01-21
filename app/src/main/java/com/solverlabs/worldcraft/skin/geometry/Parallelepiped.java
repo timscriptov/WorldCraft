@@ -10,17 +10,17 @@ import org.jetbrains.annotations.Contract;
 import java.util.Arrays;
 
 public class Parallelepiped {
-    public Face bottom;
-    private float depth;
-    public Face east;
-    private float height;
-    public Face north;
     public final boolean opaque;
-    public Face south;
     private final float sxtn;
+    public Face bottom;
+    public Face east;
+    public Face north;
+    public Face south;
     public float[] texCoords;
     public Face top;
     public Face west;
+    private float depth;
+    private float height;
     private float width;
 
     public Parallelepiped(boolean opaque, Face north, Face south, Face east, Face west, Face top, Face bottom, float sxtn, Object tc) {
@@ -60,6 +60,52 @@ public class Parallelepiped {
         this.bottom = bottom;
         this.sxtn = sxtn;
         this.opaque = opaque;
+    }
+
+    @NonNull
+    public static Parallelepiped createParallelepiped(float width, float height, float depth, float stxtn, Object tc) {
+        float[] nbl = {0.0f, 0.0f, 0.0f};
+        float[] ntl = {0.0f, height, 0.0f};
+        float[] nbr = {width, 0.0f, 0.0f};
+        float[] ntr = {width, height, 0.0f};
+        float[] fbl = {0.0f, 0.0f, depth};
+        float[] ftl = {0.0f, height, depth};
+        float[] fbr = {width, 0.0f, depth};
+        float[] ftr = {width, height, depth};
+        Face faceNorth = new Face(fbl, ftl, nbl, ntl);
+        Face faceSouth = new Face(nbr, ntr, fbr, ftr);
+        Face faceEast = new Face(nbl, ntl, nbr, ntr);
+        Face faceWest = new Face(fbr, ftr, fbl, ftl);
+        Face faceTop = new Face(ntl, ftl, ntr, ftr);
+        Face faceBottom = new Face(nbl, fbl, nbr, fbr);
+        Parallelepiped p = new Parallelepiped(true, faceNorth, faceSouth, faceEast, faceWest, faceTop, faceBottom, stxtn, tc);
+        p.setWidth(width);
+        p.setDepth(depth);
+        p.setHeight(height);
+        return p;
+    }
+
+    @NonNull
+    public static Parallelepiped createParallelepiped(float width, float height, float depth, float stxtn) {
+        float[] nbl = {0.0f, 0.0f, 0.0f};
+        float[] ntl = {0.0f, height, 0.0f};
+        float[] nbr = {width, 0.0f, 0.0f};
+        float[] ntr = {width, height, 0.0f};
+        float[] fbl = {0.0f, 0.0f, depth};
+        float[] ftl = {0.0f, height, depth};
+        float[] fbr = {width, 0.0f, depth};
+        float[] ftr = {width, height, depth};
+        Face faceNorth = new Face(fbl, ftl, nbl, ntl);
+        Face faceSouth = new Face(nbr, ntr, fbr, ftr);
+        Face faceEast = new Face(nbl, ntl, nbr, ntr);
+        Face faceWest = new Face(fbr, ftr, fbl, ftl);
+        Face faceTop = new Face(ntl, ftl, ntr, ftr);
+        Face faceBottom = new Face(nbl, fbl, nbr, fbr);
+        Parallelepiped p = new Parallelepiped(true, faceNorth, faceSouth, faceEast, faceWest, faceTop, faceBottom, stxtn);
+        p.setWidth(width);
+        p.setDepth(depth);
+        p.setHeight(height);
+        return p;
     }
 
     public void rotate(float angle, int axisx, int axisy, int axisz) {
@@ -279,52 +325,6 @@ public class Parallelepiped {
         p.setDepth(this.depth);
         p.setHeight(this.height);
         p.setWidth(this.width);
-        return p;
-    }
-
-    @NonNull
-    public static Parallelepiped createParallelepiped(float width, float height, float depth, float stxtn, Object tc) {
-        float[] nbl = {0.0f, 0.0f, 0.0f};
-        float[] ntl = {0.0f, height, 0.0f};
-        float[] nbr = {width, 0.0f, 0.0f};
-        float[] ntr = {width, height, 0.0f};
-        float[] fbl = {0.0f, 0.0f, depth};
-        float[] ftl = {0.0f, height, depth};
-        float[] fbr = {width, 0.0f, depth};
-        float[] ftr = {width, height, depth};
-        Face faceNorth = new Face(fbl, ftl, nbl, ntl);
-        Face faceSouth = new Face(nbr, ntr, fbr, ftr);
-        Face faceEast = new Face(nbl, ntl, nbr, ntr);
-        Face faceWest = new Face(fbr, ftr, fbl, ftl);
-        Face faceTop = new Face(ntl, ftl, ntr, ftr);
-        Face faceBottom = new Face(nbl, fbl, nbr, fbr);
-        Parallelepiped p = new Parallelepiped(true, faceNorth, faceSouth, faceEast, faceWest, faceTop, faceBottom, stxtn, tc);
-        p.setWidth(width);
-        p.setDepth(depth);
-        p.setHeight(height);
-        return p;
-    }
-
-    @NonNull
-    public static Parallelepiped createParallelepiped(float width, float height, float depth, float stxtn) {
-        float[] nbl = {0.0f, 0.0f, 0.0f};
-        float[] ntl = {0.0f, height, 0.0f};
-        float[] nbr = {width, 0.0f, 0.0f};
-        float[] ntr = {width, height, 0.0f};
-        float[] fbl = {0.0f, 0.0f, depth};
-        float[] ftl = {0.0f, height, depth};
-        float[] fbr = {width, 0.0f, depth};
-        float[] ftr = {width, height, depth};
-        Face faceNorth = new Face(fbl, ftl, nbl, ntl);
-        Face faceSouth = new Face(nbr, ntr, fbr, ftr);
-        Face faceEast = new Face(nbl, ntl, nbr, ntr);
-        Face faceWest = new Face(fbr, ftr, fbl, ftl);
-        Face faceTop = new Face(ntl, ftl, ntr, ftr);
-        Face faceBottom = new Face(nbl, fbl, nbr, fbr);
-        Parallelepiped p = new Parallelepiped(true, faceNorth, faceSouth, faceEast, faceWest, faceTop, faceBottom, stxtn);
-        p.setWidth(width);
-        p.setDepth(depth);
-        p.setHeight(height);
         return p;
     }
 

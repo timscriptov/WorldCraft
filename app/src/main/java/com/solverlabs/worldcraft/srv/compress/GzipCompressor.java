@@ -1,13 +1,14 @@
 package com.solverlabs.worldcraft.srv.compress;
 
+import org.apache.commons.compress.archivers.ArchiveException;
+import org.apache.commons.compress.utils.IOUtils;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.zip.GZIPOutputStream;
-import org.apache.commons.compress.archivers.ArchiveException;
-import org.apache.commons.compress.utils.IOUtils;
 
 public class GzipCompressor {
     private final File src;

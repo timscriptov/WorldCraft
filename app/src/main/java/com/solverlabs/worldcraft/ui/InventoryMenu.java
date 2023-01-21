@@ -1,13 +1,13 @@
 package com.solverlabs.worldcraft.ui;
 
 import android.opengl.GLES10;
+
 import com.solverlabs.droid.rugl.Game;
 import com.solverlabs.droid.rugl.geom.ColouredShape;
 import com.solverlabs.droid.rugl.geom.DoorBlock;
 import com.solverlabs.droid.rugl.geom.Shape;
 import com.solverlabs.droid.rugl.geom.ShapeUtil;
 import com.solverlabs.droid.rugl.gl.StackedRenderer;
-import com.solverlabs.droid.rugl.gl.State;
 import com.solverlabs.droid.rugl.input.Touch;
 import com.solverlabs.droid.rugl.util.Colour;
 import com.solverlabs.droid.rugl.util.geom.BoundingRectangle;
@@ -17,15 +17,21 @@ import com.solverlabs.worldcraft.factories.BlockFactory;
 import com.solverlabs.worldcraft.inventory.InventoryItem;
 import com.solverlabs.worldcraft.inventory.InventoryTapItem;
 import com.solverlabs.worldcraft.math.MathUtils;
+
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class InventoryMenu implements Touch.TouchListener {
+    private final Player player;
+    private final ArrayList<InventoryTapItem> renderItemsList = new ArrayList<>();
+    public BoundingRectangle bounds = new BoundingRectangle(55.0f, 100.0f, 675.0f, 320.0f);
+    public int boundsColour = Colour.packFloat(1.0f, 1.0f, 1.0f, 1.0f);
+    public int arrowColour = Colour.packFloat(1.0f, 1.0f, 1.0f, 1.0f);
+    public int innerColour = Colour.packInt(148, 134, 123, 255);
+    public int sliderColour = Colour.grey;
     private boolean autoScrollDown;
     private ColouredShape boundsShape;
     private ColouredShape downScrollArrowShape;
     private ColouredShape innerShape;
-    private final Player player;
     private float prevYpoint;
     private ColouredShape scrollSliderShape;
     private float sliderSize;
@@ -33,12 +39,6 @@ public class InventoryMenu implements Touch.TouchListener {
     private float touchDelta;
     private ColouredShape upScrollArrowShape;
     private boolean show = false;
-    public BoundingRectangle bounds = new BoundingRectangle(55.0f, 100.0f, 675.0f, 320.0f);
-    public int boundsColour = Colour.packFloat(1.0f, 1.0f, 1.0f, 1.0f);
-    public int arrowColour = Colour.packFloat(1.0f, 1.0f, 1.0f, 1.0f);
-    public int innerColour = Colour.packInt(148, 134, 123, 255);
-    public int sliderColour = Colour.grey;
-    private final ArrayList<InventoryTapItem> renderItemsList = new ArrayList<>();
     private boolean autoScrollUp = false;
     private boolean itemInited = false;
 

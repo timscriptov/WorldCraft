@@ -1,10 +1,10 @@
 package com.solverlabs.worldcraft.srv.client;
 
-import com.solverlabs.worldcraft.srv.client.NIOEventReader;
 import com.solverlabs.worldcraft.srv.domain.Camera;
 import com.solverlabs.worldcraft.srv.domain.Player;
 import com.solverlabs.worldcraft.srv.domain.Room;
 import com.solverlabs.worldcraft.srv.util.ObjectCodec;
+
 import java.util.List;
 import java.util.Map;
 
@@ -101,39 +101,39 @@ public class Reconnector implements NIOEventReader.OnEventReaderStartedListener,
         this.transmitter.joinRoom();
     }
 
-    @Override 
+    @Override
     public void onMessage(String str) {
     }
 
-    @Override 
+    @Override
     public void onModifiedBlocks(Map<List<Short>, Room.BlockData> map) {
     }
 
-    @Override 
+    @Override
     public void onMoveResponse(byte b) {
     }
 
-    @Override 
+    @Override
     public void onPingResponse(byte b) {
     }
 
-    @Override 
+    @Override
     public void onPopupMessage(String str) {
     }
 
-    @Override 
+    @Override
     public void onReadOnlyRoomModification() {
     }
 
-    @Override 
+    @Override
     public void onRoomListResponse(byte b, List<ObjectCodec.RoomPack> list, List<ObjectCodec.RoomPack> list2, List<ObjectCodec.RoomPack> list3, List<ObjectCodec.RoomPack> list4, short s) {
     }
 
-    @Override 
+    @Override
     public void onSetBlockResonse(byte b, Map<List<Short>, Room.BlockData> map) {
     }
 
-    @Override 
+    @Override
     public void onUnknownEvent(byte b, byte b2) {
     }
 

@@ -2,6 +2,7 @@ package com.solverlabs.worldcraft;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+
 import com.solverlabs.worldcraft.factories.DescriptionFactory;
 
 public class Persistence {

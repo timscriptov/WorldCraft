@@ -1,11 +1,9 @@
 package com.solverlabs.worldcraft.multiplayer.util;
 
 import android.text.InputFilter;
-import android.text.Spanned;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.solverlabs.worldcraft.factories.DescriptionFactory;
 

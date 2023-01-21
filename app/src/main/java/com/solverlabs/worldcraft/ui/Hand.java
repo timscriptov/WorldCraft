@@ -8,8 +8,6 @@ import com.solverlabs.droid.rugl.gl.enums.MagFilter;
 import com.solverlabs.droid.rugl.gl.enums.MinFilter;
 import com.solverlabs.droid.rugl.res.BitmapLoader;
 import com.solverlabs.droid.rugl.res.ResourceLoader;
-import com.solverlabs.droid.rugl.texture.BitmapImage;
-import com.solverlabs.droid.rugl.texture.Image;
 import com.solverlabs.droid.rugl.texture.Texture;
 import com.solverlabs.droid.rugl.texture.TextureFactory;
 import com.solverlabs.droid.rugl.util.Trig;
@@ -40,6 +38,19 @@ public class Hand {
 
     public Hand(Player player) {
         this.player = player;
+    }
+
+    public static void loadTexture() {
+        ResourceLoader.loadNow(new BitmapLoader(R.drawable.player_skins) {
+            @Override
+            public void complete() {
+                Texture skin = TextureFactory.buildTexture(this.resource, true, false);
+                if (skin != null) {
+                    Hand.state = skin.applyTo(Hand.state);
+                }
+                this.resource.bitmap.recycle();
+            }
+        });
     }
 
     public void strike(boolean fast) {
@@ -100,18 +111,5 @@ public class Hand {
         } catch (Throwable t) {
             t.printStackTrace();
         }
-    }
-
-    public static void loadTexture() {
-        ResourceLoader.loadNow(new BitmapLoader(R.drawable.player_skins) {
-            @Override
-            public void complete() {
-                Texture skin = TextureFactory.buildTexture(this.resource, true, false);
-                if (skin != null) {
-                    Hand.state = skin.applyTo(Hand.state);
-                }
-                this.resource.bitmap.recycle();
-            }
-        });
     }
 }

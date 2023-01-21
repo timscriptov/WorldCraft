@@ -3,11 +3,13 @@ package com.solverlabs.worldcraft.srv.common;
 import androidx.annotation.NonNull;
 
 import com.solverlabs.worldcraft.factories.DescriptionFactory;
-import java.nio.ByteBuffer;
+
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.oneone.OneToOneDecoder;
+
+import java.nio.ByteBuffer;
 
 public class WorldCraftEventDecoder extends OneToOneDecoder {
     public static final int HEADER_SIZE = 12;

@@ -9,9 +9,9 @@ import com.solverlabs.droid.rugl.input.TapPad;
 import com.solverlabs.worldcraft.factories.ItemFactory;
 
 public class ImageTapPad extends TapPad {
+    private final TexturedShape shape;
     private ColouredShape outlineBlack;
     private ColouredShape outlineWhite;
-    private final TexturedShape shape;
 
     public ImageTapPad(float x, float y, float width, float height, int w, int h) {
         super(x, y, width, height);

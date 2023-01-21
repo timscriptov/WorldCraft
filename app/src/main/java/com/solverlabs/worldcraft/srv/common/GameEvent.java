@@ -71,17 +71,17 @@ public interface GameEvent {
 
     byte getError();
 
-    Player getPlayer();
-
-    int getPlayerId();
-
-    byte getType();
-
     void setError(byte b);
+
+    Player getPlayer();
 
     void setPlayer(Player player);
 
+    int getPlayerId();
+
     void setPlayerId(int i);
+
+    byte getType();
 
     void setType(byte b);
 }

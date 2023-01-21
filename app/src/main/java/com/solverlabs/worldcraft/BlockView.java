@@ -23,20 +23,20 @@ public class BlockView {
     public static final long FPS = 80;
     private static final int FPS_COUNT = 10;
     private static final long TIME_BETWEEN_FRAMES = 12;
+    private final StackedRenderer r = new StackedRenderer();
+    private final long[] lastFpss = new long[10];
     public boolean complete;
     public BlockEntityPainter entityPainter;
-    private TextShape fpsShape;
-    private long fpsVar;
     public GUI gui;
-    private long lastDrawAt;
     public MobPainter mobAggregator;
     public Player player;
     public World world;
     public FPSCamera cam = new FPSCamera();
     public int skyColour = Colour.packFloat(0.7f, 0.7f, 0.9f, 1.0f);
-    private final StackedRenderer r = new StackedRenderer();
-    private final long[] lastFpss = new long[10];
     public CharactersPainter charactersPainter = new CharactersPainter();
+    private TextShape fpsShape;
+    private long fpsVar;
+    private long lastDrawAt;
 
     public BlockView(World world) {
         this.world = world;

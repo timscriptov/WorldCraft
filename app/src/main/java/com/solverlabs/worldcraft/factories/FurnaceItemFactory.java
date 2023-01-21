@@ -46,7 +46,7 @@ public class FurnaceItemFactory {
         Chest((byte) 54, 15, (byte) 0),
         Stone((byte) 1, 0, (byte) 4),
         ClayOre(BlockFactory.CLAY_ORE_ID, 0, (byte) 120);
-        
+
         private final int burningTime;
         private final byte craftedItemId;
         private final byte id;
@@ -55,18 +55,6 @@ public class FurnaceItemFactory {
             this.id = id;
             this.craftedItemId = craftedItemId;
             this.burningTime = burningTime;
-        }
-
-        public byte getId() {
-            return this.id;
-        }
-
-        public int getBurningTime() {
-            return this.burningTime;
-        }
-
-        public byte getCraftedItemId() {
-            return this.craftedItemId;
         }
 
         public static int getBurningTime(byte id) {
@@ -85,6 +73,18 @@ public class FurnaceItemFactory {
                 }
             }
             return (byte) 0;
+        }
+
+        public byte getId() {
+            return this.id;
+        }
+
+        public int getBurningTime() {
+            return this.burningTime;
+        }
+
+        public byte getCraftedItemId() {
+            return this.craftedItemId;
         }
     }
 }

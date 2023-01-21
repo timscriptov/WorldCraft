@@ -1,6 +1,7 @@
 package com.solverlabs.worldcraft.client.common;
 
 import com.solverlabs.worldcraft.srv.common.WorldCraftGameEvent;
+
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class EventQueue {
