@@ -1,49 +1,40 @@
 package com.solverlabs.droid.rugl.res;
 
-import android.content.Context;
-import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import androidx.annotation.NonNull;
 
+import com.solverlabs.droid.rugl.GameApp;
 import com.solverlabs.droid.rugl.texture.BitmapImage;
-import com.solverlabs.worldcraft.factories.DescriptionFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-
+/**
+ * Loads a {@link BitmapImage}
+ */
 public abstract class BitmapLoader extends ResourceLoader.Loader<BitmapImage> {
-    private static final BitmapFactory.Options opts = new BitmapFactory.Options();
+    private final String imagePath;
 
-    static {
-        opts.inDither = false;
-        opts.inPurgeable = true;
-        opts.inInputShareable = true;
-        opts.inTempStorage = new byte[32768];
+    /**
+     * @param path
+     */
+    public BitmapLoader(String path) {
+        this.imagePath = path;
     }
-
-    private final int id;
-
-
-    public BitmapLoader(int id) {
-        this.id = id;
-    }
-
 
     /**
      * Retrieve a bitmap from assets.
      *
-     * @param mgr  The {@link AssetManager} obtained via {@link Context#getAssets()}
      * @param path The path to the asset.
      * @return The {@link Bitmap} or {@code null} if we failed to decode the file.
      */
-    public static Bitmap getBitmapFromAsset(@NonNull AssetManager mgr, String path) {
+    public static Bitmap getBitmapFromAsset(String path) {
         InputStream is = null;
         Bitmap bitmap = null;
         try {
-            is = mgr.open(path);
+            is = GameApp.getContext().getAssets().open(path);
             bitmap = BitmapFactory.decodeStream(is);
         } catch (final IOException e) {
             e.printStackTrace();
@@ -61,12 +52,13 @@ public abstract class BitmapLoader extends ResourceLoader.Loader<BitmapImage> {
 
     @Override
     public void load() {
-        resource = new BitmapImage(BitmapFactory.decodeResource(ResourceLoader.resources, this.id, opts));
-
+        resource = new BitmapImage(getBitmapFromAsset(imagePath));
     }
 
     @NonNull
+    @Override
     public String toString() {
-        return "Bitmap id = " + id + (resource != null ? " " + resource.width + "x" + resource.height : DescriptionFactory.emptyText);
+        return "Image path = " + imagePath
+                + (resource != null ? " " + resource.width + "x" + resource.height : "");
     }
 }

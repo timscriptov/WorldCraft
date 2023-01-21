@@ -19,7 +19,6 @@ import com.solverlabs.droid.rugl.res.ResourceLoader;
 import com.solverlabs.droid.rugl.texture.Texture;
 import com.solverlabs.droid.rugl.texture.TextureFactory;
 import com.solverlabs.droid.rugl.util.Colour;
-import com.solverlabs.worldcraft.R;
 import com.solverlabs.worldcraft.etc.Food;
 import com.solverlabs.worldcraft.ui.FoodBar;
 import com.solverlabs.worldcraft.ui.HealthBar;
@@ -73,7 +72,7 @@ public class ItemFactory {
     }
 
     public static void loadTexture() {
-        ResourceLoader.loadNow(new BitmapLoader(R.drawable.items) {
+        ResourceLoader.loadNow(new BitmapLoader("items.png") {
             @Override
             public void complete() {
                 Set<Byte> fuels = FurnaceItemFactory.getFuelList();

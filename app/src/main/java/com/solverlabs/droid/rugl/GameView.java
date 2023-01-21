@@ -5,12 +5,17 @@ import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+
 import com.solverlabs.droid.rugl.input.Touch;
+
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
-import javax.microedition.khronos.egl.EGLDisplay;
 
-public final class GameView extends GLSurfaceView {
+@SuppressLint("ViewConstructor")
+final class GameView extends GLSurfaceView {
+    /**
+     * The game
+     */
     public Game game;
 
     public GameView(Context context) {
@@ -22,10 +27,13 @@ public final class GameView extends GLSurfaceView {
     }
 
     public void init(Game game) {
-        setDebugFlags(1);
+        setDebugFlags(DEBUG_CHECK_GL_ERROR);
         this.game = game;
         setEGLConfigChooser((egl, display) -> {
-            int[] attributes = {12325, 16, 12344};
+            // Ensure that we get a 16bit framebuffer. Otherwise,
+            // we'll fall back to Pixelflinger on some devices (e.g.:
+            // Samsung I7500)
+            int[] attributes = new int[]{EGL10.EGL_DEPTH_SIZE, 16, EGL10.EGL_NONE};
             EGLConfig[] configs = new EGLConfig[1];
             int[] result = new int[1];
             egl.eglChooseConfig(display, attributes, configs, 1, result);
@@ -36,8 +44,9 @@ public final class GameView extends GLSurfaceView {
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public boolean onTouchEvent(final MotionEvent event) {
         Touch.onTouchEvent(event);
+
         return true;
     }
 }

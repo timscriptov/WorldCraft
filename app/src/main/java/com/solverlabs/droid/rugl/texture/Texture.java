@@ -2,94 +2,178 @@ package com.solverlabs.droid.rugl.texture;
 
 import android.graphics.Point;
 
-import androidx.annotation.NonNull;
-
 import com.solverlabs.droid.rugl.gl.State;
 import com.solverlabs.droid.rugl.gl.enums.MinFilter;
 import com.solverlabs.droid.rugl.gl.facets.TextureState;
 import com.solverlabs.droid.rugl.util.geom.Vector2f;
 
 
+/**
+ * It's a texture, residing inside a larger texture
+ */
 public class Texture {
-    public final int height;
+    /**
+     * The parent texture
+     */
     public final TextureFactory.GLTexture parent;
+    /**
+     * The source of the texture data
+     */
     public final Image sourceImage;
+    /***/
     public final int width;
-    private final Vector2f extent;
+    /***/
+    public final int height;
+    /**
+     * The bottom left corner of the texture, in texture coordinates
+     */
     private final Vector2f origin;
+    /**
+     * The vector from the top bottom corner to the top right, in
+     * texture coordinates
+     */
+    private final Vector2f extent;
+    /**
+     * The bottom left corner, in pixels
+     */
     private final Point pixelOrigin;
 
-    public Texture(@NonNull TextureFactory.GLTexture parent, Vector2f bottomLeft, Vector2f topRight, Image source) {
+    /**
+     * Constructs a new Texture
+     *
+     * @param parent
+     * @param bottomLeft
+     * @param topRight
+     * @param source
+     */
+    Texture(TextureFactory.GLTexture parent, Vector2f bottomLeft, Vector2f topRight, Image source) {
         this.parent = parent;
-        this.origin = bottomLeft;
-        this.extent = Vector2f.sub(topRight, bottomLeft, null);
-        this.sourceImage = source;
-        this.width = this.sourceImage.width;
-        this.height = this.sourceImage.height;
-        this.pixelOrigin = new Point((int) (this.origin.x * parent.width), (int) (this.origin.y * parent.height));
+        origin = bottomLeft;
+        extent = Vector2f.sub(topRight, bottomLeft, null);
+        sourceImage = source;
+        width = sourceImage.width;
+        height = sourceImage.height;
+        pixelOrigin =
+                new Point((int) (origin.x * parent.width),
+                        (int) (origin.y * parent.height));
     }
 
-    public Texture(@NonNull TextureFactory.GLTexture parent) {
+    /**
+     * Constructs a new Texture
+     *
+     * @param parent
+     */
+    Texture(TextureFactory.GLTexture parent) {
         this.parent = parent;
-        this.origin = new Vector2f(0.0f, 0.0f);
-        this.extent = new Vector2f(1.0f, 1.0f);
-        this.sourceImage = null;
-        this.width = parent.width;
-        this.height = parent.height;
-        this.pixelOrigin = new Point((int) (this.origin.x * parent.width), (int) (this.origin.y * parent.height));
+        origin = new Vector2f(0, 0);
+        extent = new Vector2f(1, 1);
+        sourceImage = null;
+        width = parent.width;
+        height = parent.height;
+
+        pixelOrigin =
+                new Point((int) (origin.x * parent.width),
+                        (int) (origin.y * parent.height));
     }
 
-    public State applyTo(@NonNull State state) {
-        if (state.texture.id != this.parent.id()) {
-            state = state.with(state.texture.with(this.parent.id()));
+    /**
+     * Applies this texture to a rendering {@link State}
+     *
+     * @param state
+     * @return The altered state
+     */
+    public State applyTo(State state) {
+        if (state.texture.id != parent.id()) {
+            state = state.with(state.texture.with(parent.id()));
         }
-        if (!this.parent.mipmap) {
+
+        if (!parent.mipmap) {
+            // no mipmaps, so try for the closest compatible filter mode
             TextureState.Filters f = state.texture.filter;
-            if (f.min == MinFilter.LINEAR_MIPMAP_LINEAR || f.min == MinFilter.LINEAR_MIPMAP_NEAREST) {
+            if (f.min == MinFilter.LINEAR_MIPMAP_LINEAR
+                    || f.min == MinFilter.LINEAR_MIPMAP_NEAREST) {
                 f = f.with(MinFilter.LINEAR);
-            } else if (f.min == MinFilter.NEAREST_MIPMAP_LINEAR || f.min == MinFilter.NEAREST_MIPMAP_NEAREST) {
+            } else if (f.min == MinFilter.NEAREST_MIPMAP_LINEAR
+                    || f.min == MinFilter.NEAREST_MIPMAP_NEAREST) {
                 f = f.with(MinFilter.NEAREST);
             }
+
             if (f != state.texture.filter) {
-                return state.with(state.texture.with(f));
+                state = state.with(state.texture.with(f));
             }
-            return state;
         }
+
         return state;
     }
 
+    /**
+     * Translates s and t coordinates into values that can be passed to
+     * openGL.
+     *
+     * @param s    The desired s coordinate, in range 0 to 1
+     * @param t    The desired t coordinate, in range 0 to 1
+     * @param dest A vector2f in which to store the result, or null
+     * @return The texture coordinates in terms of the containing
+     * openGL texture
+     */
     public Vector2f getTexCoords(float s, float t, Vector2f dest) {
         if (dest == null) {
             dest = new Vector2f();
         }
-        dest.x = this.origin.x + (this.extent.x * s);
-        dest.y = this.origin.y + (this.extent.y * t);
+
+        dest.x = origin.x + extent.x * s;
+        dest.y = origin.y + extent.y * t;
+
         return dest;
     }
 
-    public Vector2f getTexCoords(@NonNull Vector2f coords, Vector2f dest) {
+    /**
+     * Translates s and t coordinates into values that can be passed to
+     * openGL.
+     *
+     * @param coords The desired texture coordinates, as if the texture
+     *               used up a whole openGL texture
+     * @param dest   A vector2f in which to store the result, or null
+     * @return The texture coordinates in terms of the containing
+     * openGL texture
+     */
+    public Vector2f getTexCoords(Vector2f coords, Vector2f dest) {
         return getTexCoords(coords.x, coords.y, dest);
     }
 
+    /**
+     * Adjusts the supplied texture coordinates (which are in terms of
+     * the entire texture object to point to this subtexture
+     *
+     * @param texCoords
+     */
     public void correctTexCoords(float[] texCoords) {
-        if (this.origin.x != 0.0f || this.origin.y != 0.0f || this.extent.x != 1.0f || this.extent.y != 1.0f) {
+        if (origin.x != 0 || origin.y != 0 || extent.x != 1 || extent.y != 1) {
             for (int i = 0; i < texCoords.length; i += 2) {
-                texCoords[i] = this.origin.x + (this.extent.x * texCoords[i]);
-                texCoords[i + 1] = this.origin.y + (this.extent.y * texCoords[i + 1]);
+                texCoords[i] = origin.x + extent.x * texCoords[i];
+                texCoords[i + 1] = origin.y + extent.y * texCoords[i + 1];
             }
         }
     }
 
+    /**
+     * @return the x position of this texture within the parent
+     * texture, in pixels
+     */
     public int getXPosition() {
-        return this.pixelOrigin.x;
+        return pixelOrigin.x;
     }
 
+    /**
+     * @return the y position of this texture within the parent
+     * texture, in pixels
+     */
     public int getYPosition() {
-        return this.pixelOrigin.y;
+        return pixelOrigin.y;
     }
 
-    @NonNull
+    @Override
     public String toString() {
-        return this.width + "x" + this.height + " @ (" + this.pixelOrigin.x + ", " + this.pixelOrigin.y + ")";
+        return width + "x" + height + " @ (" + pixelOrigin.x + ", " + pixelOrigin.y + ")";
     }
 }

@@ -44,8 +44,8 @@ public abstract class MobFactory implements Mob.MobInteractionListener {
     public MobFactory() {
     }
 
-    public MobFactory(int drawableId) {
-        loadTexture(drawableId);
+    public MobFactory(String path) {
+        loadTexture(path);
     }
 
     public static void updateAllMobs(@NonNull Collection<Mob>... mobCollections) {
@@ -174,8 +174,8 @@ public abstract class MobFactory implements Mob.MobInteractionListener {
 
     protected abstract MobView getMobView(Mob mob);
 
-    public void loadTexture(int drawableId) {
-        ResourceLoader.loadNow(new BitmapLoader(drawableId) {
+    public void loadTexture(String path) {
+        ResourceLoader.loadNow(new BitmapLoader(path) {
             @Override
             public void complete() {
                 Texture texture = TextureFactory.buildTexture(this.resource, true, false);

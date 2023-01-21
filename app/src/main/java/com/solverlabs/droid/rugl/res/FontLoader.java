@@ -2,8 +2,6 @@ package com.solverlabs.droid.rugl.res;
 
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
 import com.solverlabs.droid.rugl.Game;
 import com.solverlabs.droid.rugl.text.Font;
 
@@ -11,16 +9,22 @@ import java.io.IOException;
 import java.io.InputStream;
 
 
+/**
+ * Loads a font
+ */
 public abstract class FontLoader extends ResourceLoader.Loader<Font> {
-    private final boolean mipmap;
     private final int resourceID;
 
+    private final boolean mipmap;
+
+    /**
+     * @param resourceID
+     * @param mipmap
+     */
     public FontLoader(int resourceID, boolean mipmap) {
         this.resourceID = resourceID;
         this.mipmap = mipmap;
     }
-
-    public abstract void fontLoaded();
 
     @Override
     public void load() {
@@ -37,11 +41,18 @@ public abstract class FontLoader extends ResourceLoader.Loader<Font> {
     public final void complete() {
         if (resource != null) {
             resource.init(mipmap);
+
             fontLoaded();
         }
     }
 
-    @NonNull
+    /**
+     * Called once the font has been constructed from the file and
+     * loaded into opengl
+     */
+    public abstract void fontLoaded();
+
+    @Override
     public String toString() {
         return "Font loader " + resourceID + " mipmap = " + mipmap;
     }

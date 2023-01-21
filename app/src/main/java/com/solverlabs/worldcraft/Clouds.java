@@ -93,7 +93,7 @@ public class Clouds {
     }
 
     public void loadTexture() {
-        ResourceLoader.loadNow(new BitmapLoader(R.drawable.clouds) {
+        ResourceLoader.loadNow(new BitmapLoader("clouds.png") {
             @Override
             public void complete() {
                 Clouds.this.texture = TextureFactory.buildTexture(this.resource, true, false);

@@ -1,9 +1,10 @@
 package com.solverlabs.worldcraft;
 
 import android.app.Activity;
-import android.app.Application;
 
-public class MyApplication extends Application {
+import com.solverlabs.droid.rugl.GameApp;
+
+public class MyApplication extends GameApp {
     private Activity currentActivity = null;
 
     @Override
@@ -20,6 +21,6 @@ public class MyApplication extends Application {
     }
 
     public boolean isCurrentActivity(Activity activity) {
-        return (this.currentActivity == null || activity == null || !this.currentActivity.equals(activity)) ? false : true;
+        return this.currentActivity != null && this.currentActivity.equals(activity);
     }
 }

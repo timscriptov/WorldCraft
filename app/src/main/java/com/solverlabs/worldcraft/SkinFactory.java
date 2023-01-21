@@ -18,7 +18,7 @@ public class SkinFactory {
     public static Texture texture;
 
     public static void loadTexture() {
-        ResourceLoader.loadNow(new BitmapLoader(R.drawable.player_skins) {
+        ResourceLoader.loadNow(new BitmapLoader("player_skins.png") {
             @Override
             public void complete() {
                 SkinFactory.texture = TextureFactory.buildTexture(this.resource, true, false);

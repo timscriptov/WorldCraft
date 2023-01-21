@@ -1,131 +1,147 @@
 package com.solverlabs.droid.rugl.res;
 
 import android.content.res.Resources;
+import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
+import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
+/**
+ * An asynchronous resource-loading service. Maintains two threads: one to do
+ * the loading IO, one to do post-loading processing
+ */
 public class ResourceLoader {
+    /***/
+    public static final String LOG_TAG = "ResourceLoader";
+    /***/
     public static Resources resources;
-    public static LinkedList<Loader<?>> complete = new LinkedList<>();
-    protected static LoaderService postLoaderService = new LoaderService();
-    private static LoaderService loaderService;
+    private static List<Loader> complete = Collections.synchronizedList(new LinkedList<Loader>());
+    private static ExecutorService loaderService = Executors.newSingleThreadExecutor();
+    private static AtomicInteger queueSize = new AtomicInteger(0);
+    private static ExecutorService postLoaderService = Executors
+            .newSingleThreadExecutor();
 
-    static {
-        loaderService = new LoaderService();
-        loaderService = new LoaderService();
-        loaderService.start();
-        postLoaderService.start();
+    /**
+     * Starts the loader thread
+     *
+     * @param resources
+     */
+    public static void start(final Resources resources) {
+        ResourceLoader.resources = resources;
     }
 
-    public static void start(Resources resources2) {
-        resources = resources2;
+    /**
+     * Asynchronously load a resource
+     *
+     * @param l
+     */
+    public static void load(final Loader l) {
+        queueSize.incrementAndGet();
+        loaderService.submit(new LoaderRunnable(l));
     }
 
-    public static void load(Loader<?> l) {
-        loaderService.add(new LoaderRunnable(l));
-    }
-
-    public static void loadNow(@NonNull Loader<?> l) {
+    /**
+     * Synchronously load a resource
+     *
+     * @param l
+     */
+    public static void loadNow(final Loader l) {
         l.load();
         l.postLoad();
         l.complete();
     }
 
+    /**
+     * Call this in the main thread, it'll cause completed loaders to call
+     * {@link Loader#complete()}
+     */
     public static void checkCompletion() {
         while (!complete.isEmpty()) {
-            Loader<?> l = complete.remove(0);
+            final Loader l = complete.remove(0);
+            queueSize.decrementAndGet();
+            Log.i(LOG_TAG, "Loaded resource " + l);
+
             l.complete();
         }
     }
 
-
-    public static class LoaderService implements Runnable {
-        private static final long SLEEP_TIME = 10;
-        final LinkedList<Runnable> queue = new LinkedList<>();
-        private boolean active;
-
-        public void add(Runnable runnable) {
-            synchronized (queue) {
-                queue.offer(runnable);
-            }
-        }
-
-        public Runnable poll() {
-            Runnable runnable;
-            synchronized (queue) {
-                runnable = queue.poll();
-            }
-            return runnable;
-        }
-
-        @Override
-        public void run() {
-            while (active) {
-                try {
-                    Runnable runnable = poll();
-                    if (runnable != null) {
-                        runnable.run();
-                    }
-                    Thread.sleep(SLEEP_TIME);
-                } catch (Throwable t) {
-                    t.printStackTrace();
-                }
-            }
-        }
-
-        public void start() {
-            active = true;
-            Thread t = new Thread(this);
-            t.setPriority(1);
-            t.start();
-        }
-
-        public void stop() {
-            active = false;
-        }
+    /**
+     * Gets the size of the loader queue
+     *
+     * @return the number of loaders waiting to be executed
+     */
+    public static int queueSize() {
+        return queueSize.get();
     }
 
-
+    /**
+     * Override this class to load resources
+     *
+     * @param <T>
+     */
     public static abstract class Loader<T> {
-        public boolean selfCompleting = true;
-        protected Throwable exception;
-        @Nullable
+        /**
+         * Indicates if the loader should {@link #complete()} as soon as possible,
+         * or if it should be deferred to whenever
+         * {@link ResourceLoader#checkCompletion()} is called.
+         */
+        public boolean selfCompleting = false;
+        /**
+         * The loaded resource
+         */
         protected T resource;
+        /**
+         * If an exception is encountered during loading, save it here and you can
+         * deal with it later
+         */
+        protected Throwable exception;
 
-        public abstract void complete();
-
+        /**
+         * Overload this to do the loading IO and set {@link #resource}. This is
+         * called on a shared loading thread
+         */
         public abstract void load();
 
+        /**
+         * This method is called on shared thread. Use it to do any processing
+         */
         public void postLoad() {
         }
+
+        /**
+         * This is called on the main thread when loading is complete
+         */
+        public abstract void complete();
     }
 
-    public static class LoaderRunnable implements Runnable {
-        private final Loader<?> mLoader;
-        private boolean mLoaded;
+    private static class LoaderRunnable implements Runnable {
+        private final Loader loader;
 
-        private LoaderRunnable(Loader<?> loader) {
-            mLoaded = false;
-            mLoader = loader;
+        private boolean loaded = false;
+
+        private LoaderRunnable(final Loader loader) {
+            this.loader = loader;
         }
 
         @Override
         public void run() {
-            if (!mLoaded) {
-                mLoader.load();
-                mLoaded = true;
-                ResourceLoader.postLoaderService.add(this);
-                return;
-            }
-            mLoader.postLoad();
-            if (mLoader.selfCompleting) {
-                mLoader.complete();
+            if (!loaded) {
+                loader.load();
+                loaded = true;
+                postLoaderService.submit(this);
             } else {
-                ResourceLoader.complete.add(mLoader);
+                loader.postLoad();
+
+                if (loader.selfCompleting) {
+                    loader.complete();
+                } else {
+                    complete.add(loader);
+                }
             }
         }
     }

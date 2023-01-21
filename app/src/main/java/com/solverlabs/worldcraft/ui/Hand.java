@@ -15,7 +15,6 @@ import com.solverlabs.droid.rugl.util.geom.Vector2f;
 import com.solverlabs.droid.rugl.util.math.Range;
 import com.solverlabs.worldcraft.GameMode;
 import com.solverlabs.worldcraft.Player;
-import com.solverlabs.worldcraft.R;
 import com.solverlabs.worldcraft.skin.geometry.generator.SkinGeometryGenerator;
 
 public class Hand {
@@ -41,7 +40,7 @@ public class Hand {
     }
 
     public static void loadTexture() {
-        ResourceLoader.loadNow(new BitmapLoader(R.drawable.player_skins) {
+        ResourceLoader.loadNow(new BitmapLoader("player_skins.png") {
             @Override
             public void complete() {
                 Texture skin = TextureFactory.buildTexture(this.resource, true, false);

@@ -22,7 +22,6 @@ import com.solverlabs.droid.rugl.texture.Texture;
 import com.solverlabs.droid.rugl.texture.TextureFactory;
 import com.solverlabs.droid.rugl.util.Colour;
 import com.solverlabs.droid.rugl.util.Trig;
-import com.solverlabs.worldcraft.R;
 import com.solverlabs.worldcraft.material.Material;
 
 import java.util.HashMap;
@@ -227,7 +226,7 @@ public class BlockFactory {
     }
 
     public static void loadTexture() {
-        ResourceLoader.loadNow(new BitmapLoader(R.drawable.terrain) {
+        ResourceLoader.loadNow(new BitmapLoader("terrain.png") {
             @Override
             public void complete() {
                 BlockFactory.texture = TextureFactory.buildTexture(this.resource, true, true);
