@@ -8,7 +8,6 @@ import android.graphics.BitmapFactory;
 import androidx.annotation.NonNull;
 
 import com.solverlabs.droid.rugl.texture.BitmapImage;
-import com.solverlabs.worldcraft.MyApplication;
 import com.solverlabs.worldcraft.factories.DescriptionFactory;
 
 import java.io.IOException;
