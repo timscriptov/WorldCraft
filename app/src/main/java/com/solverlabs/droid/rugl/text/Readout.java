@@ -15,10 +15,10 @@ public class Readout extends TexturedShape {
     private final int intDigits;
     private final int prefixLength;
     private final int valueOffset;
-    private final float[][] digitTexCoords;
-    private final float minValue;
     private float currentValue;
+    private final float[][] digitTexCoords;
     private float maxValue;
+    private final float minValue;
 
     public Readout(Font font, int colour, String prefix, boolean signed, int intDigits, int fracDigits) {
         super(build(font, colour, prefix, signed, intDigits, fracDigits));

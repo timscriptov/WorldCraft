@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 
 import com.solverlabs.worldcraft.srv.util.ObjectCodec;
 import com.solverlabs.worldcraft.ui.Interaction;
-
 import org.apache.commons.compress.archivers.cpio.CpioConstants;
 import org.apache.commons.compress.archivers.tar.TarConstants;
 import org.jetbrains.annotations.Contract;

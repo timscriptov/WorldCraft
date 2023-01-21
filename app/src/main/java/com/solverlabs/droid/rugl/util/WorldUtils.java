@@ -14,7 +14,6 @@ import com.solverlabs.worldcraft.nbt.Tag;
 import com.solverlabs.worldcraft.nbt.TagLoader;
 import com.solverlabs.worldcraft.util.Properties;
 import com.solverlabs.worldcraft.util.WorldGenerator;
-
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -22,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.Stack;
 import java.util.TreeSet;
 

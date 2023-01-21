@@ -5,22 +5,20 @@ import androidx.annotation.NonNull;
 import com.solverlabs.droid.rugl.util.geom.Vector3i;
 import com.solverlabs.worldcraft.chunk.Chunk;
 import com.solverlabs.worldcraft.factories.BlockFactory;
-
-import org.apache.commons.compress.archivers.cpio.CpioConstants;
-
 import java.util.Arrays;
 import java.util.Random;
+import org.apache.commons.compress.archivers.cpio.CpioConstants;
 
 public class StandardGenerationMethod extends BaseTerrainGenerator {
     private static final int COAL_ORE_PER_CHUNK = 4;
     private static final int DIAMOND_ORE_PER_CHUNK = 2;
     private static final int GOLD_ORE_PER_CHUNK = 2;
     private static final int IRON_ORE_PER_CHUNK = 3;
-    private final Random random = new Random();
     private int generatedCoalCount;
     private int generatedDiamondCount;
     private int generatedGoldCount;
     private int generatedIronCount;
+    private final Random random = new Random();
 
     @Override
     public void generateTerrain(@NonNull Chunk chunk, int noiseBlockOffset) {

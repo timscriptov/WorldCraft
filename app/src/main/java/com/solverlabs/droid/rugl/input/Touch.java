@@ -1,29 +1,34 @@
 package com.solverlabs.droid.rugl.input;
 
 import android.view.MotionEvent;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import com.solverlabs.droid.rugl.Game;
-
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Touch {
-    public static final Pointer[] pointers = new Pointer[2];
     private static final Queue<MotionEvent> touchEvents;
-    private static final ArrayList<TouchListener> listeners = new ArrayList<>();
-    private static final boolean[] wasActive = new boolean[2];
+    private static ArrayList<TouchListener> listeners = new ArrayList<>();
     private static float xScale = 1.0f;
     private static float yScale = 1.0f;
+    public static final Pointer[] pointers = new Pointer[2];
+    private static final boolean[] wasActive = new boolean[2];
+
+    /* loaded from: classes.dex */
+    public interface TouchListener {
+        boolean pointerAdded(Pointer pointer);
+
+        void pointerRemoved(Pointer pointer);
+
+        void reset();
+    }
 
     static {
         for (int i = 0; i < pointers.length; i++) {
             pointers[i] = new Pointer(i);
         }
-        touchEvents = new ConcurrentLinkedQueue<>();
+        touchEvents = new ConcurrentLinkedQueue();
     }
 
     public static void onTouchEvent(MotionEvent me) {
@@ -33,24 +38,22 @@ public class Touch {
     public static void processTouches() {
         while (!touchEvents.isEmpty()) {
             MotionEvent me = touchEvents.poll();
-            if (me != null) {
-                if (me.getAction() == 1) {
-                    for (int i = 0; i < pointers.length; i++) {
-                        onPointerUp(pointers[i]);
-                    }
-                } else if ((me.getAction() & 255) == 6) {
-                    Pointer p = getPoinerByEvent(me);
-                    if (p != null) {
-                        onPointerUp(p);
-                    }
-                } else {
-                    updatePointers(me);
+            if (me.getAction() == 1) {
+                for (int i = 0; i < pointers.length; i++) {
+                    onPointerUp(pointers[i]);
                 }
+            } else if ((me.getAction() & 255) == 6) {
+                Pointer p = getPoinerByEvent(me);
+                if (p != null) {
+                    onPointerUp(p);
+                }
+            } else {
+                updatePointers(me);
             }
         }
     }
 
-    private static void onPointerUp(@NonNull Pointer pointer) {
+    private static void onPointerUp(Pointer pointer) {
         if (pointer.active) {
             pointer.active = false;
             for (int j = 0; j < listeners.size(); j++) {
@@ -59,7 +62,6 @@ public class Touch {
         }
     }
 
-    @Nullable
     private static Pointer getPoinerByEvent(MotionEvent event) {
         try {
             return pointers[event.getPointerId(event.getAction() >> 8)];
@@ -99,7 +101,6 @@ public class Touch {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
@@ -124,26 +125,10 @@ public class Touch {
         listeners.remove(l);
     }
 
-    public static void reset() {
-        for (int i = 0; i < pointers.length; i++) {
-            pointers[i].active = false;
-        }
-        for (TouchListener l : listeners) {
-            l.reset();
-        }
-    }
-
-    public interface TouchListener {
-        boolean pointerAdded(Pointer pointer);
-
-        void pointerRemoved(Pointer pointer);
-
-        void reset();
-    }
-
+    /* loaded from: classes.dex */
     public static class Pointer {
-        public final int id;
         public boolean active;
+        public final int id;
         public boolean isUse;
         public float size;
         public float x;
@@ -155,14 +140,25 @@ public class Touch {
             this.id = id;
         }
 
-        @NonNull
         public String toString() {
             if (!this.active) {
-                return "Inactive: " + this.x + ", " + this.y;
+                StringBuilder buff = new StringBuilder();
+                buff.append("Inactive: ").append(this.x).append(", ").append(this.y);
+                return buff.toString();
             }
-            String buff2 = this.id + " ( " + this.x + ", " +
-                    this.y + " ) " + this.size;
-            return buff2;
+            StringBuilder buff2 = new StringBuilder();
+            buff2.append(this.id).append(" ( ").append(this.x).append(", ");
+            buff2.append(this.y).append(" ) ").append(this.size);
+            return buff2.toString();
+        }
+    }
+
+    public static void reset() {
+        for (int i = 0; i < pointers.length; i++) {
+            pointers[i].active = false;
+        }
+        for (TouchListener l : listeners) {
+            l.reset();
         }
     }
 }

@@ -4,8 +4,8 @@ import android.opengl.Matrix;
 
 
 public class StackedRenderer extends Renderer {
-    private final float[] stack = new float[80];
     private int pushOffset = 0;
+    private final float[] stack = new float[80];
     private int pushCount = 0;
     private int popCount = 0;
 

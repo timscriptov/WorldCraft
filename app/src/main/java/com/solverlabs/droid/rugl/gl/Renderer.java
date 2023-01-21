@@ -18,11 +18,11 @@ import java.util.List;
 public class Renderer {
     private static int internedListVersion = 0;
     protected final float[] transform;
-    private final List<State> interned;
-    private final float[] t;
     public boolean automaticallyClear;
     public IntBuffer colours;
     private IndexList[] indices;
+    private final List<State> interned;
+    private final float[] t;
     private FastFloatBuffer texCoords;
     private int triangleCount;
     private ShortBuffer tris;
