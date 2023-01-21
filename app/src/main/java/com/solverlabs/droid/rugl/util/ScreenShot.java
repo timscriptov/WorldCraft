@@ -2,6 +2,7 @@ package com.solverlabs.droid.rugl.util;
 
 import android.graphics.Bitmap;
 import android.opengl.GLES10;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;

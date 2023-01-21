@@ -10,14 +10,23 @@ import java.nio.IntBuffer;
 
 public class FastFloatBuffer {
     private static WeakReference<int[]> intArray = new WeakReference<>(new int[0]);
-    public ByteBuffer bytes;
     private final FloatBuffer floats;
     private final IntBuffer ints;
+    public ByteBuffer bytes;
 
     public FastFloatBuffer(int capacity) {
         this.bytes = ByteBuffer.allocateDirect(capacity * 4).order(ByteOrder.nativeOrder());
         this.floats = this.bytes.asFloatBuffer();
         this.ints = this.bytes.asIntBuffer();
+    }
+
+    @NonNull
+    public static int[] convert(@NonNull float... data) {
+        int[] id = new int[data.length];
+        for (int i = 0; i < data.length; i++) {
+            id[i] = Float.floatToRawIntBits(data[i]);
+        }
+        return id;
     }
 
     public void flip() {
@@ -50,15 +59,6 @@ public class FastFloatBuffer {
         this.bytes.position(this.bytes.position() + (data.length * 4));
         this.floats.position(this.floats.position() + data.length);
         this.ints.put(data, 0, data.length);
-    }
-
-    @NonNull
-    public static int[] convert(@NonNull float... data) {
-        int[] id = new int[data.length];
-        for (int i = 0; i < data.length; i++) {
-            id[i] = Float.floatToRawIntBits(data[i]);
-        }
-        return id;
     }
 
     public void put(@NonNull FastFloatBuffer b) {

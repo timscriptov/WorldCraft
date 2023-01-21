@@ -2,19 +2,11 @@ package com.solverlabs.droid.rugl.util;
 
 import androidx.annotation.NonNull;
 
-import org.jetbrains.annotations.Contract;
-
 import java.util.List;
 
 public class RectanglePacker<P> {
     private int border;
     private RectanglePacker<P>.Node root;
-
-    public enum Fit {
-        FAIL,
-        PERFECT,
-        FIT
-    }
 
     public RectanglePacker(int width, int height, int border) {
         this.border = 0;
@@ -54,11 +46,43 @@ public class RectanglePacker<P> {
         return this.root.rect.height;
     }
 
+    public enum Fit {
+        FAIL,
+        PERFECT,
+        FIT
+    }
+
+    public static class Rectangle {
+        public final int height;
+        public final int width;
+        public final int x;
+        public final int y;
+
+        private Rectangle(int x, int y, int width, int height) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+        }
+
+        private Rectangle(@NonNull Rectangle r) {
+            this.x = r.x;
+            this.y = r.y;
+            this.width = r.width;
+            this.height = r.height;
+        }
+
+        @NonNull
+        public String toString() {
+            return "[ " + this.x + ", " + this.y + ", " + this.width + ", " + this.height + " ]";
+        }
+    }
+
     public class Node {
         final boolean assertionsDisabled = !RectanglePacker.class.desiredAssertionStatus();
+        private final Rectangle rect;
         private RectanglePacker<P>.Node left;
         private P occupier;
-        private final Rectangle rect;
         private RectanglePacker<P>.Node right;
 
         private Node(Rectangle r) {
@@ -170,32 +194,6 @@ public class RectanglePacker<P> {
                 this.left.getRectangles(rectangles);
                 this.right.getRectangles(rectangles);
             }
-        }
-    }
-
-    public static class Rectangle {
-        public final int height;
-        public final int width;
-        public final int x;
-        public final int y;
-
-        private Rectangle(int x, int y, int width, int height) {
-            this.x = x;
-            this.y = y;
-            this.width = width;
-            this.height = height;
-        }
-
-        private Rectangle(@NonNull Rectangle r) {
-            this.x = r.x;
-            this.y = r.y;
-            this.width = r.width;
-            this.height = r.height;
-        }
-
-        @NonNull
-        public String toString() {
-            return "[ " + this.x + ", " + this.y + ", " + this.width + ", " + this.height + " ]";
         }
     }
 }

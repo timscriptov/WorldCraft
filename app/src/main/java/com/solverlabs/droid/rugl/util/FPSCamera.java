@@ -14,15 +14,16 @@ import com.solverlabs.droid.rugl.util.math.Range;
 import com.solverlabs.worldcraft.factories.BlockFactory;
 
 public class FPSCamera {
-    private final Vector3f position = new Vector3f();
-    public boolean invert = false;
     public final Vector3f forward = new Vector3f();
     public final Vector3f up = new Vector3f();
     public final Vector3f right = new Vector3f();
+    private final Vector3f position = new Vector3f();
     private final Matrix4f m = new Matrix4f();
     private final Vector4f v4f = new Vector4f();
-    private float elevation = 0.0f;
-    private float heading = 0.0f;
+    private final Frustum frustum = new Frustum();
+    private final float[] projectionMatrix = new float[16];
+    private final float[] modelViewMatrix = new float[16];
+    public boolean invert = false;
     public float headingSpeed = 90.0f;
     public float pitchSpeed = 90.0f;
     public BlockFactory.WorldSide currentWorldSide = BlockFactory.WorldSide.North;
@@ -30,10 +31,9 @@ public class FPSCamera {
     public float fov = 70.0f;
     public float near = 0.01f;
     public float far = 500.0f;
-    private final Frustum frustum = new Frustum();
+    private float elevation = 0.0f;
+    private float heading = 0.0f;
     private boolean frustumDirty = true;
-    private final float[] projectionMatrix = new float[16];
-    private final float[] modelViewMatrix = new float[16];
     private float lastHeadingX = 0.0f;
     private float lastElevationY = 0.0f;
 
@@ -66,13 +66,13 @@ public class FPSCamera {
         Vector3f.cross(this.forward, this.right, this.up);
     }
 
+    public float getHeading() {
+        return this.heading;
+    }
+
     public void setHeading(float heading) {
         this.heading = heading;
         this.frustumDirty = true;
-    }
-
-    public float getHeading() {
-        return this.heading;
     }
 
     public float getElevation() {

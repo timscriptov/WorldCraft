@@ -18,7 +18,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.lang.Thread;
 import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
@@ -30,6 +29,10 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
     private static ExceptionHandler instance = null;
     private final Context context;
     private final Thread.UncaughtExceptionHandler defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
+
+    private ExceptionHandler(Context context) {
+        this.context = context;
+    }
 
     public static void addLogInfo(String key, String logInfo) {
         extraInfo.put(key, logInfo);
@@ -74,10 +77,6 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
         if (instance != null) {
             instance.uncaughtException(Thread.currentThread(), e);
         }
-    }
-
-    private ExceptionHandler(Context context) {
-        this.context = context;
     }
 
     @Override
