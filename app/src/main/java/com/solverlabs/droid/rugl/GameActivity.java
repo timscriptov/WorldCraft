@@ -1,7 +1,5 @@
 package com.solverlabs.droid.rugl;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.text.InputFilter;
@@ -15,7 +13,9 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.solverlabs.droid.rugl.res.ResourceLoader;
 import com.solverlabs.worldcraft.BlockView;
 import com.solverlabs.worldcraft.Enemy;
@@ -59,12 +59,15 @@ public abstract class GameActivity extends CommonActivity implements Runnable {
     }
 
     public void showGameMenuDialog() {
-        final Dialog menuDialog = new Dialog(this);
-        menuDialog.setContentView(R.layout.menulayout);
-        menuDialog.setTitle("Game menu");
-        Button quitButton = menuDialog.findViewById(R.id.quitButton);
-        Button backButton = menuDialog.findViewById(R.id.backButton);
-        Button playersList = menuDialog.findViewById(R.id.playerListButton);
+        final View view = View.inflate(this, R.layout.menulayout, null);
+        Button quitButton = view.findViewById(R.id.quitButton);
+        Button backButton = view.findViewById(R.id.backButton);
+        Button playersList = view.findViewById(R.id.playerListButton);
+
+        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+        builder.setView(view);
+        builder.setTitle("Game menu");
+        final AlertDialog dialog = builder.create();
         if (GameMode.isMultiplayerMode()) {
             playersList.setVisibility(View.VISIBLE);
         } else {
@@ -77,34 +80,36 @@ public abstract class GameActivity extends CommonActivity implements Runnable {
                 completeCurrentPhase(true);
             }
             SoundManager.stopAllSounds();
-            menuDialog.dismiss();
+            dialog.dismiss();
         });
-        backButton.setOnClickListener(v -> menuDialog.dismiss());
+        backButton.setOnClickListener(v -> dialog.dismiss());
         playersList.setOnClickListener(v -> {
             showPlayerList();
-            menuDialog.dismiss();
+            dialog.dismiss();
         });
-        menuDialog.show();
+        dialog.show();
     }
 
     public void showPlayerList() {
-        final Dialog playerListDialog = new Dialog(this);
-        playerListDialog.setContentView(R.layout.playerlist);
+        final View view = View.inflate(this, R.layout.playerlist, null);
+
+        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+        builder.setView(view);
         ArrayList<String> list = new ArrayList<>();
-        if (Multiplayer.instance != null) {
-            playerListDialog.setTitle("Player list       Room name:  " + Multiplayer.instance.roomName);
-            list.add(Multiplayer.instance.playerName + "   (you)");
-            Set<Enemy> sortedEnemies = new TreeSet<>(Multiplayer.getEnemiesCopy());
-            for (Enemy enemy : sortedEnemies) {
-                list.add(enemy.name);
-            }
+        builder.setTitle("Player list       Room name:  " + Multiplayer.instance.roomName);
+        list.add(Multiplayer.instance.playerName + "   (you)");
+        Set<Enemy> sortedEnemies = new TreeSet<>(Multiplayer.getEnemiesCopy());
+        for (Enemy enemy : sortedEnemies) {
+            list.add(enemy.name);
         }
+        final AlertDialog dialog = builder.create();
+
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(this, R.layout.custom_list_content, R.id.list_content, list);
-        ListView playerList = playerListDialog.findViewById(R.id.playerListView);
+        ListView playerList = view.findViewById(R.id.playerListView);
         playerList.setAdapter(dataAdapter);
-        Button cancelButton = playerListDialog.findViewById(R.id.cancel);
-        cancelButton.setOnClickListener(v -> playerListDialog.dismiss());
-        playerListDialog.show();
+        Button cancelButton = view.findViewById(R.id.cancel);
+        cancelButton.setOnClickListener(v -> dialog.dismiss());
+        dialog.show();
     }
 
     private void showLoadingDialog(final String message) {
@@ -193,16 +198,21 @@ public abstract class GameActivity extends CommonActivity implements Runnable {
                 input.setHint(R.string.world_name);
                 input.setText(Multiplayer.instance.roomName);
                 KeyboardUtils.hideKeyboardOnEnter(GameActivity.this, input);
-                AlertDialog.Builder builder = new AlertDialog.Builder(GameActivity.this);
-                builder.setTitle(R.string.save_world).setMessage(stringId).setView(input).setCancelable(false).setPositiveButton(R.string.save_world, (dialog, id) -> {
+                final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+                builder.setTitle(R.string.save_world);
+                builder.setMessage(stringId);
+                builder.setView(input);
+                builder.setCancelable(false);
+                builder.setPositiveButton(R.string.save_world, (dialog, id) -> {
                     String worldName = String.valueOf(input.getText());
-                    if (worldName != null && !DescriptionFactory.emptyText.equals(worldName) && !"null".equals(worldName)) {
+                    if (!DescriptionFactory.emptyText.equals(worldName) && !"null".equals(worldName)) {
                         saveWorld(worldName);
                         hideKeyBoard(input);
                         return;
                     }
                     Toast.makeText(GameActivity.this, R.string.wrong_world_name, Toast.LENGTH_LONG).show();
-                }).setNeutralButton(noButtonResourseId, (dialog, id) -> {
+                });
+                builder.setNeutralButton(noButtonResourseId, (dialog, id) -> {
                     if (completePhaseOnNoClick) {
                         completeCurrentPhase(false);
                     }
@@ -215,18 +225,21 @@ public abstract class GameActivity extends CommonActivity implements Runnable {
     }
 
     public void showLikeDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.like_it).setMessage(R.string.did_you_like_this_world).setCancelable(false).setPositiveButton(R.string.like, (dialog, id) -> {
+        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+        builder.setTitle(R.string.like_it);
+        builder.setMessage(R.string.did_you_like_this_world);
+        builder.setCancelable(false);
+        builder.setPositiveButton(R.string.like, (dialog, id) -> {
             Multiplayer.instance.likeWorld();
             dialog.dismiss();
             showSaveWorldDialog();
-        }).setNegativeButton(R.string.dislike, (dialog, id) -> {
+        });
+        builder.setNegativeButton(R.string.dislike, (dialog, id) -> {
             Multiplayer.instance.dislikeWorld();
             dialog.dismiss();
             showSaveWorldDialog();
         });
-        AlertDialog alert = builder.create();
-        alert.show();
+       builder.show();
     }
 
     public void sendChatMessage(@NonNull final EditText msg) {
@@ -250,7 +263,7 @@ public abstract class GameActivity extends CommonActivity implements Runnable {
     }
 
     public void showChatDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
         final EditText msg = new EditText(this);
         msg.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ChatBox.getMaxChatMessageLength())});
         builder.setTitle(R.string.your_message).setView(msg).setPositiveButton(android.R.string.ok, (dialog, id) -> sendChatMessage(msg)).setNegativeButton(R.string.cancel, (dialog, id) -> dialog.dismiss());

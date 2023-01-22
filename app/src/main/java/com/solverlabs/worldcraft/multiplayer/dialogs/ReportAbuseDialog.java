@@ -2,7 +2,6 @@ package com.solverlabs.worldcraft.multiplayer.dialogs;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -19,6 +18,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.solverlabs.worldcraft.Enemy;
 import com.solverlabs.worldcraft.R;
 import com.solverlabs.worldcraft.activity.OptionActivity;
@@ -64,7 +64,7 @@ public class ReportAbuseDialog {
     }
 
     protected void showAreYouShureDialog(@NonNull final Dialog parentDialog, final int playerId, final String abuseText) {
-        AlertDialog.Builder alertDialogBuilder = PopupDialog.createDialog(R.string.report_abuse, R.string.are_you_sure_you_want_to_send_this_report, parentDialog.getContext());
+        final MaterialAlertDialogBuilder alertDialogBuilder = PopupDialog.createDialog(R.string.report_abuse, R.string.are_you_sure_you_want_to_send_this_report, parentDialog.getContext());
         if (alertDialogBuilder != null) {
             alertDialogBuilder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
                 Multiplayer.reportAbuse(playerId, abuseText);

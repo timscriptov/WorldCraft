@@ -3,6 +3,8 @@ package com.solverlabs.droid.rugl.res;
 import android.content.res.Resources;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -50,7 +52,7 @@ public class ResourceLoader {
      *
      * @param l
      */
-    public static void loadNow(final Loader l) {
+    public static void loadNow(@NonNull final Loader l) {
         l.load();
         l.postLoad();
         l.complete();

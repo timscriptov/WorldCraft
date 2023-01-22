@@ -70,13 +70,12 @@ public class WorldCraftActivity extends GameActivity {
     @Override
     public void onPause() {
         clearReferences();
-        if (this.world != null) {
-            this.world.save();
+        if (world != null) {
+            world.save();
         }
-        this.isResumingGame = true;
-        Log.d("ONPAUSE", "isResume  " + this.isResumingGame);
-        if (this.loadingProgressDialog != null) {
-            this.loadingProgressDialog.dismiss();
+        isResumingGame = true;
+        if (loadingProgressDialog != null) {
+            loadingProgressDialog.dismiss();
         }
         if (GameMode.isMultiplayerMode()) {
             Multiplayer.instance.shutdown();
@@ -86,16 +85,16 @@ public class WorldCraftActivity extends GameActivity {
     }
 
     private void clearReferences() {
-        if (this.application.isCurrentActivity(this)) {
-            this.application.setCurrentActivity(null);
+        if (application.isCurrentActivity(this)) {
+            application.setCurrentActivity(null);
         }
     }
 
     @Override
     public void onResume() {
-        this.application.setCurrentActivity(this);
-        if (this.isResumingGame) {
-            this.isResumingGame = false;
+        application.setCurrentActivity(this);
+        if (isResumingGame) {
+            isResumingGame = false;
             if (GameMode.isMultiplayerMode()) {
                 super.finish();
                 return;
@@ -108,9 +107,9 @@ public class WorldCraftActivity extends GameActivity {
     @Override
     public void onDestroy() {
         TextureFactory.removeListener();
-        if (this.bw != null) {
-            this.bw.destroyWorld();
-            this.bw = null;
+        if (bw != null) {
+            bw.destroyWorld();
+            bw = null;
             TextureFactory.deleteAllTextures();
         }
         RegionFileCache.clear();
@@ -121,24 +120,24 @@ public class WorldCraftActivity extends GameActivity {
 
     @Override
     public void finish() {
-        if (this.world != null && this.world.isNewGame) {
-            deleteSave(this.world.dir.getAbsolutePath());
+        if (this.world != null && world.isNewGame) {
+            deleteSave(world.dir.getAbsolutePath());
         }
         super.finish();
     }
 
     private void showResumeDialog() {
-        if (this.resumeDialog == null) {
-            this.resumeDialog = new ProgressDialog(this);
-            this.resumeDialog.setTitle("Please wait");
-            this.resumeDialog.setMessage("Resuming");
+        if (resumeDialog == null) {
+            resumeDialog = new ProgressDialog(this);
+            resumeDialog.setTitle("Please wait");
+            resumeDialog.setMessage("Resuming");
         }
         runOnUiThread(() -> resumeDialog.show());
     }
 
     private void showProgressDialog() {
-        if (this.loadingProgressDialog == null) {
-            this.loadingProgressDialog = new CustomProgressDialog(this) {
+        if (loadingProgressDialog == null) {
+            loadingProgressDialog = new CustomProgressDialog(this) {
                 @Override
                 public void onBackPressed() {
                     if (world != null) {
@@ -156,23 +155,23 @@ public class WorldCraftActivity extends GameActivity {
                 }
             };
         }
-        this.loadingProgressDialog.show();
+        loadingProgressDialog.show();
     }
 
     public void dismissProgresDialog() {
-        this.loadingProgressDialog.dismiss();
+        loadingProgressDialog.dismiss();
     }
 
     public void dismissResumeDialog() {
-        this.resumeDialog.dismiss();
+        resumeDialog.dismiss();
     }
 
     public void dismissAllLoadingDialogs() {
-        if (this.loadingProgressDialog != null && this.loadingProgressDialog.isShowing()) {
-            this.loadingProgressDialog.dismiss();
+        if (loadingProgressDialog != null && loadingProgressDialog.isShowing()) {
+            loadingProgressDialog.dismiss();
         }
-        if (this.resumeDialog != null && this.resumeDialog.isShowing()) {
-            this.resumeDialog.dismiss();
+        if (resumeDialog != null && resumeDialog.isShowing()) {
+            resumeDialog.dismiss();
         }
     }
 
@@ -216,15 +215,15 @@ public class WorldCraftActivity extends GameActivity {
             @Override
             public void run() {
                 int mapType;
-                if (TagLoad.this.resource == null) {
-                    showToast("Could not load world level.dat\n" + TagLoad.this.exception.getClass().getSimpleName() + ":" + TagLoad.this.exception.getMessage(), true);
+                if (resource == null) {
+                    showToast("Could not load world level.dat\n" + exception.getClass().getSimpleName() + ":" + exception.getMessage(), true);
                     finish();
                     return;
                 }
                 try {
-                    Tag time = TagLoad.this.resource.findTagByName(WorldGenerator.LAST_PLAYED);
+                    Tag time = resource.findTagByName(WorldGenerator.LAST_PLAYED);
                     GameTime.initTime((Long) time.getValue());
-                    Tag playerTag = TagLoad.this.resource.findTagByName("Player");
+                    Tag playerTag = resource.findTagByName("Player");
                     Tag pos = playerTag.findTagByName("Pos");
                     Tag[] tl = (Tag[]) pos.getValue();
                     Vector3f p = new Vector3f();
@@ -241,16 +240,16 @@ public class WorldCraftActivity extends GameActivity {
                             rotation.y = 0.0f;
                         }
                     }
-                    Tag mapTypeTag = TagLoad.this.resource.findTagByName(WorldGenerator.MAP_TYPE);
+                    Tag mapTypeTag = resource.findTagByName(WorldGenerator.MAP_TYPE);
                     if (mapTypeTag != null) {
                         mapType = (Integer) mapTypeTag.getValue();
                     } else {
                         mapType = -1;
                     }
-                    world = new World(TagLoad.this.dir, p, TagLoad.this.resource) {
+                    world = new World(dir, p, resource) {
                         @Override
                         public boolean isLoadingDialogVisible() {
-                            return loadingProgressDialog != null || loadingProgressDialog.isShowing();
+                            return loadingProgressDialog != null && loadingProgressDialog.isShowing();
                         }
 
                         @Override
@@ -313,16 +312,16 @@ public class WorldCraftActivity extends GameActivity {
                             });
                         }
                     };
-                    world.setNewGame(TagLoad.this.isNewGame);
+                    world.setNewGame(isNewGame);
                     world.setMapType(mapType);
-                    ((CustomProgressDialog) loadingProgressDialog).updateMax(World.getLoadingLimit(TagLoad.this.isNewGame));
+                    ((CustomProgressDialog) loadingProgressDialog).updateMax(World.getLoadingLimit(isNewGame));
                     bw = new BlockView(world);
                     if (GameMode.isMultiplayerMode()) {
                         Multiplayer.instance.blockView = bw;
                     }
                     bw.setCamRotation(rotation);
                     bw.cam.invert = Persistence.getInstance().isInvertY();
-                    GameMode.setGameMode((GameMode.isMultiplayerMode() || !WorldGenerator.Mode.SURVIVAL.equals(TagLoad.this.gameMode)) ? 1 : 0);
+                    GameMode.setGameMode((GameMode.isMultiplayerMode() || !WorldGenerator.Mode.SURVIVAL.equals(gameMode)) ? 1 : 0);
                     if (GameMode.isSurvivalMode() && !GameMode.isMultiplayerMode()) {
                         world.initSunLight();
                     }

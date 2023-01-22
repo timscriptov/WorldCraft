@@ -232,8 +232,8 @@ public class BlockFactory {
                 BlockFactory.texture = TextureFactory.buildTexture(this.resource, true, true);
                 if (BlockFactory.texture != null) {
                     BlockFactory.state = BlockFactory.texture.applyTo(BlockFactory.state);
-                    Block[] arr$ = Block.values();
-                    for (Block b : arr$) {
+                    Block[] blocks = Block.values();
+                    for (Block b : blocks) {
                         if (b.blockItemShape != null) {
                             b.blockItemShape.state = BlockFactory.state;
                         }

@@ -1,8 +1,11 @@
 package com.solverlabs.worldcraft.dialog;
 
-import android.app.Dialog;
+import android.view.View;
 import android.widget.Button;
 
+import androidx.appcompat.app.AlertDialog;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.solverlabs.worldcraft.Player;
 import com.solverlabs.worldcraft.R;
 import com.solverlabs.worldcraft.activity.WorldCraftActivity;
@@ -10,7 +13,7 @@ import com.solverlabs.worldcraft.activity.WorldCraftActivity;
 public class DeathMenuDialog {
     private final WorldCraftActivity activity;
     private final Player player;
-    private Dialog dialog;
+    private AlertDialog dialog;
 
     public DeathMenuDialog(WorldCraftActivity activity, Player player) {
         this.activity = activity;
@@ -18,12 +21,16 @@ public class DeathMenuDialog {
     }
 
     public void show() {
-        this.dialog = new Dialog(this.activity);
-        this.dialog.setContentView(R.layout.death_menu_dialog);
-        this.dialog.setTitle(R.string.its_all_over);
-        this.dialog.setCancelable(false);
-        Button respawnButton = this.dialog.findViewById(R.id.respawn_button);
-        Button quitToTitleButton = this.dialog.findViewById(R.id.quit_to_title_button);
+        final View view = View.inflate(activity, R.layout.death_menu_dialog, null);
+        final Button respawnButton = view.findViewById(R.id.respawn_button);
+        final Button quitToTitleButton = view.findViewById(R.id.quit_to_title_button);
+
+        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
+        builder.setView(view);
+        builder.setTitle(R.string.its_all_over);
+        builder.setCancelable(false);
+        dialog = builder.create();
+
         respawnButton.setOnClickListener(v -> {
             dialog.dismiss();
             player.respawn();
@@ -32,10 +39,10 @@ public class DeathMenuDialog {
             player.respawn();
             activity.completeCurrentPhase(true);
         });
-        this.dialog.show();
+        dialog.show();
     }
 
     public boolean isVisible() {
-        return this.dialog != null && this.dialog.isShowing();
+        return dialog != null && dialog.isShowing();
     }
 }

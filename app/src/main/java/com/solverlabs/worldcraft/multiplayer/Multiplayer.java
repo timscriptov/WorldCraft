@@ -28,7 +28,7 @@ public enum Multiplayer {
 
     private static final int MAX_COUNT_OF_CHAT_MESSAGE_PER_PLAYER = 10;
     private static final LinkedList<String> popUpMessages = new LinkedList<>();
-    private static Map<String, List<Message>> messageMap = new HashMap();
+    private static Map<String, List<Message>> messageMap = new HashMap<>();
     public BlockView blockView;
     public int clientBuildNumber;
     public String clientVersion;
@@ -383,7 +383,6 @@ public enum Multiplayer {
         }
     }
 
-    /* loaded from: classes.dex */
     public static class Message {
         public long createdAt = System.currentTimeMillis();
         public String message;

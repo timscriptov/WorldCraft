@@ -1,13 +1,13 @@
 package com.solverlabs.droid.rugl.util;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.solverlabs.worldcraft.R;
 import com.solverlabs.worldcraft.World;
 import com.solverlabs.worldcraft.nbt.Tag;
@@ -48,11 +48,10 @@ public class WorldUtils {
             Log.e("WorldCraft", "Activity is null in WorldUtils.showStorageNotFoundDialog() method");
         } else {
             activity.runOnUiThread(() -> {
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-                builder.setTitle(R.string.storage_not_found).setNeutralButton(android.R.string.ok, (dialog, id) -> {
-                });
-                AlertDialog alert = builder.create();
-                alert.show();
+                final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
+                builder.setTitle(R.string.storage_not_found);
+                builder.setNeutralButton(android.R.string.ok, null);
+                builder.show();
             });
         }
     }
@@ -64,25 +63,16 @@ public class WorldUtils {
     @Nullable
     @Contract(pure = true)
     public static File getWorld(int position) {
-        if (worlds != null) {
-            return worlds.get(position);
-        }
-        return null;
+        return worlds.get(position);
     }
 
     public static void addWorld(File dir) {
-        if (worlds != null) {
-            worlds.add(dir);
-        }
+        worlds.add(dir);
     }
 
     @NonNull
     public static ArrayList<File> getWorldList() {
-        ArrayList<File> result = new ArrayList<>();
-        if (worlds != null) {
-            result.addAll(worlds);
-        }
-        return result;
+        return new ArrayList<>(worlds);
     }
 
     public static ArrayList<File> getCreativeModeWorlds() {
@@ -161,7 +151,7 @@ public class WorldUtils {
             public void complete() {
                 Tag gameType;
                 try {
-                    if (this.resource != null && (gameType = this.resource.findTagByName(WorldGenerator.GAME_TYPE)) != null) {
+                    if (resource != null && (gameType = resource.findTagByName(WorldGenerator.GAME_TYPE)) != null) {
                         worldInfo.isCreative = (Integer) gameType.getValue() == 1;
                     }
                     worldInfo.modifiedAt = WorldUtils.getLastModification(file);

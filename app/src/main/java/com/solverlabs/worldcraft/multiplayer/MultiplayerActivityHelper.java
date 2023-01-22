@@ -1,7 +1,6 @@
 package com.solverlabs.worldcraft.multiplayer;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.util.Log;
@@ -10,6 +9,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.solverlabs.droid.rugl.util.WorldUtils;
 import com.solverlabs.droid.rugl.util.geom.Vector3f;
 import com.solverlabs.worldcraft.MyApplication;
@@ -429,27 +429,29 @@ public class MultiplayerActivityHelper implements AndroidClient.MultiplayerListe
                 TextView alertTextView = new TextView(activity);
                 alertTextView.setText(message);
                 alertTextView.setGravity(1);
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-                builder.setTitle(R.string.update).setView(alertTextView).setPositiveButton(R.string.download, (dialog, id) -> Multiplayer.instance.shutdownWithoutActivityFinish()).setNegativeButton(17039360, (dialog, id) -> {
+                final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
+                builder.setTitle(R.string.update);
+                builder.setView(alertTextView);
+                builder.setPositiveButton(R.string.download, (dialog, id) -> {
+                    Multiplayer.instance.shutdownWithoutActivityFinish();
+                }).setNegativeButton(android.R.string.cancel, (dialog, id) -> {
                     if (allowLogin) {
                         Multiplayer.instance.gameClient.login();
                     } else {
                         Multiplayer.instance.shutdownWithoutActivityFinish();
                     }
                 });
-                AlertDialog alert = builder.create();
-                alert.show();
+                builder.show();
             });
         }
     }
 
     public void showPleaseCreateWorldDialog(@NonNull final Activity activity) {
         activity.runOnUiThread(() -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-            builder.setTitle(R.string.please_create_world).setNeutralButton(android.R.string.ok, (dialog, id) -> {
-            });
-            AlertDialog alert = builder.create();
-            alert.show();
+            final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
+            builder.setTitle(R.string.please_create_world);
+            builder.setNeutralButton(android.R.string.ok, null);
+            builder.show();
         });
         Multiplayer.instance.isInMultiplayerMode = false;
     }
@@ -523,18 +525,17 @@ public class MultiplayerActivityHelper implements AndroidClient.MultiplayerListe
     }
 
     public void showErrorDialog(int stringId) {
-        showErrorDialog(this.activity.getString(stringId));
+        showErrorDialog(activity.getString(stringId));
     }
 
     public void showErrorDialog(final String message) {
-        this.activity.runOnUiThread(() -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        activity.runOnUiThread(() -> {
+            final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
             TextView textView = new TextView(activity);
             textView.setText(message);
             builder.setTitle(R.string.error).setView(textView);
             builder.setNeutralButton(android.R.string.ok, null);
-            AlertDialog alertDialog = builder.create();
-            alertDialog.show();
+            builder.show();
         });
     }
 
@@ -557,9 +558,9 @@ public class MultiplayerActivityHelper implements AndroidClient.MultiplayerListe
     }
 
     private void dismissOpenedDialogsAndWait() {
-        dismissDialogAndWait(this.selectWorldDialog);
-        dismissDialogAndWait(this.roomlistDialog);
-        dismissDialogAndWait(this.loadingDialog);
+        dismissDialogAndWait(selectWorldDialog);
+        dismissDialogAndWait(roomlistDialog);
+        dismissDialogAndWait(loadingDialog);
         Multiplayer.dismissLoadingWorldDialogAndWait();
     }
 
@@ -581,6 +582,8 @@ public class MultiplayerActivityHelper implements AndroidClient.MultiplayerListe
     }
 
     public void startGameActivity() {
-        this.activity.runOnUiThread(() -> GameStarter.startGame((MyApplication) activity.getApplication(), activity, null, false, 0, WorldGenerator.Mode.CREATIVE));
+        activity.runOnUiThread(() -> {
+            GameStarter.startGame((MyApplication) activity.getApplication(), activity, null, false, 0, WorldGenerator.Mode.CREATIVE);
+        });
     }
 }

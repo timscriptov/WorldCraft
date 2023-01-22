@@ -84,7 +84,7 @@ public class DroppableItem {
 
     public static void init() {
         blockState = GLUtil.typicalState.with(MinFilter.NEAREST, MagFilter.NEAREST);
-        parallelepiped = Parallelepiped.createParallelepiped(0.2f, 0.2f, 0.2f, sxtn);
+        parallelepiped = Parallelepiped.createParallelepiped(BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE, sxtn);
         blockState = BlockFactory.texture.applyTo(blockState);
         itemState = GLUtil.typicalState.with(MinFilter.NEAREST, MagFilter.NEAREST);
         itemState = ItemFactory.itemTexture.applyTo(itemState);
@@ -108,7 +108,7 @@ public class DroppableItem {
     }
 
     public TexturedShape getTexturedShape() {
-        return this.texShape;
+        return texShape;
     }
 
     public void advance(World world) {

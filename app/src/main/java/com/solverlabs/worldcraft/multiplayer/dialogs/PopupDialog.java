@@ -1,10 +1,11 @@
 package com.solverlabs.worldcraft.multiplayer.dialogs;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 public class PopupDialog {
     public static void showInUiThread(final int titleId, final String messageText, @NonNull final Activity activity) {
@@ -18,12 +19,12 @@ public class PopupDialog {
     }
 
     public static void show(int titleId, String messageText, Context context) {
-        AlertDialog.Builder alertDialogBuilder = createDialog(titleId, messageText, context);
+        final MaterialAlertDialogBuilder alertDialogBuilder = createDialog(titleId, messageText, context);
         alertDialogBuilder.setPositiveButton(android.R.string.ok, (dialog, which) -> dialog.dismiss());
         alertDialogBuilder.show();
     }
 
-    public static AlertDialog.Builder createDialog(int titleId, int messageId, Context context) {
+    public static MaterialAlertDialogBuilder createDialog(int titleId, int messageId, Context context) {
         if (context != null) {
             return createDialog(titleId, context.getString(messageId), context);
         }
@@ -31,10 +32,10 @@ public class PopupDialog {
     }
 
     @NonNull
-    public static AlertDialog.Builder createDialog(int titleId, String messageText, Context context) {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
-        alertDialogBuilder.setTitle(titleId);
-        alertDialogBuilder.setMessage(messageText);
-        return alertDialogBuilder;
+    public static MaterialAlertDialogBuilder createDialog(int titleId, String messageText, Context context) {
+        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
+        builder.setTitle(titleId);
+        builder.setMessage(messageText);
+        return builder;
     }
 }

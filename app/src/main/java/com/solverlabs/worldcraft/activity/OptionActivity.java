@@ -1,6 +1,5 @@
 package com.solverlabs.worldcraft.activity;
 
-import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -10,6 +9,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.solverlabs.worldcraft.Persistence;
 import com.solverlabs.worldcraft.R;
 import com.solverlabs.worldcraft.SoundManager;
@@ -167,7 +167,7 @@ public class OptionActivity extends ListActivity {
     }
 
     private void showFogDistanceDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
         final EditText name = new EditText(this);
         name.setText(String.valueOf(this.fogDistance));
         builder.setTitle(ENTRY_FOG_DISTANCE).setView(name).setPositiveButton(OK, (dialog, id) -> {
@@ -182,8 +182,7 @@ public class OptionActivity extends ListActivity {
                 e.printStackTrace();
             }
         }).setNegativeButton(CANCEL, (dialog, id) -> dialog.dismiss());
-        AlertDialog alert = builder.create();
-        alert.show();
+        builder.show();
     }
 
     private void changeSound() {
@@ -193,7 +192,7 @@ public class OptionActivity extends ListActivity {
     }
 
     private void showChangeChunkLoadRadiusDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
         final EditText name = new EditText(this);
         name.setText(String.valueOf(this.loadRadius));
         builder.setTitle(ENTRY_CHUNK_LOAD_RADIUS).setView(name).setPositiveButton(OK, (dialog, id) -> {
@@ -208,12 +207,11 @@ public class OptionActivity extends ListActivity {
                 e.printStackTrace();
             }
         }).setNegativeButton(CANCEL, (dialog, id) -> dialog.dismiss());
-        AlertDialog alert = builder.create();
-        alert.show();
+        builder.show();
     }
 
     private void showChangeUsernameDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
         final EditText name = new EditText(this);
         name.setText(this.userName);
         builder.setTitle(ENTRY_USERNAME).setView(name).setPositiveButton(OK, (dialog, id) -> {
@@ -221,8 +219,7 @@ public class OptionActivity extends ListActivity {
             Persistence.getInstance().setPlayerName(userName);
             updateItems();
         }).setNegativeButton(CANCEL, (dialog, id) -> dialog.dismiss());
-        AlertDialog alert = builder.create();
-        alert.show();
+        builder.show();
     }
 
     private void showChangeSkinDialog() {
@@ -240,11 +237,14 @@ public class OptionActivity extends ListActivity {
             public void onNothingSelected(AdapterView<?> arg0) {
             }
         });
-        AlertDialog.Builder builder = new AlertDialog.Builder(this).setTitle(ENTRY_SKIN).setView(characterChooser).setPositiveButton(OK, (dialog, id) -> {
+        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+        builder.setTitle(ENTRY_SKIN);
+        builder.setView(characterChooser);
+        builder.setPositiveButton(OK, (dialog, id) -> {
             Persistence.getInstance().setPlayerSkin(skinType);
             updateItems();
-        }).setNegativeButton(CANCEL, (dialog, id) -> dialog.dismiss());
-        AlertDialog alert = builder.create();
-        alert.show();
+        });
+        builder.setNegativeButton(CANCEL, (dialog, id) -> dialog.dismiss());
+        builder.show();
     }
 }

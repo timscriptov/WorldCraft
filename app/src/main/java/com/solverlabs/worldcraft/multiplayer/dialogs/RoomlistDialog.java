@@ -1,6 +1,5 @@
 package com.solverlabs.worldcraft.multiplayer.dialogs;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.view.KeyEvent;
@@ -11,7 +10,9 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.solverlabs.droid.rugl.util.WorldUtils;
 import com.solverlabs.worldcraft.R;
 import com.solverlabs.worldcraft.activity.OptionActivity;
@@ -142,15 +143,15 @@ public class RoomlistDialog extends Dialog {
     }
 
     private void showPasswordDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
         final EditText password = new EditText(getContext());
         password.setInputType(129);
         builder.setTitle("Enter password").setView(password).setPositiveButton(OptionActivity.OK, (dialog, id) -> {
             hideKeyBoard(password);
             onJoinRoom(password.getText().toString());
         }).setNegativeButton(OptionActivity.CANCEL, (dialog, id) -> dialog.dismiss());
-        this.passwordDialog = builder.create();
-        this.passwordDialog.show();
+        passwordDialog = builder.create();
+        passwordDialog.show();
     }
 
     public void hideKeyBoard(@NonNull View v) {
@@ -159,9 +160,9 @@ public class RoomlistDialog extends Dialog {
     }
 
     public void onJoinRoom(String roomPassword) {
-        this.roomPack.password = roomPassword;
-        if (this.onRoomClickListener != null) {
-            this.onRoomClickListener.onRoomClick(this.roomPack);
+        roomPack.password = roomPassword;
+        if (onRoomClickListener != null) {
+            onRoomClickListener.onRoomClick(roomPack);
         }
     }
 

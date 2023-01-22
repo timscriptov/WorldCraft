@@ -1,6 +1,5 @@
 package com.solverlabs.worldcraft.activity;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
@@ -11,6 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.solverlabs.droid.rugl.res.ResourceLoader;
 import com.solverlabs.worldcraft.GameMode;
 import com.solverlabs.worldcraft.Persistence;
@@ -84,7 +84,7 @@ public class MainMenuActivity extends CommonActivity {
     }
 
     public void showChangeNameDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
         final EditText name = new EditText(this);
         name.setHint(Persistence.getInstance().getPlayerName());
         KeyboardUtils.hideKeyboardOnEnter(this, name);
@@ -95,8 +95,7 @@ public class MainMenuActivity extends CommonActivity {
             Persistence.getInstance().setFirstTimeStarted(false);
             activityHelper.startMultiplayer();
         });
-        AlertDialog alert = builder.create();
-        alert.show();
+        builder.show();
     }
 
     public void optionClick() {

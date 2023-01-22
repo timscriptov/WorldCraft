@@ -1,6 +1,5 @@
 package com.solverlabs.worldcraft.activity;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
@@ -14,6 +13,7 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.solverlabs.droid.rugl.util.WorldUtils;
 import com.solverlabs.worldcraft.MyApplication;
 import com.solverlabs.worldcraft.R;
@@ -175,13 +175,14 @@ public class SingleplayerActivity extends CommonActivity {
     }
 
     private void showDeleteSaveDialog(@NonNull final WorldUtils.WorldInfo worldInfo) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(getResources().getString(R.string.are_you_realy_want_to_delete_map, worldInfo.file.getName())).setPositiveButton(R.string.yes, (dialog, id) -> {
+        final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+        builder.setTitle(getResources().getString(R.string.are_you_realy_want_to_delete_map, worldInfo.file.getName()));
+        builder.setPositiveButton(R.string.yes, (dialog, id) -> {
             deleteSave(worldInfo.file.getAbsolutePath());
             updateMapList();
-        }).setNegativeButton(R.string.no, (dialog, id) -> dialog.dismiss());
-        AlertDialog alert = builder.create();
-        alert.show();
+        });
+        builder.setNegativeButton(R.string.no, (dialog, id) -> dialog.dismiss());
+        builder.show();
     }
 
     public void deleteSave(String absolutePath) {
