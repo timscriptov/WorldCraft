@@ -1,7 +1,5 @@
 package com.solverlabs.droid.rugl.text;
 
-import androidx.annotation.NonNull;
-
 import com.solverlabs.droid.rugl.util.geom.Vector2f;
 
 import java.io.DataInputStream;
@@ -11,165 +9,278 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 
+/**
+ * A single glyph in a Font. This class started life in the SPGL, but
+ * has been extensively refactored - converted to floating point etc
+ */
 public final class Glyph {
-    static final boolean assertionsDisabled = !Glyph.class.desiredAssertionStatus();
-
-    public final float advance;
+    /**
+     * The character that this glyph represents
+     */
     public final char character;
+
+    /**
+     * The glyph image
+     */
     public final GlyphImage image;
+
+    /**
+     * Glyph advance. The distance from the start of this character to
+     * the start of the next character, disregarding kerning
+     */
+    public final float advance;
+
+    /**
+     * The offset from the baseline of the character to where to draw
+     * the glyph quad
+     */
     private final Vector2f glyphOffset;
-    private float[] kerning;
+
+    /**
+     * The characters that we kern with when placed after
+     */
     private char[] kernsWith;
 
-    public Glyph(char character, GlyphImage image, Vector2f origin, float advance, char[] kernsWith, float[] kerning) {
+    /**
+     * The corresponding kerning values
+     */
+    private float[] kerning;
+
+    /**
+     * @param character The character that this glyph represents
+     * @param image     the glyph image
+     * @param origin    The offset from the glyph's baseline to the origin of
+     *                  the glyph
+     * @param advance
+     * @param kernsWith
+     * @param kerning
+     */
+    public Glyph(char character, GlyphImage image, Vector2f origin, float advance,
+                 char[] kernsWith, float[] kerning) {
         this.character = character;
         this.image = image;
-        this.glyphOffset = origin;
+
+        glyphOffset = origin;
+
         this.advance = advance;
         this.kernsWith = kernsWith;
         this.kerning = kerning;
     }
 
-    public Glyph(@NonNull ByteBuffer data, @NonNull GlyphImage[] images) {
-        this.character = data.getChar();
+    /**
+     * Reads a {@link Glyph} from a buffer
+     *
+     * @param data   the buffer
+     * @param images An array of {@link GlyphImage}s to choose from
+     */
+    Glyph(ByteBuffer data, GlyphImage[] images) {
+        character = data.getChar();
+
         GlyphImage im = null;
-        int i = 0;
-        while (true) {
-            if (i < images.length) {
-                if (!images[i].represents(this.character)) {
-                    i++;
-                } else {
-                    im = images[i];
-                    break;
-                }
-            } else {
+        for (int i = 0; i < images.length; i++) {
+            if (images[i].represents(character)) {
+                im = images[i];
                 break;
             }
         }
-        if (assertionsDisabled || im != null) {
-            this.image = im;
-            this.advance = data.getFloat();
-            this.glyphOffset = new Vector2f(data.getFloat(), data.getFloat());
-            this.kernsWith = new char[data.getInt()];
-            this.kerning = new float[this.kernsWith.length];
-            for (int i2 = 0; i2 < this.kernsWith.length; i2++) {
-                this.kernsWith[i2] = data.getChar();
-                this.kerning[i2] = data.getFloat();
-            }
-            return;
+        assert im != null;
+        image = im;
+
+        advance = data.getFloat();
+        glyphOffset = new Vector2f(data.getFloat(), data.getFloat());
+
+        kernsWith = new char[data.getInt()];
+        kerning = new float[kernsWith.length];
+        for (int i = 0; i < kernsWith.length; i++) {
+            kernsWith[i] = data.getChar();
+            kerning[i] = data.getFloat();
         }
-        throw new AssertionError();
     }
 
-    public Glyph(InputStream is, @NonNull GlyphImage[] images) throws IOException {
+    /**
+     * Reads a {@link Glyph} from a stream
+     *
+     * @param is
+     * @param images An array of {@link GlyphImage}s to choose from
+     * @throws IOException
+     */
+    Glyph(InputStream is, GlyphImage[] images) throws IOException {
         DataInputStream dis = new DataInputStream(is);
-        this.character = dis.readChar();
+
+        character = dis.readChar();
+
         GlyphImage im = null;
-        int i = 0;
-        while (true) {
-            if (i < images.length) {
-                if (!images[i].represents(this.character)) {
-                    i++;
-                } else {
-                    im = images[i];
-                    break;
-                }
-            } else {
+        for (int i = 0; i < images.length; i++) {
+            if (images[i].represents(character)) {
+                im = images[i];
                 break;
             }
         }
-        if (assertionsDisabled || im != null) {
-            this.image = im;
-            this.advance = dis.readFloat();
-            this.glyphOffset = new Vector2f(dis.readFloat(), dis.readFloat());
-            int kc = dis.readInt();
-            this.kernsWith = new char[kc];
-            this.kerning = new float[kc];
-            for (int i2 = 0; i2 < kc; i2++) {
-                this.kernsWith[i2] = dis.readChar();
-                this.kerning[i2] = dis.readFloat();
-            }
-            return;
+        assert im != null;
+        image = im;
+
+        advance = dis.readFloat();
+        glyphOffset = new Vector2f(dis.readFloat(), dis.readFloat());
+
+        int kc = dis.readInt();
+        kernsWith = new char[kc];
+        kerning = new float[kc];
+
+        for (int i = 0; i < kc; i++) {
+            kernsWith[i] = dis.readChar();
+            kerning[i] = dis.readFloat();
         }
-        throw new AssertionError();
     }
 
-    public void write(@NonNull ByteBuffer data) {
-        data.putChar(this.character);
-        data.putFloat(this.advance);
-        data.putFloat(this.glyphOffset.x);
-        data.putFloat(this.glyphOffset.y);
-        if (this.kernsWith == null) {
+    /**
+     * Stores a glyph in a buffer
+     *
+     * @param data the buffer
+     */
+    void write(ByteBuffer data) {
+        data.putChar(character);
+
+        data.putFloat(advance);
+        data.putFloat(glyphOffset.x);
+        data.putFloat(glyphOffset.y);
+
+        if (kernsWith == null) {
             data.putInt(0);
-            return;
-        }
-        data.putInt(this.kernsWith.length);
-        for (int i = 0; i < this.kernsWith.length; i++) {
-            data.putChar(this.kernsWith[i]);
-            data.putFloat(this.kerning[i]);
+        } else {
+            data.putInt(kernsWith.length);
+            for (int i = 0; i < kernsWith.length; i++) {
+                data.putChar(kernsWith[i]);
+                data.putFloat(kerning[i]);
+            }
         }
     }
 
+    /**
+     * Calculates the size of the buffer needed to store this glyph, in
+     * bytes
+     *
+     * @return The number of bytes needed to store this glyph
+     */
     public int dataSize() {
-        int size = 0 + 2;
-        int size2 = size + 4 + 8 + 4;
-        if (this.kernsWith != null) {
-            return (this.kernsWith.length * 6) + 18;
+        int size = 0;
+
+        // char
+        size += 2;
+
+        // advance
+        size += 4;
+
+        // origin
+        size += 2 * 4;
+
+        // kerns size
+        size += 4;
+
+        // kerns table
+        if (kernsWith != null) {
+            size += kernsWith.length * (2 + 4);
         }
-        return size2;
+
+        return size;
     }
 
+    /**
+     * If we have just laid out a glyph, <code>g</code>, and we want to
+     * lay out this glyph next to it, this function will return the
+     * required kerning to do so. For example, the kerning value for
+     * laying a 'A' after a 'W' is likely to be some negative number.
+     * Add it to 'W''s advance to get the origin of the 'A' glyph
+     *
+     * @param g The glyph immediately preceding this one
+     * @return The horizontal offset to apply to the advance.
+     */
     public float getKerningAfter(char g) {
-        int i;
-        if (this.kernsWith.length != 0 && (i = Arrays.binarySearch(this.kernsWith, g)) >= 0 && i < this.kerning.length && this.kernsWith[i] == g) {
-            return this.kerning[i];
+        if (kernsWith.length == 0) {
+            return 0;
         }
-        return 0.0f;
+
+        int i = Arrays.binarySearch(kernsWith, g);
+        if (i < 0 || i >= kerning.length) {
+            return 0;
+        } else {
+            if (kernsWith[i] != g) {
+                return 0;
+            } else {
+                return kerning[i];
+            }
+        }
     }
 
-    @NonNull
+    /**
+     * Gets the offset from the character's baseline to the bottom-left
+     * corner of the textured quad used to render the glyph
+     *
+     * @param dest The {@link Vector2f} in which to store the results, or
+     *             null to construct a new {@link Vector2f}
+     * @return The baseline-quad offset
+     */
     public Vector2f getGlyphOffset(Vector2f dest) {
         if (dest == null) {
             dest = new Vector2f();
         }
-        dest.set(this.glyphOffset);
+
+        dest.set(glyphOffset);
+
         return dest;
     }
 
+    /**
+     * Updates this {@link Glyph}'s kerning table
+     *
+     * @param c The preceding character
+     * @param k The kerning value when this glyph succeeds c
+     */
     public void updateKerning(char c, float k) {
-        if (k != 0.0f) {
-            int insertion = Arrays.binarySearch(this.kernsWith, c);
-            if (!assertionsDisabled && insertion >= 0) {
-                throw new AssertionError();
+        if (k != 0) {
+            int insertion = Arrays.binarySearch(kernsWith, c);
+
+            assert insertion < 0;
+
+            insertion += 1;
+            insertion = -insertion;
+
+            char[] newKernsWith = new char[kernsWith.length + 1];
+            float[] newKerning = new float[kerning.length + 1];
+
+            System.arraycopy(kernsWith, 0, newKernsWith, 0, insertion);
+            System.arraycopy(kerning, 0, newKerning, 0, insertion);
+
+            newKernsWith[insertion] = c;
+            newKerning[insertion] = k;
+
+            if (insertion < newKernsWith.length) {
+                System.arraycopy(kernsWith, insertion, newKernsWith, insertion + 1,
+                        kernsWith.length - insertion);
+                System.arraycopy(kerning, insertion, newKerning, insertion + 1,
+                        kerning.length - insertion);
             }
-            int insertion2 = -(insertion + 1);
-            char[] newKernsWith = new char[this.kernsWith.length + 1];
-            float[] newKerning = new float[this.kerning.length + 1];
-            System.arraycopy(this.kernsWith, 0, newKernsWith, 0, insertion2);
-            System.arraycopy(this.kerning, 0, newKerning, 0, insertion2);
-            newKernsWith[insertion2] = c;
-            newKerning[insertion2] = k;
-            if (insertion2 < newKernsWith.length) {
-                System.arraycopy(this.kernsWith, insertion2, newKernsWith, insertion2 + 1, this.kernsWith.length - insertion2);
-                System.arraycopy(this.kerning, insertion2, newKerning, insertion2 + 1, this.kerning.length - insertion2);
-            }
-            this.kernsWith = newKernsWith;
-            this.kerning = newKerning;
+
+            kernsWith = newKernsWith;
+            kerning = newKerning;
         }
     }
 
-    @NonNull
+    @Override
     public String toString() {
-        StringBuilder buff = new StringBuilder("Glyph '" + this.character + "' adv = " + this.advance + " origin = " + this.glyphOffset + " size = " + this.image.image.width + "x" + this.image.image.height);
-        if (this.kernsWith.length > 0) {
+        StringBuilder buff =
+                new StringBuilder("Glyph \'" + character + "\' adv = " + advance
+                        + " origin = " + glyphOffset + " size = " + image.image.width + "x"
+                        + image.image.height);
+        if (kernsWith.length > 0) {
             buff.append("\n\t\tKerning : ");
-            for (int i = 0; i < this.kernsWith.length; i++) {
+            for (int i = 0; i < kernsWith.length; i++) {
                 buff.append(" ");
-                buff.append(this.kernsWith[i]);
+                buff.append(kernsWith[i]);
                 buff.append("=");
-                buff.append(this.kerning[i]);
+                buff.append(kerning[i]);
             }
         }
+
         return buff.toString();
     }
 }

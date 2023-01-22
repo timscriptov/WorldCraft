@@ -1,7 +1,5 @@
 package com.solverlabs.droid.rugl.text;
 
-import androidx.annotation.NonNull;
-
 import com.solverlabs.droid.rugl.texture.BufferImage;
 import com.solverlabs.droid.rugl.texture.Texture;
 import com.solverlabs.droid.rugl.texture.TextureFactory;
@@ -14,86 +12,165 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 
+/**
+ * Holds the glyph image data. Multiple characters may map to the same
+ * image e.g.: in a font with only upper-case characters
+ *
+ * @author ryanm
+ */
 public class GlyphImage {
-    public final char[] characters;
+    /**
+     * The glyph image
+     */
     public final BufferImage image;
+
+    /**
+     * Array of characters that this glyph can represent
+     */
+    public final char[] characters;
+
+    /**
+     * The glyph texture
+     */
     private transient Texture texture;
+
+    /**
+     * Texture coordinates for the origin of this glyph
+     */
     private transient Vector2f texOrigin = new Vector2f();
+
+    /**
+     * Texture coordinates for the other corner of this glyph
+     */
     private transient Vector2f texExtent = new Vector2f();
 
+    /**
+     * @param image
+     * @param characters
+     */
     public GlyphImage(BufferImage image, char... characters) {
         this.image = image;
         this.characters = characters;
     }
 
-    public GlyphImage(@NonNull ByteBuffer data) {
-        this.characters = new char[data.getInt()];
-        for (int i = 0; i < this.characters.length; i++) {
-            this.characters[i] = data.getChar();
+    /**
+     * @param data
+     */
+    public GlyphImage(ByteBuffer data) {
+        characters = new char[data.getInt()];
+        for (int i = 0; i < characters.length; i++) {
+            characters[i] = data.getChar();
         }
-        this.image = new BufferImage(data);
+
+        image = new BufferImage(data);
     }
 
+    /**
+     * @param in
+     * @throws IOException
+     */
     public GlyphImage(InputStream in) throws IOException {
         DataInputStream data = new DataInputStream(in);
-        this.characters = new char[data.readInt()];
-        for (int i = 0; i < this.characters.length; i++) {
-            this.characters[i] = data.readChar();
+
+        characters = new char[data.readInt()];
+        for (int i = 0; i < characters.length; i++) {
+            characters[i] = data.readChar();
         }
-        this.image = new BufferImage(in);
+
+        image = new BufferImage(in);
     }
 
-    public void write(@NonNull ByteBuffer data) {
-        data.putInt(this.characters.length);
-        for (int i = 0; i < this.characters.length; i++) {
-            data.putChar(this.characters[i]);
+    void write(ByteBuffer data) {
+        data.putInt(characters.length);
+        for (int i = 0; i < characters.length; i++) {
+            data.putChar(characters[i]);
         }
-        this.image.write(data);
+
+        image.write(data);
     }
 
+    /**
+     * Tests if this {@link GlyphImage} can represent a given character
+     *
+     * @param c
+     * @return <code>true</code> if this {@link GlyphImage} can be used
+     * to draw c, <code>false</code> otherwise
+     */
     public boolean represents(char c) {
-        for (int i = 0; i < this.characters.length; i++) {
-            if (c == this.characters[i]) {
+        for (int i = 0; i < characters.length; i++) {
+            if (c == characters[i]) {
                 return true;
             }
         }
+
         return false;
     }
 
+    /**
+     * If necessary, uploads the texture to OpenGL and builds the
+     * texCoords
+     *
+     * @param fontTexture the font texture
+     * @return <code>true</code> if successful, <code>false</code>
+     * otherwise
+     */
     public boolean init(TextureFactory.GLTexture fontTexture) {
-        if (this.texture == null) {
-            this.texture = fontTexture.addImage(this.image);
-            if (this.texture != null) {
-                this.texOrigin.set(0.0f, 0.0f);
-                this.texExtent.set(1.0f, 1.0f);
-                this.texOrigin = this.texture.getTexCoords(this.texOrigin, this.texOrigin);
-                this.texExtent = this.texture.getTexCoords(this.texExtent, this.texExtent);
+        if (texture == null) {
+            texture = fontTexture.addImage(image);
+
+            if (texture != null) {
+                texOrigin.set(0, 0);
+                texExtent.set(1, 1);
+                texOrigin = texture.getTexCoords(texOrigin, texOrigin);
+                texExtent = texture.getTexCoords(texExtent, texExtent);
             }
         }
-        return this.texture != null;
+
+        return texture != null;
     }
 
+    /**
+     * Gets the texture coordinate of this glyph's origin
+     *
+     * @param dest A {@link Vector2f} in which to store the value, or
+     *             null
+     * @return dest, or a new {@link Vector2f}
+     */
     public Vector2f getOrigin(Vector2f dest) {
         if (dest == null) {
             dest = new Vector2f();
         }
-        dest.set(this.texOrigin);
+        dest.set(texOrigin);
         return dest;
     }
 
+    /**
+     * Gets the texture coordinate of this glyph's extent - the
+     * opposite corner of the glyph from the origin
+     *
+     * @param dest A {@link Vector2f} in which to store the value, or
+     *             null
+     * @return dest, or a new {@link Vector2f}
+     */
     public Vector2f getExtent(Vector2f dest) {
         if (dest == null) {
             dest = new Vector2f();
         }
-        dest.set(this.texExtent);
+        dest.set(texExtent);
         return dest;
     }
 
+    /**
+     * @return number of bytes needed to store this {@link GlyphImage}
+     */
     public int dataSize() {
-        return this.image.dataSize() + 4 + (this.characters.length * 2);
+        return image.dataSize() + 4 + characters.length * 2;
     }
 
-    public void getSize(@NonNull BoundingRectangle b) {
-        b.set(0.0f, this.image.width, 0.0f, this.image.height);
+    /**
+     * @param b
+     */
+    public void getSize(BoundingRectangle b) {
+        b.set(0, image.width, 0, image.height);
     }
 }

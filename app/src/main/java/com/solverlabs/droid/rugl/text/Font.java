@@ -14,10 +14,10 @@ import com.solverlabs.droid.rugl.gl.enums.MinFilter;
 import com.solverlabs.droid.rugl.gl.facets.TextureState;
 import com.solverlabs.droid.rugl.texture.Image;
 import com.solverlabs.droid.rugl.texture.TextureFactory;
+import com.solverlabs.droid.rugl.util.Colour;
 import com.solverlabs.droid.rugl.util.RectanglePacker;
 import com.solverlabs.droid.rugl.util.geom.BoundingRectangle;
 import com.solverlabs.droid.rugl.util.geom.Vector2f;
-import com.solverlabs.worldcraft.factories.DescriptionFactory;
 
 import org.jetbrains.annotations.Contract;
 
@@ -36,36 +36,99 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-
+/**
+ * Has some global characteristics, a number of {@link Glyph} s, and a
+ * mapping of characters to {@link Glyph}s. A {@link Font} can be
+ * constructed from various sources. This class started life in the
+ * SPGL, but has been fairly extensively jiggered around - converted
+ * to floating point etc
+ */
 public final class Font {
-    static final boolean assertionsDisabled = !Font.class.desiredAssertionStatus();
-    private static final BoundingRectangle tempBounds;
-    private static final Vector2f tempExtent;
-    private static final Vector2f tempOrigin;
-    private static final Vector2f tempPoint;
+    /**
+     * Handy bounds
+     */
+    private static final BoundingRectangle tempBounds = new BoundingRectangle();
 
-    static {
-        tempBounds = new BoundingRectangle();
-        tempPoint = new Vector2f();
-        tempOrigin = new Vector2f();
-        tempExtent = new Vector2f();
-    }
+    private static final Vector2f tempPoint = new Vector2f();
 
-    public final int ascent;
-    public final boolean bold;
-    public final int descent;
-    public final boolean distanceField;
-    public final boolean italic;
-    public final int leading;
+    private static final Vector2f tempOrigin = new Vector2f();
+
+    private static final Vector2f tempExtent = new Vector2f();
+    /**
+     * The font's name
+     */
     public final String name;
+    /**
+     * If the font is bold or not
+     */
+    public final boolean bold;
+    /**
+     * If the font is italic or not
+     */
+    public final boolean italic;
+    /**
+     * The distance between the line and the top of the font
+     */
+    public final int ascent;
+    /**
+     * The distance that this font descends below the line
+     */
+    public final int descent;
+    /**
+     * The spacing between one line's descent and the next line's
+     * ascent
+     */
+    public final int leading;
+    /**
+     * The distance between lines
+     */
     public final int size;
+    /**
+     * Indicates if this font uses distance field textures
+     */
+    public final boolean distanceField;
+    /**
+     * The font's glyphs
+     */
     private final List<Glyph> glyphs = new LinkedList<>();
+
+    /**
+     * The font's images
+     */
     private final Set<GlyphImage> glyphImages = new HashSet<>();
+    /**
+     * The source of kerning information that will be consulted
+     * whenever a glyph is added to the font. If <code>null</code>,
+     * kerning will be ignored
+     */
     public KerningSource kerningSource = null;
+    /**
+     * Maps Unicode characters to glyphs. This approach is OK for ASCII
+     * characters, since they live at the bottom of the unicode tables,
+     * but something more clever needs to be done for higher characters
+     * to avoid allocating enormous mostly empty arrays
+     */
     private Glyph[] map;
+    /**
+     * The texture in which the glyphs reside
+     */
     private transient TextureFactory.GLTexture texture = null;
 
-    public Font(String name, boolean bold, boolean italic, int size, int ascent, int descent, int leading, boolean distanceField) {
+    /**
+     * Builds an initially empty font
+     *
+     * @param name          The font name
+     * @param bold          if the font is bold or not
+     * @param italic        If the font is italic or not
+     * @param size          The size in points of the font
+     * @param ascent        The font's maximum ascent, in points
+     * @param descent       The font's maximum descent, in points
+     * @param leading       The distance between one line's descent and the next's
+     *                      ascent
+     * @param distanceField
+     */
+    public Font(String name, boolean bold, boolean italic, int size, int ascent,
+                int descent, int leading, boolean distanceField) {
         this.name = name;
         this.bold = bold;
         this.italic = italic;
@@ -76,341 +139,521 @@ public final class Font {
         this.distanceField = distanceField;
     }
 
+    /**
+     * Reads a {@link Font} from a buffer
+     *
+     * @param data the buffer
+     */
     public Font(@NonNull ByteBuffer data) {
-        boolean z = true;
         byte[] nd = new byte[data.getInt()];
         data.get(nd);
-        this.name = new String(nd);
-        this.bold = data.get() != 0;
-        this.italic = data.get() != 0;
-        this.size = data.getInt();
-        this.ascent = data.getInt();
-        this.descent = data.getInt();
-        this.leading = data.getInt();
-        this.distanceField = data.get() != 0 && z;
+        name = new String(nd);
+
+        bold = data.get() != 0;
+        italic = data.get() != 0;
+        size = data.getInt();
+        ascent = data.getInt();
+        descent = data.getInt();
+        leading = data.getInt();
+        distanceField = data.get() != 0;
+
         int gi = data.getInt();
         for (int i = 0; i < gi; i++) {
-            this.glyphImages.add(new GlyphImage(data));
+            glyphImages.add(new GlyphImage(data));
         }
-        GlyphImage[] imageArray = this.glyphImages.toArray(new GlyphImage[this.glyphImages.size()]);
+
+        GlyphImage[] imageArray = glyphImages.toArray(new GlyphImage[glyphImages.size()]);
+
         int g = data.getInt();
-        for (int i2 = 0; i2 < g; i2++) {
+        for (int i = 0; i < g; i++) {
             addGlyph(new Glyph(data, imageArray));
         }
     }
 
+    /**
+     * Reads a {@link Font} from a stream
+     *
+     * @param is
+     * @throws IOException
+     */
     public Font(InputStream is) throws IOException {
-        boolean z = true;
         DataInputStream dis = new DataInputStream(is);
+
         int nd = dis.readInt();
         byte[] nb = new byte[nd];
         dis.readFully(nb);
-        this.name = new String(nb);
-        this.bold = dis.readByte() != 0;
-        this.italic = dis.readByte() != 0;
-        this.size = dis.readInt();
-        this.ascent = dis.readInt();
-        this.descent = dis.readInt();
-        this.leading = dis.readInt();
-        this.distanceField = dis.readByte() != 0 && z;
+        name = new String(nb);
+
+        bold = dis.readByte() != 0;
+        italic = dis.readByte() != 0;
+        size = dis.readInt();
+        ascent = dis.readInt();
+        descent = dis.readInt();
+        leading = dis.readInt();
+        distanceField = dis.readByte() != 0;
+
         int gi = dis.readInt();
         for (int i = 0; i < gi; i++) {
-            this.glyphImages.add(new GlyphImage(is));
+            glyphImages.add(new GlyphImage(is));
         }
-        GlyphImage[] imageArray = this.glyphImages.toArray(new GlyphImage[this.glyphImages.size()]);
+
+        GlyphImage[] imageArray = glyphImages.toArray(new GlyphImage[glyphImages.size()]);
+
         int g = dis.readInt();
-        for (int i2 = 0; i2 < g; i2++) {
+        for (int i = 0; i < g; i++) {
             addGlyph(new Glyph(is, imageArray));
         }
     }
 
+    /**
+     * Reads a font from a file
+     *
+     * @param fileName
+     * @return A {@link Font}
+     * @throws IOException
+     */
     @NonNull
     public static Font readFont(String fileName) throws IOException {
         RandomAccessFile raf = new RandomAccessFile(fileName, "r");
         FileChannel ch = raf.getChannel();
-        MappedByteBuffer buffer = ch.map(FileChannel.MapMode.READ_ONLY, 0L, raf.length());
+        MappedByteBuffer buffer = ch.map(FileChannel.MapMode.READ_ONLY, 0, raf.length());
+
         Font f = new Font(buffer);
+
         ch.close();
+
         return f;
     }
 
+    /**
+     * Writes a Font to a buffer
+     *
+     * @param data the buffer to write to
+     */
     public void write(@NonNull ByteBuffer data) {
-        int i = 1;
-        byte[] nd = this.name.getBytes();
+        byte[] nd = name.getBytes();
         data.putInt(nd.length);
         data.put(nd);
-        data.put((byte) (this.bold ? 1 : 0));
-        data.put((byte) (this.italic ? 1 : 0));
-        data.putInt(this.size);
-        data.putInt(this.ascent);
-        data.putInt(this.descent);
-        data.putInt(this.leading);
-        if (!this.distanceField) {
-            i = 0;
-        }
-        data.put((byte) i);
-        data.putInt(this.glyphImages.size());
-        for (GlyphImage gi : this.glyphImages) {
+
+        data.put((byte) (bold ? 1 : 0));
+        data.put((byte) (italic ? 1 : 0));
+        data.putInt(size);
+        data.putInt(ascent);
+        data.putInt(descent);
+        data.putInt(leading);
+        data.put((byte) (distanceField ? 1 : 0));
+
+        data.putInt(glyphImages.size());
+        for (GlyphImage gi : glyphImages) {
             gi.write(data);
         }
-        data.putInt(this.glyphs.size());
-        for (Glyph g : this.glyphs) {
+
+        data.putInt(glyphs.size());
+        for (Glyph g : glyphs) {
             g.write(data);
         }
     }
 
+    /**
+     * Write the {@link Font} to a file
+     *
+     * @param fileName
+     * @throws IOException
+     */
     public void write(String fileName) throws IOException {
         RandomAccessFile rf = new RandomAccessFile(fileName, "rw");
         FileChannel ch = rf.getChannel();
         int fileLength = dataSize();
         rf.setLength(fileLength);
-        MappedByteBuffer buffer = ch.map(FileChannel.MapMode.READ_WRITE, 0L, fileLength);
+        MappedByteBuffer buffer = ch.map(FileChannel.MapMode.READ_WRITE, 0, fileLength);
+
         write(buffer);
+
         buffer.force();
         ch.close();
     }
 
+    /**
+     * Calculates the size of buffer needed to store this {@link Font}
+     *
+     * @return The number of bytes used to store this font
+     */
     public int dataSize() {
-        int i = 0 + 4;
-        int bytes = this.name.getBytes().length + 4;
-        int bytes2 = bytes + 2 + 16 + 4;
-        for (GlyphImage gi : this.glyphImages) {
-            bytes2 += gi.dataSize();
+        int bytes = 0;
+
+        // name length
+        bytes += 4;
+
+        // name
+        bytes += name.getBytes().length;
+
+        // bold/italic
+        bytes += 2;
+
+        // size, ascent, descent, leading
+        bytes += 4 * 4;
+
+        // glyph image count
+        bytes += 4;
+        for (GlyphImage gi : glyphImages) {
+            bytes += gi.dataSize();
         }
-        int bytes3 = bytes2 + 4;
-        for (Glyph g : this.glyphs) {
-            bytes3 += g.dataSize();
+
+        // glyph count
+        bytes += 4;
+        for (Glyph g : glyphs) {
+            // glyphs
+            bytes += g.dataSize();
         }
-        return bytes3 + 1;
+
+        // distance field
+        bytes += 1;
+
+        return bytes;
     }
 
+    /**
+     * Adds a glyph to this font
+     *
+     * @param g the glyph to add
+     */
     public void addGlyph(Glyph g) {
-        if (this.map == null || g.character >= this.map.length) {
-            Glyph[] newMap = new Glyph[g.character + '\n'];
-            if (this.map != null) {
-                System.arraycopy(this.map, 0, newMap, 0, this.map.length);
+        if (map == null || g.character >= map.length) {
+            Glyph[] newMap = new Glyph[(g.character + 10)];
+
+            if (map != null) {
+                System.arraycopy(map, 0, newMap, 0, map.length);
             }
-            this.map = newMap;
+
+            map = newMap;
         }
-        if (this.map[g.character] == null) {
-            this.map[g.character] = g;
-            if (this.kerningSource != null) {
-                for (Glyph gl : this.glyphs) {
-                    gl.updateKerning(g.character, this.kerningSource.computeKerning(g.character, gl.character));
-                    g.updateKerning(gl.character, this.kerningSource.computeKerning(gl.character, g.character));
+
+        if (map[g.character] == null) {
+            map[g.character] = g;
+
+            // update kerning?
+            if (kerningSource != null) {
+                for (Glyph gl : glyphs) {
+                    gl.updateKerning(g.character,
+                            kerningSource.computeKerning(g.character, gl.character));
+
+                    g.updateKerning(gl.character,
+                            kerningSource.computeKerning(gl.character, g.character));
                 }
             }
-            this.glyphs.add(g);
-            this.glyphImages.add(g.image);
+
+            // add glyph
+            glyphs.add(g);
+
+            glyphImages.add(g.image);
         }
     }
 
+    /**
+     * Loads the image into an OpenGL texture and initialises the glyph
+     * texcoords
+     *
+     * @param mipmap If you're going to be zooming text, you might want to
+     *               build mipmaps
+     * @return <code>true</code> if successful, <code>false</code>
+     * otherwise
+     */
     public boolean init(boolean mipmap) {
-        boolean z = true;
-        if (this.texture == null) {
-            List<GlyphImage> gImages = new ArrayList<>(this.glyphImages);
+        if (texture == null) {
+            List<GlyphImage> gImages = new ArrayList<>();
+            gImages.addAll(glyphImages);
+
+            // sort the glyphs into descending order of size
             Collections.sort(gImages, (o1, o2) -> {
                 int left = o1.image.width * o1.image.height;
                 int right = o2.image.width * o2.image.height;
+
+                // remember we want descending order
                 return -(left - right);
             });
+
+            // determine how big the texture should be
             Point p = calculateTextureSize();
-            TextureFactory.GLTexture glt = TextureFactory.createTexture(p.x, p.y, Image.Format.LUMINANCE_ALPHA, mipmap, 1);
+
+            TextureFactory.GLTexture glt =
+                    TextureFactory.createTexture(p.x, p.y, Image.Format.LUMINANCE_ALPHA, mipmap, 1);
+
             if (glt != null) {
-                this.texture = glt;
+                texture = glt;
+
                 boolean success = true;
+
                 for (GlyphImage gi : gImages) {
                     if (!gi.init(glt)) {
                         success = false;
                     }
                 }
-                for (Glyph g : this.glyphs) {
-                    if (!g.image.init(glt)) {
-                        this.map[g.character] = this.map[48];
+
+                for (Glyph g : glyphs) {
+                    if (!g.image.init(glt)) { // a glyph has failed to init, remap it to the WTF
+                        map[g.character] = map['0'];
                         success = false;
                     }
                 }
+
+                // this will be done for us when we render, but it doesn't
+                // hurt to do it in init time
+                // glt.regenerateMipmaps();
+
                 return success;
             }
         }
-        if (this.texture == null) {
-            z = false;
-        }
-        return z;
+
+        return texture != null;
     }
 
     @NonNull
     private Point calculateTextureSize() {
-        boolean success;
-        float mean = 0.0f;
-        for (GlyphImage g : this.glyphImages) {
-            mean = mean + g.image.width + g.image.height;
+        // mean glyph size
+        float mean = 0;
+        for (GlyphImage g : glyphImages) {
+            mean += g.image.width;
+            mean += g.image.height;
         }
-        int dim = Math.max(2, GLUtil.nextPowerOf2((int) ((mean / (this.glyphs.size() * 2)) * Math.sqrt(this.glyphs.size()))) / 2);
+        mean /= glyphs.size() * 2;
+
+        // initial guess
+        int dim = GLUtil.nextPowerOf2((int) (mean * Math.sqrt(glyphs.size()))) / 2;
+        dim = Math.max(2, dim);
+
         Point d = new Point(dim / 2, dim);
+
+        boolean success = false;
+
         do {
             d.x *= 2;
             d.y *= 2;
-            RectanglePacker<GlyphImage> packer = new RectanglePacker<>(d.x, d.y, 1);
-            Iterator<GlyphImage> iter = this.glyphImages.iterator();
+
+            RectanglePacker<GlyphImage> packer =
+                    new RectanglePacker<GlyphImage>(d.x, d.y, 1);
+            Iterator<GlyphImage> iter = glyphImages.iterator();
             boolean fit = true;
             while (fit && iter.hasNext()) {
-                GlyphImage g2 = iter.next();
-                fit = packer.insert(g2.image.width, g2.image.height, g2) != null;
+                GlyphImage g = iter.next();
+
+                fit &= packer.insert(g.image.width, g.image.height, g) != null;
             }
+
             success = fit;
-        } while (!success);
+        }
+        while (!success);
+
         return d;
     }
 
+    /**
+     * Map a character to a glyph
+     *
+     * @param c The character
+     * @return The corresponding {@link Glyph}, or null
+     */
     public Glyph map(char c) {
-        if (c >= this.map.length) {
+        if (c >= map.length) { // we don't have this char, use the WTF instead
             c = 0;
         }
-        if (c == '\t') {
+        if (c == '\t') { // convert tabs to spaces
             c = ' ';
         }
-        Glyph g = this.map[c];
-        if (g == null) {
-            if (!assertionsDisabled && this.map[0] == null) {
-                throw new AssertionError();
-            }
-            return this.map[0];
+
+        Glyph g = map[c];
+
+        if (g != null) {
+            return g;
+        } else {
+            assert map[(char) 0] != null;
+
+            return map[(char) 0];
         }
-        return g;
     }
 
+    /**
+     * Calculates the rendered length of a string
+     *
+     * @param text The text to measure
+     * @return The length of the rendered text
+     */
     public float getStringLength(@NonNull CharSequence text) {
         Glyph last = null;
-        float length = 0.0f;
+        float length = 0;
         for (int i = 0; i < text.length(); i++) {
             Glyph next = map(text.charAt(i));
-            float kerning = last == null ? 0.0f : next.getKerningAfter(last.character);
+            float kerning = last == null ? 0 : next.getKerningAfter(last.character);
+
             length += next.advance + kerning;
+
             last = next;
         }
+
         return length;
     }
 
+    /**
+     * Calculates the glyph vertices if the string is being rendered at
+     * the origin. The dest array will have 4 * text.length elements
+     * written to it, in bl tl br tr format
+     *
+     * @param text  The text to render
+     * @param dest  A destination vertex array, or null. If non-null, all
+     *              elements must also be non-null
+     * @param start The element to start writing to in the dest array.
+     *              Ignored in dest is null;
+     * @return an array of glyph vertices
+     */
     @NonNull
     public float[] getVertices(CharSequence text, float[] dest, int start) {
         int index = start;
         if (dest == null) {
-            dest = new float[text.length() * 12];
+            dest = new float[4 * 3 * text.length()];
             index = 0;
         }
+
         Glyph last = null;
-        float penX = 0.0f;
-        float penY = 0.0f;
+        float penX = 0;
+        float penY = 0;
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
             boolean nl = c == '\n';
             if (nl) {
-                penY -= this.size;
+                penY -= size;
                 c = ' ';
-                penX = 0.0f;
+                penX = 0;
             }
+
             Glyph next = map(c);
+
             next.image.getSize(tempBounds);
             next.getGlyphOffset(tempPoint);
-            float kerning = last == null ? 0.0f : next.getKerningAfter(last.character);
-            tempBounds.translate(tempPoint.getX() + penX + kerning, tempPoint.getY() + penY);
-            int index2 = index + 1;
-            dest[index] = tempBounds.x.getMin();
-            int index3 = index2 + 1;
-            dest[index2] = tempBounds.y.getMin();
-            int index4 = index3 + 1;
-            dest[index3] = 0.0f;
-            int index5 = index4 + 1;
-            dest[index4] = tempBounds.x.getMin();
-            int index6 = index5 + 1;
-            dest[index5] = tempBounds.y.getMax();
-            int index7 = index6 + 1;
-            dest[index6] = 0.0f;
-            int index8 = index7 + 1;
-            dest[index7] = tempBounds.x.getMax();
-            int index9 = index8 + 1;
-            dest[index8] = tempBounds.y.getMin();
-            int index10 = index9 + 1;
-            dest[index9] = 0.0f;
-            int index11 = index10 + 1;
-            dest[index10] = tempBounds.x.getMax();
-            int index12 = index11 + 1;
-            dest[index11] = tempBounds.y.getMax();
-            index = index12 + 1;
-            dest[index12] = 0.0f;
+            float kerning = last == null ? 0 : next.getKerningAfter(last.character);
+
+            tempBounds
+                    .translate(tempPoint.getX() + penX + kerning, tempPoint.getY() + penY);
+
+            dest[index++] = tempBounds.x.getMin();
+            dest[index++] = tempBounds.y.getMin();
+            dest[index++] = 0;
+            dest[index++] = tempBounds.x.getMin();
+            dest[index++] = tempBounds.y.getMax();
+            dest[index++] = 0;
+            dest[index++] = tempBounds.x.getMax();
+            dest[index++] = tempBounds.y.getMin();
+            dest[index++] = 0;
+            dest[index++] = tempBounds.x.getMax();
+            dest[index++] = tempBounds.y.getMax();
+            dest[index++] = 0;
+
             if (!nl) {
                 penX += next.advance + kerning;
             }
             last = next;
+
         }
+
         return dest;
     }
 
+    /**
+     * Builds a textured shape that will render some text. Text is
+     * rendered starting at the origin and advancing along the x-axis.
+     * See {@link TextLayout} for line-wrapping and such
+     *
+     * @param text   The text to render
+     * @param colour The {@link Colour} of the text
+     * @return A {@link TexturedShape} that will render the text
+     */
     @NonNull
     @Contract("_, _ -> new")
-    public TextShape buildTextShape(CharSequence text, int colour) {
-        if (assertionsDisabled || this.texture != null) {
-            if (!assertionsDisabled && text.length() == 0) {
-                throw new AssertionError("Empty string");
-            }
-            float[] verts = getVertices(text, null, 0);
-            float[] texcoords = getTexCoords(text, null, 0);
-            short[] indices = ShapeUtil.makeQuads(verts.length / 3, 0, null, 0);
-            TexturedShape ts = new TexturedShape(new ColouredShape(new Shape(verts, indices), colour, null), texcoords, this.texture.getTexture());
-            ts.state = ts.state.with(ts.state.texture.with(new TextureState.Filters(this.texture.mipmap ? MinFilter.LINEAR_MIPMAP_LINEAR : MinFilter.LINEAR, MagFilter.LINEAR)));
-            return new TextShape(ts, this, text.toString());
-        }
-        throw new AssertionError("Font " + this.name + " not initialised");
+    public TextShape buildTextShape(@NonNull CharSequence text, int colour) {
+//        assert texture != null : "Font " + name + " not initialised";
+//        assert text.length() != 0 : "Empty string";
+
+        float[] verts = getVertices(text, null, 0);
+        float[] texcoords = getTexCoords(text, (float[]) null, 0);
+        short[] indices = ShapeUtil.makeQuads(verts.length / 3, 0, null, 0);
+
+        TexturedShape ts =
+                new TexturedShape(new ColouredShape(new Shape(verts, indices), colour,
+                        null), texcoords, texture.getTexture());
+
+        ts.state =
+                ts.state.with(ts.state.texture.with(new TextureState.Filters(
+                        texture.mipmap ? MinFilter.LINEAR_MIPMAP_LINEAR : MinFilter.LINEAR,
+                        MagFilter.LINEAR)));
+
+        return new TextShape(ts, this, text.toString());
     }
 
+    /**
+     * Calculates the glyph texture coordinates. The dest array will
+     * have 4 * 2 * text.length elements written to it, in bl tl br tr
+     * format
+     *
+     * @param text  The text to render
+     * @param dest  A destination texcoord array, or null.
+     * @param start The element to start writing to in the dest array.
+     *              Ignored if dest is <code>null</code>;
+     * @return an array of glyph texture coordinates
+     */
     @NonNull
     public float[] getTexCoords(CharSequence text, float[] dest, int start) {
         int index = start;
         if (dest == null) {
-            dest = new float[text.length() * 8];
+            dest = new float[4 * 2 * text.length()];
             index = 0;
         }
+
         for (int i = 0; i < text.length(); i++) {
             Glyph g = map(text.charAt(i));
+
             g.image.getOrigin(tempOrigin);
             g.image.getExtent(tempExtent);
-            int index2 = index + 1;
-            dest[index] = tempOrigin.x;
-            int index3 = index2 + 1;
-            dest[index2] = tempOrigin.y;
-            int index4 = index3 + 1;
-            dest[index3] = tempOrigin.x;
-            int index5 = index4 + 1;
-            dest[index4] = tempExtent.y;
-            int index6 = index5 + 1;
-            dest[index5] = tempExtent.x;
-            int index7 = index6 + 1;
-            dest[index6] = tempOrigin.y;
-            int index8 = index7 + 1;
-            dest[index7] = tempExtent.x;
-            index = index8 + 1;
-            dest[index8] = tempExtent.y;
+
+            dest[index++] = tempOrigin.x;
+            dest[index++] = tempOrigin.y;
+            dest[index++] = tempOrigin.x;
+            dest[index++] = tempExtent.y;
+            dest[index++] = tempExtent.x;
+            dest[index++] = tempOrigin.y;
+            dest[index++] = tempExtent.x;
+            dest[index++] = tempExtent.y;
         }
+
         return dest;
     }
 
+    /**
+     * @return The font's texture
+     */
     public TextureFactory.GLTexture getFontTexture() {
-        return this.texture;
+        return texture;
     }
 
+    /**
+     * @return true if this font is not bold or italic
+     */
     public boolean isPlain() {
-        return !this.bold && !this.italic;
+        return !(bold || italic);
     }
 
+    /**
+     * Gets an unmodifiable list of the glyphs in this font
+     *
+     * @return A list of glyphs
+     */
     @NonNull
     public List<Glyph> getGlyphs() {
-        return Collections.unmodifiableList(this.glyphs);
+        return Collections.unmodifiableList(glyphs);
     }
 
     @NonNull
-    @Contract(pure = true)
+    @Override
     public String toString() {
-        return "Font \"" + this.name + "\" " + this.size + " " + (this.bold ? "bold" : DescriptionFactory.emptyText) + " " + (this.italic ? "italic" : DescriptionFactory.emptyText) + " ascent = " + this.ascent + " descent = " + this.descent + " leading = " + this.leading;
+        return "Font \"" + name + "\" " + size + " " + (bold ? "bold" : "") + " "
+                + (italic ? "italic" : "") + " ascent = " + ascent + " descent = "
+                + descent + " leading = " + leading;
     }
 }

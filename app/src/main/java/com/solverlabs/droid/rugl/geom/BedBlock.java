@@ -46,7 +46,7 @@ public class BedBlock {
     }
 
     public static boolean isBed(Byte blockType) {
-        return blockType != null && blockType == 75;
+        return blockType != null && blockType == BlockFactory.BED_ID;
     }
 
     @NonNull
@@ -64,22 +64,21 @@ public class BedBlock {
         boolean isPillow = (previewBlockData & 8) == 8;
         byte direction = (byte) (previewBlockData & 3);
         switch (direction) {
-            case 0:
+            case SOUTH:
                 renderer.rotate(90.0f, 0.0f, 1.0f, 0.0f);
                 if (!isPillow) {
                     renderer.translate(-1.0f, 0.0f, 0.0f);
-                    break;
                 } else {
                     renderer.translate(-2.0f, 0.0f, 0.0f);
-                    break;
                 }
-            case 1:
+                break;
+            case WEST:
                 if (isPillow) {
                     renderer.translate(-1.0f, 0.0f, 0.0f);
                     break;
                 }
                 break;
-            case 2:
+            case NORTH:
                 renderer.rotate(90.0f, 0.0f, 1.0f, 0.0f);
                 if (isPillow) {
                     renderer.translate(-1.0f, 0.0f, 0.0f);
@@ -88,7 +87,7 @@ public class BedBlock {
                     renderer.translate(-2.0f, 0.0f, 0.0f);
                     break;
                 }
-            case 3:
+            case EAST:
                 if (!isPillow) {
                     renderer.translate(-1.0f, 0.0f, 0.0f);
                     break;

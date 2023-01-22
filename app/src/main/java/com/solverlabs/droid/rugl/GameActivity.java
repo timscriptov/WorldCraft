@@ -34,14 +34,29 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.TreeSet;
 
+/**
+ * Handy activity that can be simply subclassed. Just remember to call
+ * {@link #start(Game, String)} in your
+ * {@link #onCreate(android.os.Bundle)} or nothing will happen.
+ * Handles starting the {@link ResourceLoader} and key input
+ */
 public abstract class GameActivity extends CommonActivity implements Runnable {
     private static final String CHAT_COMMAND_HOME = "/home";
+    /**
+     * The {@link Game}
+     */
     protected Game game;
     protected ProgressDialog loadingDialog;
     protected AlertDialog readOnlyMapNotificationDialog;
     private GameView gameView;
 
-    public void start(Game game) {
+/**
+ * Call this in your {@link #onCreate(android.os.Bundle)}
+ * implementation
+ *
+ * @param game
+ */
+public void start(Game game) {
         this.game = game;
         ResourceLoader.start(getResources());
         setContentView(R.layout.activity_game);
@@ -51,6 +66,14 @@ public abstract class GameActivity extends CommonActivity implements Runnable {
         reportAbuseCatcher.start();
     }
 
+    /**
+     * Displays a short message to the user
+     *
+     * @param message
+     * @param longShow
+     *           <code>true</code> for {@link Toast#LENGTH_LONG},
+     *           <code>false</code> for {@link Toast#LENGTH_SHORT}
+     */
     public void showToast(final String message, final boolean longShow) {
         runOnUiThread(() -> {
             Toast t = Toast.makeText(getApplicationContext(), message, longShow ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT);
