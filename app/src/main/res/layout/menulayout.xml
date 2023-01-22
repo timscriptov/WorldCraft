@@ -8,19 +8,24 @@
 
     <Button
         android:id="@+id/quitButton"
-        android:layout_width="244dp"
+        android:layout_width="match_parent"
+        android:background="@drawable/ic_button_selector"
         android:layout_height="wrap_content"
         android:text="@string/quit_to_title" />
 
     <Button
         android:id="@+id/backButton"
-        android:layout_width="244dp"
+        android:layout_marginTop="8dp"
+        android:layout_width="match_parent"
+        android:background="@drawable/ic_button_selector"
         android:layout_height="wrap_content"
         android:text="@string/back_to_game" />
 
     <Button
         android:id="@+id/playerListButton"
-        android:layout_width="244dp"
+        android:layout_marginTop="8dp"
+        android:layout_width="match_parent"
+        android:background="@drawable/ic_button_selector"
         android:layout_height="wrap_content"
         android:text="@string/player_list" />
 </LinearLayout>

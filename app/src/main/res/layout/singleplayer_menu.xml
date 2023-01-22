@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="400dp"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="16dp"
     android:orientation="vertical">
 
     <LinearLayout
@@ -15,6 +16,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.22"
+            android:background="@drawable/ic_button_selector"
             android:text="New game" />
 
         <Button
@@ -22,7 +24,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.22"
+            android:background="@drawable/ic_button_selector"
             android:text="Cancel" />
+
     </LinearLayout>
 
     <ListView
@@ -30,4 +34,5 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/buttonBox" />
+    
 </RelativeLayout>

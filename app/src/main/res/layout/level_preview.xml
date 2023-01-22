@@ -89,7 +89,9 @@
                             android:background="@drawable/ic_button_selector"
                             android:text="@string/delete"
                             android:textSize="15dp" />
+
                     </RelativeLayout>
+
                 </LinearLayout>
 
             </LinearLayout>

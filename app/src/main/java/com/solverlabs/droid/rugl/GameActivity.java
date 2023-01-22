@@ -44,7 +44,7 @@ public abstract class GameActivity extends CommonActivity implements Runnable {
     public void start(Game game) {
         this.game = game;
         ResourceLoader.start(getResources());
-        setContentView(R.layout.main_without_banner);
+        setContentView(R.layout.activity_game);
         this.gameView = findViewById(R.id.gameViewWithoutBanner);
         this.gameView.init(game);
         Thread reportAbuseCatcher = new Thread(this);

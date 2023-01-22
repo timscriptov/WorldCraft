@@ -1,32 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginLeft="10dp"
-    android:layout_marginTop="6dp"
-    android:layout_marginRight="6dp"
-    android:layout_marginBottom="6dp"
+    android:padding="16dp"
     android:gravity="center"
-    android:minHeight="?android:attr/listPreferredItemHeight"
-    android:paddingRight="?android:attr/scrollbarSize">
+    android:minHeight="?android:attr/listPreferredItemHeight">
 
     <ProgressBar
         android:id="@+id/progressBar1"
-        style="?android:attr/progressBarStyleSmall"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginLeft="10dp" />
+        android:layout_height="wrap_content" />
 
     <com.solverlabs.worldcraft.dialog.component.MolotTextView
         android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/progressBar1"
-        android:layout_marginLeft="5dp"
-        android:layout_toRightOf="@+id/progressBar1"
+        android:layout_marginStart="8dp"
         android:text="@string/loading"
-        android:textColor="@color/room_name_text_color"
         android:textSize="@dimen/room_name_text_size" />
-</RelativeLayout>
+
+</LinearLayout>

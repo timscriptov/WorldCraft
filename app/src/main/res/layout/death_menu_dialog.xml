@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="244dp"
-    android:layout_height="wrap_content">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp"
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/its_all_over_view"
@@ -17,12 +19,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/its_all_over_view"
+        android:background="@drawable/ic_button_selector"
         android:text="@string/respawn" />
 
     <Button
+        android:layout_marginTop="8dp"
         android:id="@+id/quit_to_title_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/respawn_button"
+        android:background="@drawable/ic_button_selector"
         android:text="@string/quit_to_title" />
-</RelativeLayout>
+
+</LinearLayout>

@@ -3,11 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/dialog_background" />
-
     <LinearLayout
         android:id="@+id/buttonList"
         android:layout_width="match_parent"
@@ -20,6 +15,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:background="@drawable/ic_button_selector"
             android:gravity="center"
             android:text="@string/upload_room"
             android:textSize="@dimen/main_menu_button_text_size" />
@@ -29,6 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:background="@drawable/ic_button_selector"
             android:gravity="center"
             android:text="@string/refresh"
             android:textSize="@dimen/main_menu_button_text_size" />
@@ -39,6 +36,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
+            android:background="@drawable/ic_button_selector"
             android:text="@string/search"
             android:textSize="@dimen/main_menu_button_text_size" />
 
@@ -48,8 +46,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
+            android:background="@drawable/ic_button_selector"
             android:text="@android:string/cancel"
             android:textSize="@dimen/main_menu_button_text_size" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -69,7 +69,7 @@
                 android:id="@+id/textView1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
                 android:text="Online users"
                 android:textSize="@dimen/roomlist_name_text_size" />
 
@@ -78,6 +78,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_margin="5dp" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -90,7 +91,7 @@
                 android:id="@+id/textView2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
                 android:text="@string/read_only"
                 android:textSize="@dimen/roomlist_name_text_size" />
 
@@ -99,6 +100,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_margin="5dp"/>
+
         </LinearLayout>
 
         <LinearLayout
@@ -111,7 +113,7 @@
                 android:id="@+id/textView3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
                 android:text="Rating"
                 android:textSize="@dimen/roomlist_name_text_size" />
 
@@ -121,5 +123,7 @@
                 android:layout_height="match_parent"
                 android:layout_margin="5dp" />
         </LinearLayout>
+
     </LinearLayout>
+
 </RelativeLayout>

@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_marginTop="5dp"
-        android:layout_marginRight="15dp"
+        android:layout_marginEnd="15dp"
         android:layout_marginBottom="5dp"
         android:contentDescription="@string/skin"
         android:gravity="center_vertical" />
@@ -25,4 +25,5 @@
         android:contentDescription="@string/name"
         android:gravity="center_vertical"
         android:textStyle="bold" />
+
 </LinearLayout>

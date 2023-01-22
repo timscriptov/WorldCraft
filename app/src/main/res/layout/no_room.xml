@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="400dp"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="16dp">
 
     <TextView
         android:id="@+id/textView3"
@@ -20,6 +21,7 @@
 
         <Button
             android:id="@+id/createButtom"
+            android:background="@drawable/ic_button_selector"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.32"
@@ -30,6 +32,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.32"
+            android:background="@drawable/ic_button_selector"
             android:text="@string/refresh" />
 
         <Button
@@ -37,6 +40,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.32"
+            android:background="@drawable/ic_button_selector"
             android:text="@android:string/cancel" />
+
     </LinearLayout>
+
 </LinearLayout>
