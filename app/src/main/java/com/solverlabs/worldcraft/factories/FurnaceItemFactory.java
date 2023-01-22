@@ -11,8 +11,8 @@ public class FurnaceItemFactory {
     @NonNull
     public static Set<Byte> getMaterialList() {
         Set<Byte> materials = new HashSet<>();
-        FurnaceItem[] arr$ = FurnaceItem.values();
-        for (FurnaceItem furnaceItem : arr$) {
+        FurnaceItem[] furnaceItems = FurnaceItem.values();
+        for (FurnaceItem furnaceItem : furnaceItems) {
             if (furnaceItem.getCraftedItemId() != 0) {
                 materials.add(furnaceItem.getId());
             }
@@ -32,20 +32,20 @@ public class FurnaceItemFactory {
     }
 
     public enum FurnaceItem {
-        Coal(BlockFactory.COAL_ORE_ID, 80, (byte) 0),
+        Coal(BlockFactory.COAL_ORE_ID, 80, BlockFactory.BARE_HANDS),
         Wood(BlockFactory.WOOD_ID, 15, BlockFactory.COAL_ORE_ID),
-        IronOre((byte) 15, 0, BlockFactory.IRON_INGOT_ID),
-        GoldOre((byte) 14, 0, BlockFactory.GOLD_INGOT_ID),
+        IronOre(BlockFactory.IRON_ORE_ID, 0, BlockFactory.IRON_INGOT_ID),
+        GoldOre(BlockFactory.GOLD_ORE_ID, 0, BlockFactory.GOLD_INGOT_ID),
         DiamondOre(BlockFactory.DIAMOND_ORE_ID, 0, BlockFactory.DIAMOND_INGOT_ID),
-        Sand((byte) 12, 0, BlockFactory.GLASS_ID),
-        WoodenPlanks((byte) 5, 15, (byte) 0),
+        Sand(BlockFactory.SAND_ID, 0, BlockFactory.GLASS_ID),
+        WoodenPlanks(BlockFactory.WOODEN_PLANKS_ID, 15, BlockFactory.BARE_HANDS),
         Stick(BlockFactory.STICK_ID, 5, (byte) 0),
         RawBeef(BlockFactory.RAW_BEEF_ID, 0, BlockFactory.STEAK_ID),
         RawPorkchop(BlockFactory.RAW_PORKCHOP_ID, 0, BlockFactory.COOKED_PORKCHOP_ID),
-        WorkBench((byte) 58, 15, (byte) 0),
-        Chest((byte) 54, 15, (byte) 0),
-        Stone((byte) 1, 0, (byte) 4),
-        ClayOre(BlockFactory.CLAY_ORE_ID, 0, (byte) 120);
+        WorkBench(BlockFactory.CRAFTING_TABLE_ID, 15, BlockFactory.BARE_HANDS),
+        Chest(BlockFactory.CHEST_ID, 15, BlockFactory.BARE_HANDS),
+        Stone(BlockFactory.STONE_ID, 0, BlockFactory.COBBLE_ID),
+        ClayOre(BlockFactory.CLAY_ORE_ID, 0, BlockFactory.BRICK_ID);
 
         private final int burningTime;
         private final byte craftedItemId;

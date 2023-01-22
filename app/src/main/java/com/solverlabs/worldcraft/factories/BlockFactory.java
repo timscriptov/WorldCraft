@@ -67,90 +67,91 @@ public class BlockFactory {
     public static final byte IRON_SHOVEL_ID = 36;
     public static final byte IRON_PICK_ID = 37;
     public static final byte IRON_AXE_ID = 38;
-
-    public static final byte BED_ID = 75;
-    public static final byte BOOKSHELF_ID = 47;
+    public static final byte GOLD_SWORD_ID = 39;
+    public static final byte GOLD_SHOVEL_ID = 40;
+    public static final byte GOLD_BLOCK_ID = 41;
+    public static final byte IRON_BLOCK_ID = 42;
+    public static final byte DOUBLE_SLAB_ID = 43;
+    public static final byte SLAB_ID = 44;
     public static final byte BRICK_BLOCK_ID = 45;
-    public static final byte BRICK_ID = 120;
-    public static final byte CACTUS_ID = 81;
+    public static final byte TNT_ID = 46;
+    public static final byte BOOKSHELF_ID = 47;
+    public static final byte MOSS_STONE_ID = 48;
+    public static final byte OBSIDIAN_ID = 49;
+    public static final byte GOLD_PICK_ID = 50;
+    public static final byte GOLD_AXE_ID = 51;
+    public static final byte DIAMOND_SWORD_ID = 52;
+    public static final byte DIAMOND_SHOVEL_ID = 53;
     public static final byte CHEST_ID = 54;
-    public static final byte CLAY_ORE_ID = 82;
-    public static final byte CLOSED_IRON_DOOR_ID = 65;
-    public static final byte CLOSED_WOOD_DOOR_ID = 62;
-
-
-    public static final byte COOKED_PORKCHOP_ID = 74;
+    public static final byte DIAMOND_PICK_ID = 55;
+    public static final byte DIAMOND_ORE_ID = 56;
+    public static final byte DIAMOND_BLOCK_ID = 57;
     public static final byte CRAFTING_TABLE_ID = 58;
     public static final byte DIAMOND_AXE_ID = 59;
-    public static final byte DIAMOND_BLOCK_ID = 57;
-    public static final byte DIAMOND_INGOT_ID = 111;
-    public static final byte DIAMOND_ORE_ID = 56;
-    public static final byte DIAMOND_PICK_ID = 55;
-    public static final byte DIAMOND_SHOVEL_ID = 53;
-    public static final byte DIAMOND_SWORD_ID = 52;
-    public static final byte DOUBLE_SLAB_ID = 43;
-    public static final byte EMERALD_ID = 112;
     public static final byte FARMLAND_ID = 60;
-    public static final byte FLOWER_ID = 122;
-    public static final byte FURNACE_ACTIVE_ID = 119;
     public static final byte FURNACE_ID = 61;
-    public static final byte GLOW_STONE_ID = 89;
-    public static final byte GOLD_AXE_ID = 51;
-    public static final byte GOLD_BLOCK_ID = 41;
-    public static final byte GOLD_INGOT_ID = 108;
-    public static final byte GOLD_PICK_ID = 50;
-    public static final byte GOLD_SHOVEL_ID = 40;
-    public static final byte GOLD_SWORD_ID = 39;
-    public static final byte GRASS_ID = 121;
-    public static final byte ICE_ID = 80;
-    public static final byte IRON_BLOCK_ID = 42;
-    public static final byte IRON_INGOT_ID = 107;
-    public static final byte ITEMS_LABEL_ID = 67;
-    public static final byte JUKEBOX_ID = 84;
-    public static final byte LADDER_ID = 76;
-    public static final byte LEAVES_JUNGLE_ID = 118;
-    public static final byte MELON_ID = 110;
-    public static final byte MOSS_STONE2_ID = 114;
-    public static final byte MOSS_STONE_ID = 48;
-    public static final byte NETHERRACK_ID = 87;
-    public static final byte NETHER_BRICK_ID = 105;
-    public static final byte OBSIDIAN2_ID = 106;
-    public static final byte OBSIDIAN_ID = 49;
-    public static final byte OPENED_IRON_DOOR_ID = 66;
+    public static final byte CLOSED_WOOD_DOOR_ID = 62;
+    public static final byte STICK_ID = 63;
     public static final byte OPENED_WOOD_DOOR_ID = 64;
-    public static final byte PUMPKIN_ID = 86;
-    public static final byte RAW_BEEF_ID = 69;
+    public static final byte CLOSED_IRON_DOOR_ID = 65;
+    public static final byte OPENED_IRON_DOOR_ID = 66;
+    public static final byte ITEMS_LABEL_ID = 67;
     public static final byte RAW_PORKCHOP_ID = 68;
-    public static final byte REDSTONE_ORE_ID = 73;
+    public static final byte RAW_BEEF_ID = 69;
     public static final byte ROTTEN_FLESH_ID = 70;
-    public static final byte SANDSTONE2_ID = 113;
     public static final byte SHEARS_ID = 71;
-    public static final byte SLAB_ID = 44;
+    public static final byte STEAK_ID = 72;
+    public static final byte REDSTONE_ORE_ID = 73;
+    public static final byte COOKED_PORKCHOP_ID = 74;
+    public static final byte BED_ID = 75;
+    public static final byte LADDER_ID = 76;
+
     public static final byte SNOWY_GRASS_ID = 78;
     public static final byte SNOW_ID = 79;
+    public static final byte ICE_ID = 80;
+    public static final byte CACTUS_ID = 81;
+    public static final byte CLAY_ORE_ID = 82;
+
+    public static final byte JUKEBOX_ID = 84;
+
+    public static final byte PUMPKIN_ID = 86;
+    public static final byte NETHERRACK_ID = 87;
     public static final byte SOUL_SAND_ID = 88;
-    public static final byte STEAK_ID = 72;
-    public static final byte STICK_ID = 63;
-    public static final byte STONE_BRICK_ID = 109;
-    public static final byte STONE_BRICK_MOSSY_ID = 115;
-    public static final byte TNT_ID = 46;
+    public static final byte GLOW_STONE_ID = 89;
     public static final byte TORCH_ID = 90;
-    public static final byte WOOD_PLANK_JUNGLE_ID = 117;
-    public static final byte WOOD_PLANK_PINE_ID = 116;
     public static final byte WOOL_BLACK_ID = 91;
-    public static final byte WOOL_BLUE_ID = 99;
-    public static final byte WOOL_BROWN_ID = 97;
-    public static final byte WOOL_CYAN_ID = 102;
     public static final byte WOOL_GRAY_ID = 92;
-    public static final byte WOOL_GREEN_ID = 95;
-    public static final byte WOOL_LIGHT_BLUE_ID = 100;
-    public static final byte WOOL_LIGHT_GRAY_ID = 104;
-    public static final byte WOOL_LIME_ID = 96;
-    public static final byte WOOL_MAGENTA_ID = 101;
-    public static final byte WOOL_ORANGE_ID = 103;
-    public static final byte WOOL_PINK_ID = 94;
     public static final byte WOOL_RED_ID = 93;
+    public static final byte WOOL_PINK_ID = 94;
+    public static final byte WOOL_GREEN_ID = 95;
+    public static final byte WOOL_LIME_ID = 96;
+    public static final byte WOOL_BROWN_ID = 97;
     public static final byte WOOL_YELLOW_ID = 98;
+    public static final byte WOOL_BLUE_ID = 99;
+    public static final byte WOOL_LIGHT_BLUE_ID = 100;
+    public static final byte WOOL_MAGENTA_ID = 101;
+    public static final byte WOOL_CYAN_ID = 102;
+    public static final byte WOOL_ORANGE_ID = 103;
+    public static final byte WOOL_LIGHT_GRAY_ID = 104;
+    public static final byte NETHER_BRICK_ID = 105;
+    public static final byte OBSIDIAN2_ID = 106;
+    public static final byte IRON_INGOT_ID = 107;
+    public static final byte GOLD_INGOT_ID = 108;
+    public static final byte STONE_BRICK_ID = 109;
+    public static final byte MELON_ID = 110;
+    public static final byte DIAMOND_INGOT_ID = 111;
+    public static final byte EMERALD_ID = 112;
+    public static final byte SANDSTONE2_ID = 113;
+    public static final byte MOSS_STONE2_ID = 114;
+    public static final byte STONE_BRICK_MOSSY_ID = 115;
+    public static final byte WOOD_PLANK_PINE_ID = 116;
+    public static final byte WOOD_PLANK_JUNGLE_ID = 117;
+    public static final byte LEAVES_JUNGLE_ID = 118;
+    public static final byte FURNACE_ACTIVE_ID = 119;
+    public static final byte BRICK_ID = 120;
+    public static final byte GRASS_ID = 121;
+    public static final byte FLOWER_ID = 122;
+
     private static final Map<Byte, Block> blocks;
     private static final ColouredShape itemShape;
     private static final float sxtn = 0.0625f;
@@ -162,7 +163,7 @@ public class BlockFactory {
     private static final float[] ftl = {0.0f, 1.0f, 1.0f};
     private static final float[] fbr = {1.0f, 0.0f, 1.0f};
     private static final float[] ftr = {1.0f, 1.0f, 1.0f};
-    public static State state = null;
+    public static State state;
     public static Texture texture;
     private static HashMap<Byte, Material> blockMaterials = null;
 
@@ -198,7 +199,6 @@ public class BlockFactory {
         addVert(itemCoords, i10, hexVerts, 0);
         int i12 = i11 + 1;
         addVert(itemCoords, i11, hexVerts, 6);
-        int i13 = i12 + 1;
         addVert(itemCoords, i12, hexVerts, 1);
         short[] tris = ShapeUtil.makeQuads(12, 0, null, 0);
         int[] colours = new int[12];
@@ -213,8 +213,8 @@ public class BlockFactory {
         itemShape = new ColouredShape(new Shape(itemCoords, tris), colours, null);
         state = GLUtil.typicalState.with(MinFilter.NEAREST, MagFilter.NEAREST).with(new Fog(FogMode.LINEAR, 0.5f, 30.0f, 40.0f, Colour.packFloat(0.7f, 0.7f, 0.9f, 1.0f)));
         blocks = new HashMap<>();
-        Block[] arr$ = Block.values();
-        for (Block b : arr$) {
+        Block[] blocks1 = Block.values();
+        for (Block b : blocks1) {
             blocks.put(b.id, b);
         }
     }
@@ -229,7 +229,7 @@ public class BlockFactory {
         ResourceLoader.loadNow(new BitmapLoader("terrain.png") {
             @Override
             public void complete() {
-                BlockFactory.texture = TextureFactory.buildTexture(this.resource, true, true);
+                BlockFactory.texture = TextureFactory.buildTexture(resource, true, true);
                 if (BlockFactory.texture != null) {
                     BlockFactory.state = BlockFactory.texture.applyTo(BlockFactory.state);
                     Block[] blocks = Block.values();
@@ -239,7 +239,7 @@ public class BlockFactory {
                         }
                     }
                 }
-                this.resource.bitmap.recycle();
+                resource.bitmap.recycle();
             }
         });
     }

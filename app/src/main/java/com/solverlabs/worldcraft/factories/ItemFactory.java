@@ -50,24 +50,24 @@ public class ItemFactory {
         }
         WEAPON_ID_LIST.put(BlockFactory.WOOD_SWORD_ID, 4);
         WEAPON_ID_LIST.put(BlockFactory.GOLD_SWORD_ID, 4);
-        WEAPON_ID_LIST.put((byte) 30, 5);
-        WEAPON_ID_LIST.put((byte) 34, 6);
-        WEAPON_ID_LIST.put((byte) 52, 7);
-        WEAPON_ID_LIST.put((byte) 29, 3);
-        WEAPON_ID_LIST.put((byte) 51, 3);
-        WEAPON_ID_LIST.put((byte) 33, 4);
-        WEAPON_ID_LIST.put((byte) 38, 5);
-        WEAPON_ID_LIST.put((byte) 59, 6);
-        WEAPON_ID_LIST.put((byte) 28, 2);
-        WEAPON_ID_LIST.put((byte) 50, 2);
-        WEAPON_ID_LIST.put((byte) 32, 3);
-        WEAPON_ID_LIST.put((byte) 37, 4);
-        WEAPON_ID_LIST.put((byte) 55, 5);
-        WEAPON_ID_LIST.put((byte) 27, 1);
-        WEAPON_ID_LIST.put((byte) 40, 1);
-        WEAPON_ID_LIST.put((byte) 31, 2);
-        WEAPON_ID_LIST.put((byte) 36, 3);
-        WEAPON_ID_LIST.put((byte) 53, 4);
+        WEAPON_ID_LIST.put(BlockFactory.STONE_SWORD_ID, 5);
+        WEAPON_ID_LIST.put(BlockFactory.IRON_SWORD_ID, 6);
+        WEAPON_ID_LIST.put(BlockFactory.DIAMOND_SWORD_ID, 7);
+        WEAPON_ID_LIST.put(BlockFactory.WOOD_AXE_ID, 3);
+        WEAPON_ID_LIST.put(BlockFactory.GOLD_AXE_ID, 3);
+        WEAPON_ID_LIST.put(BlockFactory.STONE_AXE_ID, 4);
+        WEAPON_ID_LIST.put(BlockFactory.IRON_AXE_ID, 5);
+        WEAPON_ID_LIST.put(BlockFactory.DIAMOND_AXE_ID, 6);
+        WEAPON_ID_LIST.put(BlockFactory.WOOD_PICK_ID, 2);
+        WEAPON_ID_LIST.put(BlockFactory.GOLD_PICK_ID, 2);
+        WEAPON_ID_LIST.put(BlockFactory.STONE_PICK_ID, 3);
+        WEAPON_ID_LIST.put(BlockFactory.IRON_PICK_ID, 4);
+        WEAPON_ID_LIST.put(BlockFactory.DIAMOND_PICK_ID, 5);
+        WEAPON_ID_LIST.put(BlockFactory.WOOD_SHOVEL_ID, 1);
+        WEAPON_ID_LIST.put(BlockFactory.GOLD_SHOVEL_ID, 1);
+        WEAPON_ID_LIST.put(BlockFactory.STONE_SHOVEL_ID, 2);
+        WEAPON_ID_LIST.put(BlockFactory.IRON_SHOVEL_ID, 3);
+        WEAPON_ID_LIST.put(BlockFactory.DIAMOND_SHOVEL_ID, 4);
         itemState = GLUtil.typicalState.with(MinFilter.NEAREST, MagFilter.NEAREST);
     }
 
@@ -77,7 +77,7 @@ public class ItemFactory {
             public void complete() {
                 Set<Byte> fuels = FurnaceItemFactory.getFuelList();
                 Set<Byte> materials = FurnaceItemFactory.getMaterialList();
-                ItemFactory.itemTexture = TextureFactory.buildTexture(this.resource, true, false);
+                ItemFactory.itemTexture = TextureFactory.buildTexture(resource, true, false);
                 if (ItemFactory.itemTexture != null) {
                     ItemFactory.itemState = ItemFactory.itemTexture.applyTo(ItemFactory.itemState);
                     for (Item item : Item.values()) {
@@ -98,25 +98,25 @@ public class ItemFactory {
 
     public enum Item {
         WoodSword(BlockFactory.WOOD_SWORD_ID, 0, 4, 1, ItemFactory.WOOD_WEAPON_DURABILITY, DescriptionFactory.Sword),
-        WoodShovel((byte) 27, 0, 5, 1, ItemFactory.WOOD_WEAPON_DURABILITY, DescriptionFactory.Shovel),
-        WoodPick((byte) 28, 0, 6, 1, ItemFactory.WOOD_WEAPON_DURABILITY, DescriptionFactory.Pickaxe),
-        WoodAxe((byte) 29, 0, 7, 1, ItemFactory.WOOD_WEAPON_DURABILITY, DescriptionFactory.Axe),
-        StoneSword((byte) 30, 1, 4, 1, ItemFactory.STONE_WEAPON_DURABILITY, DescriptionFactory.Sword),
-        StoneShovel((byte) 31, 1, 5, 1, ItemFactory.STONE_WEAPON_DURABILITY, DescriptionFactory.Shovel),
-        StonePick((byte) 32, 1, 6, 1, ItemFactory.STONE_WEAPON_DURABILITY, DescriptionFactory.Pickaxe),
-        StoneAxe((byte) 33, 1, 7, 1, ItemFactory.STONE_WEAPON_DURABILITY, DescriptionFactory.Axe),
-        IronSword((byte) 34, 2, 4, 1, ItemFactory.IRON_WEAPON_DURABILITY, DescriptionFactory.Sword),
-        IronShovel((byte) 36, 2, 5, 1, ItemFactory.IRON_WEAPON_DURABILITY, DescriptionFactory.Shovel),
-        IronPick((byte) 37, 2, 6, 1, ItemFactory.IRON_WEAPON_DURABILITY, DescriptionFactory.Pickaxe),
-        IronAxe((byte) 38, 2, 7, 1, ItemFactory.IRON_WEAPON_DURABILITY, DescriptionFactory.Axe),
-        DiamondSword((byte) 52, 3, 4, 1, ItemFactory.DIAMOND_WEAPON_DURABILITY, DescriptionFactory.Sword),
-        DiamondShovel((byte) 53, 3, 5, 1, ItemFactory.DIAMOND_WEAPON_DURABILITY, DescriptionFactory.Shovel),
-        DiamondPick((byte) 55, 3, 6, 1, ItemFactory.DIAMOND_WEAPON_DURABILITY, DescriptionFactory.Pickaxe),
-        DiamondAxe((byte) 59, 3, 7, 1, ItemFactory.DIAMOND_WEAPON_DURABILITY, DescriptionFactory.Axe),
+        WoodShovel(BlockFactory.WOOD_SHOVEL_ID, 0, 5, 1, ItemFactory.WOOD_WEAPON_DURABILITY, DescriptionFactory.Shovel),
+        WoodPick(BlockFactory.WOOD_PICK_ID, 0, 6, 1, ItemFactory.WOOD_WEAPON_DURABILITY, DescriptionFactory.Pickaxe),
+        WoodAxe(BlockFactory.WOOD_AXE_ID, 0, 7, 1, ItemFactory.WOOD_WEAPON_DURABILITY, DescriptionFactory.Axe),
+        StoneSword(BlockFactory.STONE_SWORD_ID, 1, 4, 1, ItemFactory.STONE_WEAPON_DURABILITY, DescriptionFactory.Sword),
+        StoneShovel(BlockFactory.STONE_SHOVEL_ID, 1, 5, 1, ItemFactory.STONE_WEAPON_DURABILITY, DescriptionFactory.Shovel),
+        StonePick(BlockFactory.STONE_PICK_ID, 1, 6, 1, ItemFactory.STONE_WEAPON_DURABILITY, DescriptionFactory.Pickaxe),
+        StoneAxe(BlockFactory.STONE_AXE_ID, 1, 7, 1, ItemFactory.STONE_WEAPON_DURABILITY, DescriptionFactory.Axe),
+        IronSword(BlockFactory.IRON_SWORD_ID, 2, 4, 1, ItemFactory.IRON_WEAPON_DURABILITY, DescriptionFactory.Sword),
+        IronShovel(BlockFactory.IRON_SHOVEL_ID, 2, 5, 1, ItemFactory.IRON_WEAPON_DURABILITY, DescriptionFactory.Shovel),
+        IronPick(BlockFactory.IRON_PICK_ID, 2, 6, 1, ItemFactory.IRON_WEAPON_DURABILITY, DescriptionFactory.Pickaxe),
+        IronAxe(BlockFactory.IRON_AXE_ID, 2, 7, 1, ItemFactory.IRON_WEAPON_DURABILITY, DescriptionFactory.Axe),
+        DiamondSword(BlockFactory.DIAMOND_SWORD_ID, 3, 4, 1, ItemFactory.DIAMOND_WEAPON_DURABILITY, DescriptionFactory.Sword),
+        DiamondShovel(BlockFactory.DIAMOND_SHOVEL_ID, 3, 5, 1, ItemFactory.DIAMOND_WEAPON_DURABILITY, DescriptionFactory.Shovel),
+        DiamondPick(BlockFactory.DIAMOND_PICK_ID, 3, 6, 1, ItemFactory.DIAMOND_WEAPON_DURABILITY, DescriptionFactory.Pickaxe),
+        DiamondAxe(BlockFactory.DIAMOND_AXE_ID, 3, 7, 1, ItemFactory.DIAMOND_WEAPON_DURABILITY, DescriptionFactory.Axe),
         GoldSword(BlockFactory.GOLD_SWORD_ID, 4, 4, 1, ItemFactory.GOLD_WEAPON_DURABILITY, DescriptionFactory.Sword),
-        GoldShovel((byte) 40, 4, 5, 1, ItemFactory.GOLD_WEAPON_DURABILITY, DescriptionFactory.Shovel),
-        GoldPick((byte) 50, 4, 6, 1, ItemFactory.GOLD_WEAPON_DURABILITY, DescriptionFactory.Pickaxe),
-        GoldAxe((byte) 51, 4, 7, 1, ItemFactory.GOLD_WEAPON_DURABILITY, DescriptionFactory.Axe),
+        GoldShovel(BlockFactory.GOLD_SHOVEL_ID, 4, 5, 1, ItemFactory.GOLD_WEAPON_DURABILITY, DescriptionFactory.Shovel),
+        GoldPick(BlockFactory.GOLD_PICK_ID, 4, 6, 1, ItemFactory.GOLD_WEAPON_DURABILITY, DescriptionFactory.Pickaxe),
+        GoldAxe(BlockFactory.GOLD_AXE_ID, 4, 7, 1, ItemFactory.GOLD_WEAPON_DURABILITY, DescriptionFactory.Axe),
         Stick(BlockFactory.STICK_ID, 5, 3, 64, DescriptionFactory.Stick),
         Stone(BlockFactory.Block.Stone, 64, DescriptionFactory.Stone),
         DirtWithGrass(BlockFactory.Block.DirtWithGrass, 64, DescriptionFactory.emptyText),
@@ -150,7 +150,7 @@ public class ItemFactory {
         DoubleSlab(BlockFactory.Block.DoubleSlab, 64, DescriptionFactory.emptyText),
         Slab(BlockFactory.Block.Slab, 64, DescriptionFactory.emptyText),
         BrickBlock(BlockFactory.Block.BrickBlock, 64, DescriptionFactory.emptyText),
-        Brick((byte) 120, 6, 1, 64, DescriptionFactory.emptyText),
+        Brick(BlockFactory.BRICK_ID, 6, 1, 64, DescriptionFactory.emptyText),
         TNT(BlockFactory.Block.TNT, 64, DescriptionFactory.emptyText),
         Bookshelf(BlockFactory.Block.Bookshelf, 64, DescriptionFactory.emptyText),
         MossStone(BlockFactory.Block.MossStone, 64, DescriptionFactory.emptyText),
