@@ -4,7 +4,6 @@
     <dimen name="title_text_size">60dp</dimen>
     <dimen name="info_block_map_name_text_size">18dp</dimen>
     <dimen name="info_block_text_size">15dp</dimen>
-    <dimen name="gallery_margin">170dp</dimen>
     <dimen name="create_game_padding">40dp</dimen>
     <dimen name="create_game_margin_bottom">20dp</dimen>
     <dimen name="create_game_text_size">30dp</dimen>

@@ -21,6 +21,7 @@ import com.solverlabs.worldcraft.ui.SectionItem;
 
 import java.util.ArrayList;
 
+@SuppressWarnings("deprecation")
 public class OptionActivity extends ListActivity {
     public static final String BACK = "BACK";
     public static final String CANCEL = "Cancel";
@@ -114,45 +115,45 @@ public class OptionActivity extends ListActivity {
     }
 
     public void updateItems() {
-        this.items.clear();
-        this.isInvertY = Persistence.getInstance().isInvertY();
-        this.fogDistance = Persistence.getInstance().getFogDistance();
-        this.loadRadius = Persistence.getInstance().getLoadRadius();
-        this.userName = Persistence.getInstance().getPlayerName();
-        this.skinType = Persistence.getInstance().getPlayerSkin();
-        this.isSoundEnabled = SoundManager.isSoundEnabled();
-        this.items.add(new SectionItem(SELECTION_MULTIPLAYER));
-        this.items.add(new EntryItem(ENTRY_USERNAME, this.userName, 4));
-        this.items.add(new EntryItem(ENTRY_SKIN, null, 5, true, getSkinResID(this.skinType)));
-        this.items.add(new SectionItem(SELECTION_CONTROL));
-        this.items.add(new EntryItem(ENTRY_INVERT_Y, this.isInvertY ? ENABLE : DISABLE, 3));
-        this.items.add(new SectionItem(SELECTION_GRAPHICS));
-        this.items.add(new EntryItem(ENTRY_FOG_DISTANCE, String.valueOf(this.fogDistance), 1));
-        this.items.add(new SectionItem(SELECTION_SOUND));
-        this.items.add(new EntryItem(ENTRY_ENABLE_SOUND, this.isSoundEnabled ? ENABLE : DISABLE, 6));
-        EntryAdapter adapter = new EntryAdapter(this, this.items);
+        items.clear();
+        isInvertY = Persistence.getInstance().isInvertY();
+        fogDistance = Persistence.getInstance().getFogDistance();
+        loadRadius = Persistence.getInstance().getLoadRadius();
+        userName = Persistence.getInstance().getPlayerName();
+        skinType = Persistence.getInstance().getPlayerSkin();
+        isSoundEnabled = SoundManager.isSoundEnabled();
+        items.add(new SectionItem(SELECTION_MULTIPLAYER));
+        items.add(new EntryItem(ENTRY_USERNAME, userName, 4));
+        items.add(new EntryItem(ENTRY_SKIN, null, 5, true, getSkinResID(skinType)));
+        items.add(new SectionItem(SELECTION_CONTROL));
+        items.add(new EntryItem(ENTRY_INVERT_Y, isInvertY ? ENABLE : DISABLE, 3));
+        items.add(new SectionItem(SELECTION_GRAPHICS));
+        items.add(new EntryItem(ENTRY_FOG_DISTANCE, String.valueOf(this.fogDistance), 1));
+        items.add(new SectionItem(SELECTION_SOUND));
+        items.add(new EntryItem(ENTRY_ENABLE_SOUND, isSoundEnabled ? ENABLE : DISABLE, 6));
+        EntryAdapter adapter = new EntryAdapter(this, items);
         setListAdapter(adapter);
     }
 
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
-        if (!this.items.get(position).isSection()) {
-            EntryItem item = (EntryItem) this.items.get(position);
+        if (!items.get(position).isSection()) {
+            EntryItem item = (EntryItem) items.get(position);
             switch (item.ID) {
-                case 1:
+                case FOG_DISTANCE_ID:
                     showFogDistanceDialog();
-                    item.subtitle = String.valueOf(this.fogDistance);
+                    item.subtitle = String.valueOf(fogDistance);
                     break;
-                case 3:
+                case INVERT_Y_AXIS_ID:
                     changeInverY();
                     break;
-                case 4:
+                case USERNAME_ID:
                     showChangeUsernameDialog();
                     break;
-                case 5:
+                case SKIN_ID:
                     showChangeSkinDialog();
                     break;
-                case 6:
+                case CHANGE_SOUND_ID:
                     changeSound();
                     break;
             }
@@ -161,8 +162,8 @@ public class OptionActivity extends ListActivity {
     }
 
     private void changeInverY() {
-        this.isInvertY = !this.isInvertY;
-        Persistence.getInstance().setInvertY(this.isInvertY);
+        isInvertY = !isInvertY;
+        Persistence.getInstance().setInvertY(isInvertY);
         updateItems();
     }
 
@@ -186,15 +187,15 @@ public class OptionActivity extends ListActivity {
     }
 
     private void changeSound() {
-        this.isSoundEnabled = !this.isSoundEnabled;
-        SoundManager.setSoundEnabled(this.isSoundEnabled);
+        isSoundEnabled = !isSoundEnabled;
+        SoundManager.setSoundEnabled(isSoundEnabled);
         updateItems();
     }
 
     private void showChangeChunkLoadRadiusDialog() {
         final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
         final EditText name = new EditText(this);
-        name.setText(String.valueOf(this.loadRadius));
+        name.setText(String.valueOf(loadRadius));
         builder.setTitle(ENTRY_CHUNK_LOAD_RADIUS).setView(name).setPositiveButton(OK, (dialog, id) -> {
             try {
                 int chunkCount = Integer.parseInt(name.getText().toString());
@@ -213,7 +214,7 @@ public class OptionActivity extends ListActivity {
     private void showChangeUsernameDialog() {
         final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
         final EditText name = new EditText(this);
-        name.setText(this.userName);
+        name.setText(userName);
         builder.setTitle(ENTRY_USERNAME).setView(name).setPositiveButton(OK, (dialog, id) -> {
             String userName = name.getText().toString();
             Persistence.getInstance().setPlayerName(userName);
