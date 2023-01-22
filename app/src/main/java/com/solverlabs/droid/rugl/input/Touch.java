@@ -11,7 +11,14 @@ import java.util.ArrayList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+/**
+ * Provides a polling-style interface to multitouch pointers. Note that this
+ * flips the y-axis so the the origin is at the bottom-left of the screen
+ */
 public class Touch {
+    /**
+     * An array of pointers. They can be active or not
+     */
     public static final Pointer[] pointers = new Pointer[2];
     private static final Queue<MotionEvent> touchEvents;
     private static final ArrayList<TouchListener> listeners = new ArrayList<>();
@@ -26,14 +33,21 @@ public class Touch {
         touchEvents = new ConcurrentLinkedQueue<>();
     }
 
+    /**
+     * @param me
+     */
     public static void onTouchEvent(MotionEvent me) {
         touchEvents.offer(me);
     }
 
+    /**
+     * Call this once per frame to process touch events on the main thread
+     */
     public static void processTouches() {
         while (!touchEvents.isEmpty()) {
             MotionEvent me = touchEvents.poll();
-            if (me.getAction() == 1) {
+            // final touch has left
+            if (me.getAction() == MotionEvent.ACTION_UP) {
                 for (int i = 0; i < pointers.length; i++) {
                     onPointerUp(pointers[i]);
                 }
@@ -85,14 +99,16 @@ public class Touch {
                     return;
                 }
             }
-            for (int i3 = 0; i3 < pointers.length; i3++) {
-                if (pointers[i3].active && !wasActive[i3]) {
+            for (int i = 0; i < pointers.length; i++) {
+                if (pointers[i].active && !wasActive[i]) {
+                    // added
                     for (int j = 0; j < listeners.size(); j++) {
-                        listeners.get(j).pointerAdded(pointers[i3]);
+                        listeners.get(j).pointerAdded(pointers[i]);
                     }
-                } else if (!pointers[i3].active && wasActive[i3]) {
-                    for (int j2 = 0; j2 < listeners.size(); j2++) {
-                        listeners.get(j2).pointerRemoved(pointers[i3]);
+                } else if (!pointers[i].active && wasActive[i]) {
+                    // removed
+                    for (int j = 0; j < listeners.size(); j++) {
+                        listeners.get(j).pointerRemoved(pointers[i]);
                     }
                 }
             }
@@ -109,19 +125,37 @@ public class Touch {
         }
     }
 
+    /**
+     * Sets scaling factors for translation between physical and desired
+     * coordinate systems
+     *
+     * @param desiredWidth
+     * @param desiredHeight
+     * @param actualWidth
+     * @param actualHeight
+     */
     public static void setScreenSize(float desiredWidth, float desiredHeight, int actualWidth, int actualHeight) {
         xScale = desiredWidth / actualWidth;
         yScale = desiredHeight / actualHeight;
     }
 
+    /**
+     * @param l The object to inform of pointer changes
+     */
     public static void addListener(TouchListener l) {
         listeners.add(l);
     }
 
+    /**
+     * @param l The object to stop informing of pointer changes
+     */
     public static void removeListener(TouchListener l) {
         listeners.remove(l);
     }
 
+    /**
+     * Called at startup
+     */
     public static void reset() {
         for (int i = 0; i < pointers.length; i++) {
             pointers[i].active = false;
@@ -132,13 +166,31 @@ public class Touch {
     }
 
     public interface TouchListener {
+        /**
+         * Called when a new pointer is added to the screen
+         *
+         * @param pointer This object's fields will be updated as the pointer changes
+         * @return <code>true</code> if the touch should be consumed. No other
+         * listeners will be notified
+         */
         boolean pointerAdded(Pointer pointer);
 
+        /**
+         * Called when a pointer is removed from the screen
+         *
+         * @param pointer This object will no longer be updated
+         */
         void pointerRemoved(Pointer pointer);
 
+        /**
+         * Called when the Touch system is initiated
+         */
         void reset();
     }
 
+    /**
+     * Information on one pointer
+     */
     public static class Pointer {
         public final int id;
         public boolean active;

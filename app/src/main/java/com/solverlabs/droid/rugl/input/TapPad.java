@@ -10,6 +10,9 @@ import com.solverlabs.droid.rugl.util.Colour;
 import com.solverlabs.droid.rugl.util.geom.BoundingRectangle;
 
 
+/**
+ * A tapable, flickable rectangle on the screen
+ */
 public class TapPad implements Touch.TouchListener {
     private static final long DOUBLE_TAP_TIME = 250;
     public final BoundingRectangle pad = new BoundingRectangle();
@@ -22,6 +25,9 @@ public class TapPad implements Touch.TouchListener {
     public boolean isVisible = true;
     public int boundsWhiteColour = Colour.packFloat(1.0f, 1.0f, 1.0f, 0.6f);
     public int boundsBlackColour = Colour.packFloat(0.0f, 0.0f, 0.0f, 0.6f);
+    /**
+     * Set this to respond to taps and presses
+     */
     public Listener listener = null;
     float offset;
     private ColouredShape circle;
@@ -36,12 +42,21 @@ public class TapPad implements Touch.TouchListener {
     private boolean tapped = false;
     private boolean longPressed = false;
 
+    /**
+     * @param x
+     * @param y
+     * @param width
+     * @param height
+     */
     public TapPad(float x, float y, float width, float height) {
         this.offset = 0.0f;
         this.pad.set(x, x + width, y, y + height);
         this.offset = this.pad.x.getSpan() / 6.0f;
     }
 
+    /**
+     * Advance pad state
+     */
     public void advance() {
         if (this.listener != null) {
             if (this.touch != null && this.isVisible) {
@@ -111,15 +126,24 @@ public class TapPad implements Touch.TouchListener {
         this.touch = null;
     }
 
+    /**
+     * @return the sensitive pad area
+     */
     public BoundingRectangle getPad() {
         return this.pad;
     }
 
+    /**
+     * @param pad The new sensitive pad area
+     */
     public void setPad(BoundingRectangle pad) {
         this.pad.set(pad);
         this.outlineWhite = null;
     }
 
+    /**
+     * @param sr
+     */
     public void draw(StackedRenderer sr) {
         if (this.needDraw && this.touch == null && this.isVisible) {
             if (this.outlineWhite == null) {

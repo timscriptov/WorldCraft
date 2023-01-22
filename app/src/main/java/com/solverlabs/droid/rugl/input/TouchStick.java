@@ -16,7 +16,6 @@ import org.apache.commons.compress.archivers.cpio.CpioConstants;
 
 public class TouchStick extends AbstractTouchStick {
     public float radius;
-    public Touch.Pointer touchTemp;
     public float ramp = 1.0f;
     private ColouredShape limit;
     private float startPointX;
@@ -24,92 +23,111 @@ public class TouchStick extends AbstractTouchStick {
     private ColouredShape stick;
     private float xPos;
     private float yPos;
+    /**
+     * Indicates that the touch has been lifted
+     */
     private boolean touchLeft = false;
+    /**
+     * The time at which a touch was added
+     */
     private long touchTime = -1;
+    /**
+     * The time of the last click event
+     */
     private long clickTime = -1;
     private boolean clickHoldPrimed = false;
     private boolean clickHoldActive = false;
 
+    /**
+     * @param x           position, in screen coordinates
+     * @param y           position, in screen coordinates
+     * @param limitRadius radius, in screen coordinates
+     */
     public TouchStick(float x, float y, float limitRadius) {
         setPosition(x, y);
-        this.radius = limitRadius;
+        radius = limitRadius;
     }
 
     private void buildShape() {
-        this.limit = new ColouredShape(ShapeUtil.innerCircle(0.0f, 0.0f, this.radius, 10.0f, 30.0f, 0.0f), Colour.white, (State) null);
-        this.stick = new ColouredShape(this.limit.clone(), Colour.white, (State) null);
-        this.stick.scale(0.5f, 0.5f, 1.0f);
-        Colour.withAlphai(this.stick.colours, (int) CpioConstants.C_IWUSR);
-        for (int i = 0; i < this.limit.colours.length; i += 2) {
-            this.limit.colours[i] = Colour.withAlphai(this.limit.colours[i], 0);
+        limit = new ColouredShape(ShapeUtil.innerCircle(0.0f, 0.0f, radius, 10.0f, 30.0f, 0.0f), Colour.white, (State) null);
+        stick = new ColouredShape(limit.clone(), Colour.white, (State) null);
+        stick.scale(0.5f, 0.5f, 1.0f);
+        Colour.withAlphai(stick.colours, (int) CpioConstants.C_IWUSR);
+        for (int i = 0; i < limit.colours.length; i += 2) {
+            limit.colours[i] = Colour.withAlphai(limit.colours[i], 0);
         }
-        this.limit.translate(this.xPos, this.yPos, 0.0f);
-        this.stick.translate(this.xPos, this.yPos, 0.0f);
+        limit.translate(xPos, yPos, 0.0f);
+        stick.translate(xPos, yPos, 0.0f);
     }
 
+    /**
+     * @param x
+     * @param y
+     */
     public void setPosition(float x, float y) {
-        if (this.limit != null) {
-            this.limit.translate(x - this.xPos, y - this.yPos, 0.0f);
-            this.stick.translate(x - this.xPos, y - this.yPos, 0.0f);
+        if (limit != null) {
+            limit.translate(x - xPos, y - yPos, 0.0f);
+            stick.translate(x - xPos, y - yPos, 0.0f);
         }
-        this.xPos = x;
-        this.yPos = y;
+        xPos = x;
+        yPos = y;
     }
 
     @Override
     public void advance() {
         long now = System.currentTimeMillis();
-        if (this.touchLeft) {
-            long tapDuration = now - this.touchTime;
-            if (tapDuration < this.tapTime && this.listener != null) {
-                this.listener.onClick();
-                this.clickTime = now;
+        if (touchLeft) {
+            long tapDuration = now - touchTime;
+            if (tapDuration < tapTime && listener != null) {
+                listener.onClick();
+                clickTime = now;
             }
-            if (this.clickHoldActive) {
-                this.clickHoldActive = false;
-                this.listener.onClickHold(this.clickHoldActive);
+            if (clickHoldActive) {
+                clickHoldActive = false;
+                listener.onClickHold(clickHoldActive);
             }
-            this.touch = null;
-            this.touchLeft = false;
+            touch = null;
+            touchLeft = false;
         }
-        if (this.touch != null) {
-            long chd = now - this.clickTime;
-            this.clickHoldPrimed = chd < this.clickHoldDelay;
-            if (this.clickHoldPrimed) {
-                this.clickTime = now;
+        if (touch != null) {
+            long chd = now - clickTime;
+            clickHoldPrimed = chd < clickHoldDelay;
+            if (clickHoldPrimed) {
+                // keep it active till we get the long-hold
+                clickTime = now;
             }
-            if (now - this.touchTime > this.tapTime && Math.abs(getStartPointX() - this.touch.x) < 5.0f && Math.abs(getStartPointY() - this.touch.y) < 5.0f && !this.clickHoldActive) {
-                this.clickHoldPrimed = false;
-                this.clickHoldActive = true;
-                this.listener.onClickHold(this.clickHoldActive);
+            if (now - touchTime > tapTime && Math.abs(getStartPointX() - touch.x) < 5.0f && Math.abs(getStartPointY() - touch.y) < 5.0f && !clickHoldActive) {
+                clickHoldPrimed = false;
+                clickHoldActive = true;
+                listener.onClickHold(clickHoldActive);
             } else {
-                this.listener.onMove();
+                listener.onMove();
             }
-            float dx = this.touch.x - this.xPos;
-            float dy = this.touch.y - this.yPos;
+            float dx = touch.x - xPos;
+            float dy = touch.y - yPos;
             float a = Trig.atan2(dy, dx);
-            float r = (float) Math.pow(Range.limit(FloatMath.sqrt((dx * dx) + (dy * dy)) / this.radius, 0.0f, 1.0f), this.ramp);
-            this.x = Trig.cos(a) * r;
-            this.y = Trig.sin(a) * r;
+            float r = (float) Math.pow(Range.limit(FloatMath.sqrt((dx * dx) + (dy * dy)) / radius, 0.0f, 1.0f), ramp);
+            x = Trig.cos(a) * r;
+            y = Trig.sin(a) * r;
             return;
         }
-        this.listener.onUp();
-        this.x = 0.0f;
-        this.y = 0.0f;
+        listener.onUp();
+        x = 0.0f;
+        y = 0.0f;
     }
 
     @Override
     public void pointerRemoved(Touch.Pointer p) {
-        if (p == this.touch) {
-            this.touchLeft = true;
+        if (p == touch) {
+            touchLeft = true;
         }
     }
 
     @Override
     public boolean pointerAdded(@NonNull Touch.Pointer p) {
-        if (Math.hypot(p.x - this.xPos, p.y - this.yPos) < this.radius) {
-            this.touch = p;
-            this.touchTime = System.currentTimeMillis();
+        if (Math.hypot(p.x - xPos, p.y - yPos) < radius) {
+            touch = p;
+            touchTime = System.currentTimeMillis();
             setStartPointX(p.x);
             setStartPointY(p.y);
             return true;
@@ -119,23 +137,26 @@ public class TouchStick extends AbstractTouchStick {
 
     @Override
     public void reset() {
-        this.touch = null;
+        touch = null;
     }
 
+    /**
+     * @param r
+     */
     @Override
     public void draw(StackedRenderer r) {
-        if (this.limit == null) {
+        if (limit == null) {
             buildShape();
         }
-        this.limit.render(r);
+        limit.render(r);
         r.pushMatrix();
-        r.translate(this.x * this.radius, this.y * this.radius, 0.0f);
-        this.stick.render(r);
+        r.translate(x * radius, y * radius, 0.0f);
+        stick.render(r);
         r.popMatrix();
     }
 
     public float getStartPointX() {
-        return this.startPointX;
+        return startPointX;
     }
 
     public void setStartPointX(float startPointX) {
@@ -143,7 +164,7 @@ public class TouchStick extends AbstractTouchStick {
     }
 
     public float getStartPointY() {
-        return this.startPointY;
+        return startPointY;
     }
 
     public void setStartPointY(float startPointY) {

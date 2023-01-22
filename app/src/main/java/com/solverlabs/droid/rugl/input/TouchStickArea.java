@@ -9,7 +9,11 @@ import com.solverlabs.droid.rugl.gl.State;
 import com.solverlabs.droid.rugl.util.Colour;
 import com.solverlabs.droid.rugl.util.geom.BoundingRectangle;
 
-
+/**
+ * An area that causes a {@link TouchStick} to appear when and where a touch is
+ * placed. This solves the unwanted initial input when you don't manage to place
+ * your touch exactly in the center of a static {@link TouchStick}
+ */
 public class TouchStickArea extends AbstractTouchStick {
     public final TouchStick stick;
     public BoundingRectangle pad = new BoundingRectangle();
@@ -23,10 +27,18 @@ public class TouchStickArea extends AbstractTouchStick {
     private ColouredShape inline;
     private ColouredShape outline;
 
+    /**
+     * @param x           left edge of area
+     * @param y           lower edge of area
+     * @param width
+     * @param height
+     * @param stickRadius radius of stick that appears
+     */
     public TouchStickArea(float x, float y, float width, float height, float stickRadius) {
-        this.pad.set(x, x + width, y, y + height);
-        this.stick = new TouchStick(x, y, stickRadius);
-        this.stick.listener = new AbstractTouchStick.ClickListener() {
+        pad.set(x, x + width, y, y + height);
+        stick = new TouchStick(x, y, stickRadius);
+        // redirect clicks to our listener
+        stick.listener = new AbstractTouchStick.ClickListener() {
             @Override
             public void onClick() {
                 if (listener != null) {
@@ -59,11 +71,11 @@ public class TouchStickArea extends AbstractTouchStick {
 
     @Override
     public boolean pointerAdded(@NonNull Touch.Pointer p) {
-        if (this.pad.contains(p.x, p.y)) {
+        if (pad.contains(p.x, p.y)) {
             p.isUse = true;
-            this.touch = p;
-            this.stick.setPosition(p.x, p.y);
-            this.stick.pointerAdded(p);
+            touch = p;
+            stick.setPosition(p.x, p.y);
+            stick.pointerAdded(p);
             return true;
         }
         return false;
@@ -71,58 +83,58 @@ public class TouchStickArea extends AbstractTouchStick {
 
     @Override
     public void pointerRemoved(Touch.Pointer p) {
-        if (p == this.touch) {
+        if (p == touch) {
             p.isUse = false;
-            this.stick.pointerRemoved(p);
-            this.touch = null;
+            stick.pointerRemoved(p);
+            touch = null;
         }
     }
 
     public Touch.Pointer getPointer() {
-        return this.stick.touch;
+        return stick.touch;
     }
 
     @Override
     public void reset() {
-        this.touch = null;
-        this.stick.reset();
+        touch = null;
+        stick.reset();
     }
 
     @Override
     public void advance() {
-        this.stick.advance();
-        this.x = this.stick.x;
-        this.y = this.stick.y;
+        stick.advance();
+        x = stick.x;
+        y = stick.y;
     }
 
     @Override
     public void draw(StackedRenderer sr) {
-        if (this.draw) {
-            if (this.outline == null) {
-                this.centerX = (this.pad.x.getMax() - this.pad.x.getMin()) / 2.0f;
-                this.centerY = (this.pad.y.getMax() - this.pad.y.getMin()) / 2.0f;
-                this.outline = new ColouredShape(ShapeUtil.innerCircle(this.centerX, this.centerY, 70.0f, 2.0f, 10.0f, 0.0f), this.boundsColour, (State) null);
+        if (draw) {
+            if (outline == null) {
+                centerX = (pad.x.getMax() - pad.x.getMin()) / 2.0f;
+                centerY = (pad.y.getMax() - pad.y.getMin()) / 2.0f;
+                outline = new ColouredShape(ShapeUtil.innerCircle(centerX, centerY, 70.0f, 2.0f, 10.0f, 0.0f), boundsColour, (State) null);
             }
-            if (this.inline == null) {
-                this.inline = new ColouredShape(ShapeUtil.innerCircle(this.centerX, this.centerY, 68.0f, 2.0f, 10.0f, 0.0f), this.innerBoundsColour, (State) null);
+            if (inline == null) {
+                inline = new ColouredShape(ShapeUtil.innerCircle(centerX, centerY, 68.0f, 2.0f, 10.0f, 0.0f), innerBoundsColour, (State) null);
             }
-            this.inline.render(sr);
-            this.outline.render(sr);
+            inline.render(sr);
+            outline.render(sr);
         }
-        if (this.draw && this.touch != null) {
-            if (this.cirlce == null) {
-                this.cirlce = new ColouredShape(ShapeUtil.innerCircle(this.touch.x, this.touch.y, 20.0f, 20.0f, 10.0f, 0.0f), this.inlineColour, (State) null);
+        if (draw && touch != null) {
+            if (cirlce == null) {
+                cirlce = new ColouredShape(ShapeUtil.innerCircle(touch.x, touch.y, 20.0f, 20.0f, 10.0f, 0.0f), inlineColour, (State) null);
             }
-            if (((this.centerX - this.touch.x) * (this.centerX - this.touch.x)) + ((this.centerY - this.touch.y) * (this.centerY - this.touch.y)) <= 4900.0f) {
-                this.cirlce.set(this.touch.x - 20.0f, this.touch.y - 20.0f, 0.0f);
+            if (((centerX - touch.x) * (centerX - touch.x)) + ((centerY - touch.y) * (centerY - touch.y)) <= 4900.0f) {
+                cirlce.set(touch.x - 20.0f, touch.y - 20.0f, 0.0f);
             }
-            this.cirlce.render(sr);
+            cirlce.render(sr);
             return;
         }
-        this.cirlce = null;
+        cirlce = null;
     }
 
     public void outLineDirty() {
-        this.outline = null;
+        outline = null;
     }
 }

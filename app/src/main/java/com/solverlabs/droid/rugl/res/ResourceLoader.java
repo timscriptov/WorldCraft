@@ -22,10 +22,10 @@ public class ResourceLoader {
     public static final String LOG_TAG = "ResourceLoader";
     /***/
     public static Resources resources;
-    private static List<Loader> complete = Collections.synchronizedList(new LinkedList<Loader>());
-    private static ExecutorService loaderService = Executors.newSingleThreadExecutor();
-    private static AtomicInteger queueSize = new AtomicInteger(0);
-    private static ExecutorService postLoaderService = Executors
+    private static final List<Loader> complete = Collections.synchronizedList(new LinkedList<Loader>());
+    private static final ExecutorService loaderService = Executors.newSingleThreadExecutor();
+    private static final AtomicInteger queueSize = new AtomicInteger(0);
+    private static final ExecutorService postLoaderService = Executors
             .newSingleThreadExecutor();
 
     /**
