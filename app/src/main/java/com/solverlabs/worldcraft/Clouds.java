@@ -49,9 +49,9 @@ public class Clouds {
         this.xOffset = 0.0f;
         Vector3f playerPos = world.player.position;
         this.clouds[0] = new CloudPosition(playerPos.x, playerPos.z);
-        this.clouds[1] = new CloudPosition(playerPos.x, playerPos.z - 2560.0f);
-        this.clouds[2] = new CloudPosition(playerPos.x - 2560.0f, playerPos.z);
-        this.clouds[3] = new CloudPosition(playerPos.x - 2560.0f, playerPos.z - 2560.0f);
+        this.clouds[1] = new CloudPosition(playerPos.x, playerPos.z - CLOUD_SIZE);
+        this.clouds[2] = new CloudPosition(playerPos.x - CLOUD_SIZE, playerPos.z);
+        this.clouds[3] = new CloudPosition(playerPos.x - CLOUD_SIZE, playerPos.z - CLOUD_SIZE);
     }
 
     public void advance(@NonNull Player player) {
@@ -59,14 +59,14 @@ public class Clouds {
         for (int i = 0; i < this.clouds.length; i++) {
             CloudPosition pos = this.clouds[i];
             pos.xOffset = this.xOffset;
-            if (Math.abs(playerPos.x - pos.getX()) > 2560.0f) {
+            if (Math.abs(playerPos.x - pos.getX()) > CLOUD_SIZE) {
                 if (playerPos.x > pos.getX()) {
                     pos.translateX(5120.0f);
                 } else {
                     pos.translateX(-5120.0f);
                 }
             }
-            if (Math.abs(playerPos.z - pos.getZ()) > 2560.0f) {
+            if (Math.abs(playerPos.z - pos.getZ()) > CLOUD_SIZE) {
                 if (playerPos.z > pos.getZ()) {
                     pos.translateZ(5120.0f);
                 } else {
@@ -86,7 +86,7 @@ public class Clouds {
 
     private void drawCloud(@NonNull StackedRenderer renderer, @NonNull CloudPosition pos) {
         renderer.pushMatrix();
-        renderer.translate(pos.getX() - 1280.0f, 128.0f, pos.getZ() - 1280.0f);
+        renderer.translate(pos.getX() - 1280.0f, CLOUD_HEIGHT, pos.getZ() - 1280.0f);
         renderer.rotate(90.0f, 1.0f, 0.0f, 0.0f);
         this.ts.render(renderer);
         renderer.popMatrix();

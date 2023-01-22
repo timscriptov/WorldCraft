@@ -35,7 +35,7 @@ public class TextureFactory {
     static {
         Game.addSurfaceLIstener(textureFactoryListener);
         textures = new LinkedList<>();
-        textureDimension = 512;
+        textureDimension = 256;
     }
 
     public static void removeListener() {
