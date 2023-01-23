@@ -30,93 +30,122 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * A 16x16x128 chunk of blocks
+ */
 public class Chunk {
     public static final String ENTITIES_TAG_NAME = "Entities";
     public static final String TILE_ENTITIES_TAG_NAME = "TileEntities";
     private static final float CHANCE_TO_SPAWN_HOSTILE_MOBS = 0.25f;
     private static final float CHANCE_TO_SPAWN_PASSIVE_MOBS = 0.2f;
+    /**
+     * The child chunklets
+     */
     public final Chunklet[] chunklets;
     private final List<Mob> hostileMobs;
     private final List<Mob> passiveMobs;
     private final List<Runnable> runnableList;
+    /**
+     * Block data
+     */
     public byte[] blockData;
+    /**
+     * Blocklight data, remember it's only 4 bits per block
+     */
     public byte[] blocklight;
+    /**
+     * World chunk x coordinate
+     */
     public int chunkX;
+    /**
+     * World chunk z coordinate
+     */
     public int chunkZ;
     public Tag ct;
     public byte[] data;
+    /**
+     * Skylight data, remember it's only 4 bits per block
+     */
     public byte[] skylight;
     public List<TileEntity> tileEntities;
     public ArrayList<Vector3i> topLayer;
     public boolean wasChanged;
+    /**
+     * The parent world
+     */
     public World world;
     private MobFactory hostileMobFactory;
     private Boolean isBlocksArrayInited;
     private boolean isLightCalculate;
     private MobFactory passiveMobFactory;
 
+    /**
+     * @param world
+     * @param is
+     * @throws IOException
+     */
     public Chunk(World world, InputStream is) throws IOException {
-        this.tileEntities = new ArrayList<>();
-        this.wasChanged = false;
-        this.topLayer = new ArrayList<>();
-        this.isLightCalculate = false;
-        this.passiveMobs = new ArrayList<>();
-        this.hostileMobs = new ArrayList<>();
-        this.isBlocksArrayInited = false;
-        this.runnableList = new ArrayList<>();
+        tileEntities = new ArrayList<>();
+        wasChanged = false;
+        topLayer = new ArrayList<>();
+        isLightCalculate = false;
+        passiveMobs = new ArrayList<>();
+        hostileMobs = new ArrayList<>();
+        isBlocksArrayInited = false;
+        runnableList = new ArrayList<>();
         this.world = world;
-        this.ct = Tag.readFrom(is, false);
-        this.chunkX = (Integer) this.ct.findTagByName("xPos").getValue();
-        this.chunkZ = (Integer) this.ct.findTagByName("zPos").getValue();
-        this.blockData = (byte[]) this.ct.findTagByName("Blocks").getValue();
-        Tag dataTag = this.ct.findTagByName("Data");
+        ct = Tag.readFrom(is, false);
+        chunkX = (Integer) ct.findTagByName("xPos").getValue();
+        chunkZ = (Integer) ct.findTagByName("zPos").getValue();
+        blockData = (byte[]) ct.findTagByName("Blocks").getValue();
+        Tag dataTag = ct.findTagByName("Data");
         if (dataTag != null) {
-            this.data = (byte[]) dataTag.getValue();
-            if (this.data == null || this.data.length != 32768) {
-                this.data = new byte[32768];
+            data = (byte[]) dataTag.getValue();
+            if (data == null || data.length != 32768) {
+                data = new byte[32768];
             }
         } else {
-            this.data = new byte[32768];
-            this.wasChanged = true;
+            data = new byte[32768];
+            wasChanged = true;
         }
-        this.skylight = (byte[]) this.ct.findTagByName("SkyLight").getValue();
-        this.blocklight = (byte[]) this.ct.findTagByName("BlockLight").getValue();
+        skylight = (byte[]) ct.findTagByName("SkyLight").getValue();
+        blocklight = (byte[]) ct.findTagByName("BlockLight").getValue();
         if (GameMode.isSurvivalMode()) {
             parseEntities();
             parseTileEntities();
         }
-        this.chunklets = new Chunklet[8];
-        for (int i = 0; i < this.chunklets.length; i++) {
-            this.chunklets[i] = new Chunklet(this, i);
+        chunklets = new Chunklet[8];
+        for (int i = 0; i < chunklets.length; i++) {
+            chunklets[i] = new Chunklet(this, i);
         }
-        this.isLightCalculate = true;
-        this.isBlocksArrayInited = true;
+        isLightCalculate = true;
+        isBlocksArrayInited = true;
     }
 
     public Chunk(World world, int chunkX, int chunkZ) throws IOException {
-        this.tileEntities = new ArrayList<>();
-        this.wasChanged = false;
-        this.topLayer = new ArrayList<>();
-        this.isLightCalculate = false;
-        this.passiveMobs = new ArrayList<>();
-        this.hostileMobs = new ArrayList<>();
-        this.isBlocksArrayInited = false;
+        tileEntities = new ArrayList<>();
+        wasChanged = false;
+        topLayer = new ArrayList<>();
+        isLightCalculate = false;
+        passiveMobs = new ArrayList<>();
+        hostileMobs = new ArrayList<>();
+        isBlocksArrayInited = false;
         this.runnableList = new ArrayList<>();
         this.world = world;
         this.chunkX = chunkX;
         this.chunkZ = chunkZ;
-        this.blockData = new byte[32768];
-        this.data = new byte[32768];
-        this.blocklight = new byte[16384];
-        this.skylight = new byte[16384];
-        this.ct = createTag();
-        this.chunklets = new Chunklet[8];
-        for (int i = 0; i < this.chunklets.length; i++) {
-            this.chunklets[i] = new Chunklet(this, i);
+        blockData = new byte[32768];
+        data = new byte[32768];
+        blocklight = new byte[16384];
+        skylight = new byte[16384];
+        ct = createTag();
+        chunklets = new Chunklet[8];
+        for (int i = 0; i < chunklets.length; i++) {
+            chunklets[i] = new Chunklet(this, i);
         }
-        this.wasChanged = true;
-        this.isLightCalculate = false;
-        this.isBlocksArrayInited = false;
+        wasChanged = true;
+        isLightCalculate = false;
+        isBlocksArrayInited = false;
         if (GameMode.isSurvivalMode()) {
             executeOnInited(() -> world.executeOnInited(() -> MobPainter.executeOnInited(() -> {
                 spawnPassiveMobs(true);
@@ -130,20 +159,20 @@ public class Chunk {
 
     private void executeOnInited(Runnable runnable) {
         if (runnable != null) {
-            synchronized (this.isBlocksArrayInited) {
-                if (this.isBlocksArrayInited) {
+            synchronized (isBlocksArrayInited) {
+                if (isBlocksArrayInited) {
                     runnable.run();
                 } else {
-                    this.runnableList.add(runnable);
+                    runnableList.add(runnable);
                 }
             }
         }
     }
 
     public void onPostGenerated() {
-        synchronized (this.isBlocksArrayInited) {
-            this.isBlocksArrayInited = true;
-            Iterator<Runnable> iterator = this.runnableList.iterator();
+        synchronized (isBlocksArrayInited) {
+            isBlocksArrayInited = true;
+            Iterator<Runnable> iterator = runnableList.iterator();
             while (iterator.hasNext()) {
                 Runnable runnable = iterator.next();
                 runnable.run();
@@ -154,7 +183,7 @@ public class Chunk {
 
     private void parseEntities() {
         try {
-            Tag entitiesTag = this.ct.findTagByName(ENTITIES_TAG_NAME);
+            Tag entitiesTag = ct.findTagByName(ENTITIES_TAG_NAME);
             if (entitiesTag != null) {
                 Tag[] arr$ = (Tag[]) entitiesTag.getValue();
                 for (Tag tag : arr$) {
@@ -168,20 +197,20 @@ public class Chunk {
 
     public void addMob(final Mob mob) {
         if (mob != null) {
-            MobPainter.executeOnInited(() -> Chunk.this.world.executeOnInited(() -> {
+            MobPainter.executeOnInited(() -> world.executeOnInited(() -> {
                 if (mob.isPassive()) {
-                    if (Chunk.this.passiveMobFactory == null) {
-                        Chunk.this.passiveMobFactory = MobPainter.getFactory(mob);
+                    if (passiveMobFactory == null) {
+                        passiveMobFactory = MobPainter.getFactory(mob);
                     }
-                    if (Chunk.this.passiveMobFactory != null && Chunk.this.getPassiveMobCountCanBeSpawned() > 0) {
-                        Chunk.this.passiveMobs.add(MobPainter.getFactory(mob).addMob(mob));
+                    if (passiveMobFactory != null && getPassiveMobCountCanBeSpawned() > 0) {
+                        passiveMobs.add(MobPainter.getFactory(mob).addMob(mob));
                     }
                 } else if (mob.isHostile()) {
-                    if (Chunk.this.hostileMobFactory == null) {
-                        Chunk.this.hostileMobFactory = MobPainter.getFactory(mob);
+                    if (hostileMobFactory == null) {
+                        hostileMobFactory = MobPainter.getFactory(mob);
                     }
-                    if (Chunk.this.hostileMobFactory != null && Chunk.this.getHostileMobCountCanBeSpawned() > 0) {
-                        Chunk.this.hostileMobs.add(MobPainter.getFactory(mob).addMob(mob));
+                    if (hostileMobFactory != null && getHostileMobCountCanBeSpawned() > 0) {
+                        hostileMobs.add(MobPainter.getFactory(mob).addMob(mob));
                     }
                 }
             }));
@@ -191,12 +220,12 @@ public class Chunk {
     private void parseTileEntities() {
         Tag[] values;
         try {
-            Tag tileEntityTag = this.ct.findTagByName(TILE_ENTITIES_TAG_NAME);
+            Tag tileEntityTag = ct.findTagByName(TILE_ENTITIES_TAG_NAME);
             if (tileEntityTag != null && (values = (Tag[]) tileEntityTag.getValue()) != null) {
                 for (Tag tag : values) {
                     TileEntity tileEntity = TileEntityFactory.parse(tag);
-                    this.tileEntities.add(tileEntity);
-                    this.world.addTileEntity(tileEntity);
+                    tileEntities.add(tileEntity);
+                    world.addTileEntity(tileEntity);
                 }
             }
         } catch (Throwable t) {
@@ -205,11 +234,11 @@ public class Chunk {
     }
 
     public boolean isOldMap() {
-        if (this.skylight == null) {
+        if (skylight == null) {
             return true;
         }
-        for (int i = 0; i < this.skylight.length; i++) {
-            if (this.skylight[i] != 0) {
+        for (int i = 0; i < skylight.length; i++) {
+            if (skylight[i] != 0) {
                 return false;
             }
         }
@@ -217,22 +246,22 @@ public class Chunk {
     }
 
     public void clearBlockLight() {
-        this.blocklight = new byte[16384];
+        blocklight = new byte[16384];
     }
 
     @NonNull
     private Tag createTag() {
-        Tag[] tags = {new Tag(Tag.Type.TAG_Int, "xPos", this.chunkX), new Tag(Tag.Type.TAG_Int, "zPos", this.chunkZ), new Tag(Tag.Type.TAG_Byte_Array, "Blocks", this.blockData), new Tag(Tag.Type.TAG_Byte_Array, "Data", this.data), new Tag(Tag.Type.TAG_Byte_Array, "SkyLight", this.skylight), new Tag(Tag.Type.TAG_Byte_Array, "BlockLight", this.blocklight), serializeEntities(), serializeTileEntities(), new Tag(Tag.Type.TAG_End, null, null)};
+        Tag[] tags = {new Tag(Tag.Type.TAG_Int, "xPos", chunkX), new Tag(Tag.Type.TAG_Int, "zPos", chunkZ), new Tag(Tag.Type.TAG_Byte_Array, "Blocks", blockData), new Tag(Tag.Type.TAG_Byte_Array, "Data", data), new Tag(Tag.Type.TAG_Byte_Array, "SkyLight", skylight), new Tag(Tag.Type.TAG_Byte_Array, "BlockLight", blocklight), serializeEntities(), serializeTileEntities(), new Tag(Tag.Type.TAG_End, null, null)};
         Tag level = new Tag(Tag.Type.TAG_Compound, "Level", tags);
         return new Tag(Tag.Type.TAG_Compound, DescriptionFactory.emptyText, new Tag[]{level, new Tag(Tag.Type.TAG_End, null, null)});
     }
 
     public Tag serializeEntities() {
         Tag list = new Tag(ENTITIES_TAG_NAME, Tag.Type.TAG_Compound);
-        for (Mob mob : this.passiveMobs) {
+        for (Mob mob : passiveMobs) {
             list.addTag(mob.getEntity().getTag());
         }
-        for (Mob mob2 : this.hostileMobs) {
+        for (Mob mob2 : hostileMobs) {
             if (mob2 != null && mob2.getEntity() != null) {
                 list.addTag(mob2.getEntity().getTag());
             }
@@ -242,36 +271,42 @@ public class Chunk {
 
     public Tag serializeTileEntities() {
         Tag list = new Tag(TILE_ENTITIES_TAG_NAME, Tag.Type.TAG_Compound);
-        for (TileEntity tileEntity : this.tileEntities) {
+        for (TileEntity tileEntity : tileEntities) {
             if (tileEntity != null) {
                 list.addTag(tileEntity.getTag());
-                this.world.removeTileEntity(tileEntity);
+                world.removeTileEntity(tileEntity);
             }
         }
         return list;
     }
 
+    /**
+     * @param bx
+     * @param by
+     * @param bz
+     * @return the type of the so-indexed block in this chunk
+     */
     public byte blockType(int bx, int by, int bz) {
         if (bx < 0) {
-            Chunk north = this.world.getChunk(this.chunkX - 1, this.chunkZ);
+            Chunk north = world.getChunk(chunkX - 1, chunkZ);
             if (north == null) {
                 return (byte) 0;
             }
             return north.blockType(bx + 16, by, bz);
         } else if (bx >= 16) {
-            Chunk south = this.world.getChunk(this.chunkX + 1, this.chunkZ);
+            Chunk south = world.getChunk(chunkX + 1, chunkZ);
             if (south != null) {
                 return south.blockType(bx - 16, by, bz);
             }
             return (byte) 0;
         } else if (bz < 0) {
-            Chunk east = this.world.getChunk(this.chunkX, this.chunkZ - 1);
+            Chunk east = world.getChunk(chunkX, chunkZ - 1);
             if (east != null) {
                 return east.blockType(bx, by, bz + 16);
             }
             return (byte) 0;
         } else if (bz >= 16) {
-            Chunk west = this.world.getChunk(this.chunkX, this.chunkZ + 1);
+            Chunk west = world.getChunk(chunkX, chunkZ + 1);
             if (west != null) {
                 return west.blockType(bx, by, bz - 16);
             }
@@ -279,31 +314,31 @@ public class Chunk {
         } else if (by < 0 || by >= 128) {
             return (byte) 0;
         } else {
-            return this.blockData[(bz * CpioConstants.C_IWUSR) + by + (bx * 2048)];
+            return blockData[(bz * CpioConstants.C_IWUSR) + by + (bx * 2048)];
         }
     }
 
     public byte blockData(int bx, int by, int bz) {
         if (bx < 0) {
-            Chunk north = this.world.getChunk(this.chunkX - 1, this.chunkZ);
+            Chunk north = world.getChunk(chunkX - 1, chunkZ);
             if (north == null) {
                 return (byte) 0;
             }
             return north.blockData(bx + 16, by, bz);
         } else if (bx >= 16) {
-            Chunk south = this.world.getChunk(this.chunkX + 1, this.chunkZ);
+            Chunk south = world.getChunk(chunkX + 1, chunkZ);
             if (south != null) {
                 return south.blockData(bx - 16, by, bz);
             }
             return (byte) 0;
         } else if (bz < 0) {
-            Chunk east = this.world.getChunk(this.chunkX, this.chunkZ - 1);
+            Chunk east = world.getChunk(chunkX, chunkZ - 1);
             if (east != null) {
                 return east.blockData(bx, by, bz + 16);
             }
             return (byte) 0;
         } else if (bz >= 16) {
-            Chunk west = this.world.getChunk(this.chunkX, this.chunkZ + 1);
+            Chunk west = world.getChunk(chunkX, chunkZ + 1);
             if (west != null) {
                 return west.blockData(bx, by, bz - 16);
             }
@@ -311,31 +346,31 @@ public class Chunk {
         } else if (by < 0 || by >= 128) {
             return (byte) 0;
         } else {
-            return this.data[(bz * CpioConstants.C_IWUSR) + by + (bx * 2048)];
+            return data[(bz * CpioConstants.C_IWUSR) + by + (bx * 2048)];
         }
     }
 
     public Chunk blockChunk(int bx, int by, int bz) {
         if (bx < 0) {
-            Chunk north = this.world.getChunk(this.chunkX - 1, this.chunkZ);
+            Chunk north = world.getChunk(chunkX - 1, chunkZ);
             if (north == null) {
                 return null;
             }
             return north.blockChunk(bx + 16, by, bz);
         } else if (bx >= 16) {
-            Chunk south = this.world.getChunk(this.chunkX + 1, this.chunkZ);
+            Chunk south = world.getChunk(chunkX + 1, chunkZ);
             if (south != null) {
                 return south.blockChunk(bx - 16, by, bz);
             }
             return null;
         } else if (bz < 0) {
-            Chunk east = this.world.getChunk(this.chunkX, this.chunkZ - 1);
+            Chunk east = world.getChunk(chunkX, chunkZ - 1);
             if (east != null) {
                 return east.blockChunk(bx, by, bz + 16);
             }
             return null;
         } else if (bz >= 16) {
-            Chunk west = this.world.getChunk(this.chunkX, this.chunkZ + 1);
+            Chunk west = world.getChunk(chunkX, chunkZ + 1);
             if (west != null) {
                 return west.blockChunk(bx, by, bz - 16);
             }
@@ -353,25 +388,25 @@ public class Chunk {
         Chunk south;
         Chunk west;
         if (bx < 0) {
-            Chunk north = this.world.getChunk(this.chunkX - 1, this.chunkZ);
+            Chunk north = world.getChunk(chunkX - 1, chunkZ);
             if (north != null) {
                 return north.setBlockTypeWithoutGeometryRecalculate(bx + 16, by, bz, blockType, blData);
             }
             return null;
         } else if (bx >= 16) {
-            Chunk south2 = this.world.getChunk(this.chunkX + 1, this.chunkZ);
+            Chunk south2 = world.getChunk(chunkX + 1, chunkZ);
             if (south2 != null) {
                 return south2.setBlockTypeWithoutGeometryRecalculate(bx - 16, by, bz, blockType, blData);
             }
             return null;
         } else if (bz < 0) {
-            Chunk east = this.world.getChunk(this.chunkX, this.chunkZ - 1);
+            Chunk east = world.getChunk(chunkX, chunkZ - 1);
             if (east != null) {
                 return east.setBlockTypeWithoutGeometryRecalculate(bx, by, bz + 16, blockType, blData);
             }
             return null;
         } else if (bz >= 16) {
-            Chunk west2 = this.world.getChunk(this.chunkX, this.chunkZ + 1);
+            Chunk west2 = world.getChunk(chunkX, chunkZ + 1);
             if (west2 != null) {
                 return west2.setBlockTypeWithoutGeometryRecalculate(bx, by, bz - 16, blockType, blData);
             }
@@ -380,32 +415,32 @@ public class Chunk {
             return null;
         } else {
             int index = getBlockDataIndex(bx, by, bz);
-            this.blockData[index] = blockType;
-            this.data[index] = blData;
+            blockData[index] = blockType;
+            data[index] = blData;
             Set<Chunklet> chunkletSet = new HashSet<>();
             int cyi = by / 16;
-            chunkletSet.add(this.chunklets[cyi]);
+            chunkletSet.add(chunklets[cyi]);
             if (bx == 0) {
-                Chunk north2 = this.world.getChunk(this.chunkX - 1, this.chunkZ);
+                Chunk north2 = world.getChunk(chunkX - 1, chunkZ);
                 if (north2 != null) {
                     chunkletSet.add(north2.chunklets[cyi]);
                 }
-            } else if (bx == 15 && (south = this.world.getChunk(this.chunkX + 1, this.chunkZ)) != null) {
+            } else if (bx == 15 && (south = world.getChunk(chunkX + 1, chunkZ)) != null) {
                 chunkletSet.add(south.chunklets[cyi]);
             }
             if (bz == 0) {
-                Chunk east2 = this.world.getChunk(this.chunkX, this.chunkZ - 1);
+                Chunk east2 = world.getChunk(chunkX, chunkZ - 1);
                 if (east2 != null) {
                     chunkletSet.add(east2.chunklets[cyi]);
                 }
-            } else if (bz == 15 && (west = this.world.getChunk(this.chunkX, this.chunkZ + 1)) != null) {
+            } else if (bz == 15 && (west = world.getChunk(chunkX, chunkZ + 1)) != null) {
                 chunkletSet.add(west.chunklets[cyi]);
             }
             if (by % 16 == 0 && cyi >= 1) {
-                chunkletSet.add(this.chunklets[cyi - 1]);
+                chunkletSet.add(chunklets[cyi - 1]);
             }
             if (by % 16 == 15 && cyi < 6) {
-                chunkletSet.add(this.chunklets[cyi + 1]);
+                chunkletSet.add(chunklets[cyi + 1]);
                 return chunkletSet;
             }
             return chunkletSet;
@@ -416,68 +451,69 @@ public class Chunk {
         Chunk south;
         Chunk west;
         if (GameMode.isMultiplayerMode() && multiplayerSend) {
-            Multiplayer.setBlockType(bx, by, bz, this.chunkX, this.chunkZ, blockType, blockData, blockType(bx, by, bz), blockData(bx, by, bz));
+            Multiplayer.setBlockType(bx, by, bz, chunkX, chunkZ, blockType, blockData, blockType(bx, by, bz), blockData(bx, by, bz));
         }
         int index = getBlockDataIndex(bx, by, bz);
         if (bx < 0) {
-            Chunk north = this.world.getChunk(this.chunkX - 1, this.chunkZ);
+            Chunk north = world.getChunk(chunkX - 1, chunkZ);
             if (north != null) {
                 north.setBlockType(bx + 16, by, bz, blockType, blockData, multiplayerSend);
             }
         } else if (bx >= 16) {
-            Chunk south2 = this.world.getChunk(this.chunkX + 1, this.chunkZ);
+            Chunk south2 = world.getChunk(chunkX + 1, chunkZ);
             if (south2 != null) {
                 south2.setBlockType(bx - 16, by, bz, blockType, blockData, multiplayerSend);
             }
         } else if (bz < 0) {
-            Chunk east = this.world.getChunk(this.chunkX, this.chunkZ - 1);
+            Chunk east = world.getChunk(chunkX, chunkZ - 1);
             if (east != null) {
                 east.setBlockType(bx, by, bz + 16, blockType, blockData, multiplayerSend);
             }
         } else if (bz >= 16) {
-            Chunk west2 = this.world.getChunk(this.chunkX, this.chunkZ + 1);
+            Chunk west2 = world.getChunk(chunkX, this.chunkZ + 1);
             if (west2 != null) {
                 west2.setBlockType(bx, by, bz - 16, blockType, blockData, multiplayerSend);
             }
         } else if (by >= 0 && by < 128) {
             this.blockData[index] = blockType;
-            this.data[index] = blockData;
+            data[index] = blockData;
             if (blockType == BlockFactory.Block.Torch.id) {
-                this.world.recalculateBlockLight(this, bx, by, bz);
+                world.recalculateBlockLight(this, bx, by, bz);
             } else {
-                this.world.recalculateBlockLight(this, bx, by, bz);
-                this.world.recalculateSkyLight(this, bx, by, bz);
+                world.recalculateBlockLight(this, bx, by, bz);
+                world.recalculateSkyLight(this, bx, by, bz);
             }
             int cyi = by / 16;
-            this.chunklets[cyi].geomDirty();
-            this.chunklets[cyi].generateGeometry(true);
+            chunklets[cyi].geomDirty();
+            chunklets[cyi].generateGeometry(true);
+            // neighbours also dirty?
             if (bx == 0) {
-                Chunk north2 = this.world.getChunk(this.chunkX - 1, this.chunkZ);
+                Chunk north2 = world.getChunk(chunkX - 1, chunkZ);
                 if (north2 != null) {
                     north2.chunklets[cyi].geomDirty();
                     north2.chunklets[cyi].generateGeometry(true);
                 }
-            } else if (bx == 15 && (south = this.world.getChunk(this.chunkX + 1, this.chunkZ)) != null) {
+            } else if (bx == 15 && (south = world.getChunk(chunkX + 1, chunkZ)) != null) {
                 south.chunklets[cyi].geomDirty();
                 south.chunklets[cyi].generateGeometry(true);
             }
             if (bz == 0) {
-                Chunk east2 = this.world.getChunk(this.chunkX, this.chunkZ - 1);
+                Chunk east2 = world.getChunk(chunkX, chunkZ - 1);
                 if (east2 != null) {
                     east2.chunklets[cyi].geomDirty();
                     east2.chunklets[cyi].generateGeometry(true);
                 }
-            } else if (bz == 15 && (west = this.world.getChunk(this.chunkX, this.chunkZ + 1)) != null) {
+            } else if (bz == 15 && (west = world.getChunk(chunkX, chunkZ + 1)) != null) {
                 west.chunklets[cyi].geomDirty();
                 west.chunklets[cyi].generateGeometry(true);
             }
             if (by % 16 == 0 && cyi >= 1) {
-                Chunklet below = this.chunklets[cyi - 1];
+                Chunklet below = chunklets[cyi - 1];
                 below.geomDirty();
                 below.generateGeometry(true);
             }
             if (by % 16 == 15 && cyi < 6) {
-                Chunklet above = this.chunklets[cyi + 1];
+                Chunklet above = chunklets[cyi + 1];
                 above.geomDirty();
                 above.generateGeometry(true);
             }
@@ -489,125 +525,171 @@ public class Chunk {
         MobFactory.updateMobsLight();
     }
 
+    /**
+     * @param x
+     * @param y
+     * @param z
+     * @return The type of the block that contains the specified point
+     */
     public byte blockTypeForPosition(float x, float y, float z) {
-        return blockType((int) FloatMath.floor(x - (this.chunkX * 16)), (int) FloatMath.floor(y), (int) FloatMath.floor(z - (this.chunkZ * 16)));
+        return blockType((int) FloatMath.floor(x - (chunkX * 16)), (int) FloatMath.floor(y), (int) FloatMath.floor(z - (chunkZ * 16)));
     }
 
     public byte blockDataForPosition(float x, float y, float z) {
-        return blockData((int) FloatMath.floor(x - (this.chunkX * 16)), (int) FloatMath.floor(y), (int) FloatMath.floor(z - (this.chunkZ * 16)));
+        return blockData((int) FloatMath.floor(x - (chunkX * 16)), (int) FloatMath.floor(y), (int) FloatMath.floor(z - (chunkZ * 16)));
     }
 
     public Chunk blockChunkForPosition(float x, float y, float z) {
-        return blockChunk((int) FloatMath.floor(x - (this.chunkX * 16)), (int) FloatMath.floor(y), (int) FloatMath.floor(z - (this.chunkZ * 16)));
+        return blockChunk((int) FloatMath.floor(x - (chunkX * 16)), (int) FloatMath.floor(y), (int) FloatMath.floor(z - (chunkZ * 16)));
     }
 
+    /**
+     * @param x
+     * @param y
+     * @param z
+     * @param blockType
+     * @param blockData
+     */
     public Set<Chunklet> setBlockTypeForPositionWithoutGeometryRecalculate(float x, float y, float z, byte blockType, byte blockData) {
-        Set<Chunklet> result = setBlockTypeWithoutGeometryRecalculate((int) FloatMath.floor(x - (this.chunkX * 16)), (int) FloatMath.floor(y), (int) FloatMath.floor(z - (this.chunkZ * 16)), blockType, blockData);
-        this.wasChanged = true;
+        Set<Chunklet> result = setBlockTypeWithoutGeometryRecalculate((int) FloatMath.floor(x - (chunkX * 16)), (int) FloatMath.floor(y), (int) FloatMath.floor(z - (chunkZ * 16)), blockType, blockData);
+        wasChanged = true;
         return result;
     }
 
+    /**
+     * @param x
+     * @param y
+     * @param z
+     * @param blockType
+     * @param blockData
+     */
     public void setBlockTypeForPosition(float x, float y, float z, byte blockType, byte blockData) {
         setBlockTypeForPosition(x, y, z, blockType, blockData, true);
     }
 
+    /**
+     * @param x
+     * @param y
+     * @param z
+     * @param blockType
+     * @param blockData
+     * @param multiplayerSend
+     */
     public void setBlockTypeForPosition(float x, float y, float z, byte blockType, byte blockData, boolean multiplayerSend) {
-        setBlockType((int) FloatMath.floor(x - (this.chunkX * 16)), (int) FloatMath.floor(y), (int) FloatMath.floor(z - (this.chunkZ * 16)), blockType, blockData, multiplayerSend);
-        this.wasChanged = true;
+        setBlockType((int) FloatMath.floor(x - (chunkX * 16)), (int) FloatMath.floor(y), (int) FloatMath.floor(z - (chunkZ * 16)), blockType, blockData, multiplayerSend);
+        wasChanged = true;
     }
 
+    /**
+     * @param x
+     * @param y
+     * @param z
+     * @param blockType
+     * @param blockData
+     */
     public void setBlockDataForPosition(float x, float y, float z, byte blockType, byte blockData) {
         setBlockDataForPosition(x, y, z, blockType, blockData, true);
     }
 
+    /**
+     * @param x
+     * @param y
+     * @param z
+     * @param blockType
+     * @param blockData
+     * @param multiplayerSend
+     */
     public void setBlockDataForPosition(float x, float y, float z, byte blockType, byte blockData, boolean multiplayerSend) {
-        setBlockDataType((int) FloatMath.floor(x - (this.chunkX * 16)), (int) FloatMath.floor(y), (int) FloatMath.floor(z - (this.chunkZ * 16)), blockType, blockData, multiplayerSend);
-        this.wasChanged = true;
+        setBlockDataType((int) FloatMath.floor(x - (chunkX * 16)), (int) FloatMath.floor(y), (int) FloatMath.floor(z - (chunkZ * 16)), blockType, blockData, multiplayerSend);
+        wasChanged = true;
     }
 
+    /**
+     * @param bx
+     * @param by
+     * @param bz
+     * @param blockType
+     * @param blockData
+     * @param multiplayerSend
+     */
     private void setBlockDataType(int bx, int by, int bz, byte blockType, byte blockData, boolean multiplayerSend) {
         int index = getBlockDataIndex(bx, by, bz);
         if (bx < 0) {
-            Chunk north = this.world.getChunk(this.chunkX - 1, this.chunkZ);
+            Chunk north = world.getChunk(chunkX - 1, chunkZ);
             if (north != null) {
                 north.setBlockDataType(bx + 16, by, bz, blockType, blockData, multiplayerSend);
             }
         } else if (bx >= 16) {
-            Chunk south = this.world.getChunk(this.chunkX + 1, this.chunkZ);
+            Chunk south = world.getChunk(chunkX + 1, chunkZ);
             if (south != null) {
                 south.setBlockDataType(bx - 16, by, bz, blockType, blockData, multiplayerSend);
             }
         } else if (bz < 0) {
-            Chunk east = this.world.getChunk(this.chunkX, this.chunkZ - 1);
+            Chunk east = world.getChunk(chunkX, chunkZ - 1);
             if (east != null) {
                 east.setBlockDataType(bx, by, bz + 16, blockType, blockData, multiplayerSend);
             }
         } else if (bz >= 16) {
-            Chunk west = this.world.getChunk(this.chunkX, this.chunkZ + 1);
+            Chunk west = world.getChunk(chunkX, chunkZ + 1);
             if (west != null) {
                 west.setBlockDataType(bx, by, bz - 16, blockType, blockData, multiplayerSend);
             }
         } else if (by >= 0 && by < 128) {
-            this.data[index] = blockData;
+            data[index] = blockData;
         }
     }
 
+    /**
+     * @param bx
+     * @param by
+     * @param bz
+     * @return The light contribution from torches, lava etc, in range 0-15
+     */
     public int blockLight(int bx, int by, int bz) {
         if (bx < 0) {
-            Chunk north = this.world.getChunk(this.chunkX - 1, this.chunkZ);
-            if (north == null) {
-                return 0;
-            }
-            return north.blockLight(bx + 16, by, bz);
+            Chunk north = world.getChunk(chunkX - 1, chunkZ);
+            return north == null ? 0 : north.blockLight(bx + 16, by, bz);
         } else if (bx >= 16) {
-            Chunk south = this.world.getChunk(this.chunkX + 1, this.chunkZ);
-            if (south != null) {
-                return south.blockLight(bx - 16, by, bz);
-            }
-            return 0;
+            Chunk south = world.getChunk(chunkX + 1, chunkZ);
+            return south == null ? 0 : south.blockLight(bx - 16, by, bz);
         } else if (bz < 0) {
-            Chunk east = this.world.getChunk(this.chunkX, this.chunkZ - 1);
-            if (east != null) {
-                return east.blockLight(bx, by, bz + 16);
-            }
-            return 0;
+            Chunk east = world.getChunk(chunkX, chunkZ - 1);
+            return east == null ? 0 : east.blockLight(bx, by, bz + 16);
         } else if (bz >= 16) {
-            Chunk west = this.world.getChunk(this.chunkX, this.chunkZ + 1);
-            if (west != null) {
-                return west.blockLight(bx, by, bz - 16);
-            }
-            return 0;
+            Chunk west = world.getChunk(chunkX, chunkZ + 1);
+            return west == null ? 0 : west.blockLight(bx, by, bz - 16);
         } else if (by < 0 || by >= 128) {
             return 0;
+        }
+
+        int index = by + bz * 128 + bx * 2048;
+        int hi = index / 2;
+        boolean odd = (index & 1) != 0;
+        if (odd) {
+            return (blocklight[hi] & 0xf0) >> 4;
         } else {
-            int index = getBlockDataIndex(bx, by, bz);
-            int hi = index / 2;
-            boolean odd = (index & 1) != 0;
-            if (odd) {
-                return (this.blocklight[hi] & 240) >> 4;
-            }
-            return this.blocklight[hi] & 15;
+            return blocklight[hi] & 0xf;
         }
     }
 
     public void setLightForBlock(int x, int y, int z, int light) {
         if (x < 0) {
-            Chunk north = this.world.getChunk(this.chunkX - 1, this.chunkZ);
+            Chunk north = world.getChunk(chunkX - 1, chunkZ);
             if (north != null) {
                 north.setLightForBlock(x + 16, y, z, light);
             }
         } else if (x >= 16) {
-            Chunk south = this.world.getChunk(this.chunkX + 1, this.chunkZ);
+            Chunk south = world.getChunk(chunkX + 1, chunkZ);
             if (south != null) {
                 south.setLightForBlock(x - 16, y, z, light);
             }
         } else if (z < 0) {
-            Chunk east = this.world.getChunk(this.chunkX, this.chunkZ - 1);
+            Chunk east = world.getChunk(chunkX, chunkZ - 1);
             if (east != null) {
                 east.setLightForBlock(x, y, z + 16, light);
             }
         } else if (z >= 16) {
-            Chunk west = this.world.getChunk(this.chunkX, this.chunkZ + 1);
+            Chunk west = world.getChunk(chunkX, chunkZ + 1);
             if (west != null) {
                 west.setLightForBlock(x, y, z - 16, light);
             }
@@ -616,75 +698,70 @@ public class Chunk {
             int hi = index / 2;
             boolean odd = (index & 1) != 0;
             if (odd) {
-                byte[] bArr = this.blocklight;
+                byte[] bArr = blocklight;
                 bArr[hi] = (byte) (bArr[hi] & 15);
-                byte[] bArr2 = this.blocklight;
+                byte[] bArr2 = blocklight;
                 bArr2[hi] = (byte) (bArr2[hi] | (light << 4));
                 return;
             }
-            byte[] bArr3 = this.blocklight;
+            byte[] bArr3 = blocklight;
             bArr3[hi] = (byte) (bArr3[hi] & 240);
-            byte[] bArr4 = this.blocklight;
+            byte[] bArr4 = blocklight;
             bArr4[hi] = (byte) (bArr4[hi] | light);
         }
     }
 
+    /**
+     * @param bx
+     * @param by
+     * @param bz
+     * @return The light contribution from the sky, in range 0-15
+     */
     public int skyLight(int bx, int by, int bz) {
         if (bx < 0) {
-            Chunk north = this.world.getChunk(this.chunkX - 1, this.chunkZ);
-            if (north == null) {
-                return 0;
-            }
-            return north.skyLight(bx + 16, by, bz);
+            Chunk north = world.getChunk(chunkX - 1, chunkZ);
+            return north == null ? 0 : north.skyLight(bx + 16, by, bz);
         } else if (bx >= 16) {
-            Chunk south = this.world.getChunk(this.chunkX + 1, this.chunkZ);
-            if (south != null) {
-                return south.skyLight(bx - 16, by, bz);
-            }
-            return 0;
+            Chunk south = world.getChunk(chunkX + 1, chunkZ);
+            return south == null ? 0 : south.skyLight(bx - 16, by, bz);
         } else if (bz < 0) {
-            Chunk east = this.world.getChunk(this.chunkX, this.chunkZ - 1);
-            if (east != null) {
-                return east.skyLight(bx, by, bz + 16);
-            }
-            return 0;
+            Chunk east = world.getChunk(chunkX, chunkZ - 1);
+            return east == null ? 0 : east.skyLight(bx, by, bz + 16);
         } else if (bz >= 16) {
-            Chunk west = this.world.getChunk(this.chunkX, this.chunkZ + 1);
-            if (west != null) {
-                return west.skyLight(bx, by, bz - 16);
-            }
+            Chunk west = world.getChunk(chunkX, chunkZ + 1);
+            return west == null ? 0 : west.skyLight(bx, by, bz - 16);
+        } else if (by < 0 || by >= 128)
             return 0;
-        } else if (by < 0 || by >= 128) {
-            return 15;
+
+        int index = by + bz * 128 + bx * 2048;
+        int hi = index / 2;
+        boolean odd = (index & 1) != 0;
+
+        if (odd) {
+            return (skylight[hi] & 0xf0) >> 4;
         } else {
-            int index = getBlockDataIndex(bx, by, bz);
-            int hi = index / 2;
-            boolean odd = (index & 1) != 0;
-            if (odd) {
-                return (this.skylight[hi] & 240) >> 4;
-            }
-            return this.skylight[hi] & 15;
+            return skylight[hi] & 0xf;
         }
     }
 
     public void setSkyLightForBlock(int x, int y, int z, int light) {
         if (x < 0) {
-            Chunk north = this.world.getChunk(this.chunkX - 1, this.chunkZ);
+            Chunk north = world.getChunk(chunkX - 1, chunkZ);
             if (north != null) {
                 north.setSkyLightForBlock(x + 16, y, z, light);
             }
         } else if (x >= 16) {
-            Chunk south = this.world.getChunk(this.chunkX + 1, this.chunkZ);
+            Chunk south = world.getChunk(chunkX + 1, chunkZ);
             if (south != null) {
                 south.setSkyLightForBlock(x - 16, y, z, light);
             }
         } else if (z < 0) {
-            Chunk east = this.world.getChunk(this.chunkX, this.chunkZ - 1);
+            Chunk east = world.getChunk(chunkX, chunkZ - 1);
             if (east != null) {
                 east.setSkyLightForBlock(x, y, z + 16, light);
             }
         } else if (z >= 16) {
-            Chunk west = this.world.getChunk(this.chunkX, this.chunkZ + 1);
+            Chunk west = world.getChunk(chunkX, chunkZ + 1);
             if (west != null) {
                 west.setSkyLightForBlock(x, y, z - 16, light);
             }
@@ -693,46 +770,48 @@ public class Chunk {
             int hi = index / 2;
             boolean odd = (index & 1) != 0;
             if (odd) {
-                byte[] bArr = this.skylight;
-                bArr[hi] = (byte) (bArr[hi] & 15);
-                byte[] bArr2 = this.skylight;
-                bArr2[hi] = (byte) (bArr2[hi] | (light << 4));
+                skylight[hi] = (byte) (skylight[hi] & 15);
+                skylight[hi] = (byte) (skylight[hi] | (light << 4));
                 return;
             }
-            byte[] bArr3 = this.skylight;
-            bArr3[hi] = (byte) (bArr3[hi] & 240);
-            byte[] bArr4 = this.skylight;
-            bArr4[hi] = (byte) (bArr4[hi] | light);
+            skylight[hi] = (byte) (skylight[hi] & 0xf0);
+            skylight[hi] = (byte) (skylight[hi] | light);
         }
     }
 
     public void generateGeometry(boolean synchronous) {
-        for (int i = 0; i < this.chunklets.length; i++) {
-            this.chunklets[i].generateGeometry(synchronous);
+        for (int i = 0; i < chunklets.length; i++) {
+            chunklets[i].generateGeometry(synchronous);
         }
     }
 
+    /**
+     * Call this to refresh the geometry of the chunk
+     */
     public void geomDirty() {
-        for (int i = 0; i < this.chunklets.length; i++) {
-            this.chunklets[i].geomDirty();
+        for (int i = 0; i < chunklets.length; i++) {
+            chunklets[i].geomDirty();
         }
     }
 
+    /**
+     * Destroys VBO handles
+     */
     public void unload() {
-        for (int i = 0; i < this.chunklets.length; i++) {
-            this.chunklets[i].unload();
+        for (int i = 0; i < chunklets.length; i++) {
+            chunklets[i].unload();
         }
         despawnMobs();
     }
 
     @NonNull
     public String toString() {
-        return "Chunk ( " + this.chunkX + ", " + this.chunkZ + " )";
+        return "Chunk ( " + chunkX + ", " + chunkZ + " )";
     }
 
     public boolean isGeomDirty() {
-        for (int i = 0; i < this.chunklets.length; i++) {
-            if (this.chunklets[i].geomDirty) {
+        for (int i = 0; i < chunklets.length; i++) {
+            if (chunklets[i].geomDirty) {
                 return true;
             }
         }
@@ -740,7 +819,7 @@ public class Chunk {
     }
 
     public boolean isLightCalculate() {
-        return this.isLightCalculate;
+        return isLightCalculate;
     }
 
     public void setLightCalculate(boolean isLightCalculate) {
@@ -748,11 +827,11 @@ public class Chunk {
     }
 
     public void calculateLight() {
-        this.world.generateLight(this);
+        world.generateLight(this);
     }
 
     public boolean contains(float x, float z) {
-        return (((int) x) >> 4) == this.chunkX && (((int) z) >> 4) == this.chunkZ;
+        return (((int) x) >> 4) == chunkX && (((int) z) >> 4) == chunkZ;
     }
 
     public boolean contains(Vector3f position) {
@@ -760,13 +839,13 @@ public class Chunk {
     }
 
     public void addTileEntity(TileEntity tileEntity) {
-        this.tileEntities.add(tileEntity);
+        tileEntities.add(tileEntity);
     }
 
     public void addTileEntity(List<? extends TileEntity> tileEntities) {
         if (tileEntities != null && tileEntities.size() > 0) {
             this.tileEntities.addAll(tileEntities);
-            this.wasChanged = true;
+            wasChanged = true;
         }
     }
 
@@ -776,7 +855,7 @@ public class Chunk {
     }
 
     public void save(World world) {
-        if (this.wasChanged) {
+        if (wasChanged) {
             if (GameMode.isSurvivalMode()) {
                 updateMobs();
                 setTileEntities(world.getTileEntities(this));
@@ -787,16 +866,16 @@ public class Chunk {
 
     public void spawnPassiveMobs(boolean force) {
         if (allowsPassiveMobSpawn()) {
-            if (force || RandomUtil.getChance(0.2f)) {
-                if (this.passiveMobFactory == null) {
-                    this.passiveMobFactory = MobPainter.getRandomPassiveMobFactory();
+            if (force || RandomUtil.getChance(CHANCE_TO_SPAWN_PASSIVE_MOBS)) {
+                if (passiveMobFactory == null) {
+                    passiveMobFactory = MobPainter.getRandomPassiveMobFactory();
                 }
                 int passiveMobCountCanBeSpawned = getPassiveMobCountCanBeSpawned();
-                if (this.passiveMobFactory != null && passiveMobCountCanBeSpawned > 0) {
-                    int spawnMobCount = RandomUtil.getRandomInRangeInclusive(this.passiveMobFactory.getMinGroupSize(), passiveMobCountCanBeSpawned);
+                if (passiveMobFactory != null && passiveMobCountCanBeSpawned > 0) {
+                    int spawnMobCount = RandomUtil.getRandomInRangeInclusive(passiveMobFactory.getMinGroupSize(), passiveMobCountCanBeSpawned);
                     Vector3f spawnCenter = getRandomSpawnCenter();
                     for (Vector3f location : generateSpawnLocationList(spawnCenter, spawnMobCount)) {
-                        addMob(this.passiveMobFactory.createMob(location));
+                        addMob(passiveMobFactory.createMob(location));
                     }
                 }
             }
@@ -806,14 +885,14 @@ public class Chunk {
     public void spawnHostileMobs(boolean force) {
         if (allowsHostileMobSpawn()) {
             if (force || RandomUtil.getChance(CHANCE_TO_SPAWN_HOSTILE_MOBS)) {
-                if (this.hostileMobFactory == null) {
-                    this.hostileMobFactory = MobPainter.getRandomHostileMobFactory();
+                if (hostileMobFactory == null) {
+                    hostileMobFactory = MobPainter.getRandomHostileMobFactory();
                 }
-                if (this.hostileMobFactory != null && getHostileMobCountCanBeSpawned() > 0) {
+                if (hostileMobFactory != null && getHostileMobCountCanBeSpawned() > 0) {
                     Vector3f spawnCenter = getRandomSpawnCenter();
-                    int mobCountToSpawn = RandomUtil.getRandomInRangeInclusive(this.hostileMobFactory.getMinGroupSize(), this.hostileMobFactory.getMaxGroupSize());
+                    int mobCountToSpawn = RandomUtil.getRandomInRangeInclusive(hostileMobFactory.getMinGroupSize(), hostileMobFactory.getMaxGroupSize());
                     for (Vector3f location : generateSpawnLocationList(spawnCenter, mobCountToSpawn)) {
-                        addMob(this.hostileMobFactory.createMob(location));
+                        addMob(hostileMobFactory.createMob(location));
                     }
                 }
             }
@@ -821,24 +900,24 @@ public class Chunk {
     }
 
     public int getHostileMobCountCanBeSpawned() {
-        if (this.hostileMobFactory == null) {
+        if (hostileMobFactory == null) {
             return 0;
         }
-        return this.hostileMobFactory.getMaxGroupSize() - this.hostileMobs.size();
+        return hostileMobFactory.getMaxGroupSize() - hostileMobs.size();
     }
 
     public int getPassiveMobCountCanBeSpawned() {
-        if (this.passiveMobFactory == null) {
+        if (passiveMobFactory == null) {
             return 0;
         }
-        return this.passiveMobFactory.getMaxGroupSize() - getPassiveMobCountAround();
+        return passiveMobFactory.getMaxGroupSize() - getPassiveMobCountAround();
     }
 
     private int getPassiveMobCountAround() {
         int mobCount = 0;
-        for (int xPos = this.chunkX - 2; xPos <= this.chunkX + 2; xPos++) {
-            for (int zPos = this.chunkZ - 2; zPos <= this.chunkZ + 2; zPos++) {
-                Chunk chunk = this.world.getChunkByPos(xPos, zPos);
+        for (int xPos = chunkX - 2; xPos <= chunkX + 2; xPos++) {
+            for (int zPos = chunkZ - 2; zPos <= chunkZ + 2; zPos++) {
+                Chunk chunk = world.getChunkByPos(xPos, zPos);
                 if (chunk != null) {
                     mobCount += chunk.passiveMobs.size();
                 }
@@ -848,7 +927,7 @@ public class Chunk {
     }
 
     private boolean allowsPassiveMobSpawn() {
-        return this.chunkX % 3 == 0 && this.chunkZ % 3 == 0;
+        return chunkX % 3 == 0 && chunkZ % 3 == 0;
     }
 
     private boolean allowsHostileMobSpawn() {
@@ -902,7 +981,7 @@ public class Chunk {
     @Nullable
     private Float getPassiveMobSpawnLocationY(Vector3f spawnLocation) {
         float y = 126.0f;
-        while (y > 0.0f && this.world.blockType(spawnLocation.x, y, spawnLocation.z) == 0) {
+        while (y > 0.0f && world.blockType(spawnLocation.x, y, spawnLocation.z) == 0) {
             y -= 1.0f;
         }
         if (y <= 0.0f) {
@@ -914,15 +993,15 @@ public class Chunk {
     @NonNull
     private Vector3f getRandomSpawnCenter() {
         Vector3f spawnCenter = new Vector3f();
-        spawnCenter.x = (this.chunkX * 16) + RandomUtil.getRandomInRangeInclusive(5, 10);
-        spawnCenter.z = (this.chunkZ * 16) + RandomUtil.getRandomInRangeInclusive(5, 10);
+        spawnCenter.x = (chunkX * 16) + RandomUtil.getRandomInRangeInclusive(5, 10);
+        spawnCenter.z = (chunkZ * 16) + RandomUtil.getRandomInRangeInclusive(5, 10);
         return spawnCenter;
     }
 
     public void updateMobs() {
         boolean changed = removeDeadPassiveMobs();
-        if (changed | removeDeadHostileMobs() | updatePassiveMobChunks() | updateHostileMobChunks() | (this.passiveMobs.size() > 0) | (this.hostileMobs.size() > 0)) {
-            this.wasChanged = true;
+        if (changed | removeDeadHostileMobs() | updatePassiveMobChunks() | updateHostileMobChunks() | (passiveMobs.size() > 0) | (hostileMobs.size() > 0)) {
+            wasChanged = true;
         }
     }
 
@@ -936,15 +1015,15 @@ public class Chunk {
 
     private boolean updateMobChunks(boolean updatePassiveMobs) {
         boolean modificated = false;
-        Iterator<Mob> iterator = (updatePassiveMobs ? this.passiveMobs : this.hostileMobs).iterator();
+        Iterator<Mob> iterator = (updatePassiveMobs ? passiveMobs : hostileMobs).iterator();
         while (iterator.hasNext()) {
             Mob mob = iterator.next();
             if (mob == null) {
                 iterator.remove();
                 modificated = true;
             } else {
-                Chunk chunk = this.world.getChunk(mob.getChunkX(), mob.getChunkZ());
-                if (chunk != null && (chunk.chunkX != this.chunkX || chunk.chunkZ != this.chunkZ)) {
+                Chunk chunk = world.getChunk(mob.getChunkX(), mob.getChunkZ());
+                if (chunk != null && (chunk.chunkX != chunkX || chunk.chunkZ != chunkZ)) {
                     if (updatePassiveMobs) {
                         chunk.passiveMobs.add(mob);
                     } else {
@@ -959,11 +1038,11 @@ public class Chunk {
     }
 
     private boolean removeDeadPassiveMobs() {
-        return removeDeadMobs(this.passiveMobs);
+        return removeDeadMobs(passiveMobs);
     }
 
     private boolean removeDeadHostileMobs() {
-        return removeDeadMobs(this.hostileMobs);
+        return removeDeadMobs(hostileMobs);
     }
 
     private boolean removeDeadMobs(@NonNull List<Mob> mobList) {
@@ -985,17 +1064,17 @@ public class Chunk {
     }
 
     private void despawnPassiveMobs() {
-        for (Mob mob : this.passiveMobs) {
-            if (this.passiveMobFactory != null) {
-                this.passiveMobFactory.despawnMob(mob);
+        for (Mob mob : passiveMobs) {
+            if (passiveMobFactory != null) {
+                passiveMobFactory.despawnMob(mob);
             }
         }
     }
 
     private void despawnHostileMobs() {
-        for (Mob mob : this.hostileMobs) {
-            if (this.hostileMobFactory != null) {
-                this.hostileMobFactory.despawnMob(mob);
+        for (Mob mob : hostileMobs) {
+            if (hostileMobFactory != null) {
+                hostileMobFactory.despawnMob(mob);
             }
         }
     }
@@ -1003,7 +1082,7 @@ public class Chunk {
     public boolean equals(Object o) {
         if (o instanceof Chunk) {
             Chunk c = (Chunk) o;
-            return c.chunkX == this.chunkX && c.chunkZ == this.chunkZ;
+            return c.chunkX == chunkX && c.chunkZ == chunkZ;
         }
         return false;
     }
