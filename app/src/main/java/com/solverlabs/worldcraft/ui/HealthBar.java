@@ -19,7 +19,7 @@ public class HealthBar {
     private static TexturedShape fullHeartShape;
     private static TexturedShape halfHeartActiveShape;
     private static TexturedShape halfHeartShape;
-    private final BoundingRectangle bounds = new BoundingRectangle(140.0f, 70.0f, 300.0f, 80.0f);
+    private final BoundingRectangle bounds = new BoundingRectangle(150.0f, 70.0f, 300.0f, 80.0f);
     private final Player player;
 
     public HealthBar(Player player) {

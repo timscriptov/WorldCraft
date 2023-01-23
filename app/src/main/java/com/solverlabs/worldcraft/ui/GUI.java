@@ -58,6 +58,9 @@ public class GUI {
     public TapPad.Listener exitTapListener;
     public FoodBar foodBar;
     public FurnaceMenu furnaceMenu;
+    /**
+     * Рука
+     */
     public Hand hand;
     public HealthBar healthBar;
     /**
@@ -165,29 +168,29 @@ public class GUI {
     }
 
     private void initWidgets() {
-        this.widgets.add((Touch.TouchListener) this.blockMenuTap);
+        this.widgets.add(this.blockMenuTap);
         this.widgets.add(this.inventoryMenu);
         if (GameMode.isSurvivalMode()) {
-            this.widgets.add((Touch.TouchListener) this.craftMenuTap);
+            this.widgets.add(this.craftMenuTap);
             this.widgets.add(this.craftMenu);
             this.widgets.add(this.furnaceMenu);
             this.widgets.add(this.chestMenu);
-            this.widgets.add((Touch.TouchListener) this.leaveBedTap);
+            this.widgets.add(this.leaveBedTap);
         }
         this.widgets.add(this.hotbar);
-        this.widgets.add((Touch.TouchListener) this.menuTap);
-        this.widgets.add((Touch.TouchListener) this.jumpTap);
+        this.widgets.add(this.menuTap);
+        this.widgets.add(this.jumpTap);
         if (GameMode.isMultiplayerMode()) {
-            this.widgets.add((Touch.TouchListener) this.reportAbuseTap);
-            this.widgets.add((Touch.TouchListener) this.chatTap);
-            this.widgets.add((Touch.TouchListener) this.chatSwitcherTap);
+            this.widgets.add(this.reportAbuseTap);
+            this.widgets.add(this.chatTap);
+            this.widgets.add(this.chatSwitcherTap);
         }
         if (GameMode.isSurvivalMode()) {
             this.widgets.add(this.sleepBar);
             this.widgets.add(this.damageBar);
         }
-        this.widgets.add((Touch.TouchListener) this.left);
-        this.widgets.add((Touch.TouchListener) this.right);
+        this.widgets.add(this.left);
+        this.widgets.add(this.right);
     }
 
     private void initListeners() {

@@ -275,16 +275,16 @@ public class Interaction implements Touch.TouchListener {
             this.hand.strike(true);
         } else {
             if (targetBlockType != null && GameMode.isSurvivalMode()) {
-                if (targetBlockType == 58) {
+                if (targetBlockType == BlockFactory.CRAFTING_TABLE_ID) {
                     this.showCraftingTable = true;
                     this.hand.strike(true);
                     return;
-                } else if (targetBlockType == 61 || targetBlockType == 119) {
+                } else if (targetBlockType == BlockFactory.FURNACE_ID || targetBlockType == BlockFactory.FURNACE_ACTIVE_ID) {
                     this.tileEntityLocation = this.targetBlockLocation;
                     this.showFurnaceMenu = true;
                     this.hand.strike(true);
                     return;
-                } else if (targetBlockType == 54) {
+                } else if (targetBlockType == BlockFactory.CHEST_ID) {
                     this.tileEntityLocation = this.targetBlockLocation;
                     this.showChestMenu = true;
                     this.hand.strike(true);
@@ -317,7 +317,7 @@ public class Interaction implements Touch.TouchListener {
                             if (LadderBlock.canSetLadder(targetBlockType)) {
                                 LadderBlock.placeLadder(chunk, this.placementTargetBlock, this.targetBlockSide, invItem, this.player);
                             }
-                        } else if (targetBlockType != null && targetBlockType == 121) {
+                        } else if (targetBlockType != null && targetBlockType == BlockFactory.GRASS_ID) {
                             chunk.setBlockTypeForPosition(this.targetBlockLocation.x, this.targetBlockLocation.y, this.targetBlockLocation.z, invItem.getItemID(), (byte) 0);
                         } else {
                             chunk.setBlockTypeForPosition(this.placementTargetBlock.x, this.placementTargetBlock.y, this.placementTargetBlock.z, invItem.getItemID(), (byte) 0);
@@ -394,7 +394,7 @@ public class Interaction implements Touch.TouchListener {
                         blockLocation = this.targetBlockLocation;
                     }
                     this.world.addDroppableItem(b.id, blockLocation);
-                    if ((blockType == 61 || blockType == 119) && this.world.getFurnace(blockLocation) != null) {
+                    if ((blockType == BlockFactory.FURNACE_ID || blockType == BlockFactory.FURNACE_ACTIVE_ID) && this.world.getFurnace(blockLocation) != null) {
                         Furnace furnace = this.world.getFurnace(blockLocation);
                         if (furnace.getCraftedItem() != null) {
                             this.world.addDroppableItem(furnace.getCraftedItem().getItemID(), blockLocation, furnace.getCraftedItemCount());
@@ -407,7 +407,7 @@ public class Interaction implements Touch.TouchListener {
                         }
                         this.world.removeTileEntity(furnace);
                     }
-                    if (blockType == 54 && this.world.getChest(blockLocation) != null) {
+                    if (blockType == BlockFactory.CHEST_ID && this.world.getChest(blockLocation) != null) {
                         Chest chest = this.world.getChest(blockLocation);
                         for (int i = 0; i < chest.getChestItems().size(); i++) {
                             InventoryItem chestItem = chest.getChestItems().get(i);

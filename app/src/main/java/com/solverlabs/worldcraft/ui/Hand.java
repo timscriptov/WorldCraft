@@ -33,7 +33,7 @@ public class Hand {
     public float hitTime = 0.3f;
     private float strikeCycle = 0.0f;
     private boolean swing = false;
-    private float currentStrikeTime = this.missTime;
+    private float currentStrikeTime = missTime;
 
     public Hand(Player player) {
         this.player = player;
@@ -43,37 +43,37 @@ public class Hand {
         ResourceLoader.loadNow(new BitmapLoader("player_skins.png") {
             @Override
             public void complete() {
-                Texture skin = TextureFactory.buildTexture(this.resource, true, false);
+                Texture skin = TextureFactory.buildTexture(resource, true, false);
                 if (skin != null) {
                     Hand.state = skin.applyTo(Hand.state);
                 }
-                this.resource.bitmap.recycle();
+                resource.bitmap.recycle();
             }
         });
     }
 
     public void strike(boolean fast) {
-        if (this.strikeCycle == 0.0f) {
-            this.currentStrikeTime = fast ? this.hitTime : this.missTime;
-            this.strikeCycle = Float.MIN_VALUE;
+        if (strikeCycle == 0.0f) {
+            currentStrikeTime = fast ? hitTime : missTime;
+            strikeCycle = Float.MIN_VALUE;
         }
     }
 
     public void repeatedStrike(boolean fast) {
-        this.swing = true;
-        this.currentStrikeTime = (!fast || this.player.isReadyToEat()) ? this.missTime : this.hitTime;
+        swing = true;
+        currentStrikeTime = (!fast || player.isReadyToEat()) ? missTime : hitTime;
     }
 
     public void stopStriking() {
-        this.swing = false;
+        swing = false;
     }
 
     public void advance(float delta) {
-        if (this.swing || this.strikeCycle != 0.0f) {
-            this.strikeCycle += (6.2831855f * delta) / this.currentStrikeTime;
+        if (swing || strikeCycle != 0.0f) {
+            strikeCycle += (6.2831855f * delta) / currentStrikeTime;
         }
-        if (this.strikeCycle > 6.2831855f) {
-            this.strikeCycle = 0.0f;
+        if (strikeCycle > 6.2831855f) {
+            strikeCycle = 0.0f;
         }
     }
 
@@ -84,24 +84,24 @@ public class Hand {
         try {
             r.pushMatrix();
             float size = DEFAULT_SIZE;
-            if (this.swing && this.player != null && this.player.isReadyToEat()) {
-                float swing = (-Math.abs(Trig.cos(this.strikeCycle))) + 1.0f;
+            if (swing && player != null && player.isReadyToEat()) {
+                float swing = (-Math.abs(Trig.cos(strikeCycle))) + 1.0f;
                 rot = 0.0f;
                 size = Range.toValue(swing, FOOD_SIZE_REST, FOOD_SIZE_STRIKE);
-                x = Range.toValue(swing, this.foodPosRest.x, this.foodPosStrike.x);
-                y = Range.toValue(swing, this.foodPosRest.y, this.foodPosStrike.y);
+                x = Range.toValue(swing, foodPosRest.x, foodPosStrike.x);
+                y = Range.toValue(swing, foodPosRest.y, foodPosStrike.y);
             } else {
-                float swing2 = (-Math.abs(Trig.cos(0.5f * this.strikeCycle))) + 1.0f;
-                rot = Range.toValue(swing2, this.restRotation, this.strikeRotation);
-                x = Range.toValue(swing2, this.restPos.x, this.strikePos.x);
-                y = Range.toValue(swing2, this.restPos.y, this.strikePos.y);
+                float swing2 = (-Math.abs(Trig.cos(0.5f * strikeCycle))) + 1.0f;
+                rot = Range.toValue(swing2, restRotation, strikeRotation);
+                x = Range.toValue(swing2, restPos.x, strikePos.x);
+                y = Range.toValue(swing2, restPos.y, strikePos.y);
             }
             r.translate(x, y, 0.0f);
             r.rotate(rot, 0.0f, 0.0f, 1.0f);
             r.scale(size, size, 1.0f);
-            if (this.player.inHand != null) {
-                this.player.inHand.getItemShape().render(r);
-            } else if (state != null && (!GameMode.isMultiplayerMode() || this.player.getWorld().isReady())) {
+            if (player.inHand != null) {
+                player.inHand.getItemShape().render(r);
+            } else if (state != null && (!GameMode.isMultiplayerMode() || player.getWorld().isReady())) {
                 TexturedShape hand = SkinGeometryGenerator.getHandShape();
                 hand.state = state;
                 hand.render(r);

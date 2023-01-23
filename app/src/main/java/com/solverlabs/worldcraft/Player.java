@@ -67,7 +67,10 @@ public class Player implements Damagable {
     public boolean ghost = false;
     public float width = 0.2f;
     public float height = 1.8f;
-    public float eyeLevel = 1.2f; // 0.9f
+    /**
+     * Высота глаз
+     */
+    public float eyeLevel = 0.9f;
     public float crouchedEyeLevel = 0.65f;
     public boolean onGround = false;
     public Vector2f rotation = new Vector2f();
@@ -151,7 +154,7 @@ public class Player implements Damagable {
             }
             return;
         }
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 8; i++) {
             addItemToHotBar(new InventoryTapItem(this, new InventoryItem(BlockFactory.Block.values()[i], i)));
         }
     }

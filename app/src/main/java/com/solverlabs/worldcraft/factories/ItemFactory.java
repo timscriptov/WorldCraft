@@ -311,8 +311,8 @@ public class ItemFactory {
             } else if (LadderBlock.isLadder(id)) {
                 id = LadderBlock.getDefaultState(id);
             }
-            if (id == 119) {
-                id = 61;
+            if (id == BlockFactory.FURNACE_ACTIVE_ID) {
+                id = BlockFactory.FURNACE_ID;
             }
             Item[] values = values();
             for (int i = 0; i < values.length; i++) {
