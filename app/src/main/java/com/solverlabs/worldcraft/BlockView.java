@@ -38,37 +38,40 @@ public class BlockView {
     private long fpsVar;
     private long lastDrawAt;
 
+    /**
+     * @param world
+     */
     public BlockView(World world) {
         this.world = world;
-        this.player = new Player(world);
+        player = new Player(world);
     }
 
     public void init(Game game) {
-        Game.logicAdvance = 0.016666668f;
+        Game.logicAdvance = 1.0f / 60;
         BlockFactory.loadTexture();
         ItemFactory.loadTexture();
         SkinFactory.loadTexture();
         Hand.loadTexture();
-        MobPainter.loadTexture(this.world);
+        MobPainter.loadTexture(world);
         DroppableItem.init();
         BlockEntityPainter.init();
         BlockParticle.init();
-        this.mobAggregator = new MobPainter();
-        this.entityPainter = new BlockEntityPainter();
-        this.gui = new GUI(this.player, this.world, this.cam, this.mobAggregator, this.entityPainter, game);
-        this.player.init(this.world.getLevelTag());
-        this.world.init(this.player, this.entityPainter);
-        Clouds.getInstance().init(this.world);
-        BlockFactory.state.fog.setFA(this.skyColour);
+        mobAggregator = new MobPainter();
+        entityPainter = new BlockEntityPainter();
+        gui = new GUI(player, world, cam, mobAggregator, entityPainter, game);
+        player.init(world.getLevelTag());
+        world.init(player, entityPainter);
+        Clouds.getInstance().init(world);
+        BlockFactory.state.fog.setFA(skyColour);
     }
 
     public void setCamRotation(@NonNull Vector2f rot) {
-        this.cam.setHeading(rot.x);
-        this.cam.setElevation(rot.y);
+        cam.setHeading(rot.x);
+        cam.setElevation(rot.y);
     }
 
     public void openGLinit() {
-        GLES10.glClearColor(Colour.redf(this.skyColour), Colour.greenf(this.skyColour), Colour.bluef(this.skyColour), Colour.alphaf(this.skyColour));
+        GLES10.glClearColor(Colour.redf(skyColour), Colour.greenf(skyColour), Colour.bluef(skyColour), Colour.alphaf(skyColour));
     }
 
     public void setSkyColour(int skyColour) {
@@ -78,24 +81,27 @@ public class BlockView {
     }
 
     public void advance(float delta) {
-        this.gui.advance(delta, this.cam);
-        if (this.world.isChunksInited()) {
-            this.player.advance(delta, this.cam, this.gui);
+        // steering
+        gui.advance(delta, cam);
+        if (world.isChunksInited()) {
+            // movement
+            player.advance(delta, cam, gui);
         }
-        this.charactersPainter.advance(delta, this.world.loadradius, this.cam);
-        this.charactersPainter.advance(delta, this.world.loadradius, this.cam);
-        this.world.advance();
-        int currentSkyColour = this.world.getSkyColour();
-        if (this.skyColour != currentSkyColour) {
+        charactersPainter.advance(delta, world.loadradius, cam);
+        charactersPainter.advance(delta, world.loadradius, cam);
+        // chunk loading
+        world.advance();
+        int currentSkyColour = world.getSkyColour();
+        if (skyColour != currentSkyColour) {
             setSkyColour(currentSkyColour);
         }
-        this.mobAggregator.advance(delta, this.world, this.cam, this.player);
-        this.entityPainter.advance(delta, this.world, this.cam, this.player);
+        mobAggregator.advance(delta, world, cam, player);
+        entityPainter.advance(delta, world, cam, player);
     }
 
     public void draw() {
         try {
-            long timeAfterDraw = System.currentTimeMillis() - this.lastDrawAt;
+            long timeAfterDraw = System.currentTimeMillis() - lastDrawAt;
             long timeToSleep = TIME_BETWEEN_FRAMES - timeAfterDraw;
             if (timeToSleep > 0) {
                 try {
@@ -104,16 +110,16 @@ public class BlockView {
                     e.printStackTrace();
                 }
             }
-            GLES10.glClear(16640);
-            this.cam.setPosition(this.player.position.x, this.player.position.y, this.player.position.z);
-            this.world.draw(this.player.position, this.cam);
-            this.charactersPainter.draw(this.player.position, this.world.loadradius, this.cam);
-            this.entityPainter.draw(this.player.position, this.world.loadradius, this.cam);
-            this.mobAggregator.draw(this.player.position, this.world.loadradius, this.cam);
-            this.gui.draw();
-            this.lastDrawAt = System.currentTimeMillis();
+            GLES10.glClear( GLES10.GL_COLOR_BUFFER_BIT |GLES10. GL_DEPTH_BUFFER_BIT );
+            cam.setPosition(player.position.x, player.position.y, player.position.z);
+            world.draw(player.position, cam);
+            charactersPainter.draw(player.position, world.loadradius, cam);
+            entityPainter.draw(player.position, world.loadradius, cam);
+            mobAggregator.draw(player.position, world.loadradius, cam);
+            gui.draw();
+            lastDrawAt = System.currentTimeMillis();
         } catch (OutOfMemoryError e2) {
-            this.complete = true;
+            complete = true;
             System.runFinalization();
             Runtime.getRuntime().gc();
             System.gc();
@@ -123,26 +129,26 @@ public class BlockView {
     private long fpsAvg() {
         long sum = 0;
         for (int i = 0; i < 10; i++) {
-            sum += this.lastFpss[i];
+            sum += lastFpss[i];
         }
         return sum / 10;
     }
 
     private void setLastFps(long fpsVar) {
         for (int i = 0; i < 9; i++) {
-            this.lastFpss[i] = this.lastFpss[i + 1];
+            lastFpss[i] = lastFpss[i + 1];
         }
-        this.lastFpss[9] = fpsVar;
+        lastFpss[9] = fpsVar;
     }
 
     private void drawFPS() {
-        long drawDuration = System.currentTimeMillis() - this.lastDrawAt;
-        this.fpsVar = drawDuration == 0 ? 99L : 1000 / drawDuration;
-        setLastFps(this.fpsVar);
-        this.fpsShape = GUI.getFont().buildTextShape("fps:  " + fpsAvg(), Colour.packFloat(1.0f, 1.0f, 1.0f, 1.0f));
-        this.fpsShape.translate(100.0f, 100.0f, 0.0f);
-        this.fpsShape.render(this.r);
-        this.r.render();
+        long drawDuration = System.currentTimeMillis() - lastDrawAt;
+        fpsVar = drawDuration == 0 ? 99L : 1000 / drawDuration;
+        setLastFps(fpsVar);
+        fpsShape = GUI.getFont().buildTextShape("fps:  " + fpsAvg(), Colour.packFloat(1.0f, 1.0f, 1.0f, 1.0f));
+        fpsShape.translate(100.0f, 100.0f, 0.0f);
+        fpsShape.render(r);
+        r.render();
     }
 
     public BlockView next() {
@@ -150,7 +156,7 @@ public class BlockView {
     }
 
     public void onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == 4) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
         }
     }
 
@@ -159,35 +165,35 @@ public class BlockView {
 
     public void complete(boolean neewSave) {
         if (neewSave) {
-            this.world.save();
+            world.save();
         }
-        this.complete = true;
+        complete = true;
     }
 
     public void unload() {
-        this.world.clearCache();
+        world.clearCache();
     }
 
     public void saveWorld(String worldName) {
-        this.world.saveAs(worldName);
+        world.saveAs(worldName);
     }
 
     public void resetPlayerLocation() {
-        if (this.player != null) {
-            this.player.resetSavedPosition();
+        if (player != null) {
+            player.resetSavedPosition();
         }
     }
 
     public void destroyWorld() {
-        this.world.destroy();
-        this.world = null;
-        this.gui = null;
-        this.cam = null;
-        this.player = null;
-        this.charactersPainter = null;
+        world.destroy();
+        world = null;
+        gui = null;
+        cam = null;
+        player = null;
+        charactersPainter = null;
     }
 
     public boolean isWorldReady() {
-        return this.world != null && this.world.isReady();
+        return world != null && world.isReady();
     }
 }
