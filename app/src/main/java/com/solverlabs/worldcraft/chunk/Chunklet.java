@@ -13,26 +13,87 @@ import com.solverlabs.droid.rugl.util.geom.Frustum;
 import com.solverlabs.droid.rugl.util.geom.Vector3i;
 import com.solverlabs.worldcraft.factories.BlockFactory;
 
+/**
+ * A 16 * 16 * 16 cube of a {@link Chunk}
+ */
 public class Chunklet {
+    /**
+     * Parent chunk
+     */
     public final Chunk parent;
+    /**
+     * World coordinate
+     */
     public final int x;
+    /**
+     * World coordinate
+     */
     public final int y;
+    /**
+     * World coordinate
+     */
     public final int z;
     public boolean geomDirty = true;
+    /**
+     * <code>true</code> if the north side of this chunklet is completely opaque
+     */
     public boolean northSheet = true;
+    /**
+     * <code>true</code> if the bottom side of this chunklet is completely opaque
+     */
     public boolean bottomSheet = true;
+    /**
+     * <code>true</code> if the east side of this chunklet is completely opaque
+     */
     public boolean eastSheet = true;
+    /**
+     * <code>true</code> if the south side of this chunklet is completely opaque
+     */
     public boolean southSheet = true;
+    /**
+     * <code>true</code> if the top side of this chunklet is completely opaque
+     */
     public boolean topSheet = true;
+    /**
+     * <code>true</code> if the west side of this chunklet is completely opaque
+     */
     public boolean westSheet = true;
+    /**
+     * Stops us revisiting this chunklet when we flood-fill the view frustum to
+     * find which chunklets to render
+     */
     public int drawFlag = 0;
+    /**
+     * <code>true</code> if we're waiting on being processed by the
+     * geometry-generating thread
+     */
     boolean geomPending = false;
+    /**
+     * This is where we hold a new solid geometry vbo, fresh from the generation
+     * thread
+     */
     private VBOShape pendingSolid;
+    /**
+     * This is where we hold a new transparent geometry vbo, fresh from the
+     * generation thread
+     */
     private VBOShape pendingTransparent;
+    /**
+     * Solid geometry for GL1.0 users
+     */
     private CompiledShape solidVA;
+    /**
+     * Solid geometry
+     */
     private VBOShape solidVBO;
     private boolean solidVBOInvalidated;
+    /**
+     * Transparent geometry for GL1.0 users
+     */
     private CompiledShape transparentVA;
+    /**
+     * Transparent geometry
+     */
     private VBOShape transparentVBO;
     private boolean transparentVBOInvalidated;
     private ColouredShape outline = null;
@@ -40,45 +101,63 @@ public class Chunklet {
     private boolean allSheetsNotEmpty = false;
     private boolean boundariesEmptyChecked = false;
 
+    /**
+     * @param parent
+     * @param y      in chunk index coordinates
+     */
     public Chunklet(@NonNull Chunk parent, int y) {
         this.parent = parent;
-        this.x = parent.chunkX * 16;
+        x = parent.chunkX * 16;
         this.y = y * 16;
-        this.z = parent.chunkZ * 16;
+        z = parent.chunkZ * 16;
     }
 
     void findSheets() {
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {
                 byte bt = blockType(0, i, j);
-                this.northSheet &= BlockFactory.opaque(bt);
-                byte bt2 = blockType(15, i, j);
-                this.southSheet &= BlockFactory.opaque(bt2);
-                byte bt3 = blockType(i, j, 0);
-                this.eastSheet &= BlockFactory.opaque(bt3);
-                byte bt4 = blockType(i, j, 15);
-                this.westSheet &= BlockFactory.opaque(bt4);
-                byte bt5 = blockType(i, 15, j);
-                this.topSheet &= BlockFactory.opaque(bt5);
-                byte bt6 = blockType(i, 0, j);
-                this.bottomSheet &= BlockFactory.opaque(bt6);
+                northSheet &= BlockFactory.opaque(bt);
+
+                bt = blockType(15, i, j);
+                southSheet &= BlockFactory.opaque(bt);
+
+                bt = blockType(i, j, 0);
+                eastSheet &= BlockFactory.opaque(bt);
+
+                bt = blockType(i, j, 15);
+                westSheet &= BlockFactory.opaque(bt);
+
+                bt = blockType(i, 15, j);
+                topSheet &= BlockFactory.opaque(bt);
+
+                bt = blockType(i, 0, j);
+                bottomSheet &= BlockFactory.opaque(bt);
             }
         }
-        this.allSheetsNotEmpty = this.northSheet && this.southSheet && this.eastSheet && this.westSheet && this.topSheet && this.bottomSheet;
-        this.empty = !this.northSheet && !this.southSheet && !this.eastSheet && !this.westSheet && !this.topSheet && !this.bottomSheet;
-        for (int x = 0; x < 16 && this.empty; x++) {
-            for (int z = 0; z < 16 && this.empty; z++) {
-                for (int k = 0; k < 16 && this.empty; k++) {
-                    this.empty = (blockType(x, k, z) == 0) & this.empty;
+        allSheetsNotEmpty = northSheet && southSheet && eastSheet && westSheet && topSheet && bottomSheet;
+        empty = !northSheet && !southSheet && !eastSheet && !westSheet && !topSheet && !bottomSheet;
+        for (int x = 0; x < 16 && empty; x++) {
+            for (int z = 0; z < 16 && empty; z++) {
+                for (int k = 0; k < 16 && empty; k++) {
+                    empty = (blockType(x, k, z) == 0) & empty;
                 }
             }
         }
     }
 
+    /**
+     * @return <code>true</code> if there is no solid geometry in this chunklet
+     */
     public boolean isEmpty() {
-        return this.empty;
+        return empty;
     }
 
+    /**
+     * @param x
+     * @param y
+     * @param z
+     * @return The distance from the center of this chunklet to the point
+     */
     public float distanceSq(float x, float y, float z) {
         float dx = (this.x + 8.0f) - x;
         float dy = (this.y + 8.0f) - y;
@@ -86,77 +165,97 @@ public class Chunklet {
         return (dx * dx) + (dy * dy) + (dz * dz);
     }
 
+    /**
+     * Call this to refresh the chunklet's geometry the next time it is rendered
+     */
     public void geomDirty() {
         findSheets();
-        this.geomDirty = true;
-        this.boundariesEmptyChecked = false;
+        geomDirty = true;
+        boundariesEmptyChecked = false;
     }
 
+    /**
+     * Draws the solid geometry
+     *
+     * @param r Renderer to use if we are in gl1.0
+     */
     public void drawSolid(Renderer r) {
-        if (!this.allSheetsNotEmpty) {
-            if (this.solidVBOInvalidated) {
-                if (this.solidVBO != null) {
-                    this.solidVBO.delete();
+        if (!allSheetsNotEmpty) {
+            if (solidVBOInvalidated) {
+                if (solidVBO != null) {
+                    solidVBO.delete();
                 }
-                this.solidVBO = this.pendingSolid;
-                this.pendingSolid = null;
-                this.solidVBOInvalidated = false;
+                solidVBO = pendingSolid;
+                pendingSolid = null;
+                solidVBOInvalidated = false;
             }
-            if (this.solidVBO != null) {
-                this.solidVBO.draw();
+            if (solidVBO != null) {
+                solidVBO.draw();
             }
-            if (this.solidVA != null) {
-                this.solidVA.render(r);
+            if (solidVA != null) {
+                solidVA.render(r);
             }
         }
     }
 
+    /**
+     * Draws the transparent geometry
+     *
+     * @param r Renderer to use if we are in gl1.0
+     */
     public void drawTransparent(Renderer r) {
-        if (!this.allSheetsNotEmpty) {
-            if (this.transparentVBOInvalidated) {
-                if (this.transparentVBO != null) {
-                    this.transparentVBO.delete();
+        if (!allSheetsNotEmpty) {
+            if (transparentVBOInvalidated) {
+                if (transparentVBO != null) {
+                    transparentVBO.delete();
                 }
-                this.transparentVBO = this.pendingTransparent;
-                this.pendingTransparent = null;
-                this.transparentVBOInvalidated = false;
+                transparentVBO = pendingTransparent;
+                pendingTransparent = null;
+                transparentVBOInvalidated = false;
             }
-            if (this.transparentVBO != null) {
-                this.transparentVBO.draw();
+            if (transparentVBO != null) {
+                transparentVBO.draw();
             }
-            if (this.transparentVA != null) {
-                this.transparentVA.render(r);
+            if (transparentVA != null) {
+                transparentVA.render(r);
             }
         }
     }
 
+    /**
+     * @param synchronous <code>true</code> to generate right now, before doing anything
+     *                    else, <code>false</code> to do it in another thread
+     */
     public void generateGeometry(boolean synchronous) {
-        if (this.empty && !this.boundariesEmptyChecked) {
-            for (int i = 0; i < 16 && this.empty; i++) {
-                for (int j = 0; j < 16 && this.empty; j++) {
-                    this.empty = (blockType(-1, i, j) == 0) & this.empty;
-                    this.empty = (blockType(16, i, j) == 0) & this.empty;
-                    this.empty = (blockType(i, -1, j) == 0) & this.empty;
-                    this.empty = (blockType(i, 16, j) == 0) & this.empty;
-                    this.empty = (blockType(i, j, -1) == 0) & this.empty;
-                    this.empty = (blockType(i, j, 16) == 0) & this.empty;
+        if (empty && !boundariesEmptyChecked) {
+            // need to check the sides of neighbouring blocks too
+            for (int i = 0; i < 16 && empty; i++) {
+                for (int j = 0; j < 16 && empty; j++) {
+                    empty &= (blockType(-1, i, j) == 0);
+                    empty &= (blockType(16, i, j) == 0);
+
+                    empty &= (blockType(i, -1, j) == 0);
+                    empty &= (blockType(i, 16, j) == 0);
+
+                    empty &= (blockType(i, j, -1) == 0);
+                    empty &= (blockType(i, j, 16) == 0);
                 }
             }
-            this.boundariesEmptyChecked = true;
+            boundariesEmptyChecked = true;
         }
-        if (!this.empty && this.geomDirty && !this.geomPending && !this.allSheetsNotEmpty) {
-            this.geomPending = true;
+        if (!empty && geomDirty && !geomPending && !allSheetsNotEmpty) {
+            geomPending = true;
             GeometryGenerator.generate(this, synchronous);
         }
     }
 
     public void changeSunLight() {
-        if (this.solidVBO != null || this.transparentVBO != null) {
-            if (this.solidVBO != null) {
-                this.solidVBO.getDataBuffer().position(0);
+        if (solidVBO != null || transparentVBO != null) {
+            if (solidVBO != null) {
+                solidVBO.getDataBuffer().position(0);
             }
-            if (this.transparentVBO != null) {
-                this.transparentVBO.getDataBuffer().position(0);
+            if (transparentVBO != null) {
+                transparentVBO.getDataBuffer().position(0);
             }
             for (int x = 0; x < 16; x++) {
                 for (int y = 0; y < 16; y++) {
@@ -174,13 +273,13 @@ public class Chunklet {
                     }
                 }
             }
-            if (this.solidVBO != null) {
-                this.solidVBO.getDataBuffer().position(0);
-                this.solidVBO.delete();
+            if (solidVBO != null) {
+                solidVBO.getDataBuffer().position(0);
+                solidVBO.delete();
             }
-            if (this.transparentVBO != null) {
-                this.transparentVBO.getDataBuffer().position(0);
-                this.transparentVBO.delete();
+            if (transparentVBO != null) {
+                transparentVBO.getDataBuffer().position(0);
+                transparentVBO.delete();
             }
         }
     }
@@ -190,14 +289,14 @@ public class Chunklet {
         if (b != null && b != facing) {
             try {
                 if (b.opaque) {
-                    if (this.solidVBO != null) {
-                        synchronized (this.solidVBO) {
-                            this.solidVBO.setColour(light);
+                    if (solidVBO != null) {
+                        synchronized (solidVBO) {
+                            solidVBO.setColour(light);
                         }
                     }
-                } else if (this.transparentVBO != null) {
-                    synchronized (this.transparentVBO) {
-                        this.transparentVBO.setColour(light);
+                } else if (transparentVBO != null) {
+                    synchronized (transparentVBO) {
+                        transparentVBO.setColour(light);
                     }
                 }
             } catch (Exception e) {
@@ -206,46 +305,66 @@ public class Chunklet {
         }
     }
 
+    /**
+     * @param solid
+     * @param transparent
+     */
     public void geometryComplete(VBOShape solid, VBOShape transparent) {
-        this.geomPending = false;
-        this.geomDirty = false;
-        this.pendingSolid = solid;
-        this.pendingTransparent = transparent;
-        this.transparentVBOInvalidated = true;
-        this.solidVBOInvalidated = true;
+        geomPending = false;
+        geomDirty = false;
+        pendingSolid = solid;
+        pendingTransparent = transparent;
+        transparentVBOInvalidated = true;
+        solidVBOInvalidated = true;
     }
 
+    /**
+     * @param solid
+     * @param transparent
+     */
     public void geometryComplete(CompiledShape solid, CompiledShape transparent) {
-        this.geomPending = false;
-        this.geomDirty = false;
-        this.solidVA = solid;
-        this.transparentVA = transparent;
+        geomPending = false;
+        geomDirty = false;
+        solidVA = solid;
+        transparentVA = transparent;
     }
 
+    /**
+     * @param x
+     * @param y
+     * @param z
+     * @return the so-indexed block
+     */
     public byte blockType(int x, int y, int z) {
-        return this.parent.blockType(x, this.y + y, z);
+        return parent.blockType(x, this.y + y, z);
     }
 
     public byte blockData(int x, int y, int z) {
-        return this.parent.blockData(x, this.y + y, z);
+        return parent.blockData(x, this.y + y, z);
     }
 
     public void setBlockType(int x, int y, int z, byte type, byte data) {
-        this.parent.setBlockTypeWithoutGeometryRecalculate(x, this.y + y, z, type, data);
+        parent.setBlockTypeWithoutGeometryRecalculate(x, this.y + y, z, type, data);
     }
 
     public Chunk blockChunk(int x, int y, int z) {
-        return this.parent.blockChunk(x, this.y + y, z);
+        return parent.blockChunk(x, this.y + y, z);
     }
 
     public byte blockType(@NonNull Vector3i position) {
         return blockType(position.x, position.y, position.z);
     }
 
+    /**
+     * @param x
+     * @param y
+     * @param z
+     * @return The light value of the so-indexed block
+     */
     public float light(int x, int y, int z) {
-        int sl = this.parent.skyLight(x, this.y + y, z);
-        int sl2 = sl - (15 - this.parent.world.getSunlight());
-        int bl = this.parent.blockLight(x, this.y + y, z);
+        int sl = parent.skyLight(x, this.y + y, z);
+        int sl2 = sl - (15 - parent.world.getSunlight());
+        int bl = parent.blockLight(x, this.y + y, z);
         int l = Math.max(sl2, bl);
         if (l < 4) {
             l = 4;
@@ -253,48 +372,60 @@ public class Chunklet {
         return (float) Math.pow(0.8d, 15 - l);
     }
 
+    /**
+     * @param frustum
+     * @return The intersection status of the chunk and frustum
+     */
     public Frustum.Result intersection(@NonNull Frustum frustum) {
-        return frustum.cuboidIntersects(this.x, this.y, this.z, this.x + 16, this.y + 16, this.z + 16);
+        return frustum.cuboidIntersects(x, y, z, x + 16, y + 16, z + 16);
     }
 
     @NonNull
     public String toString() {
-        return "Chunklet @ " + this.x + ", " + this.y + ", " + this.z;
+        return "Chunklet @ " + x + ", " + y + ", " + z;
     }
 
+    /**
+     * Draws wireframe outline
+     *
+     * @param r
+     */
     public void drawOutline(Renderer r) {
-        if (this.solidVBO != null || this.transparentVBO != null || this.geomPending) {
-            if (this.outline == null) {
+        if (solidVBO != null || transparentVBO != null || geomPending) {
+            if (outline == null) {
                 Shape s = WireUtil.unitCube();
                 s.scale(15.5f, 15.5f, 15.5f);
                 s.translate(0.25f, 0.25f, 0.25f);
-                s.translate(this.x, this.y, this.z);
-                this.outline = new ColouredShape(s, Colour.black, WireUtil.state);
+                s.translate(x, y, z);
+                outline = new ColouredShape(s, Colour.black, WireUtil.state);
             }
-            this.outline.render(r);
+            outline.render(r);
         }
     }
 
+    /**
+     * Deletes VBOs
+     */
     public void unload() {
-        if (this.solidVBO != null) {
-            this.solidVBO.delete();
-            this.solidVBO = null;
+        if (solidVBO != null) {
+            solidVBO.delete();
+            solidVBO = null;
         }
-        if (this.transparentVBO != null) {
-            this.transparentVBO.delete();
-            this.transparentVBO = null;
+        if (transparentVBO != null) {
+            transparentVBO.delete();
+            transparentVBO = null;
         }
     }
 
     public int hashCode() {
-        int hash = this.x + 17;
-        return (((hash * 31) + this.y) * 13) + this.z;
+        int hash = x + 17;
+        return (((hash * 31) + y) * 13) + z;
     }
 
     public boolean equals(Object o) {
         if (o instanceof Chunklet) {
             Chunklet c = (Chunklet) o;
-            return c.x == this.x && c.y == this.y && c.z == this.z;
+            return c.x == x && c.y == y && c.z == z;
         }
         return false;
     }
