@@ -39,6 +39,9 @@ public class ItemFactory {
     private static final int IRON_WEAPON_DURABILITY = 251;
     private static final int GOLD_WEAPON_DURABILITY = 33;
     private static final int DIAMOND_WEAPON_DURABILITY = 1562;
+    /**
+     * For rendering items in the inventory and hand
+     */
     public static State itemState;
     public static Texture itemTexture;
     public static Map<Byte, Food> FOOD_ID_LIST = new HashMap<>();
@@ -71,6 +74,9 @@ public class ItemFactory {
         itemState = GLUtil.typicalState.with(MinFilter.NEAREST, MagFilter.NEAREST);
     }
 
+    /**
+     * Loads the item texture
+     */
     public static void loadTexture() {
         ResourceLoader.loadNow(new BitmapLoader("items.png") {
             @Override
@@ -96,6 +102,9 @@ public class ItemFactory {
         });
     }
 
+    /**
+     * Stuff that can appear in your inventory
+     */
     public enum Item {
         WoodSword(BlockFactory.WOOD_SWORD_ID, 0, 4, 1, ItemFactory.WOOD_WEAPON_DURABILITY, DescriptionFactory.Sword),
         WoodShovel(BlockFactory.WOOD_SHOVEL_ID, 0, 5, 1, ItemFactory.WOOD_WEAPON_DURABILITY, DescriptionFactory.Shovel),
@@ -215,10 +224,16 @@ public class ItemFactory {
         Steak(BlockFactory.STEAK_ID, 10, 6, 64, DescriptionFactory.emptyText),
         CookedPorkchop(BlockFactory.COOKED_PORKCHOP_ID, 8, 5, 64, DescriptionFactory.emptyText);
 
+        /**
+         * The block type represented by this item
+         */
         public final BlockFactory.Block block;
         public final int durability;
         public final int maxCountInStack;
         public byte id;
+        /**
+         * 1-unit high, origin-centered, shape with the appropriate texture
+         */
         public TexturedShape itemShape;
         private String description;
         private boolean isTool;
@@ -245,21 +260,21 @@ public class ItemFactory {
         }
 
         Item(BlockFactory.Block block, int maxCountInStack, int durability, String description) {
-            this.s = null;
-            this.t = null;
-            this.isTool = false;
-            this.isUseAsFuel = false;
-            this.isUseAsMaterials = false;
+            s = null;
+            t = null;
+            isTool = false;
+            isUseAsFuel = false;
+            isUseAsMaterials = false;
             this.block = block;
             this.description = description;
             if (block != null) {
-                this.id = block.id;
-                this.itemShape = block.blockItemShape;
+                id = block.id;
+                itemShape = block.blockItemShape;
             }
             this.maxCountInStack = maxCountInStack;
             this.durability = durability;
             if (durability > 1) {
-                this.isTool = true;
+                isTool = true;
             }
         }
 
@@ -269,13 +284,13 @@ public class ItemFactory {
             this.t = t;
             initShape();
             if (DoorBlock.isDoor(block)) {
-                TexturedShape itemShape = DoorBlock.getItemShape(this.id);
+                TexturedShape itemShape = DoorBlock.getItemShape(id);
                 block.blockItemShape = itemShape;
                 this.itemShape = itemShape;
             } else if (BedBlock.isBed(block)) {
-                TexturedShape itemShape2 = BedBlock.getItemShape(this.id);
-                block.blockItemShape = itemShape2;
-                this.itemShape = itemShape2;
+                TexturedShape itemShape = BedBlock.getItemShape(id);
+                block.blockItemShape = itemShape;
+                this.itemShape = itemShape;
             }
         }
 
@@ -290,12 +305,11 @@ public class ItemFactory {
         public static TexturedShape getShape(int s, int t) {
             float[] texCoords = ShapeUtil.vertFlipQuadTexCoords(ShapeUtil.getQuadTexCoords(1));
             for (int i = 0; i < texCoords.length; i += 2) {
-                texCoords[i] = texCoords[i] + s;
-                int i2 = i + 1;
-                texCoords[i2] = texCoords[i2] + t;
-                texCoords[i] = texCoords[i] / 16.0f;
-                int i3 = i + 1;
-                texCoords[i3] = texCoords[i3] / 16.0f;
+                texCoords[i] += s;
+                texCoords[i + 1] += t;
+
+                texCoords[i] /= 16;
+                texCoords[i + 1] /= 16;
             }
             Shape shape = ShapeUtil.filledQuad(-0.5f, -0.5f, 0.5f, 0.5f, 0.0f);
             ColouredShape cs = new ColouredShape(shape, Colour.white, ItemFactory.itemState);
@@ -324,39 +338,39 @@ public class ItemFactory {
         }
 
         public void initShape() {
-            if (this.s != null && this.t != null) {
-                this.itemShape = getShape(this.s, this.t);
+            if (s != null && t != null) {
+                itemShape = getShape(s, t);
             }
         }
 
         @NonNull
         @Contract(value = " -> new", pure = true)
         public int[] getTexCoords() {
-            return new int[]{this.s, this.t};
+            return new int[]{s, t};
         }
 
         public boolean isTool() {
-            return this.isTool;
+            return isTool;
         }
 
         public void setIsFuel(boolean value) {
-            this.isUseAsFuel = value;
+            isUseAsFuel = value;
         }
 
         public void setIsMaterial(boolean value) {
-            this.isUseAsMaterials = value;
+            isUseAsMaterials = value;
         }
 
         public boolean isUseAsFuel() {
-            return this.isUseAsFuel;
+            return isUseAsFuel;
         }
 
         public boolean isUseAsMaterials() {
-            return this.isUseAsMaterials;
+            return isUseAsMaterials;
         }
 
         public String getDescription() {
-            return this.description;
+            return description;
         }
     }
 }
