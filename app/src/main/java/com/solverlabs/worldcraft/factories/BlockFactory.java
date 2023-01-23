@@ -152,9 +152,12 @@ public class BlockFactory {
     public static final byte GRASS_ID = 121;
     public static final byte FLOWER_ID = 122;
 
+    /**
+     * A map of block id values to {@link Block}s
+     */
     private static final Map<Byte, Block> blocks;
     private static final ColouredShape itemShape;
-    private static final float sxtn = 0.0625f;
+    private static final float sxtn = 1.0f / 16;
     private static final float[] nbl = {0.0f, 0.0f, 0.0f};
     private static final float[] ntl = {0.0f, 1.0f, 0.0f};
     private static final float[] nbr = {1.0f, 0.0f, 0.0f};
@@ -163,52 +166,57 @@ public class BlockFactory {
     private static final float[] ftl = {0.0f, 1.0f, 1.0f};
     private static final float[] fbr = {1.0f, 0.0f, 1.0f};
     private static final float[] ftr = {1.0f, 1.0f, 1.0f};
+    /**
+     * Rendering state for blocks. Texture filtering is for wimps
+     */
     public static State state;
+    /**
+     * The terrain.png texture
+     */
     public static Texture texture;
     private static HashMap<Byte, Material> blockMaterials = null;
 
     static {
-        float[] hexVerts = new float[14];
+        float[] hexVerts = new float[2 * 7];
         hexVerts[0] = 0.0f;
         hexVerts[1] = 0.0f;
+
         float[] angles = {30.0f, 90.0f, 150.0f, 210.0f, 270.0f, 330.0f};
         for (int i = 0; i < angles.length; i++) {
             hexVerts[(i + 1) * 2] = 0.5f * Trig.cos(Trig.toRadians(angles[i]));
             hexVerts[((i + 1) * 2) + 1] = 0.5f * Trig.sin(Trig.toRadians(angles[i]));
         }
+
         float[] itemCoords = new float[36];
-        int i2 = 0 + 1;
-        addVert(itemCoords, 0, hexVerts, 0);
-        int i3 = i2 + 1;
-        addVert(itemCoords, i2, hexVerts, 3);
-        int i4 = i3 + 1;
-        addVert(itemCoords, i3, hexVerts, 1);
-        int i5 = i4 + 1;
-        addVert(itemCoords, i4, hexVerts, 2);
-        int i6 = i5 + 1;
-        addVert(itemCoords, i5, hexVerts, 4);
-        int i7 = i6 + 1;
-        addVert(itemCoords, i6, hexVerts, 3);
-        int i8 = i7 + 1;
-        addVert(itemCoords, i7, hexVerts, 5);
-        int i9 = i8 + 1;
-        addVert(itemCoords, i8, hexVerts, 0);
-        int i10 = i9 + 1;
-        addVert(itemCoords, i9, hexVerts, 5);
-        int i11 = i10 + 1;
-        addVert(itemCoords, i10, hexVerts, 0);
-        int i12 = i11 + 1;
-        addVert(itemCoords, i11, hexVerts, 6);
-        addVert(itemCoords, i12, hexVerts, 1);
+        int i = 0;
+        // top
+        addVert(itemCoords, i++, hexVerts, 0);
+        addVert(itemCoords, i++, hexVerts, 3);
+        addVert(itemCoords, i++, hexVerts, 1);
+        addVert(itemCoords, i++, hexVerts, 2);
+
+        // left
+        addVert(itemCoords, i++, hexVerts, 4);
+        addVert(itemCoords, i++, hexVerts, 3);
+        addVert(itemCoords, i++, hexVerts, 5);
+        addVert(itemCoords, i++, hexVerts, 0);
+
+        // right
+        addVert(itemCoords, i++, hexVerts, 5);
+        addVert(itemCoords, i++, hexVerts, 0);
+        addVert(itemCoords, i++, hexVerts, 6);
+        addVert(itemCoords, i++, hexVerts, 1);
+
         short[] tris = ShapeUtil.makeQuads(12, 0, null, 0);
+
         int[] colours = new int[12];
         int top = Colour.packFloat(1.0f, 1.0f, 1.0f, 1.0f);
         int left = Colour.packFloat(0.75f, 0.75f, 0.75f, 1.0f);
         int right = Colour.packFloat(0.5f, 0.5f, 0.5f, 1.0f);
-        for (int i14 = 0; i14 < 4; i14++) {
-            colours[i14] = top;
-            colours[i14 + 4] = left;
-            colours[i14 + 8] = right;
+        for (i = 0; i < 4; i++) {
+            colours[i] = top;
+            colours[i + 4] = left;
+            colours[i + 8] = right;
         }
         itemShape = new ColouredShape(new Shape(itemCoords, tris), colours, null);
         state = GLUtil.typicalState.with(MinFilter.NEAREST, MagFilter.NEAREST).with(new Fog(FogMode.LINEAR, 0.5f, 30.0f, 40.0f, Colour.packFloat(0.7f, 0.7f, 0.9f, 1.0f)));
@@ -225,6 +233,9 @@ public class BlockFactory {
         itemVerts[(index * 3) + 2] = 0.0f;
     }
 
+    /**
+     * Synchronously loads the terrain texture
+     */
     public static void loadTexture() {
         ResourceLoader.loadNow(new BitmapLoader("terrain.png") {
             @Override
@@ -244,10 +255,19 @@ public class BlockFactory {
         });
     }
 
+    /**
+     * @param id
+     * @return The so-typed block
+     */
     public static Block getBlock(byte id) {
         return blocks.get(id);
     }
 
+    /**
+     * @param id
+     * @return <code>true</code> if the block is opaque, <code>false</code> if
+     * transparent
+     */
     public static boolean opaque(byte id) {
         Block b = blocks.get(id);
         if (b == null) {
@@ -383,12 +403,33 @@ public class BlockFactory {
         Empty
     }
 
+    /**
+     * Holds vertex positions for each face of a unit cube
+     */
     public enum Face {
+        /**
+         * -ve z direction
+         */
         East(BlockFactory.fbl, BlockFactory.ftl, BlockFactory.nbl, BlockFactory.ntl),
+        /**
+         * +ve z direction
+         */
         West(BlockFactory.nbr, BlockFactory.ntr, BlockFactory.fbr, BlockFactory.ftr),
+        /**
+         * +ve x direction
+         */
         South(BlockFactory.nbl, BlockFactory.ntl, BlockFactory.nbr, BlockFactory.ntr),
+        /**
+         * -ve x direction
+         */
         North(BlockFactory.fbr, BlockFactory.ftr, BlockFactory.fbl, BlockFactory.ftl),
+        /**
+         * +ve y direction
+         */
         Top(BlockFactory.ntl, BlockFactory.ftl, BlockFactory.ntr, BlockFactory.ftr),
+        /**
+         * -ve y direction
+         */
         Bottom(BlockFactory.nbl, BlockFactory.fbl, BlockFactory.nbr, BlockFactory.fbr);
 
         private final float[] verts = new float[12];
@@ -400,6 +441,9 @@ public class BlockFactory {
         }
     }
 
+    /**
+     * Block types
+     */
     public enum Block {
         Stone(BlockFactory.STONE_ID, true, 1, 0),
         DirtWithGrass(BlockFactory.DIRT_WITH_GRASS_ID, true, 3, 0, 0, 0, 2, 0),
@@ -492,26 +536,39 @@ public class BlockFactory {
         public final boolean isCuboid;
         public final Material material;
         public final boolean opaque;
+        /**
+         * Sides then top, then bottom
+         */
         public final int[] texCoords;
+        /**
+         * Shape with which to draw this block in the gui. It's 1 unit high and
+         * centered on the origin
+         */
         public TexturedShape blockItemShape;
 
         Block(byte id, boolean opaque, int... tc) {
             this(id, opaque, true, tc);
         }
 
+        /**
+         * @param id     block type identifier
+         * @param opaque <code>true</code> if you can't see through the block
+         * @param tc     coordinates of the face textures in terrain.png. e.g.: grass
+         *               is (0,0), stone is (1,0), mossy cobblestone is (4,2)
+         */
         Block(byte id, boolean opaque, boolean isCuboid, @NonNull int... tc) {
             this.id = id;
             this.opaque = opaque;
             this.isCuboid = isCuboid;
-            this.material = BlockFactory.getBlockMaterial(id);
+            material = BlockFactory.getBlockMaterial(id);
             if (tc.length == 6) {
-                this.texCoords = new int[]{tc[0], tc[1], tc[0], tc[1], tc[0], tc[1], tc[0], tc[1], tc[2], tc[3], tc[4], tc[5]};
+                texCoords = new int[]{tc[0], tc[1], tc[0], tc[1], tc[0], tc[1], tc[0], tc[1], tc[2], tc[3], tc[4], tc[5]};
             } else if (tc.length == 4) {
-                this.texCoords = new int[]{tc[0], tc[1], tc[0], tc[1], tc[0], tc[1], tc[0], tc[1], tc[2], tc[3], tc[2], tc[3]};
+                texCoords = new int[]{tc[0], tc[1], tc[0], tc[1], tc[0], tc[1], tc[0], tc[1], tc[2], tc[3], tc[2], tc[3]};
             } else if (tc.length == 2) {
-                this.texCoords = new int[]{tc[0], tc[1], tc[0], tc[1], tc[0], tc[1], tc[0], tc[1], tc[0], tc[1], tc[0], tc[1]};
+                texCoords = new int[]{tc[0], tc[1], tc[0], tc[1], tc[0], tc[1], tc[0], tc[1], tc[0], tc[1], tc[0], tc[1]};
             } else {
-                this.texCoords = tc;
+                texCoords = tc;
             }
             if (!isCuboid) {
                 float[] texCoords = ShapeUtil.vertFlipQuadTexCoords(ShapeUtil.getQuadTexCoords(1));
@@ -528,7 +585,7 @@ public class BlockFactory {
                 this.blockItemShape = new TexturedShape(cs, texCoords, BlockFactory.texture);
                 return;
             }
-            float[] itc = new float[24];
+            float[] itc = new float[3 * 4 * 2];
             faceTexCoords(Face.Top, itc, 0);
             faceTexCoords(Face.North, itc, 8);
             faceTexCoords(Face.West, itc, 16);
@@ -537,145 +594,97 @@ public class BlockFactory {
 
         private void faceTexCoords(@NonNull Face face, @NonNull float[] tc, int index) {
             int txco = face.ordinal() * 2;
-            float bu = BlockFactory.sxtn * this.texCoords[txco];
-            float bv = BlockFactory.sxtn * (this.texCoords[txco + 1] + 1);
-            float tu = BlockFactory.sxtn * (this.texCoords[txco] + 1);
-            float tv = BlockFactory.sxtn * this.texCoords[txco + 1];
-            int index2 = index + 1;
-            tc[index] = bu;
-            int index3 = index2 + 1;
-            tc[index2] = bv;
-            int index4 = index3 + 1;
-            tc[index3] = bu;
-            int index5 = index4 + 1;
-            tc[index4] = tv;
-            int index6 = index5 + 1;
-            tc[index5] = tu;
-            int index7 = index6 + 1;
-            tc[index6] = bv;
-            int index8 = index7 + 1;
-            tc[index7] = tu;
-            int i = index8 + 1;
-            tc[index8] = tv;
+            float bu = BlockFactory.sxtn * texCoords[txco];
+            float bv = BlockFactory.sxtn * (texCoords[txco + 1] + 1);
+            float tu = BlockFactory.sxtn * (texCoords[txco] + 1);
+            float tv = BlockFactory.sxtn * texCoords[txco + 1];
+
+            tc[index++] = bu;
+            tc[index++] = bv;
+            tc[index++] = bu;
+            tc[index++] = tv;
+            tc[index++] = tu;
+            tc[index++] = bv;
+            tc[index++] = tu;
+            tc[index++] = tv;
         }
 
+        /**
+         * Adds a face to the {@link ShapeBuilder}
+         *
+         * @param f      which side
+         * @param bx     block coordinate
+         * @param by     block coordinate
+         * @param bz     block coordinate
+         * @param colour Vertex colour
+         * @param sb
+         */
         public void face(Face f, float bx, float by, float bz, int colour, ShapeBuilder sb) {
-            if (!DoorBlock.isDoor(this.id) && !BedBlock.isBed(this.id) && !LadderBlock.isLadder(this.id)) {
-                if (this.isCuboid || (f != Face.Top && f != Face.Bottom && f != Face.East && f != Face.South)) {
+            if (!DoorBlock.isDoor(id) && !BedBlock.isBed(id) && !LadderBlock.isLadder(id)) {
+                if (isCuboid || (f != Face.Top && f != Face.Bottom && f != Face.East && f != Face.South)) {
                     sb.ensureCapacity(4, 2);
+
+                    // add vertices
                     System.arraycopy(f.verts, 0, sb.vertices, sb.vertexOffset, f.verts.length);
                     for (int i = 0; i < 4; i++) {
-                        float[] fArr = sb.vertices;
-                        int i2 = sb.vertexOffset;
-                        sb.vertexOffset = i2 + 1;
-                        fArr[i2] = fArr[i2] + bx;
-                        float[] fArr2 = sb.vertices;
-                        int i3 = sb.vertexOffset;
-                        sb.vertexOffset = i3 + 1;
-                        fArr2[i3] = fArr2[i3] + by;
-                        float[] fArr3 = sb.vertices;
-                        int i4 = sb.vertexOffset;
-                        sb.vertexOffset = i4 + 1;
-                        fArr3[i4] = fArr3[i4] + bz;
-                        int[] iArr = sb.colours;
-                        int i5 = sb.colourOffset;
-                        sb.colourOffset = i5 + 1;
-                        iArr[i5] = colour;
+                        // translation
+                        sb.vertices[sb.vertexOffset++] += bx;
+                        sb.vertices[sb.vertexOffset++] += by;
+                        sb.vertices[sb.vertexOffset++] += bz;
+
+                        // colour
+                        sb.colours[sb.colourOffset++] = colour;
                     }
+                    // texcoords
                     int txco = f.ordinal() * 2;
-                    float bu = BlockFactory.sxtn * this.texCoords[txco];
-                    float bv = BlockFactory.sxtn * (this.texCoords[txco + 1] + 1);
-                    float tu = BlockFactory.sxtn * (this.texCoords[txco] + 1);
-                    float tv = BlockFactory.sxtn * this.texCoords[txco + 1];
-                    if (this.id == SLAB_ID && f != Face.Bottom) {
+                    float bu = BlockFactory.sxtn * texCoords[txco];
+                    float bv = BlockFactory.sxtn * (texCoords[txco + 1] + 1);
+                    float tu = BlockFactory.sxtn * (texCoords[txco] + 1);
+                    float tv = BlockFactory.sxtn * texCoords[txco + 1];
+
+                    if (id == BlockFactory.SLAB_ID && f != Face.Bottom) {
                         if (f == Face.Top) {
-                            float[] fArr4 = sb.vertices;
-                            int i6 = sb.vertexOffset - 2;
-                            fArr4[i6] = fArr4[i6] - 0.5f;
-                            float[] fArr5 = sb.vertices;
-                            int i7 = sb.vertexOffset - 5;
-                            fArr5[i7] = fArr5[i7] - 0.5f;
-                            float[] fArr6 = sb.vertices;
-                            int i8 = sb.vertexOffset - 8;
-                            fArr6[i8] = fArr6[i8] - 0.5f;
-                            float[] fArr7 = sb.vertices;
-                            int i9 = sb.vertexOffset - 11;
-                            fArr7[i9] = fArr7[i9] - 0.5f;
+                            // shift all down
+                            sb.vertices[sb.vertexOffset - 2] -= 0.5f;
+                            sb.vertices[sb.vertexOffset - 5] -= 0.5f;
+                            sb.vertices[sb.vertexOffset - 8] -= 0.5f;
+                            sb.vertices[sb.vertexOffset - 11] -= 0.5f;
                         } else {
-                            float[] fArr8 = sb.vertices;
-                            int i10 = sb.vertexOffset - 2;
-                            fArr8[i10] = fArr8[i10] - 0.5f;
-                            float[] fArr9 = sb.vertices;
-                            int i11 = sb.vertexOffset - 8;
-                            fArr9[i11] = fArr9[i11] - 0.5f;
+                            // shift top down
+                            sb.vertices[sb.vertexOffset - 2] -= 0.5f;
+                            sb.vertices[sb.vertexOffset - 8] -= 0.5f;
+
+                            // half texcoords
                             bv *= 0.5f;
                             tv *= 0.5f;
                         }
                     }
-                    if (!this.isCuboid) {
+                    if (!isCuboid) {
                         if (f == Face.North) {
-                            float[] fArr10 = sb.vertices;
-                            int i12 = sb.vertexOffset - 1;
-                            fArr10[i12] = fArr10[i12] - 0.5f;
-                            float[] fArr11 = sb.vertices;
-                            int i13 = sb.vertexOffset - 4;
-                            fArr11[i13] = fArr11[i13] - 0.5f;
-                            float[] fArr12 = sb.vertices;
-                            int i14 = sb.vertexOffset - 7;
-                            fArr12[i14] = fArr12[i14] - 0.5f;
-                            float[] fArr13 = sb.vertices;
-                            int i15 = sb.vertexOffset - 10;
-                            fArr13[i15] = fArr13[i15] - 0.5f;
+                            sb.vertices[sb.vertexOffset - 1] -= 0.5f;
+                            sb.vertices[sb.vertexOffset - 4] -= 0.5f;
+                            sb.vertices[sb.vertexOffset - 7] -= 0.5f;
+                            sb.vertices[sb.vertexOffset - 10] -= 0.5f;
                         }
                         if (f == Face.West) {
-                            float[] fArr14 = sb.vertices;
-                            int i16 = sb.vertexOffset - 3;
-                            fArr14[i16] = fArr14[i16] - 0.5f;
-                            float[] fArr15 = sb.vertices;
-                            int i17 = sb.vertexOffset - 6;
-                            fArr15[i17] = fArr15[i17] - 0.5f;
-                            float[] fArr16 = sb.vertices;
-                            int i18 = sb.vertexOffset - 9;
-                            fArr16[i18] = fArr16[i18] - 0.5f;
-                            float[] fArr17 = sb.vertices;
-                            int i19 = sb.vertexOffset - 12;
-                            fArr17[i19] = fArr17[i19] - 0.5f;
+                            sb.vertices[sb.vertexOffset - 3] -= 0.5f;
+                            sb.vertices[sb.vertexOffset - 6] -= 0.5f;
+                            sb.vertices[sb.vertexOffset - 9] -= 0.5f;
+                            sb.vertices[sb.vertexOffset - 12] -= 0.5f;
                         }
                     }
-                    float[] fArr18 = sb.texCoords;
-                    int i20 = sb.texCoordOffset;
-                    sb.texCoordOffset = i20 + 1;
-                    fArr18[i20] = tu;
-                    float[] fArr19 = sb.texCoords;
-                    int i21 = sb.texCoordOffset;
-                    sb.texCoordOffset = i21 + 1;
-                    fArr19[i21] = bv;
-                    float[] fArr20 = sb.texCoords;
-                    int i22 = sb.texCoordOffset;
-                    sb.texCoordOffset = i22 + 1;
-                    fArr20[i22] = tu;
-                    float[] fArr21 = sb.texCoords;
-                    int i23 = sb.texCoordOffset;
-                    sb.texCoordOffset = i23 + 1;
-                    fArr21[i23] = tv;
-                    float[] fArr22 = sb.texCoords;
-                    int i24 = sb.texCoordOffset;
-                    sb.texCoordOffset = i24 + 1;
-                    fArr22[i24] = bu;
-                    float[] fArr23 = sb.texCoords;
-                    int i25 = sb.texCoordOffset;
-                    sb.texCoordOffset = i25 + 1;
-                    fArr23[i25] = bv;
-                    float[] fArr24 = sb.texCoords;
-                    int i26 = sb.texCoordOffset;
-                    sb.texCoordOffset = i26 + 1;
-                    fArr24[i26] = bu;
-                    float[] fArr25 = sb.texCoords;
-                    int i27 = sb.texCoordOffset;
-                    sb.texCoordOffset = i27 + 1;
-                    fArr25[i27] = tv;
+                    sb.texCoords[sb.texCoordOffset++] = bu;
+                    sb.texCoords[sb.texCoordOffset++] = bv;
+                    sb.texCoords[sb.texCoordOffset++] = bu;
+                    sb.texCoords[sb.texCoordOffset++] = tv;
+                    sb.texCoords[sb.texCoordOffset++] = tu;
+                    sb.texCoords[sb.texCoordOffset++] = bv;
+                    sb.texCoords[sb.texCoordOffset++] = tu;
+                    sb.texCoords[sb.texCoordOffset++] = tv;
+
                     sb.relTriangle(0, 2, 1);
                     sb.relTriangle(2, 3, 1);
+
                     sb.vertexCount += 4;
                 }
             }

@@ -17,9 +17,9 @@ public class MemoryRandomAccessFile implements Closeable, DataInput, DataOutput 
 
     public MemoryRandomAccessFile(@NonNull File file, String mode) throws IOException {
         int length = (int) file.length();
-        this.randomAccessFile = new RandomAccessFile(file, mode);
-        this.buf = this.randomAccessFile.getChannel().map(FileChannel.MapMode.READ_WRITE, 0L, length);
-        this.buf.load();
+        randomAccessFile = new RandomAccessFile(file, mode);
+        buf = this.randomAccessFile.getChannel().map(FileChannel.MapMode.READ_WRITE, 0L, length);
+        buf.load();
     }
 
     @Override
@@ -28,12 +28,12 @@ public class MemoryRandomAccessFile implements Closeable, DataInput, DataOutput 
 
     @Override
     public void write(int oneByte) throws IOException {
-        this.buf.put((byte) oneByte);
+        buf.put((byte) oneByte);
     }
 
     @Override
     public void write(byte[] buffer, int offset, int count) throws IOException {
-        this.buf.put(buffer, offset, count);
+        buf.put(buffer, offset, count);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class MemoryRandomAccessFile implements Closeable, DataInput, DataOutput 
 
     @Override
     public void writeByte(int val) throws IOException {
-        this.buf.put((byte) val);
+        buf.put((byte) val);
     }
 
     @Override
@@ -67,7 +67,7 @@ public class MemoryRandomAccessFile implements Closeable, DataInput, DataOutput 
 
     @Override
     public void writeInt(int val) throws IOException {
-        this.buf.putInt(val);
+        buf.putInt(val);
     }
 
     @Override
@@ -89,7 +89,7 @@ public class MemoryRandomAccessFile implements Closeable, DataInput, DataOutput 
 
     @Override
     public byte readByte() throws IOException {
-        return this.buf.get();
+        return buf.get();
     }
 
     @Override
@@ -117,7 +117,7 @@ public class MemoryRandomAccessFile implements Closeable, DataInput, DataOutput 
 
     @Override
     public int readInt() throws IOException {
-        return this.buf.getInt();
+        return buf.getInt();
     }
 
     @Override
@@ -157,18 +157,18 @@ public class MemoryRandomAccessFile implements Closeable, DataInput, DataOutput 
 
     @Override
     public void close() throws IOException {
-        this.randomAccessFile.close();
+        randomAccessFile.close();
     }
 
     public int length() {
-        return this.buf.limit();
+        return buf.limit();
     }
 
     public void seek(int i) {
-        this.buf.position(i);
+        buf.position(i);
     }
 
     public void read(byte[] data) {
-        this.buf.get(data);
+        buf.get(data);
     }
 }

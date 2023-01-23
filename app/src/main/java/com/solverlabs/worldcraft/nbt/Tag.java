@@ -13,86 +13,100 @@ import java.io.OutputStream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+/**
+ * Loads NBT files, nabbed from the minecraft wiki
+ */
 public class Tag {
-    private final String name;
     private final Type type;
-    private Type listType;
+    private final String name;
+    private Type listType = null;
     private Object value;
 
-    public Tag(Type type, String name, Tag[] value) {
+    /**
+     * Create a new TAG_List or TAG_Compound NBT tag.
+     *
+     * @param type  either TAG_List or TAG_Compound
+     * @param name  name for the new tag or null to create an unnamed tag.
+     * @param value list of tags to add to the new tag.
+     */
+    public Tag(final Type type, final String name, final Tag[] value) {
         this(type, name, (Object) value);
     }
 
-    public Tag(String name, Type listType) {
+    /**
+     * Create a new TAG_List with an empty list. Use {@link Tag#addTag(Tag)} to
+     * add tags later.
+     *
+     * @param name     name for this tag or null to create an unnamed tag.
+     * @param listType type of the elements in this empty list.
+     */
+    public Tag(final String name, final Type listType) {
         this(Type.TAG_List, name, listType);
     }
 
-    public Tag(Type type, String name, Object value) {
-        this.listType = null;
-        if (type == Type.TAG_Compound && !(value instanceof Tag[])) {
-            throw new IllegalArgumentException();
-        }
+    /**
+     * Create a new NBT tag.
+     *
+     * @param type  any value from the {@link Type} enum.
+     * @param name  name for the new tag or null to create an unnamed tag.
+     * @param value an object that fits the tag type or a {@link Type} to create an
+     *              empty TAG_List with this list type.
+     */
+    public Tag(final Type type, final String name, Object value) {
+        if (type == Type.TAG_Compound)
+            if (!(value instanceof Tag[]))
+                throw new IllegalArgumentException();
         switch (type) {
             case TAG_End:
-                if (value != null) {
+                if (value != null)
                     throw new IllegalArgumentException();
-                }
                 break;
             case TAG_Byte:
-                if (!(value instanceof Byte)) {
+                if (!(value instanceof Byte))
                     throw new IllegalArgumentException();
-                }
                 break;
             case TAG_Short:
-                if (!(value instanceof Short)) {
+                if (!(value instanceof Short))
                     throw new IllegalArgumentException();
-                }
                 break;
             case TAG_Int:
-                if (!(value instanceof Integer)) {
+                if (!(value instanceof Integer))
                     throw new IllegalArgumentException();
-                }
                 break;
             case TAG_Long:
-                if (!(value instanceof Long)) {
+                if (!(value instanceof Long))
                     throw new IllegalArgumentException();
-                }
                 break;
             case TAG_Float:
-                if (!(value instanceof Float)) {
+                if (!(value instanceof Float))
                     throw new IllegalArgumentException();
-                }
                 break;
             case TAG_Double:
-                if (!(value instanceof Double)) {
+                if (!(value instanceof Double))
                     throw new IllegalArgumentException();
-                }
                 break;
             case TAG_Byte_Array:
-                if (!(value instanceof byte[])) {
+                if (!(value instanceof byte[]))
                     throw new IllegalArgumentException();
-                }
                 break;
             case TAG_String:
-                if (!(value instanceof String)) {
+                if (!(value instanceof String))
                     throw new IllegalArgumentException();
-                }
                 break;
             case TAG_List:
                 if (value instanceof Type) {
-                    this.listType = (Type) value;
+                    listType = (Type) value;
                     value = new Tag[0];
-                    break;
-                } else if (!(value instanceof Tag[])) {
-                    throw new IllegalArgumentException();
                 } else {
-                    this.listType = ((Tag[]) value)[0].getType();
-                    break;
+                    if (!(value instanceof Tag[]))
+                        throw new IllegalArgumentException();
+                    listType =
+                            ((Tag[]) value)[0].getType();
                 }
+                break;
             case TAG_Compound:
-                if (!(value instanceof Tag[])) {
+                if (!(value instanceof Tag[]))
                     throw new IllegalArgumentException();
-                }
                 break;
             default:
                 throw new IllegalArgumentException();
@@ -102,24 +116,34 @@ public class Tag {
         this.value = value;
     }
 
+    /**
+     * Read a tag and its nested tags from an InputStream.
+     *
+     * @param is         stream to read from, like a FileInputStream
+     * @param compressed <code>true</code> if the stream is gzipped
+     * @return NBT tag or structure read from the InputStream
+     * @throws IOException if there was no valid NBT structure in the InputStream or if
+     *                     another IOException occurred.
+     */
     @NonNull
     @Contract("_, _ -> new")
-    public static Tag readFrom(InputStream is, boolean compressed) throws IOException {
-        if (compressed) {
-            is = new GZIPInputStream(is);
-        }
-        DataInputStream dis = new DataInputStream(is);
-        byte type = dis.readByte();
-        if (type == 0) {
-            return new Tag(Type.TAG_End, (String) null, (Tag[]) null);
-        }
-        String disUTF = dis.readUTF();
-        Object object = readPayload(dis, type);
-        return new Tag(Type.values()[type], disUTF, object);
+    public static Tag readFrom(final InputStream is, final boolean compressed)
+            throws IOException {
+        final DataInputStream dis =
+                new DataInputStream(compressed ? new GZIPInputStream(is) : is);
+
+        final byte type = dis.readByte();
+        if (type == 0)
+            return new Tag(Type.TAG_End, null, null);
+        else
+            return new Tag(Type.values()[type], dis.readUTF(), readPayload(
+                    dis, type));
     }
 
-    private static Object readPayload(DataInputStream dis, byte type) throws IOException {
-        byte stt;
+    @Nullable
+    private static Object
+    readPayload(final DataInputStream dis, final byte type)
+            throws IOException {
         switch (type) {
             case 0:
                 return null;
@@ -136,42 +160,47 @@ public class Tag {
             case 6:
                 return dis.readDouble();
             case 7:
-                int length = dis.readInt();
-                byte[] ba = new byte[length];
+                final int length = dis.readInt();
+                final byte[] ba = new byte[length];
                 dis.readFully(ba);
                 return ba;
             case 8:
                 return dis.readUTF();
             case 9:
-                byte lt = dis.readByte();
-                int ll = dis.readInt();
-                Tag[] lo = new Tag[ll];
-                for (int i = 0; i < ll; i++) {
-                    lo[i] = new Tag(Type.values()[lt], (String) null, readPayload(dis, lt));
-                }
-                return lo.length == 0 ? Type.values()[lt] : lo;
+                final byte lt = dis.readByte();
+                final int ll = dis.readInt();
+                final Tag[] lo = new Tag[ll];
+                for (int i = 0; i < ll; i++)
+                    lo[i] =
+                            new Tag(Type.values()[lt], null, readPayload(dis, lt));
+                if (lo.length == 0)
+                    return Type.values()[lt];
+                else
+                    return lo;
             case 10:
+                byte stt;
                 Tag[] tags = new Tag[0];
                 do {
                     stt = dis.readByte();
                     String name = null;
-                    if (stt != 0) {
+                    if (stt != 0)
                         name = dis.readUTF();
-                    }
-                    Tag[] newTags = new Tag[tags.length + 1];
+                    final Tag[] newTags = new Tag[tags.length + 1];
                     System.arraycopy(tags, 0, newTags, 0, tags.length);
-                    newTags[tags.length] = new Tag(Type.values()[stt], name, readPayload(dis, stt));
+                    newTags[tags.length] =
+                            new Tag(Type.values()[stt], name,
+                                    readPayload(dis, stt));
                     tags = newTags;
-                } while (stt != 0);
+                }
+                while (stt != 0);
                 return tags;
-            default:
-                return null;
         }
+        return null;
     }
 
     @Nullable
     @Contract(pure = true)
-    private static String getTypeString(@NonNull Type type) {
+    private static String getTypeString(@NonNull final Type type) {
         switch (type) {
             case TAG_End:
                 return "TAG_End";
@@ -195,114 +224,193 @@ public class Tag {
                 return "TAG_List";
             case TAG_Compound:
                 return "TAG_Compound";
-            default:
-                return null;
         }
+        return null;
     }
 
-    private static void indent(int indent) {
-        for (int i = 0; i < indent; i++) {
+    private static void indent(final int indent) {
+        for (int i = 0; i < indent; i++)
             System.out.print("   ");
-        }
     }
 
+    /**
+     * @return tag type
+     */
     public Type getType() {
-        return this.type;
+        return type;
     }
 
+    /**
+     * @return tag name
+     */
     public String getName() {
-        return this.name;
+        return name;
     }
 
+    /**
+     * @return tag value
+     */
     public Object getValue() {
-        return this.value;
+        return value;
     }
 
     public void setValue(Object value) {
         this.value = value;
     }
 
-    public Type getListType() {
-        return this.listType;
+    public Object getTagValue(String name) {
+        Tag tag = findTagByName(name);
+        if (tag != null) {
+            return tag.getValue();
+        }
+        return null;
     }
 
-    public void addTag(Tag tag) {
-        if (this.type != Type.TAG_List && this.type != Type.TAG_Compound) {
+    public void saveTagValue(Type type, String name, Object value) {
+        removeSubTag(findTagByName(name));
+        Tag tag = new Tag(type, name, value);
+        addTag(tag);
+    }
+
+    /**
+     * @return list tag type
+     */
+    public Type getListType() {
+        return listType;
+    }
+
+    /**
+     * Add a tag to a TAG_List or a TAG_Compound.
+     *
+     * @param tag
+     */
+    public void addTag(final Tag tag) {
+        if (type != Type.TAG_List && type != Type.TAG_Compound)
             throw new RuntimeException();
-        }
-        Tag[] subtags = (Tag[]) this.value;
+        final Tag[] subtags = (Tag[]) value;
         insertTag(tag, subtags.length);
     }
 
-    public void insertTag(Tag tag, int index) {
-        if (this.type != Type.TAG_List && this.type != Type.TAG_Compound) {
+    /**
+     * Add a tag to a TAG_List or a TAG_Compound at the specified index.
+     *
+     * @param tag
+     * @param index
+     */
+    public void insertTag(final Tag tag, final int index) {
+        if (type != Type.TAG_List && type != Type.TAG_Compound)
             throw new RuntimeException();
-        }
-        Tag[] subtags = (Tag[]) this.value;
-        if (subtags.length > 0 && this.type == Type.TAG_List && tag.getType() != getListType()) {
-            throw new IllegalArgumentException();
-        }
-        if (index > subtags.length) {
+        final Tag[] subtags = (Tag[]) value;
+        if (subtags.length > 0)
+            if (type == Type.TAG_List && tag.getType() != getListType())
+                throw new IllegalArgumentException();
+        if (index > subtags.length)
             throw new IndexOutOfBoundsException();
-        }
-        Tag[] newValue = new Tag[subtags.length + 1];
+        final Tag[] newValue = new Tag[subtags.length + 1];
         System.arraycopy(subtags, 0, newValue, 0, index);
         newValue[index] = tag;
-        System.arraycopy(subtags, index, newValue, index + 1, subtags.length - index);
-        this.value = newValue;
+        System.arraycopy(subtags, index, newValue, index + 1, subtags.length
+                - index);
+        value = newValue;
     }
 
+    /**
+     * Remove a tag from a TAG_List or a TAG_Compound at the specified index.
+     *
+     * @param index
+     * @return the removed tag
+     */
     public Tag removeTag(int index) {
-        if (this.type != Type.TAG_List && this.type != Type.TAG_Compound) {
+        if (type != Type.TAG_List && type != Type.TAG_Compound)
             throw new RuntimeException();
-        }
-        Tag[] subtags = (Tag[]) this.value;
-        Tag victim = subtags[index];
-        Tag[] newValue = new Tag[subtags.length - 1];
+        final Tag[] subtags = (Tag[]) value;
+        final Tag victim = subtags[index];
+        final Tag[] newValue = new Tag[subtags.length - 1];
         System.arraycopy(subtags, 0, newValue, 0, index);
-        int index2 = index + 1;
-        System.arraycopy(subtags, index2, newValue, index2 - 1, subtags.length - index2);
-        this.value = newValue;
+        index++;
+        System.arraycopy(subtags, index, newValue, index - 1, subtags.length
+                - index);
+        value = newValue;
         return victim;
     }
 
-    public void removeSubTag(Tag tag) {
-        if (this.type != Type.TAG_List && this.type != Type.TAG_Compound) {
+    /**
+     * Remove a tag from a TAG_List or a TAG_Compound. If the tag is not a child
+     * of this tag then nested tags are searched.
+     *
+     * @param tag tag to look for
+     */
+    public void removeSubTag(final Tag tag) {
+        if (type != Type.TAG_List && type != Type.TAG_Compound)
             throw new RuntimeException();
-        }
-        if (tag != null) {
-            Tag[] subtags = (Tag[]) this.value;
-            for (int i = 0; i < subtags.length; i++) {
-                if (subtags[i] == tag) {
-                    removeTag(i);
-                    return;
-                }
-                if (subtags[i].type == Type.TAG_List || subtags[i].type == Type.TAG_Compound) {
-                    subtags[i].removeSubTag(tag);
-                }
-            }
-        }
+        if (tag == null)
+            return;
+        final Tag[] subtags = (Tag[]) value;
+        for (int i = 0; i < subtags.length; i++)
+            if (subtags[i] == tag) {
+                removeTag(i);
+                return;
+            } else if (subtags[i].type == Type.TAG_List
+                    || subtags[i].type == Type.TAG_Compound)
+                subtags[i].removeSubTag(tag);
     }
 
-    public Tag findTagByName(String name) {
+    /**
+     * Find the first nested tag with specified name in a TAG_Compound.
+     *
+     * @param name the name to look for. May be null to look for unnamed tags.
+     * @return the first nested tag that has the specified name.
+     */
+    public Tag findTagByName(final String name) {
         return findNextTagByName(name, null);
     }
 
-    public Tag findNextTagByName(String name, Tag found) {
-        if (this.type == Type.TAG_List || this.type == Type.TAG_Compound) {
-            Tag[] subtags = (Tag[]) this.value;
-            for (Tag subtag : subtags) {
-                if ((subtag.name == null && name == null) || (subtag.name != null && subtag.name.equals(name))) {
-                    return subtag;
-                }
-                Tag newFound = subtag.findTagByName(name);
-                if (newFound != null && !newFound.equals(found)) {
-                    return newFound;
-                }
-            }
+    /**
+     * Find the first nested tag with specified name in a TAG_List or
+     * TAG_Compound after a tag with the same name.
+     *
+     * @param name  the name to look for. May be null to look for unnamed tags.
+     * @param found the previously found tag with the same name.
+     * @return the first nested tag that has the specified name after the
+     * previously found tag.
+     */
+    public Tag findNextTagByName(final String name, final Tag found) {
+        if (type != Type.TAG_List && type != Type.TAG_Compound)
             return null;
-        }
+        final Tag[] subtags = (Tag[]) value;
+        for (final Tag subtag : subtags)
+            if (subtag.name == null && name == null || subtag.name != null
+                    && subtag.name.equals(name))
+                return subtag;
+            else {
+                final Tag newFound = subtag.findTagByName(name);
+                if (newFound != null)
+                    if (newFound == found)
+                        continue;
+                    else
+                        return newFound;
+            }
         return null;
+    }
+
+    /**
+     * Read a tag and its nested tags from an InputStream.
+     *
+     * @param os stream to write to, like a FileOutputStream
+     * @throws IOException if this is not a valid NBT structure or if any IOException
+     *                     occurred.
+     */
+    public void writeTo(final OutputStream os) throws IOException {
+        GZIPOutputStream gzos;
+        final DataOutputStream dos =
+                new DataOutputStream(gzos = new GZIPOutputStream(os));
+        dos.writeByte(type.ordinal());
+        if (type != Type.TAG_End) {
+            dos.writeUTF(name);
+            writePayload(dos);
+        }
+        gzos.flush();
+        gzos.close();
     }
 
     public void writeTo(OutputStream os, boolean compressed) throws IOException {
@@ -324,143 +432,143 @@ public class Tag {
         os.close();
     }
 
-    private void writePayload(DataOutputStream dos) throws IOException {
-        switch (this.type) {
+    private void writePayload(final DataOutputStream dos) throws IOException {
+        switch (type) {
             case TAG_End:
-            default:
-                return;
+                break;
             case TAG_Byte:
-                dos.writeByte((Byte) this.value);
-                return;
+                dos.writeByte((Byte) value);
+                break;
             case TAG_Short:
-                dos.writeShort((Short) this.value);
-                return;
+                dos.writeShort((Short) value);
+                break;
             case TAG_Int:
-                dos.writeInt((Integer) this.value);
-                return;
+                dos.writeInt((Integer) value);
+                break;
             case TAG_Long:
-                dos.writeLong((Long) this.value);
-                return;
+                dos.writeLong((Long) value);
+                break;
             case TAG_Float:
-                dos.writeFloat((Float) this.value);
-                return;
+                dos.writeFloat((Float) value);
+                break;
             case TAG_Double:
-                dos.writeDouble((Double) this.value);
-                return;
+                dos.writeDouble((Double) value);
+                break;
             case TAG_Byte_Array:
-                byte[] ba = (byte[]) this.value;
+                final byte[] ba = (byte[]) value;
                 dos.writeInt(ba.length);
                 dos.write(ba);
-                return;
+                break;
             case TAG_String:
-                dos.writeUTF((String) this.value);
-                return;
+                dos.writeUTF((String) value);
+                break;
             case TAG_List:
-                Tag[] list = (Tag[]) this.value;
+                final Tag[] list = (Tag[]) value;
                 dos.writeByte(getListType().ordinal());
                 dos.writeInt(list.length);
-                for (Tag tt : list) {
+                for (final Tag tt : list)
                     tt.writePayload(dos);
-                }
-                return;
+                break;
             case TAG_Compound:
-                Tag[] subtags = (Tag[]) this.value;
-                for (Tag st : subtags) {
-                    Type type = st.getType();
+                final Tag[] subtags = (Tag[]) value;
+                for (final Tag st : subtags) {
+                    final Type type = st.getType();
                     dos.writeByte(type.ordinal());
                     if (type != Type.TAG_End) {
                         dos.writeUTF(st.getName());
                         st.writePayload(dos);
                     }
                 }
-                return;
+                break;
         }
     }
 
+    /**
+     * Print the NBT structure to System.out
+     */
     public void print() {
         print(this, 0);
     }
 
-    private void print(@NonNull Tag t, int indent) {
-        Type type = t.getType();
-        if (type != Type.TAG_End) {
-            String name = t.getName();
+    private void print(@NonNull final Tag t, final int indent) {
+        final Type type = t.getType();
+        if (type == Type.TAG_End)
+            return;
+        final String name = t.getName();
+        indent(indent);
+        System.out.print(getTypeString(t.getType()));
+        if (name != null)
+            System.out.print("(\"" + t.getName() + "\")");
+        if (type == Type.TAG_Byte_Array) {
+            final byte[] b = (byte[]) t.getValue();
+            System.out.println(": [" + b.length + " bytes]");
+        } else if (type == Type.TAG_List) {
+            final Tag[] subtags = (Tag[]) t.getValue();
+            System.out.println(": " + subtags.length + " entries of type "
+                    + getTypeString(t.getListType()));
+            for (final Tag st : subtags)
+                print(st, indent + 1);
             indent(indent);
-            System.out.print(getTypeString(t.getType()));
-            if (name != null) {
-                System.out.print("(\"" + t.getName() + "\")");
-            }
-            if (type == Type.TAG_Byte_Array) {
-                byte[] b = (byte[]) t.getValue();
-                System.out.println(": [" + b.length + " bytes]");
-            } else if (type == Type.TAG_List) {
-                Tag[] subtags = (Tag[]) t.getValue();
-                System.out.println(": " + subtags.length + " entries of type " + getTypeString(t.getListType()));
-                for (Tag st : subtags) {
-                    print(st, indent + 1);
-                }
-                indent(indent);
-                System.out.println("}");
-            } else if (type == Type.TAG_Compound) {
-                Tag[] subtags2 = (Tag[]) t.getValue();
-                System.out.println(": " + (subtags2.length - 1) + " entries");
-                indent(indent);
-                System.out.println("{");
-                for (Tag st2 : subtags2) {
-                    print(st2, indent + 1);
-                }
-                indent(indent);
-                System.out.println("}");
-            } else {
-                System.out.println(": " + t.getValue());
-            }
-        }
+            System.out.println("}");
+        } else if (type == Type.TAG_Compound) {
+            final Tag[] subtags = (Tag[]) t.getValue();
+            System.out.println(": " + (subtags.length - 1) + " entries");
+            indent(indent);
+            System.out.println("{");
+            for (final Tag st : subtags)
+                print(st, indent + 1);
+            indent(indent);
+            System.out.println("}");
+        } else
+            System.out.println(": " + t.getValue());
     }
 
     @NonNull
+    @Override
     public String toString() {
-        StringBuilder buff = new StringBuilder("Tag ");
-        buff.append(this.name);
-        buff.append(" ").append(this.type).append(" ");
-        if (this.type == Type.TAG_List) {
-            Tag[] tl = (Tag[]) this.value;
-            buff.append(this.listType).append(" ").append(tl.length);
+        final StringBuilder buff = new StringBuilder("Tag ");
+        buff.append(name);
+        buff.append(" ").append(type).append(" ");
+
+        if (type == Type.TAG_List) {
+            final Tag[] tl = (Tag[]) value;
+            buff.append(listType).append(" ").append(tl.length);
             buff.append("\n[");
-            for (Tag tag : tl) {
+
+            for (final Tag tag : tl)
                 buff.append(tag.toString()).append(", ");
-            }
             buff.append("]");
-        } else {
-            buff.append(this.value);
-        }
+        } else
+            buff.append(value);
+
         return buff.toString();
     }
 
-    public void saveTagValue(Type type, String name, Object value) {
-        removeSubTag(findTagByName(name));
-        Tag tag = new Tag(type, name, value);
-        addTag(tag);
-    }
-
-    public Object getTagValue(String name) {
-        Tag tag = findTagByName(name);
-        if (tag != null) {
-            return tag.getValue();
-        }
-        return null;
-    }
-
+    /**
+     * Enum for the tag types.
+     */
     public enum Type {
+        /***/
         TAG_End,
+        /***/
         TAG_Byte,
+        /***/
         TAG_Short,
+        /***/
         TAG_Int,
+        /***/
         TAG_Long,
+        /***/
         TAG_Float,
+        /***/
         TAG_Double,
+        /***/
         TAG_Byte_Array,
+        /***/
         TAG_String,
+        /***/
         TAG_List,
+        /***/
         TAG_Compound
     }
 }
