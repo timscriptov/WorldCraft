@@ -12,14 +12,14 @@ public class HealthBar {
     private static final int FULL_HEART = 2;
     private static final int HALF_HEART = 1;
     private static final int HEART_COUNT = 10;
-    private static final float SCALE_VALUE = 25.0f;
+    private static final float SCALE_VALUE = 50.0f;
     private static TexturedShape emptyHeartActiveShape;
     private static TexturedShape emptyHeartShape;
     private static TexturedShape fullHeartActiveShape;
     private static TexturedShape fullHeartShape;
     private static TexturedShape halfHeartActiveShape;
     private static TexturedShape halfHeartShape;
-    private final BoundingRectangle bounds = new BoundingRectangle(160.0f, 65.0f, 320.0f, 80.0f);
+    private final BoundingRectangle bounds = new BoundingRectangle(140.0f, 70.0f, 300.0f, 80.0f);
     private final Player player;
 
     public HealthBar(Player player) {

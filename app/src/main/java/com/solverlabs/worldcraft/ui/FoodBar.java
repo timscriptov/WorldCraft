@@ -12,8 +12,8 @@ public class FoodBar {
     public static final int MARGIN = 10;
     private static final TexturedShape[] BAR_ITEM_SHAPES = new TexturedShape[3];
     private static final int FOOD_LEVELS_PER_BAR_ITEM = 2;
-    private static final float SCALE_VALUE = 25.0f;
-    private final BoundingRectangle bounds = new BoundingRectangle(400.0f, 65.0f, 320.0f, 80.0f);
+    private static final float SCALE_VALUE = 50.0f;
+    private final BoundingRectangle bounds = new BoundingRectangle(340.0f, 70.0f, 300.0f, 80.0f);
     private final Player player;
 
     public FoodBar(Player player) {

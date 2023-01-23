@@ -60,9 +60,18 @@ public class GUI {
     public FurnaceMenu furnaceMenu;
     public Hand hand;
     public HealthBar healthBar;
+    /**
+     * Виджет с быстрым доступом к предметам
+     */
     public Hotbar hotbar;
     public Interaction interaction;
+    /**
+     * Виджет для открытия инвенторя
+     */
     public InventoryMenu inventoryMenu;
+    /**
+     * Кнопка прыжок
+     */
     public CustomTapPad jumpTap;
     public CustomTapPad leaveBedTap;
     public TapPad.Listener leaveBedTapListener;
