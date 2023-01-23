@@ -20,7 +20,7 @@ public class CustomProgressDialog extends ProgressDialog {
         setMessage("Loading chunks");
         setCancelable(true);
         setProgress(0);
-        setButton(OptionActivity.CANCEL, (dialog, which) -> CustomProgressDialog.this.buttonClick());
+        setButton(OptionActivity.CANCEL, (dialog, which) -> buttonClick());
     }
 
     public void updateMax(int loadLimit) {
