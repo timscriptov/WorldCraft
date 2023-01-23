@@ -49,62 +49,62 @@ public class InventoryMenu implements Touch.TouchListener {
     private void initItems() {
         float yOffset = 5.0f;
         int k = 0;
-        if (GameMode.isCreativeMode() && !this.itemInited) {
+        if (GameMode.isCreativeMode() && !itemInited) {
             int id = 0;
             for (BlockFactory.Block block : BlockFactory.Block.values()) {
                 if (!DoorBlock.isOpenedDoor(block.id) && block != BlockFactory.Block.Ladder) {
-                    float x = this.bounds.x.getMin() + (84.0f / 2.0f) + (k * 84.0f);
-                    if (x > this.bounds.x.getMax()) {
+                    float x = bounds.x.getMin() + (84.0f / 2.0f) + (k * 84.0f);
+                    if (x > bounds.x.getMax()) {
                         k = 0;
                         yOffset += 84.0f;
-                        x = this.bounds.x.getMin() + (84.0f / 2.0f) + (0 * 84.0f);
+                        x = bounds.x.getMin() + (84.0f / 2.0f) + (0 * 84.0f);
                     }
-                    float y = this.bounds.y.getMin() + 40.0f + yOffset;
-                    this.renderItemsList.add(new InventoryTapItem(this.player, new InventoryItem(block, id), x, y));
+                    float y = bounds.y.getMin() + 40.0f + yOffset;
+                    renderItemsList.add(new InventoryTapItem(player, new InventoryItem(block, id), x, y));
                     k++;
                     id++;
                 }
             }
-            this.itemInited = true;
+            itemInited = true;
         }
         if (GameMode.isSurvivalMode()) {
-            this.renderItemsList.clear();
-            ArrayList<InventoryItem> allItems = this.player.inventory.getAllInventoryItems();
+            renderItemsList.clear();
+            ArrayList<InventoryItem> allItems = player.inventory.getAllInventoryItems();
             for (int i = 0; i < allItems.size(); i++) {
                 InventoryItem item = allItems.get(i);
                 if (!item.isEmpty()) {
-                    float x2 = this.bounds.x.getMin() + (84.0f / 2.0f) + (k * 84.0f);
-                    if (x2 > this.bounds.x.getMax()) {
+                    float x2 = bounds.x.getMin() + (84.0f / 2.0f) + (k * 84.0f);
+                    if (x2 > bounds.x.getMax()) {
                         k = 0;
                         yOffset += 80.0f;
-                        x2 = this.bounds.x.getMin() + (84.0f / 2.0f) + (0 * 84.0f);
+                        x2 = bounds.x.getMin() + (84.0f / 2.0f) + (0 * 84.0f);
                     }
-                    float y2 = this.bounds.y.getMin() + 40.0f + yOffset;
-                    InventoryTapItem barItem = new InventoryTapItem(this.player, item);
+                    float y2 = bounds.y.getMin() + 40.0f + yOffset;
+                    InventoryTapItem barItem = new InventoryTapItem(player, item);
                     barItem.setPosition(x2, y2);
-                    this.renderItemsList.add(barItem);
+                    renderItemsList.add(barItem);
                     k++;
                 } else {
-                    this.player.inventory.remove(item);
+                    player.inventory.remove(item);
                 }
             }
         }
     }
 
     public void advance() {
-        if (this.touch != null && !this.autoScrollUp && !this.autoScrollDown && GameMode.isCreativeMode()) {
-            this.touchDelta = this.touch.y - this.prevYpoint;
+        if (touch != null && !autoScrollUp && !autoScrollDown && GameMode.isCreativeMode()) {
+            touchDelta = touch.y - prevYpoint;
         }
-        for (int i = 0; i < this.renderItemsList.size(); i++) {
-            if (this.renderItemsList.get(i).getInventoryItem().isEmpty()) {
+        for (int i = 0; i < renderItemsList.size(); i++) {
+            if (renderItemsList.get(i).getInventoryItem().isEmpty()) {
                 initItems();
             }
         }
     }
 
     public void draw(StackedRenderer sr) {
-        if (this.show) {
-            if (this.renderItemsList.size() != 0) {
+        if (show) {
+            if (renderItemsList.size() != 0) {
                 normalizeScroll();
                 if (GameMode.isCreativeMode()) {
                     drawScrollSlider(sr);
@@ -117,8 +117,8 @@ public class InventoryMenu implements Touch.TouchListener {
             float deltaX = Game.screenWidth / Game.gameWidth;
             float deltaY = Game.screenHeight / Game.gameHeight;
             GLES10.glScissor((int) (40.0f * deltaX), (int) (100.0f * deltaY), (int) (710.0f * deltaX), (int) (320.0f * deltaY));
-            for (int i = 0; i < this.renderItemsList.size(); i++) {
-                this.renderItemsList.get(i).draw(sr, this.touchDelta);
+            for (int i = 0; i < renderItemsList.size(); i++) {
+                renderItemsList.get(i).draw(sr, touchDelta);
             }
             sr.render();
             GLES10.glDisable(3089);
@@ -127,113 +127,113 @@ public class InventoryMenu implements Touch.TouchListener {
     }
 
     private void normalizeScroll() {
-        InventoryTapItem lastItem = this.renderItemsList.get(this.renderItemsList.size() - 1);
+        InventoryTapItem lastItem = renderItemsList.get(renderItemsList.size() - 1);
         float topPoint = lastItem.bounds.y.getMax();
-        float bottomPoint = this.renderItemsList.get(0).bounds.y.getMin();
-        if (topPoint < this.bounds.y.getMax() + 10.0f) {
-            this.autoScrollUp = true;
+        float bottomPoint = renderItemsList.get(0).bounds.y.getMin();
+        if (topPoint < bounds.y.getMax() + 10.0f) {
+            autoScrollUp = true;
         }
-        if (bottomPoint > this.bounds.y.getMin() + 40.0f) {
-            this.autoScrollDown = true;
+        if (bottomPoint > bounds.y.getMin() + 40.0f) {
+            autoScrollDown = true;
         }
-        if (this.autoScrollUp) {
-            if (this.touch != null) {
+        if (autoScrollUp) {
+            if (touch != null) {
                 for (InventoryTapItem item : getBlockBarItems()) {
-                    item.translateYOffset(this.touchDelta);
+                    item.translateYOffset(touchDelta);
                 }
-                this.touchDelta = 0.0f;
-            } else if (topPoint < this.bounds.y.getMax() + 20.0f) {
-                this.touchDelta += 10.0f;
+                touchDelta = 0.0f;
+            } else if (topPoint < bounds.y.getMax() + 20.0f) {
+                touchDelta += 10.0f;
             } else {
-                this.autoScrollUp = false;
-                this.touchDelta -= Math.abs(topPoint - (this.bounds.y.getMax() + 20.0f));
+                autoScrollUp = false;
+                touchDelta -= Math.abs(topPoint - (bounds.y.getMax() + 20.0f));
                 for (InventoryTapItem item2 : getBlockBarItems()) {
-                    item2.translateYOffset(this.touchDelta);
+                    item2.translateYOffset(touchDelta);
                 }
-                this.touchDelta = 0.0f;
+                touchDelta = 0.0f;
             }
         }
-        if (this.autoScrollDown) {
-            if (this.touch != null) {
+        if (autoScrollDown) {
+            if (touch != null) {
                 for (InventoryTapItem item3 : getBlockBarItems()) {
-                    item3.translateYOffset(this.touchDelta);
+                    item3.translateYOffset(touchDelta);
                 }
-                this.touchDelta = 0.0f;
-            } else if (bottomPoint > this.bounds.y.getMin() + 40.0f) {
-                this.touchDelta -= 10.0f;
+                touchDelta = 0.0f;
+            } else if (bottomPoint > bounds.y.getMin() + 40.0f) {
+                touchDelta -= 10.0f;
             } else {
-                this.autoScrollDown = false;
-                this.touchDelta += Math.abs(bottomPoint - (this.bounds.y.getMin() + 40.0f));
+                autoScrollDown = false;
+                touchDelta += Math.abs(bottomPoint - (bounds.y.getMin() + 40.0f));
                 for (InventoryTapItem item4 : getBlockBarItems()) {
-                    item4.translateYOffset(this.touchDelta);
+                    item4.translateYOffset(touchDelta);
                 }
-                this.touchDelta = 0.0f;
+                touchDelta = 0.0f;
             }
         }
     }
 
     private void drawBoundShape(StackedRenderer sr) {
-        if (this.boundsShape == null) {
-            Shape bs = ShapeUtil.innerQuad(this.bounds.x.getMin() - 5.0f, this.bounds.y.getMin() - 5.0f, this.bounds.x.getMax() + 5.0f, this.bounds.y.getMax() + 5.0f, 5.0f, 0.0f);
-            this.boundsShape = new ColouredShape(bs, this.boundsColour, null);
+        if (boundsShape == null) {
+            Shape bs = ShapeUtil.innerQuad(bounds.x.getMin() - 5.0f, bounds.y.getMin() - 5.0f, bounds.x.getMax() + 5.0f, bounds.y.getMax() + 5.0f, 5.0f, 0.0f);
+            boundsShape = new ColouredShape(bs, boundsColour, null);
         }
-        this.boundsShape.render(sr);
+        boundsShape.render(sr);
     }
 
     private void drawInnerShape(StackedRenderer sr) {
-        if (this.innerShape == null) {
-            Shape is = ShapeUtil.innerQuad(this.bounds.x.getMin(), this.bounds.y.getMin(), this.bounds.x.getMax(), this.bounds.y.getMax(), this.bounds.y.getSpan(), 0.0f);
-            this.innerShape = new ColouredShape(is, this.innerColour, null);
+        if (innerShape == null) {
+            Shape is = ShapeUtil.innerQuad(bounds.x.getMin(), bounds.y.getMin(), bounds.x.getMax(), bounds.y.getMax(), bounds.y.getSpan(), 0.0f);
+            innerShape = new ColouredShape(is, innerColour, null);
         }
-        this.innerShape.render(sr);
+        innerShape.render(sr);
     }
 
     private void drawScrollArrows(StackedRenderer sr) {
-        if (this.downScrollArrowShape == null) {
+        if (downScrollArrowShape == null) {
             Shape us = ShapeUtil.triangle(750.0f, 100.0f, 750.0f, 140.0f, 770.0f, 140.0f);
-            this.downScrollArrowShape = new ColouredShape(us, this.arrowColour, null);
+            downScrollArrowShape = new ColouredShape(us, arrowColour, null);
         }
-        if (this.upScrollArrowShape == null) {
+        if (upScrollArrowShape == null) {
             Shape us2 = ShapeUtil.triangle(750.0f, 420.0f, 750.0f, 380.0f, 770.0f, 380.0f);
-            this.upScrollArrowShape = new ColouredShape(us2, this.arrowColour, null);
+            upScrollArrowShape = new ColouredShape(us2, arrowColour, null);
         }
-        this.upScrollArrowShape.render(sr);
-        this.downScrollArrowShape.render(sr);
+        upScrollArrowShape.render(sr);
+        downScrollArrowShape.render(sr);
     }
 
     private void drawScrollSlider(StackedRenderer sr) {
         float size = 0.0f;
-        if (this.scrollSliderShape == null) {
-            int rowCount = MathUtils.ceil(this.player.inventory.getSize() / 8);
+        if (scrollSliderShape == null) {
+            int rowCount = MathUtils.ceil(player.inventory.getSize() / 8);
             float size2 = (1.0f * rowCount) / 4.0f;
             size = 240.0f / size2;
-            this.sliderSize = size;
+            sliderSize = size;
             Shape ss = ShapeUtil.filledQuad(750.0f, 140.0f, 765.0f, 140.0f + size, 0.0f);
-            this.scrollSliderShape = new ColouredShape(ss, this.sliderColour, null);
+            scrollSliderShape = new ColouredShape(ss, sliderColour, null);
         }
-        float delta = (this.bounds.y.getMin() - getBlockBarItems().get(0).bounds.y.getMin()) + 40.0f;
-        if (this.touchDelta != 0.0f && !this.autoScrollDown && !this.autoScrollUp) {
+        float delta = (bounds.y.getMin() - getBlockBarItems().get(0).bounds.y.getMin()) + 40.0f;
+        if (touchDelta != 0.0f && !autoScrollDown && !autoScrollUp) {
             float sliderY = ((240.0f - size) * delta) / 540.0f;
             float y = 140.0f + sliderY;
             if (y < 140.0f) {
                 y = 140.0f;
             }
-            if (y > 380.0f - this.sliderSize) {
-                y = 380.0f - this.sliderSize;
+            if (y > 380.0f - sliderSize) {
+                y = 380.0f - sliderSize;
             }
-            this.scrollSliderShape.set(650.0f, y, 0.0f);
+            scrollSliderShape.set(650.0f, y, 0.0f);
         }
-        this.scrollSliderShape.render(sr);
+        scrollSliderShape.render(sr);
     }
 
     @Override
     public boolean pointerAdded(Touch.Pointer p) {
-        if (this.touch == null && this.bounds.contains(p.x, p.y) && this.show) {
-            this.touch = p;
+        if (touch == null && bounds.contains(p.x, p.y) && show) {
+            touch = p;
             for (InventoryTapItem item : getBlockBarItems()) {
-                item.pointerAdded(this.touch);
+                item.pointerAdded(touch);
             }
-            this.prevYpoint = this.touch.y;
+            prevYpoint = touch.y;
             return true;
         }
         return false;
@@ -241,13 +241,13 @@ public class InventoryMenu implements Touch.TouchListener {
 
     @Override
     public void pointerRemoved(Touch.Pointer p) {
-        if (this.touch == p && this.touch != null) {
+        if (touch == p && touch != null) {
             for (InventoryTapItem item : getBlockBarItems()) {
-                item.pointerRemoved(this.touch);
-                item.translateYOffset(this.touchDelta);
+                item.pointerRemoved(touch);
+                item.translateYOffset(touchDelta);
             }
-            this.touch = null;
-            this.touchDelta = 0.0f;
+            touch = null;
+            touchDelta = 0.0f;
         }
     }
 
@@ -256,11 +256,11 @@ public class InventoryMenu implements Touch.TouchListener {
     }
 
     public void show() {
-        setShow(!this.show);
+        setShow(!show);
     }
 
     public boolean isShow() {
-        return this.show;
+        return show;
     }
 
     public void setShow(boolean show) {
@@ -268,15 +268,15 @@ public class InventoryMenu implements Touch.TouchListener {
         if (show) {
             initItems();
         }
-        if (!show && this.scrollSliderShape != null) {
-            this.scrollSliderShape.set(650.0f, 140.0f, 0.0f);
+        if (!show && scrollSliderShape != null) {
+            scrollSliderShape.set(650.0f, 140.0f, 0.0f);
         }
-        for (InventoryTapItem item : this.renderItemsList) {
+        for (InventoryTapItem item : renderItemsList) {
             item.setShown(show);
         }
     }
 
     public ArrayList<InventoryTapItem> getBlockBarItems() {
-        return this.renderItemsList;
+        return renderItemsList;
     }
 }

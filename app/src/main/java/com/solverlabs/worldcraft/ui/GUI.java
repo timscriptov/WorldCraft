@@ -56,20 +56,26 @@ public class GUI {
     public TapPad.Listener craftTapListener;
     public DamageBar damageBar;
     public TapPad.Listener exitTapListener;
+    /**
+     * Еда
+     */
     public FoodBar foodBar;
     public FurnaceMenu furnaceMenu;
     /**
      * Рука
      */
     public Hand hand;
+    /**
+     * Жизни
+     */
     public HealthBar healthBar;
     /**
-     * Виджет с быстрым доступом к предметам
+     * Инвентарь
      */
     public Hotbar hotbar;
     public Interaction interaction;
     /**
-     * Виджет для открытия инвенторя
+     * Меню инвенторя
      */
     public InventoryMenu inventoryMenu;
     /**
@@ -106,19 +112,19 @@ public class GUI {
         }
         initListeners();
         this.menuTap = new CustomTapPad(720.0f, 430.0f, 80.0f, radius, font, "Menu");
-        this.menuTap.listener = this.exitTapListener;
+        this.menuTap.listener = exitTapListener;
         if (GameMode.isMultiplayerMode()) {
             this.reportAbuseTap = new CustomTapPad(540.0f, 430.0f, 180.0f, radius, font, Multiplayer.isRoomOwner() ? BAN_PLAYER : REPORT_ABUSE);
-            this.reportAbuseTap.listener = this.reportAbuseTapListener;
+            this.reportAbuseTap.listener = reportAbuseTapListener;
             this.chatTap = new CustomTapPad(0.0f, 430.0f, 80.0f, radius, font, "Chat");
-            this.chatTap.listener = this.chatTapListener;
+            this.chatTap.listener = chatTapListener;
             this.chatSwitcherTap = new ImageSwitcherTapPad(80.0f, 430.0f, radius, radius, 0, 14, 1, 14);
-            this.chatSwitcherTap.listener = this.chatSwitcherTapListener;
+            this.chatSwitcherTap.listener = chatSwitcherTapListener;
         }
         if (GameMode.isMultiplayerMode() || GameMode.isSurvivalMode()) {
             this.chatBox = new ChatBox(20.0f, 160.0f, 500.0f, 30.0f, font);
         }
-        this.interaction = new Interaction(player, world, camera, this.hand, mobAggregator, entityPainter, this.chatBox, game.getGameActivity());
+        this.interaction = new Interaction(player, world, camera, hand, mobAggregator, entityPainter, chatBox, game.getGameActivity());
         if (GameMode.isSurvivalMode()) {
             this.craftMenuTap = new CustomTapPad(0.0f, 430.0f, 80.0f, radius, font, "Craft");
             this.craftMenuTap.listener = this.craftTapListener;

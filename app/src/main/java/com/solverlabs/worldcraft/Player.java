@@ -66,11 +66,14 @@ public class Player implements Damagable {
     public float gravity = -10.0f;
     public boolean ghost = false;
     public float width = 0.2f;
+    /**
+     * Высота игрока
+     */
     public float height = 1.8f;
     /**
      * Высота глаз
      */
-    public float eyeLevel = 0.9f;
+    public float eyeLevel = 1.1f; // 0.9f
     public float crouchedEyeLevel = 0.65f;
     public boolean onGround = false;
     public Vector2f rotation = new Vector2f();

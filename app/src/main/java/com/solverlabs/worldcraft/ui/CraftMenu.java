@@ -167,18 +167,18 @@ public class CraftMenu implements Touch.TouchListener {
 
     public void doCraft() {
         if (getSelectedItem() != null) {
-            CraftFactory.CraftItem craftItem = getSelectedItem().getCraftItem();
+            final CraftFactory.CraftItem craftItem = getSelectedItem().getCraftItem();
             if (getSelectedItem().canBeCrafted) {
                 int count = craftItem.getCount();
                 for (int i = 0; i < count; i++) {
-                    this.inventory.add(craftItem.getID());
+                    inventory.add(craftItem.getID());
                 }
-                for (int i2 = 0; i2 < craftItem.getMaterial().length; i2++) {
-                    for (int j = 0; j < craftItem.getMaterial()[i2][1]; j++) {
-                        this.inventory.decItem(craftItem.getMaterial()[i2][0]);
+                for (int i = 0; i < craftItem.getMaterial().length; i++) {
+                    for (int j = 0; j < craftItem.getMaterial()[i][1]; j++) {
+                        inventory.decItem(craftItem.getMaterial()[i][0]);
                     }
                 }
-                for (CraftMenuTapItem item : this.craftItems) {
+                for (CraftMenuTapItem item : craftItems) {
                     item.checkItem();
                 }
             }
