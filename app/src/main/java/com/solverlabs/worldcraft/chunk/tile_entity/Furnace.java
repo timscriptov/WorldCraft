@@ -12,49 +12,34 @@ import com.solverlabs.worldcraft.util.GameTime;
 
 public class Furnace extends TileEntity {
     private static final long PROCESS_ONE_BLOCK_TIME = 10000;
-    public boolean needRecalcLight;
+    public boolean needRecalcLight = true;
     private long burnTime;
     private long cookTime;
     private InventoryItem craftedItem;
     private byte craftedItemId;
     private InventoryItem currentFuel;
     private InventoryItem currentMaterial;
-    private int fuelProcessPercent;
+    private int fuelProcessPercent = 100;
     private boolean inProgress;
     private int maxBurnTime;
-    private long processBlockTime;
-    private int processPercent;
+    private long processBlockTime = 0L;
+    private int processPercent = 0;
     private long saveTime;
-    private long startTime;
+    private long startTime = 0L;
 
     public Furnace(int x, int y, int z) {
         super(TileEntity.FURNACE_ID, x, y, z);
-        this.startTime = 0L;
-        this.processBlockTime = 0L;
-        this.processPercent = 0;
-        this.fuelProcessPercent = 100;
-        this.needRecalcLight = true;
     }
 
     public Furnace(Vector3i pos) {
         super(TileEntity.FURNACE_ID, pos);
-        this.startTime = 0L;
-        this.processBlockTime = 0L;
-        this.processPercent = 0;
-        this.fuelProcessPercent = 100;
-        this.needRecalcLight = true;
     }
 
     public Furnace(@NonNull Tag tag) {
         super(TileEntity.FURNACE_ID, 0, 0, 0);
-        this.startTime = 0L;
-        this.processBlockTime = 0L;
-        this.processPercent = 0;
-        this.fuelProcessPercent = 100;
-        this.needRecalcLight = true;
-        this.x = (Integer) tag.findTagByName("x").getValue();
-        this.y = (Integer) tag.findTagByName("y").getValue();
-        this.z = (Integer) tag.findTagByName("z").getValue();
+        x = (Integer) tag.findTagByName("x").getValue();
+        y = (Integer) tag.findTagByName("y").getValue();
+        z = (Integer) tag.findTagByName("z").getValue();
         Tag itemList = tag.findTagByName("Items");
         if (itemList != null) {
             Tag[] items = (Tag[]) itemList.getValue();
@@ -62,126 +47,126 @@ public class Furnace extends TileEntity {
                 InventoryItem item = parseItemTag(tag2);
                 switch (item.getSlot()) {
                     case 0:
-                        this.currentMaterial = item;
+                        currentMaterial = item;
                         break;
                     case 1:
-                        this.currentFuel = item;
+                        currentFuel = item;
                         break;
                     case 2:
-                        this.craftedItem = item;
+                        craftedItem = item;
                         break;
                 }
             }
-            if (this.currentMaterial != null) {
-                this.craftedItemId = FurnaceItemFactory.FurnaceItem.getCraftedItemId(this.currentMaterial.getItemID());
+            if (currentMaterial != null) {
+                craftedItemId = FurnaceItemFactory.FurnaceItem.getCraftedItemId(currentMaterial.getItemID());
             }
         }
     }
 
     @Override
     public int getX() {
-        return this.x;
+        return x;
     }
 
     @Override
     public int getY() {
-        return this.y;
+        return y;
     }
 
     @Override
     public int getZ() {
-        return this.z;
+        return z;
     }
 
     public void initFurnace() {
         long time = GameTime.getTime();
-        long timeDelta = time - this.saveTime;
+        long timeDelta = time - saveTime;
         int fuelCount = 0;
         int materialCount = 0;
-        if (this.currentFuel != null) {
-            fuelCount = this.currentFuel.getCount();
+        if (currentFuel != null) {
+            fuelCount = currentFuel.getCount();
         }
-        if (this.currentMaterial != null) {
-            materialCount = this.currentMaterial.getCount();
+        if (currentMaterial != null) {
+            materialCount = currentMaterial.getCount();
         }
-        int sumBurningTime = (int) ((this.maxBurnTime * fuelCount) + (this.maxBurnTime - this.burnTime));
-        int sumProcessMaterialTime = (int) ((materialCount * PROCESS_ONE_BLOCK_TIME) + this.cookTime);
-        float usedMaterial = (((float) (this.cookTime + timeDelta))) / 10000.0f;
+        int sumBurningTime = (int) ((maxBurnTime * fuelCount) + (maxBurnTime - burnTime));
+        int sumProcessMaterialTime = (int) ((materialCount * PROCESS_ONE_BLOCK_TIME) + cookTime);
+        float usedMaterial = (((float) (cookTime + timeDelta))) / 10000.0f;
         if (usedMaterial > materialCount) {
         }
-        float usedFuel = (((float) (timeDelta - this.burnTime))) / this.maxBurnTime;
+        float usedFuel = (((float) (timeDelta - burnTime))) / maxBurnTime;
         if (usedFuel > fuelCount) {
         }
         if (timeDelta >= sumBurningTime) {
-            this.currentFuel.decCount(fuelCount);
+            currentFuel.decCount(fuelCount);
             if (sumProcessMaterialTime >= timeDelta) {
-                this.currentMaterial.incCount();
+                currentMaterial.incCount();
             }
         }
     }
 
     public void advance() {
         long time = GameTime.getTime();
-        if (this.currentFuel != null && !this.currentFuel.isEmpty() && this.currentMaterial != null && !this.currentMaterial.isEmpty() && !this.inProgress) {
-            this.startTime = time;
-            this.processBlockTime = this.startTime;
-            this.inProgress = true;
+        if (currentFuel != null && !currentFuel.isEmpty() && currentMaterial != null && !currentMaterial.isEmpty() && !inProgress) {
+            startTime = time;
+            processBlockTime = startTime;
+            inProgress = true;
             decFuel();
-            this.needRecalcLight = true;
+            needRecalcLight = true;
         }
-        this.burnTime = time - this.startTime;
-        if (this.burnTime <= this.maxBurnTime) {
-            this.fuelProcessPercent = (int) ((this.burnTime * 100) / this.maxBurnTime);
-            if (this.craftedItem == null || this.craftedItemId == this.craftedItem.getItemID()) {
+        burnTime = time - startTime;
+        if (burnTime <= maxBurnTime) {
+            fuelProcessPercent = (int) ((burnTime * 100) / maxBurnTime);
+            if (craftedItem == null || craftedItemId == craftedItem.getItemID()) {
                 processFurance(time);
             } else {
-                this.processBlockTime = time;
+                processBlockTime = time;
             }
-        } else if (this.currentFuel != null && !this.currentFuel.isEmpty() && this.currentMaterial != null && !this.currentMaterial.isEmpty()) {
+        } else if (currentFuel != null && !currentFuel.isEmpty() && currentMaterial != null && !currentMaterial.isEmpty()) {
             decFuel();
-            this.startTime = time;
-        } else if (this.inProgress) {
-            this.startTime = 0L;
-            this.processBlockTime = 0L;
-            this.processPercent = 0;
-            this.inProgress = false;
-            this.needRecalcLight = true;
+            startTime = time;
+        } else if (inProgress) {
+            startTime = 0L;
+            processBlockTime = 0L;
+            processPercent = 0;
+            inProgress = false;
+            needRecalcLight = true;
         }
     }
 
     private void processFurance(long time) {
-        this.cookTime = time - this.processBlockTime;
+        cookTime = time - processBlockTime;
         if (getMaterial() != null && !getMaterial().isEmpty()) {
-            if (this.cookTime >= PROCESS_ONE_BLOCK_TIME) {
+            if (cookTime >= PROCESS_ONE_BLOCK_TIME) {
                 incCraftedItem();
                 decMaterial();
-                this.processBlockTime = time;
+                processBlockTime = time;
                 return;
             }
-            this.processPercent = (int) ((this.cookTime * 100) / PROCESS_ONE_BLOCK_TIME);
+            processPercent = (int) ((cookTime * 100) / PROCESS_ONE_BLOCK_TIME);
             return;
         }
-        this.processPercent = 0;
-        this.processBlockTime = time;
+        processPercent = 0;
+        processBlockTime = time;
     }
 
     private void incCraftedItem() {
-        if (this.craftedItem == null) {
-            this.craftedItemId = FurnaceItemFactory.FurnaceItem.getCraftedItemId(this.currentMaterial.getItemID());
-            this.craftedItem = new InventoryItem(ItemFactory.Item.getItemByID(this.craftedItemId), 0);
+        if (craftedItem == null) {
+            craftedItemId = FurnaceItemFactory.FurnaceItem.getCraftedItemId(currentMaterial.getItemID());
+            craftedItem = new InventoryItem(ItemFactory.Item.getItemByID(craftedItemId), 0);
         }
-        if (this.craftedItemId == this.craftedItem.getItemID()) {
-            this.craftedItem.incCount();
+        if (craftedItemId == craftedItem.getItemID()) {
+            craftedItem.incCount();
         }
     }
 
     public boolean addFuel(InventoryItem fuel) {
-        if (this.currentFuel == null) {
-            this.currentFuel = fuel;
-            this.currentFuel.incCount();
+        if (currentFuel == null) {
+            currentFuel = fuel;
+            currentFuel.incCount();
             return true;
-        } else if (fuel.getItemID() == this.currentFuel.getItemID() && !this.currentFuel.isFull()) {
-            this.currentFuel.incCount();
+        } else if (fuel.getItemID() == currentFuel.getItemID() && !currentFuel.isFull()) {
+            currentFuel.incCount();
             return true;
         } else {
             return false;
@@ -189,13 +174,13 @@ public class Furnace extends TileEntity {
     }
 
     public boolean addMaterial(InventoryItem material) {
-        if (this.currentMaterial == null) {
-            this.currentMaterial = material;
-            this.currentMaterial.incCount();
-            this.craftedItemId = FurnaceItemFactory.FurnaceItem.getCraftedItemId(this.currentMaterial.getItemID());
+        if (currentMaterial == null) {
+            currentMaterial = material;
+            currentMaterial.incCount();
+            craftedItemId = FurnaceItemFactory.FurnaceItem.getCraftedItemId(currentMaterial.getItemID());
             return true;
-        } else if (material.getItemID() == this.currentMaterial.getItemID() && !this.currentMaterial.isFull()) {
-            this.currentMaterial.incCount();
+        } else if (material.getItemID() == currentMaterial.getItemID() && !currentMaterial.isFull()) {
+            currentMaterial.incCount();
             return true;
         } else {
             return false;
@@ -203,107 +188,107 @@ public class Furnace extends TileEntity {
     }
 
     public void decFuel() {
-        if (this.currentFuel != null) {
-            this.currentFuel.decCount();
-            this.maxBurnTime = FurnaceItemFactory.FurnaceItem.getBurningTime(this.currentFuel.getItemID());
-            if (this.currentFuel.isEmpty()) {
-                this.currentFuel = null;
+        if (currentFuel != null) {
+            currentFuel.decCount();
+            maxBurnTime = FurnaceItemFactory.FurnaceItem.getBurningTime(currentFuel.getItemID());
+            if (currentFuel.isEmpty()) {
+                currentFuel = null;
             }
         }
     }
 
     public void decMaterial() {
-        if (this.currentMaterial != null) {
-            this.currentMaterial.decCount();
-            if (this.currentMaterial.isEmpty()) {
-                this.currentMaterial = null;
+        if (currentMaterial != null) {
+            currentMaterial.decCount();
+            if (currentMaterial.isEmpty()) {
+                currentMaterial = null;
             }
         }
     }
 
     public void removeAllFuel() {
-        this.currentFuel = null;
+        currentFuel = null;
     }
 
     public void removeAllMaterial() {
-        this.currentMaterial = null;
+        currentMaterial = null;
     }
 
     public void removeAllCraftedItem() {
-        this.craftedItem = null;
+        craftedItem = null;
     }
 
     public byte getCraftedItemId() {
-        return this.craftedItemId;
+        return craftedItemId;
     }
 
     public int getCraftedItemCount() {
-        return this.craftedItem.getCount();
+        return craftedItem.getCount();
     }
 
     public int getMaterialCount() {
-        return this.currentMaterial.getCount();
+        return currentMaterial.getCount();
     }
 
     public int getFuelCount() {
-        return this.currentFuel.getCount();
+        return currentFuel.getCount();
     }
 
     public byte getMaterialId() {
-        if (this.currentMaterial != null) {
-            return this.currentMaterial.getItemID();
+        if (currentMaterial != null) {
+            return currentMaterial.getItemID();
         }
         return (byte) 0;
     }
 
     public byte getFuelId() {
-        if (this.currentFuel != null) {
-            return this.currentFuel.getItemID();
+        if (currentFuel != null) {
+            return currentFuel.getItemID();
         }
         return (byte) 0;
     }
 
     public InventoryItem getMaterial() {
-        return this.currentMaterial;
+        return currentMaterial;
     }
 
     public InventoryItem getFuel() {
-        return this.currentFuel;
+        return currentFuel;
     }
 
     public InventoryItem getCraftedItem() {
-        return this.craftedItem;
+        return craftedItem;
     }
 
     public int getProcessPercent() {
-        return this.processPercent;
+        return processPercent;
     }
 
     public int getFuelProcessPercent() {
-        return this.fuelProcessPercent;
+        return fuelProcessPercent;
     }
 
     public boolean isInProgress() {
-        return this.inProgress;
+        return inProgress;
     }
 
     @Override
     public Tag getTag() {
-        Tag[] tags = {new Tag(Tag.Type.TAG_String, "id", this.id), new Tag(Tag.Type.TAG_Int, "x", this.x), new Tag(Tag.Type.TAG_Int, "y", this.y), new Tag(Tag.Type.TAG_Int, "z", this.z), new Tag(Tag.Type.TAG_Long, "BurnTime", this.burnTime), new Tag(Tag.Type.TAG_Long, "CookTime", this.cookTime), getItemListTag(), new Tag(Tag.Type.TAG_End, null, null)};
+        Tag[] tags = {new Tag(Tag.Type.TAG_String, "id", id), new Tag(Tag.Type.TAG_Int, "x", x), new Tag(Tag.Type.TAG_Int, "y", y), new Tag(Tag.Type.TAG_Int, "z", z), new Tag(Tag.Type.TAG_Long, "BurnTime", burnTime), new Tag(Tag.Type.TAG_Long, "CookTime", cookTime), getItemListTag(), new Tag(Tag.Type.TAG_End, null, null)};
         return new Tag(Tag.Type.TAG_Compound, DescriptionFactory.emptyText, tags);
     }
 
     @NonNull
     private Tag getItemListTag() {
         Tag list = new Tag("Items", Tag.Type.TAG_Compound);
-        if (this.currentMaterial != null) {
-            list.addTag(getItemTag(0, this.currentMaterial.getItemID(), this.currentMaterial.getDamage(), this.currentMaterial.getCount()));
+        if (currentMaterial != null) {
+            list.addTag(getItemTag(0, currentMaterial.getItemID(), currentMaterial.getDamage(), currentMaterial.getCount()));
         }
-        if (this.currentFuel != null) {
-            list.addTag(getItemTag(1, this.currentFuel.getItemID(), this.currentFuel.getDamage(), this.currentFuel.getCount()));
+        if (currentFuel != null) {
+            list.addTag(getItemTag(1, currentFuel.getItemID(), currentFuel.getDamage(), currentFuel.getCount()));
         }
-        if (this.craftedItem != null) {
-            list.addTag(getItemTag(2, this.craftedItem.getItemID(), this.craftedItem.getDamage(), this.craftedItem.getCount()));
+        if (craftedItem != null) {
+            list.addTag(getItemTag(2, craftedItem.getItemID(), craftedItem.getDamage(), craftedItem.getCount()));
         }
         return list;
     }

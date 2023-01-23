@@ -20,7 +20,7 @@ public class ChatBox extends TapPad {
 
     public ChatBox(float x, float y, float width, float height, Font font) {
         super(x, y, width, height);
-        this.messageList = new LinkedList<>();
+        messageList = new LinkedList<>();
         if (font != null) {
             this.font = font;
             this.x = x;
@@ -36,9 +36,9 @@ public class ChatBox extends TapPad {
 
     @Override
     public void draw(StackedRenderer sr) {
-        if (sr != null && this.isVisible) {
+        if (sr != null && isVisible) {
             try {
-                ArrayList<ChatMessage> list = new ArrayList<>(this.messageList);
+                ArrayList<ChatMessage> list = new ArrayList<>(messageList);
                 for (ChatMessage chatMessage : list) {
                     if (chatMessage != null) {
                         chatMessage.draw(sr);
@@ -52,7 +52,7 @@ public class ChatBox extends TapPad {
 
     public synchronized void advance(float delta) {
         super.advance();
-        ArrayList<ChatMessage> list = new ArrayList<>(this.messageList);
+        ArrayList<ChatMessage> list = new ArrayList<>(messageList);
         for (ChatMessage chatMessage : list) {
             if (chatMessage != null) {
                 chatMessage.advance(delta);
@@ -61,14 +61,14 @@ public class ChatBox extends TapPad {
     }
 
     public void addMessage(String msg) {
-        synchronized (this.messageList) {
-            if (this.messageList.size() >= MAX_LIST_MESSAGE) {
-                this.messageList.removeLast();
+        synchronized (messageList) {
+            if (messageList.size() >= MAX_LIST_MESSAGE) {
+                messageList.removeLast();
             }
-            this.messageList.addFirst(new ChatMessage(msg, this.x, this.y, this.width, this.height, this.font));
+            messageList.addFirst(new ChatMessage(msg, x, y, width, height, font));
         }
         int position = 0;
-        ArrayList<ChatMessage> list = new ArrayList<>(this.messageList);
+        ArrayList<ChatMessage> list = new ArrayList<>(messageList);
         for (ChatMessage chatMessage : list) {
             chatMessage.update(position);
             position++;

@@ -55,7 +55,7 @@ public class InventoryTapItem implements Touch.TouchListener {
         this.isDrawBounds = true;
         this.longPressed = false;
         this.longPressTime = 0.5f;
-        this.bounds = new BoundingRectangle(0.0f, 0.0f, 80.0f, 80.0f);
+        this.bounds = new BoundingRectangle(0.0f, 0.0f, WIDTH, HEIGHT);
         this.item = item;
         this.player = null;
     }
@@ -68,7 +68,7 @@ public class InventoryTapItem implements Touch.TouchListener {
         this.isDrawBounds = true;
         this.longPressed = false;
         this.longPressTime = 0.5f;
-        this.bounds = new BoundingRectangle(0.0f, 0.0f, 80.0f, 80.0f);
+        this.bounds = new BoundingRectangle(0.0f, 0.0f, WIDTH, HEIGHT);
         this.item = item;
         this.player = player;
     }
@@ -81,7 +81,7 @@ public class InventoryTapItem implements Touch.TouchListener {
         this.isDrawBounds = true;
         this.longPressed = false;
         this.longPressTime = 0.5f;
-        this.bounds = new BoundingRectangle(x, y, 80.0f, 80.0f);
+        this.bounds = new BoundingRectangle(x, y, WIDTH, HEIGHT);
         this.item = item;
         this.x = x;
         this.y = y;
@@ -135,8 +135,8 @@ public class InventoryTapItem implements Touch.TouchListener {
 
     private void drawInnerBound(StackedRenderer sr, float deltaY) {
         if (this.innerShape == null) {
-            Shape is = ShapeUtil.innerQuad(this.x - 40.0f, this.y - 40.0f, this.x + 40.0f, this.y + 40.0f, 80.0f, 0.0f);
-            this.innerShape = new ColouredShape(is, Colour.withAlphai(Colour.white, (int) CpioConstants.C_IWUSR), (State) null);
+            Shape is = ShapeUtil.innerQuad(this.x - HALF_WIDTH, this.y - HALF_WIDTH, this.x + HALF_WIDTH, this.y + HALF_WIDTH, 80.0f, 0.0f);
+            this.innerShape = new ColouredShape(is, Colour.withAlphai(Colour.white, CpioConstants.C_IWUSR), null);
         }
         sr.pushMatrix();
         sr.translate(0.0f, this.yOffset + deltaY, 0.0f);
@@ -147,20 +147,20 @@ public class InventoryTapItem implements Touch.TouchListener {
     private void drawBounds(StackedRenderer sr, float deltaY) {
         if (this.buttonBottomBound == null) {
             Shape s = ShapeUtil.line(4.0f, 0.0f, 0.0f, 80.0f, 0.0f);
-            this.buttonUpBound = new ColouredShape(s, Colour.white, (State) null);
-            this.buttonBottomBound = new ColouredShape(s, Colour.darkgrey, (State) null);
+            this.buttonUpBound = new ColouredShape(s, Colour.white, null);
+            this.buttonBottomBound = new ColouredShape(s, Colour.darkgrey, null);
             Shape s2 = ShapeUtil.line(4.0f, 0.0f, 0.0f, 0.0f, 80.0f);
-            this.buttonLeftBound = new ColouredShape(s2, Colour.withAlphai(Colour.white, (int) CpioConstants.C_IWUSR), (State) null);
-            this.buttonRightBound = new ColouredShape(s2, Colour.withAlphai(Colour.darkgrey, (int) CpioConstants.C_IWUSR), (State) null);
+            this.buttonLeftBound = new ColouredShape(s2, Colour.withAlphai(Colour.white, CpioConstants.C_IWUSR), null);
+            this.buttonRightBound = new ColouredShape(s2, Colour.withAlphai(Colour.darkgrey, CpioConstants.C_IWUSR), null);
         }
         sr.pushMatrix();
-        sr.translate(this.x - 40.0f, ((this.y + deltaY) + this.yOffset) - 40.0f, 0.0f);
+        sr.translate(this.x - HALF_WIDTH, ((this.y + deltaY) + this.yOffset) - HALF_WIDTH, 0.0f);
         this.buttonBottomBound.render(sr);
         sr.translate(0.0f, 80.0f, 0.0f);
         this.buttonUpBound.render(sr);
         sr.popMatrix();
         sr.pushMatrix();
-        sr.translate(this.x - 40.0f, ((this.y + deltaY) + this.yOffset) - 40.0f, 0.0f);
+        sr.translate(this.x - HALF_WIDTH, ((this.y + deltaY) + this.yOffset) - HALF_WIDTH, 0.0f);
         this.buttonLeftBound.render(sr);
         sr.translate(80.0f, 0.0f, 0.0f);
         this.buttonRightBound.render(sr);
@@ -175,7 +175,7 @@ public class InventoryTapItem implements Touch.TouchListener {
         }
         this.countTextShape.updateValue(count);
         sr.pushMatrix();
-        sr.translate(this.x, (((this.y + deltaY) + this.yOffset) - 40.0f) + 5.0f, 0.0f);
+        sr.translate(this.x, (((this.y + deltaY) + this.yOffset) - HALF_WIDTH) + 5.0f, 0.0f);
         sr.scale(0.65f, 0.65f, 0.65f);
         this.countTextShape.render(sr);
         sr.popMatrix();
@@ -184,10 +184,10 @@ public class InventoryTapItem implements Touch.TouchListener {
     private void drawItemDurability(StackedRenderer sr, float deltaY) {
         if (this.durabilityShape == null) {
             Shape s = ShapeUtil.line(4.0f, 0.0f, 0.0f, 72.0f, 0.0f);
-            this.durabilityShape = new ColouredShape(s, this.durabilityFullColor, (State) null);
+            this.durabilityShape = new ColouredShape(s, this.durabilityFullColor, null);
         }
         sr.pushMatrix();
-        sr.translate((this.x - 40.0f) + 5.0f, (((this.y + deltaY) + this.yOffset) - 40.0f) + 5.0f, 0.0f);
+        sr.translate((this.x - HALF_WIDTH) + 5.0f, (((this.y + deltaY) + this.yOffset) - HALF_WIDTH) + 5.0f, 0.0f);
         float durabilityRatio = this.item.getDurabilityRatio();
         if (durabilityRatio < 0.7f) {
             this.durabilityShape.colours = ShapeUtil.expand(this.durabilityHalfColor, this.durabilityShape.vertexCount());
@@ -202,8 +202,8 @@ public class InventoryTapItem implements Touch.TouchListener {
 
     private void drawDropProgress(StackedRenderer sr) {
         if (this.dropProgresShape == null) {
-            Shape s = ShapeUtil.filledQuad(this.x - 40.0f, this.y - 40.0f, this.x + 40.0f, this.y + 40.0f, 0.0f);
-            this.dropProgresShape = new ColouredShape(s, Colour.green, (State) null);
+            Shape s = ShapeUtil.filledQuad(this.x - HALF_WIDTH, this.y - HALF_WIDTH, this.x + HALF_WIDTH, this.y + HALF_WIDTH, 0.0f);
+            this.dropProgresShape = new ColouredShape(s, Colour.green, null);
         }
         sr.pushMatrix();
         sr.scale(1.0f, this.dropProgresRatio, 1.0f);
@@ -213,7 +213,7 @@ public class InventoryTapItem implements Touch.TouchListener {
 
     @Override
     public boolean pointerAdded(Touch.Pointer p) {
-        if (this.touch == null && this.bounds.contains(p.x + 40.0f, p.y + 40.0f)) {
+        if (this.touch == null && this.bounds.contains(p.x + HALF_WIDTH, p.y + HALF_WIDTH)) {
             this.touch = p;
             this.downTime = System.currentTimeMillis();
             return true;

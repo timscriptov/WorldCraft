@@ -117,8 +117,8 @@ public class ChestMenu extends CustomMenu {
             for (int i = 0; i < this.chestTapItems.size(); i++) {
                 this.chestTapItems.get(i).advance();
             }
-            for (int i2 = 0; i2 < this.inventoryTapItems.size(); i2++) {
-                this.inventoryTapItems.get(i2).advance();
+            for (int i = 0; i < this.inventoryTapItems.size(); i++) {
+                this.inventoryTapItems.get(i).advance();
             }
             if (this.needToScrollChest && this.chestTapItems.size() / 4.0f > 4.0f) {
                 this.touchChestDelta = this.touch.y - this.prevChestScrollY;

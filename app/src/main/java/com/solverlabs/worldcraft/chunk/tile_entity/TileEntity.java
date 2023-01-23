@@ -23,20 +23,20 @@ public abstract class TileEntity {
     }
 
     public TileEntity(String id, @NonNull Vector3i pos) {
-        this.x = pos.x;
-        this.y = pos.y;
-        this.z = pos.z;
+        x = pos.x;
+        y = pos.y;
+        z = pos.z;
         this.id = id;
     }
 
     public abstract Tag getTag();
 
     public boolean isFurnace() {
-        return this.id.equals(FURNACE_ID);
+        return id.equals(FURNACE_ID);
     }
 
     public boolean isChest() {
-        return this.id.equals(CHEST_ID);
+        return id.equals(CHEST_ID);
     }
 
     public boolean isSelectedEntity(int x, int y, int z) {
@@ -44,7 +44,13 @@ public abstract class TileEntity {
     }
 
     public Tag getItemTag(Integer slot, byte id, int damage, int count) {
-        Tag[] tags = {new Tag(Tag.Type.TAG_Int, "Slot", slot), new Tag(Tag.Type.TAG_Byte, "id", id), new Tag(Tag.Type.TAG_Int, "Damage", damage), new Tag(Tag.Type.TAG_Int, "Count", count), new Tag(Tag.Type.TAG_End, null, null)};
+        Tag[] tags = {
+                new Tag(Tag.Type.TAG_Int, "Slot", slot),
+                new Tag(Tag.Type.TAG_Byte, "id", id),
+                new Tag(Tag.Type.TAG_Int, "Damage", damage),
+                new Tag(Tag.Type.TAG_Int, "Count", count),
+                new Tag(Tag.Type.TAG_End, null, null)
+        };
         return new Tag(Tag.Type.TAG_Compound, DescriptionFactory.emptyText, tags);
     }
 
@@ -57,14 +63,14 @@ public abstract class TileEntity {
     }
 
     public int getX() {
-        return this.x;
+        return x;
     }
 
     public int getY() {
-        return this.y;
+        return y;
     }
 
     public int getZ() {
-        return this.z;
+        return z;
     }
 }

@@ -28,10 +28,10 @@ public class Entity {
     private float yaw;
 
     public Entity(String id) {
-        this.tag = null;
-        this.tags = null;
-        this.position = new Vector3f();
-        this.motion = new Vector3f();
+        tag = null;
+        tags = null;
+        position = new Vector3f();
+        motion = new Vector3f();
         this.id = id;
     }
 
@@ -47,30 +47,30 @@ public class Entity {
 
     private void parseRotation(@NonNull Tag tag) {
         Tag[] rotation = (Tag[]) tag.findTagByName(ROTATION).getValue();
-        this.yaw = (Float) rotation[0].getValue();
-        this.pitch = (Float) rotation[1].getValue();
+        yaw = (Float) rotation[0].getValue();
+        pitch = (Float) rotation[1].getValue();
     }
 
     private void parsePosition(@NonNull Tag tag) {
         Tag[] pos = (Tag[]) tag.findTagByName(POS).getValue();
-        this.position.x = ((Double) pos[0].getValue()).floatValue();
-        this.position.y = ((Double) pos[1].getValue()).floatValue();
-        this.position.z = ((Double) pos[2].getValue()).floatValue();
+        position.x = ((Double) pos[0].getValue()).floatValue();
+        position.y = ((Double) pos[1].getValue()).floatValue();
+        position.z = ((Double) pos[2].getValue()).floatValue();
     }
 
     private void parseMotion(@NonNull Tag tag) {
         Tag[] motionTag = (Tag[]) tag.findTagByName(MOTION).getValue();
-        this.motion.x = ((Double) motionTag[0].getValue()).floatValue();
-        this.motion.y = ((Double) motionTag[1].getValue()).floatValue();
-        this.motion.z = ((Double) motionTag[2].getValue()).floatValue();
+        motion.x = ((Double) motionTag[0].getValue()).floatValue();
+        motion.y = ((Double) motionTag[1].getValue()).floatValue();
+        motion.z = ((Double) motionTag[2].getValue()).floatValue();
     }
 
     public Tag getTag() {
-        if (this.tags == null) {
+        if (tags == null) {
             createTag();
         }
         updateTags();
-        return this.tag;
+        return tag;
     }
 
     protected Map<String, Tag> getExtraTags() {
@@ -87,13 +87,13 @@ public class Entity {
     }
 
     private void updateIdTag() {
-        if (this.tags[0] == null) {
-            this.tags[0] = new Tag(Tag.Type.TAG_String, "id", this.id);
+        if (tags[0] == null) {
+            tags[0] = new Tag(Tag.Type.TAG_String, "id", id);
         }
     }
 
     private void updateEndTag() {
-        this.tags[getEndTagIndex()] = new Tag(Tag.Type.TAG_End, (String) null, (Tag[]) null);
+        tags[getEndTagIndex()] = new Tag(Tag.Type.TAG_End, null, (Tag[]) null);
     }
 
     private void updateExtra() {
@@ -101,42 +101,42 @@ public class Entity {
         if (extraTags != null) {
             int i = 0;
             for (Tag tag : extraTags.values()) {
-                this.tags[i + 4] = tag;
+                tags[i + 4] = tag;
                 i++;
             }
         }
     }
 
     private void updateRotationTag() {
-        if (this.tags[3] == null) {
-            this.tags[3] = serializeRotation();
+        if (tags[3] == null) {
+            tags[3] = serializeRotation();
             return;
         }
-        Tag[] rotationTag = (Tag[]) this.tags[3].getValue();
-        rotationTag[0].setValue(this.yaw);
-        rotationTag[1].setValue(this.pitch);
+        Tag[] rotationTag = (Tag[]) tags[3].getValue();
+        rotationTag[0].setValue(yaw);
+        rotationTag[1].setValue(pitch);
     }
 
     private void updateMotionTag() {
-        if (this.tags[2] == null) {
-            this.tags[2] = serializeMotion();
+        if (tags[2] == null) {
+            tags[2] = serializeMotion();
             return;
         }
-        Tag[] motionTag = (Tag[]) this.tags[2].getValue();
-        motionTag[0].setValue(this.motion.x);
-        motionTag[1].setValue(this.motion.y);
-        motionTag[2].setValue(this.motion.z);
+        Tag[] motionTag = (Tag[]) tags[2].getValue();
+        motionTag[0].setValue(motion.x);
+        motionTag[1].setValue(motion.y);
+        motionTag[2].setValue(motion.z);
     }
 
     private void updatePositionTag() {
-        if (this.tags[1] == null) {
-            this.tags[1] = serializePosition();
+        if (tags[1] == null) {
+            tags[1] = serializePosition();
             return;
         }
-        Tag[] positionTag = (Tag[]) this.tags[1].getValue();
-        positionTag[0].setValue(this.position.x);
-        positionTag[1].setValue(this.position.y);
-        positionTag[2].setValue(this.position.z);
+        Tag[] positionTag = (Tag[]) tags[1].getValue();
+        positionTag[0].setValue(position.x);
+        positionTag[1].setValue(position.y);
+        positionTag[2].setValue(position.z);
     }
 
     private int getEndTagIndex() {
@@ -144,8 +144,8 @@ public class Entity {
     }
 
     private void createTag() {
-        this.tags = new Tag[getTagsCount()];
-        this.tag = new Tag(Tag.Type.TAG_Compound, DescriptionFactory.emptyText, this.tags);
+        tags = new Tag[getTagsCount()];
+        tag = new Tag(Tag.Type.TAG_Compound, DescriptionFactory.emptyText, tags);
     }
 
     private int getTagsCount() {
@@ -163,31 +163,31 @@ public class Entity {
     @NonNull
     private Tag serializeRotation() {
         Tag rotationList = new Tag(ROTATION, Tag.Type.TAG_Float);
-        rotationList.addTag(new Tag(Tag.Type.TAG_Float, DescriptionFactory.emptyText, this.yaw));
-        rotationList.addTag(new Tag(Tag.Type.TAG_Float, DescriptionFactory.emptyText, this.pitch));
+        rotationList.addTag(new Tag(Tag.Type.TAG_Float, DescriptionFactory.emptyText, yaw));
+        rotationList.addTag(new Tag(Tag.Type.TAG_Float, DescriptionFactory.emptyText, pitch));
         return rotationList;
     }
 
     @NonNull
     private Tag serializeMotion() {
         Tag motionList = new Tag(MOTION, Tag.Type.TAG_Double);
-        motionList.addTag(new Tag(Tag.Type.TAG_Double, DescriptionFactory.emptyText, (double) this.motion.x));
-        motionList.addTag(new Tag(Tag.Type.TAG_Double, DescriptionFactory.emptyText, (double) this.motion.y));
-        motionList.addTag(new Tag(Tag.Type.TAG_Double, DescriptionFactory.emptyText, (double) this.motion.z));
+        motionList.addTag(new Tag(Tag.Type.TAG_Double, DescriptionFactory.emptyText, (double) motion.x));
+        motionList.addTag(new Tag(Tag.Type.TAG_Double, DescriptionFactory.emptyText, (double) motion.y));
+        motionList.addTag(new Tag(Tag.Type.TAG_Double, DescriptionFactory.emptyText, (double) motion.z));
         return motionList;
     }
 
     @NonNull
     private Tag serializePosition() {
         Tag positionList = new Tag(POS, Tag.Type.TAG_Double);
-        positionList.addTag(new Tag(Tag.Type.TAG_Double, DescriptionFactory.emptyText, (double) this.position.x));
-        positionList.addTag(new Tag(Tag.Type.TAG_Double, DescriptionFactory.emptyText, (double) this.position.y));
-        positionList.addTag(new Tag(Tag.Type.TAG_Double, DescriptionFactory.emptyText, (double) this.position.z));
+        positionList.addTag(new Tag(Tag.Type.TAG_Double, DescriptionFactory.emptyText, (double) position.x));
+        positionList.addTag(new Tag(Tag.Type.TAG_Double, DescriptionFactory.emptyText, (double) position.y));
+        positionList.addTag(new Tag(Tag.Type.TAG_Double, DescriptionFactory.emptyText, (double) position.z));
         return positionList;
     }
 
     public Vector3f getPosition() {
-        return this.position;
+        return position;
     }
 
     public void setPosition(Vector3f position) {
@@ -195,7 +195,7 @@ public class Entity {
     }
 
     public Vector3f getMotion() {
-        return this.motion;
+        return motion;
     }
 
     public void setMotion(Vector3f motion) {
@@ -203,7 +203,7 @@ public class Entity {
     }
 
     public float getYaw() {
-        return this.yaw;
+        return yaw;
     }
 
     public void setYaw(float yaw) {
@@ -211,7 +211,7 @@ public class Entity {
     }
 
     public float getPitch() {
-        return this.pitch;
+        return pitch;
     }
 
     public void setPitch(float pitch) {
@@ -219,7 +219,7 @@ public class Entity {
     }
 
     public String getId() {
-        return this.id;
+        return id;
     }
 
     public void setId(String id) {
@@ -229,19 +229,19 @@ public class Entity {
     public boolean equals(Object o) {
         if (o instanceof Entity) {
             Entity entity = (Entity) o;
-            return this.id.equals(entity.id) && Float.compare(this.position.x, entity.position.x) == 0 && Float.compare(this.position.y, entity.position.y) == 0 && Float.compare(this.position.z, entity.position.z) == 0;
+            return id.equals(entity.id) && Float.compare(position.x, entity.position.x) == 0 && Float.compare(position.y, entity.position.y) == 0 && Float.compare(position.z, entity.position.z) == 0;
         }
         return false;
     }
 
     public int hashCode() {
-        int x = ((int) this.position.x) + 17;
-        int y = ((int) this.position.y) + 19;
-        int z = ((int) this.position.z) + 23;
+        int x = ((int) position.x) + 17;
+        int y = ((int) position.y) + 19;
+        int z = ((int) position.z) + 23;
         return ((x & 1023) << 20) | ((y & 1023) << 10) | (z & 1023);
     }
 
     public float getDistance(Vector3f position) {
-        return Distance.getDistanceBetweenPoints(this.position, position, 1000.0f);
+        return Distance.getDistanceBetweenPoints(position, position, 1000.0f);
     }
 }

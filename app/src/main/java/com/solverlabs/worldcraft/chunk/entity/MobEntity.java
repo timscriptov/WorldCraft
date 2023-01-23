@@ -23,7 +23,7 @@ public class MobEntity extends Entity {
 
     public MobEntity(String id, Tag tag) {
         super(id, tag);
-        this.health = (Short) tag.findTagByName(HEALTH).getValue();
+        health = (Short) tag.findTagByName(HEALTH).getValue();
     }
 
     @Nullable
@@ -50,12 +50,12 @@ public class MobEntity extends Entity {
         } else {
             updateExtraTags();
         }
-        return this.extraTags;
+        return extraTags;
     }
 
     private void updateExtraTags() {
-        Tag healthTag = this.extraTags.get(HEALTH);
-        healthTag.setValue(this.health);
+        Tag healthTag = extraTags.get(HEALTH);
+        healthTag.setValue(health);
     }
 
     private void createExtraTags() {
@@ -64,7 +64,7 @@ public class MobEntity extends Entity {
     }
 
     public short getHealth() {
-        return this.health;
+        return health;
     }
 
     public void setHealth(short health) {

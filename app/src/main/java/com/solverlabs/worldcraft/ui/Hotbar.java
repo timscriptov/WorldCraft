@@ -7,22 +7,35 @@ import com.solverlabs.droid.rugl.gl.StackedRenderer;
 import com.solverlabs.droid.rugl.input.Touch;
 import com.solverlabs.droid.rugl.util.Colour;
 import com.solverlabs.droid.rugl.util.geom.BoundingRectangle;
+import com.solverlabs.droid.rugl.util.math.Range;
 import com.solverlabs.worldcraft.Player;
 import com.solverlabs.worldcraft.inventory.InventoryTapItem;
 
+/**
+ * On-screen inventory
+ */
 public class Hotbar implements Touch.TouchListener {
     private final Player player;
     public BoundingRectangle bounds = new BoundingRectangle(150.0f, 0.0f, 420.0f, 90.0f);
     public int boundsColour = Colour.packFloat(1.0f, 1.0f, 1.0f, 0.8f);
+    /**
+     * How much to zoom roll-overed items
+     */
     public float maxZoom = 2.0f;
     public float zoomTime = 0.15f;
     private ColouredShape boundsShape;
     private Touch.Pointer touch;
 
+    /**
+     * @param player
+     */
     public Hotbar(Player player) {
         this.player = player;
     }
 
+    /**
+     * @param delta
+     */
     public void advance(float delta) {
         for (int i = 0; i < player.hotbar.size(); i++) {
             player.hotbar.get(i).advance();
@@ -69,7 +82,7 @@ public class Hotbar implements Touch.TouchListener {
         if (touch == p) {
             touch = null;
             for (int i = 0; i < player.hotbar.size(); i++) {
-                this.player.hotbar.get(i).pointerRemoved(p);
+                player.hotbar.get(i).pointerRemoved(p);
             }
         }
     }

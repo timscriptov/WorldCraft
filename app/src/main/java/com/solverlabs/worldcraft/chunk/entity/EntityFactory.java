@@ -26,7 +26,7 @@ public class EntityFactory {
 
     @NonNull
     @Contract("_ -> new")
-    public static Entity parse(Tag tag) {
+    public static Entity parse(@NonNull Tag tag) {
         String id = (String) tag.findTagByName("id").getValue();
         if (isMob(id)) {
             if (isSheep(id)) {
