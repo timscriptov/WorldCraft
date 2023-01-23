@@ -154,7 +154,7 @@ public class Player implements Damagable {
             }
             return;
         }
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 5; i++) {
             addItemToHotBar(new InventoryTapItem(this, new InventoryItem(BlockFactory.Block.values()[i], i)));
         }
     }

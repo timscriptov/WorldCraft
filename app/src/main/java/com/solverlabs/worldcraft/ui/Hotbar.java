@@ -38,7 +38,7 @@ public class Hotbar implements Touch.TouchListener {
             boundsShape = new ColouredShape(bs, boundsColour, null);
         }
         this.boundsShape.render(sr);
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 5; i++) {
             if (i < player.hotbar.size() && player.hotbar.get(i) != null) {
                 float x = bounds.x.getMin() + (84.0f / 2.0f) + (i * 84.0f);
                 float y = bounds.y.toValue(0.5f);
