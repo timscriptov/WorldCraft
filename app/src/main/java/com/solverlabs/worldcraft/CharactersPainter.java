@@ -16,7 +16,7 @@ public class CharactersPainter {
     private static final int MAX_ENEMY_COUNT = 100;
     public static Font font;
     private final StackedRenderer renderer = new StackedRenderer();
-    private final Collection<Enemy> enemies = new ArrayList<>(100);
+    private final Collection<Enemy> enemies = new ArrayList<>(MAX_ENEMY_COUNT);
     public boolean shouldDraw = true;
 
     public static void loadFont() {

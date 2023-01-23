@@ -140,14 +140,14 @@ public class FurnaceMenu extends CustomMenu {
             }
             pad.isSelected = true;
         } else {
-            if (this.selectedItemNumber == 1 && this.furnace != null && this.furnace.getMaterial() != null) {
+            if (this.selectedItemNumber == MATERIAL_SELECTED && this.furnace != null && this.furnace.getMaterial() != null) {
                 this.inventory.add(this.furnace.getMaterialId());
                 this.furnace.decMaterial();
                 if (this.furnace.getMaterial() == null) {
                     this.materialTapItem = null;
                 }
             }
-            if (this.selectedItemNumber == 2 && this.furnace != null && this.furnace.getFuel() != null) {
+            if (this.selectedItemNumber == FUEL_SELECTED && this.furnace != null && this.furnace.getFuel() != null) {
                 this.inventory.add(this.furnace.getFuelId());
                 this.furnace.decFuel();
                 if (this.furnace.getFuel() == null) {
@@ -159,7 +159,7 @@ public class FurnaceMenu extends CustomMenu {
     }
 
     public void addItemToFurnace(InventoryItem inventoryItem) {
-        if (this.selectedItemNumber == 2) {
+        if (this.selectedItemNumber == FUEL_SELECTED) {
             if (this.furnace.addFuel(inventoryItem.clone())) {
                 this.inventory.decItem(inventoryItem);
                 if (inventoryItem.isEmpty() || inventoryItem.isFull()) {
@@ -171,7 +171,7 @@ public class FurnaceMenu extends CustomMenu {
                 this.fuelTapItem.isDrawBounds = false;
             }
         }
-        if (this.selectedItemNumber == 1) {
+        if (this.selectedItemNumber == MATERIAL_SELECTED) {
             if (this.furnace.addMaterial(inventoryItem.clone())) {
                 this.inventory.decItem(inventoryItem);
                 if (inventoryItem.isEmpty() || inventoryItem.isFull()) {
@@ -189,7 +189,7 @@ public class FurnaceMenu extends CustomMenu {
         this.tapItems.clear();
         for (int i = 0; i < inventory.getSize(); i++) {
             final InventoryItem inventoryItem = inventory.getAllInventoryItems().get(i);
-            if (!inventoryItem.isEmpty() && ((this.selectedItemNumber == 2 && inventoryItem.isUseAsFuel()) || (this.selectedItemNumber == 1 && inventoryItem.isUseAsMaterial()))) {
+            if (!inventoryItem.isEmpty() && ((this.selectedItemNumber == FUEL_SELECTED && inventoryItem.isUseAsFuel()) || (this.selectedItemNumber == MATERIAL_SELECTED && inventoryItem.isUseAsMaterial()))) {
                 CustomTapItem furnaceTapItem = new CustomTapItem(inventoryItem) {
                     @Override
                     protected void onTap() {

@@ -38,27 +38,27 @@ public class Clouds {
 
     public void init(World world) {
         loadTexture();
-        if (this.texture != null) {
+        if (texture != null) {
             Shape shape = ShapeUtil.filledQuad(0.0f, 0.0f, 256.0f, 256.0f, 0.0f);
-            ColouredShape cs = new ColouredShape(shape, Colour.withAlphai(Colour.white, Interaction.NOISE_NOTIFICATION_DELAY), this.state);
-            this.ts = new TexturedShape(cs, ShapeUtil.getQuadTexCoords(1), this.texture);
-            this.ts.scale(10.0f, 10.0f, 10.0f);
+            ColouredShape cs = new ColouredShape(shape, Colour.withAlphai(Colour.white, Interaction.NOISE_NOTIFICATION_DELAY), state);
+            ts = new TexturedShape(cs, ShapeUtil.getQuadTexCoords(1), texture);
+            ts.scale(10.0f, 10.0f, 10.0f);
             setLight(world.getSunlight());
-            this.state.apply();
+            state.apply();
         }
-        this.xOffset = 0.0f;
+        xOffset = 0.0f;
         Vector3f playerPos = world.player.position;
-        this.clouds[0] = new CloudPosition(playerPos.x, playerPos.z);
-        this.clouds[1] = new CloudPosition(playerPos.x, playerPos.z - CLOUD_SIZE);
-        this.clouds[2] = new CloudPosition(playerPos.x - CLOUD_SIZE, playerPos.z);
-        this.clouds[3] = new CloudPosition(playerPos.x - CLOUD_SIZE, playerPos.z - CLOUD_SIZE);
+        clouds[0] = new CloudPosition(playerPos.x, playerPos.z);
+        clouds[1] = new CloudPosition(playerPos.x, playerPos.z - CLOUD_SIZE);
+        clouds[2] = new CloudPosition(playerPos.x - CLOUD_SIZE, playerPos.z);
+        clouds[3] = new CloudPosition(playerPos.x - CLOUD_SIZE, playerPos.z - CLOUD_SIZE);
     }
 
     public void advance(@NonNull Player player) {
         Vector3f playerPos = player.position;
-        for (int i = 0; i < this.clouds.length; i++) {
-            CloudPosition pos = this.clouds[i];
-            pos.xOffset = this.xOffset;
+        for (int i = 0; i < clouds.length; i++) {
+            CloudPosition pos = clouds[i];
+            pos.xOffset = xOffset;
             if (Math.abs(playerPos.x - pos.getX()) > CLOUD_SIZE) {
                 if (playerPos.x > pos.getX()) {
                     pos.translateX(5120.0f);
@@ -74,12 +74,13 @@ public class Clouds {
                 }
             }
         }
-        this.xOffset += 0.02f;
+        // Скорость движения облаков
+        xOffset += 0.02f;
     }
 
     public void draw(StackedRenderer renderer) {
-        for (int i = 0; i < this.clouds.length; i++) {
-            drawCloud(renderer, this.clouds[i]);
+        for (int i = 0; i < clouds.length; i++) {
+            drawCloud(renderer, clouds[i]);
         }
         renderer.render();
     }
@@ -88,7 +89,7 @@ public class Clouds {
         renderer.pushMatrix();
         renderer.translate(pos.getX() - 1280.0f, CLOUD_HEIGHT, pos.getZ() - 1280.0f);
         renderer.rotate(90.0f, 1.0f, 0.0f, 0.0f);
-        this.ts.render(renderer);
+        ts.render(renderer);
         renderer.popMatrix();
     }
 
@@ -96,18 +97,18 @@ public class Clouds {
         ResourceLoader.loadNow(new BitmapLoader("clouds.png") {
             @Override
             public void complete() {
-                Clouds.this.texture = TextureFactory.buildTexture(this.resource, true, false);
-                if (Clouds.this.texture != null) {
-                    Clouds.this.state = Clouds.this.texture.applyTo(Clouds.this.state);
+                texture = TextureFactory.buildTexture(resource, true, false);
+                if (texture != null) {
+                    state = texture.applyTo(state);
                 }
-                this.resource.bitmap.recycle();
+                resource.bitmap.recycle();
             }
         });
     }
 
     public void setLight(int sunLight) {
         float light = (float) Math.pow(0.8d, 15 - sunLight);
-        this.ts.colours = ShapeUtil.expand(Colour.packFloat(light, light, light, 1.0f), this.ts.vertexCount());
+        ts.colours = ShapeUtil.expand(Colour.packFloat(light, light, light, 1.0f), ts.vertexCount());
     }
 
     public static class CloudPosition {
@@ -121,19 +122,19 @@ public class Clouds {
         }
 
         public float getX() {
-            return this.x + this.xOffset;
+            return x + xOffset;
         }
 
         public float getZ() {
-            return this.z;
+            return z;
         }
 
         public void translateX(float offset) {
-            this.x += offset;
+            x += offset;
         }
 
         public void translateZ(float offset) {
-            this.z += offset;
+            z += offset;
         }
     }
 }
