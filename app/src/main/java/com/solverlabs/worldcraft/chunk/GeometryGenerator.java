@@ -30,23 +30,36 @@ public class GeometryGenerator {
         synVBOBuilderObject = new Object();
     }
 
+    /**
+     * @return The number of chunklets awaiting geometry generation
+     */
     public static int getChunkletQueueSize() {
         return queueSize;
     }
 
+    /**
+     * Generates geometry for a {@link Chunklet}
+     *
+     * @param c
+     * @param synchronous
+     */
     public static void generate(final Chunklet c, final boolean synchronous) {
         Runnable r = () -> {
             synchronized (GeometryGenerator.synVBOBuilderObject) {
                 ShapeBuilder opaqueVBOBuilder = synchronous ? GeometryGenerator.immediateOpaqueVBOBuilder : GeometryGenerator.queuedOpaqueVBOBuilder;
                 ShapeBuilder transVBOBuilder = synchronous ? GeometryGenerator.immediateTransVBOBuilder : GeometryGenerator.queuedTransVBOBuilder;
+
+                // not sure why this is needed, but it is
                 transVBOBuilder.clear();
                 opaqueVBOBuilder.clear();
+
                 for (int xi = 0; xi < 16; xi++) {
                     for (int yi = 0; yi < 16; yi++) {
                         for (int zi = 0; zi < 16; zi++) {
                             BlockFactory.Block b = BlockFactory.getBlock(c.blockType(xi, yi, zi));
                             float light = c.light(xi, yi, zi);
                             if (b == BlockFactory.Block.Slab) {
+                                // the half-blocks
                                 light = c.light(xi, yi + 1, zi);
                             }
                             int colour = Colour.packFloat(light, light, light, 1.0f);
