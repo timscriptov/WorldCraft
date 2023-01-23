@@ -12,13 +12,22 @@ import com.solverlabs.worldcraft.nbt.RegionFileCache;
 
 import java.io.DataInputStream;
 
+/**
+ * This is packaged up like this so it can happen on the resource loading
+ * thread, rather than the main render thread
+ */
 public abstract class ChunkLoader extends ResourceLoader.Loader<Chunk> {
     protected final World world;
     protected final int x;
     protected final int z;
 
+    /**
+     * @param w
+     * @param x
+     * @param z
+     */
     public ChunkLoader(World w, int x, int z) {
-        this.world = w;
+        world = w;
         this.x = x;
         this.z = z;
     }
@@ -26,31 +35,31 @@ public abstract class ChunkLoader extends ResourceLoader.Loader<Chunk> {
     @Override
     public void load() {
         try {
-            DataInputStream is = RegionFileCache.getChunkDataInputStream(this.world.dir, this.x, this.z);
+            DataInputStream is = RegionFileCache.getChunkDataInputStream(world.dir, x, z);
             if (is != null) {
-                this.resource = new Chunk(this.world, is);
-                if (this.resource != null && (this.resource.chunkX != this.x || this.resource.chunkZ != this.z)) {
-                    Log.e(Game.RUGL_TAG, "expected " + this + ", got " + this.resource);
+                resource = new Chunk(world, is);
+                if (resource != null && (resource.chunkX != x || resource.chunkZ != z)) {
+                    Log.e(Game.RUGL_TAG, "expected " + this + ", got " + resource);
                 }
             }
-            if (this.resource == null && !GameMode.isMultiplayerMode() && this.world.getMapType() != -1 && GameMode.isSurvivalMode()) {
-                this.resource = new Chunk(this.world, this.x, this.z);
-                if (this.world.getMapType() == 0) {
-                    this.world.generateTerrain(this.resource, false);
+            if (resource == null && !GameMode.isMultiplayerMode() && world.getMapType() != -1 && GameMode.isSurvivalMode()) {
+                resource = new Chunk(world, x, z);
+                if (world.getMapType() == 0) {
+                    world.generateTerrain(resource, false);
                 }
-                if (this.world.getMapType() == 1) {
-                    this.world.generateTerrain(this.resource, true);
+                if (world.getMapType() == 1) {
+                    world.generateTerrain(resource, true);
                 }
             }
         } catch (Exception e) {
-            Log.e(Game.RUGL_TAG, "Problem loading chunk (" + this.x + "," + this.z + ")", e);
-            this.exception = e;
-            this.resource = null;
+            Log.e(Game.RUGL_TAG, "Problem loading chunk (" + x + "," + z + ")", e);
+            exception = e;
+            resource = null;
         }
     }
 
     @NonNull
     public String toString() {
-        return "chunk " + this.x + ", " + this.z;
+        return "chunk " + x + ", " + z;
     }
 }
