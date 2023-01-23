@@ -29,6 +29,9 @@ import com.solverlabs.worldcraft.multiplayer.Multiplayer;
 
 import java.util.ArrayList;
 
+/**
+ * Holds the touchsticks
+ */
 public class GUI {
     public static final int HEIGHT = 480;
     public static final int WIDTH = 800;
@@ -93,6 +96,12 @@ public class GUI {
     private Touch.TouchListener touchListener;
     private float notifyTime = 0.0f;
 
+    /**
+     * @param player
+     * @param world
+     * @param camera
+     * @param mobAggregator
+     */
     public GUI(final Player player, World world, FPSCamera camera, MobPainter mobAggregator, BlockEntityPainter entityPainter, Game game) {
         this.world = world;
         this.player = player;
@@ -369,6 +378,10 @@ public class GUI {
         });
     }
 
+    /**
+     * @param delta time delta
+     * @param cam to apply steering to
+     */
     public void advance(float delta, FPSCamera cam) {
         this.interaction.advance(delta);
         if (GameMode.isSurvivalMode()) {
@@ -430,9 +443,13 @@ public class GUI {
         cam.advance(this.right.x, this.right.y);
     }
 
+    /**
+     * Note that the projection matrix will be changed and the depth buffer
+     * cleared in here
+     */
     public void draw() {
         GLUtil.scaledOrtho(Game.gameWidth, Game.gameHeight, Game.screenWidth, Game.screenHeight, -1.0f, 1.0f);
-        GLES10.glClear(256);
+        GLES10.glClear(GLES10.GL_DEPTH_BUFFER_BIT);
         if (needToDrawGui() && (this.sleepBar == null || !this.sleepBar.isFirstCircle())) {
             this.hand.draw(this.r);
             this.left.draw(this.r);
@@ -484,6 +501,9 @@ public class GUI {
         return GameMode.isCreativeMode() || !(this.craftMenu == null || this.craftMenu.isVisible() || this.furnaceMenu == null || this.furnaceMenu.isVisible() || this.chestMenu == null || this.chestMenu.isVisible());
     }
 
+    /**
+     * @param string
+     */
     public void notify(String string) {
         Log.i(Game.RUGL_TAG, "Notification: " + string);
         if (font != null) {
