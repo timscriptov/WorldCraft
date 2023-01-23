@@ -48,7 +48,6 @@ import com.solverlabs.worldcraft.util.WorldGenerator;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -60,6 +59,9 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 
+/**
+ * Manages loading chunks, decides which chunklets to render
+ */
 public class World {
     public static final String LEVEL_DAT_FILE_NAME = "level.dat";
     public static final int LOADED_CHUNK_COUNT_FOR_WORLD_READY = 24;
@@ -76,9 +78,18 @@ public class World {
     private static final int SUN_DOWN_PHASE = 1;
     private static final int SUN_UP_PHASE = 3;
     private static final ChunkSorter cs = new ChunkSorter();
+    /**
+     * Number of chunklets rendered in the last draw call
+     */
     public static int renderedChunklets = 0;
+    /**
+     * The player position, as read from level.dat
+     */
     public final ReadableVector3f startPosition;
     private final Tag levelTag;
+    /**
+     * For drawing the wireframes
+     */
     private final StackedRenderer renderer = new StackedRenderer();
     private final Queue<Chunklet> floodQueue = new ArrayBlockingQueue<>(50);
     private final Vector3i blockPreviewLocation = new Vector3i();
@@ -93,14 +104,23 @@ public class World {
     private final BaseTerrainGenerator generator = new StandardGenerationMethod();
     public BreakingShape breakingShape;
     public int chunkPosX;
+    /**
+     * Coordinates of the currently-occupied chunk
+     */
     public int chunkPosZ;
+    /**
+     * The world save directory
+     */
     public File dir;
     public boolean isCancelLoad;
     public Player player;
     public boolean drawOutlines = false;
     public boolean drawEnemies = true;
     public int loadradius = 3;
-    public Chunk[][] chunks = (Chunk[][]) Array.newInstance(Chunk.class, 7, 7);
+    /**
+     * 1st index = x, 2nd = z
+     */
+    private final Chunk[][] chunks = new Chunk[2 * getLoadRadius() + 1][2 * getLoadRadius() + 1];
     public boolean isNewGame = false;
     private Furnace activeFurnace;
     private BlockEntityPainter blockEntityPainter;
@@ -124,8 +144,12 @@ public class World {
     private int sunlight = 15;
     private long lastParticleTime = System.currentTimeMillis();
 
+    /**
+     * @param dir
+     * @param startPosition
+     * @param levelTag
+     */
     public World(File dir, @NonNull Vector3f startPosition, Tag levelTag) {
-        this.isCancelLoad = false;
         this.isCancelLoad = false;
         this.dir = dir;
         this.startPosition = startPosition;
@@ -143,16 +167,16 @@ public class World {
     }
 
     protected void setInited(boolean value) {
-        this.isChunksInited = true;
-        if (this.isChunksInited) {
+        isChunksInited = true;
+        if (isChunksInited) {
             executeInitRelatedTasks();
         }
     }
 
     private void executeInitRelatedTasks() {
-        synchronized (this.onInitedRunnableList) {
-            if (this.onInitedRunnableList.size() > 0) {
-                Iterator<Runnable> iterator = this.onInitedRunnableList.iterator();
+        synchronized (onInitedRunnableList) {
+            if (onInitedRunnableList.size() > 0) {
+                Iterator<Runnable> iterator = onInitedRunnableList.iterator();
                 while (iterator.hasNext()) {
                     Runnable runnable = iterator.next();
                     runnable.run();
@@ -165,12 +189,12 @@ public class World {
     public void init(Player player, BlockEntityPainter blockEntityPainter) {
         this.player = player;
         this.blockEntityPainter = blockEntityPainter;
-        if (this.isNewGame) {
-            player.position.set(this.playerNormPosition);
-            player.spawnPosition.set(this.playerSpawnPosition);
+        if (isNewGame) {
+            player.position.set(playerNormPosition);
+            player.spawnPosition.set(playerSpawnPosition);
         }
-        this.blockPreviewShape = new ColouredShape(ShapeUtil.cuboid(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f), Colour.packFloat(1.0f, 1.0f, 1.0f, 0.3f), ShapeUtil.state);
-        this.breakingShape = new BreakingShape();
+        blockPreviewShape = new ColouredShape(ShapeUtil.cuboid(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f), Colour.packFloat(1.0f, 1.0f, 1.0f, 0.3f), ShapeUtil.state);
+        breakingShape = new BreakingShape();
         save();
     }
 
@@ -190,16 +214,16 @@ public class World {
                         break;
                 }
                 Chunk c = getChunk(0, 0);
-                float x = this.startPosition.getX();
-                float z = this.startPosition.getZ();
-                boolean positionNormilize = false;
+                float x = startPosition.getX();
+                float z = startPosition.getZ();
+                boolean positionNormalize = false;
                 if (c != null) {
-                    for (int y = 127; y >= 0 && !positionNormilize; y--) {
+                    for (int y = 127; y >= 0 && !positionNormalize; y--) {
                         byte blockType = c.blockTypeForPosition(x, y, z);
                         if (blockType != 0 && blockType != 18) {
-                            this.playerNormPosition.set(x, y + 3.0f, z);
-                            this.playerSpawnPosition.set(this.playerNormPosition);
-                            positionNormilize = true;
+                            playerNormPosition.set(x, y + 3.0f, z);
+                            playerSpawnPosition.set(playerNormPosition);
+                            positionNormalize = true;
                         }
                     }
                     return;
@@ -208,44 +232,47 @@ public class World {
             }
             fillChunks();
         } catch (OutOfMemoryError e) {
-            this.isCancelLoad = true;
+            isCancelLoad = true;
         }
     }
 
     private void fillChunks() {
-        for (int i = 0; i < this.chunks.length; i++) {
-            for (int j = 0; j < this.chunks[i].length; j++) {
+        for (int i = 0; i < chunks.length; i++) {
+            for (int j = 0; j < chunks[i].length; j++) {
                 final int caix = i;
                 final int caiz = j;
-                int x = (this.chunkPosX + i) - getLoadRadius();
-                int z = (this.chunkPosZ + j) - getLoadRadius();
+                int x = (chunkPosX + i) - getLoadRadius();
+                int z = (chunkPosZ + j) - getLoadRadius();
                 if (getChunk(x, z) == null) {
                     ResourceLoader.load(new ChunkLoader(this, x, z) {
                         @Override
                         public void complete() {
-                            if (this.resource != null && Range.inRange(caix, 0.0f, chunks.length - 1) && Range.inRange(caiz, 0.0f, chunks[caix].length - 1)) {
-                                if (World.this.chunks[caix][caiz] == null) {
-                                    this.resource.geomDirty();
-                                    chunks[caix][caiz] = this.resource;
+                            if (resource != null && Range.inRange(caix, 0.0f, chunks.length - 1) && Range.inRange(caiz, 0.0f, chunks[caix].length - 1)) {
+                                if (chunks[caix][caiz] == null) {
+                                    resource.geomDirty();
+                                    chunks[caix][caiz] = resource;
                                     incLoadingProgressStatus(1);
-                                    Chunk c = getChunk(this.x - 1, this.z);
+
+                                    // need to re-evaluate the geometry of
+                                    // neighbouring chunks
+                                    Chunk c = getChunk(x - 1, z);
                                     if (c != null) {
                                         c.geomDirty();
                                     }
-                                    Chunk c2 = getChunk(this.x + 1, this.z);
-                                    if (c2 != null) {
-                                        c2.geomDirty();
+                                    c = getChunk(x + 1, z);
+                                    if (c != null) {
+                                        c.geomDirty();
                                     }
-                                    Chunk c3 = getChunk(this.x, this.z - 1);
-                                    if (c3 != null) {
-                                        c3.geomDirty();
+                                    c = getChunk(x, z - 1);
+                                    if (c != null) {
+                                        c.geomDirty();
                                     }
-                                    Chunk c4 = getChunk(this.x, this.z + 1);
-                                    if (c4 != null) {
-                                        c4.geomDirty();
+                                    c = getChunk(x, z + 1);
+                                    if (c != null) {
+                                        c.geomDirty();
                                     }
                                 }
-                                this.resource.onPostGenerated();
+                                resource.onPostGenerated();
                             }
                             loadedChunkCount += 1;
                         }
@@ -256,86 +283,95 @@ public class World {
     }
 
     public boolean isReady() {
-        return this.loadedChunkCount >= 24;
+        return loadedChunkCount >= 24;
     }
 
     public void generateTerrain(Chunk c, boolean isFlat) {
         if (isFlat) {
-            this.generator.generateFlatTerrain(c);
-            this.lightProcessor.lightSunlitBlocksInChunk(c);
+            generator.generateFlatTerrain(c);
+            lightProcessor.lightSunlitBlocksInChunk(c);
             return;
         }
-        this.generator.generateTerrain(c, 2);
+        generator.generateTerrain(c, 2);
         for (int k = 0; k < c.topLayer.size(); k++) {
             Vector3i top = c.topLayer.get(k);
-            this.treeDecorator.decorate(top.x, top.y, top.z, c);
+            treeDecorator.decorate(top.x, top.y, top.z, c);
         }
         recalculateLightForChunk(c);
     }
 
+    /**
+     * Генерация рандомной карты
+     */
     private void generateRandomMap() {
-        for (int i = 0; i < this.chunks.length; i++) {
-            for (int j = 0; j < this.chunks[i].length; j++) {
+        for (int i = 0; i < chunks.length; i++) {
+            for (int j = 0; j < chunks[i].length; j++) {
                 int caix = i;
                 int caiz = j;
-                int x = (this.chunkPosX + i) - getLoadRadius();
-                int z = (this.chunkPosZ + j) - getLoadRadius();
+                int x = (chunkPosX + i) - getLoadRadius();
+                int z = (chunkPosZ + j) - getLoadRadius();
                 if (getChunk(x, z) == null) {
                     try {
                         Chunk c = new Chunk(this, x, z);
-                        this.generator.generateTerrain(c, 2135413);
-                        this.chunks[caix][caiz] = c;
-                        this.chunks[caix][caiz].onPostGenerated();
+                        generator.generateTerrain(c, 2135413);
+                        chunks[caix][caiz] = c;
+                        chunks[caix][caiz].onPostGenerated();
                         incLoadingProgressStatus(1);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
-                this.loadedChunkCount++;
+                loadedChunkCount++;
             }
         }
     }
 
+    /**
+     * Генерация плоской карты
+     */
     private void generateFlatMap() {
-        for (int i = 0; i < this.chunks.length; i++) {
-            for (int j = 0; j < this.chunks[i].length; j++) {
+        for (int i = 0; i < chunks.length; i++) {
+            for (int j = 0; j < chunks[i].length; j++) {
                 int caix = i;
                 int caiz = j;
-                int x = (this.chunkPosX + i) - getLoadRadius();
-                int z = (this.chunkPosZ + j) - getLoadRadius();
+                int x = (chunkPosX + i) - getLoadRadius();
+                int z = (chunkPosZ + j) - getLoadRadius();
                 if (getChunk(x, z) == null) {
                     try {
                         Chunk c = new Chunk(this, x, z);
-                        this.generator.generateFlatTerrain(c);
-                        this.chunks[caix][caiz] = c;
-                        this.chunks[caix][caiz].onPostGenerated();
+                        generator.generateFlatTerrain(c);
+                        chunks[caix][caiz] = c;
+                        chunks[caix][caiz].onPostGenerated();
                         incLoadingProgressStatus(1);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
-                this.loadedChunkCount++;
+                loadedChunkCount++;
             }
         }
     }
 
+    /**
+     * Генерация освещения
+     */
     private void generateLight() {
-        for (int i = 0; i < this.chunks.length && !this.isCancelLoad; i++) {
-            for (int j = 0; j < this.chunks[i].length && !this.isCancelLoad; j++) {
-                Chunk c = this.chunks[i][j];
+        for (int i = 0; i < chunks.length && !isCancelLoad; i++) {
+            for (int j = 0; j < chunks[i].length && !isCancelLoad; j++) {
+                Chunk c = chunks[i][j];
                 if (c != null) {
-                    this.lightProcessor.lightSunlitBlocksInChunk(c);
+                    lightProcessor.lightSunlitBlocksInChunk(c);
                     incLoadingProgressStatus(1);
                 }
             }
         }
-        for (int x = 0; x < this.chunks.length && !this.isCancelLoad; x++) {
-            for (int z = 0; z < this.chunks[x].length && !this.isCancelLoad; z++) {
-                Chunk c2 = this.chunks[x][z];
-                if (c2 != null) {
-                    this.lightProcessor.lightChunk(c2);
+        for (int x = 0; x < chunks.length && !isCancelLoad; x++) {
+            for (int z = 0; z < chunks[x].length && !isCancelLoad; z++) {
+                Chunk c = chunks[x][z];
+                if (c != null) {
+                    lightProcessor.lightChunk(c);
                     incLoadingProgressStatus(1);
-                    c2.geomDirty();
+                    c.geomDirty();
                 }
             }
         }
@@ -343,31 +379,43 @@ public class World {
 
     public void generateLight(Chunk c) {
         if (c != null) {
-            this.lightProcessor.lightChunk(c);
+            lightProcessor.lightChunk(c);
         }
     }
 
+    /**
+     * Генерация деревьев
+     */
     private void generateDecoration() {
-        for (int i = 0; i < this.chunks.length && !this.isCancelLoad; i++) {
-            for (int j = 0; j < this.chunks[i].length && !this.isCancelLoad; j++) {
-                Chunk c = this.chunks[i][j];
+        for (int i = 0; i < chunks.length && !isCancelLoad; i++) {
+            for (int j = 0; j < chunks[i].length && !isCancelLoad; j++) {
+                Chunk c = chunks[i][j];
                 if (c != null) {
                     for (int k = 0; k < c.topLayer.size(); k++) {
                         Vector3i top = c.topLayer.get(k);
-                        this.treeDecorator.decorate(top.x, top.y, top.z, c);
+                        treeDecorator.decorate(top.x, top.y, top.z, c);
                     }
                 }
             }
         }
     }
 
+    /**
+     * @param active
+     * @param x
+     * @param y
+     * @param z
+     */
     public void setBlockPlacePreview(boolean active, int x, int y, int z) {
-        this.blockPreview = active;
-        this.blockPreviewLocation.set(x, y, z);
+        blockPreview = active;
+        blockPreviewLocation.set(x, y, z);
     }
 
+    /**
+     * Tries to ensure we have the right chunks loaded
+     */
     public void advance() {
-        if (!this.isChunksInited) {
+        if (!isChunksInited) {
             setInited(true);
         }
         if (this.isChunksInited) {
@@ -412,6 +460,7 @@ public class World {
                     moveUp();
                     chunksDirty = true;
                 }
+                // load new chunks
                 if (chunksDirty) {
                     Log.i(Game.RUGL_TAG, "Entered chunk " + this.chunkPosX + ", " + this.chunkPosZ);
                     fillChunks();
@@ -569,141 +618,177 @@ public class World {
         }
     }
 
+    /**
+     * @param eye
+     * @param cam
+     */
     public void draw(Vector3f eye, FPSCamera cam) {
-        Chunklet top;
-        Chunklet bottom;
-        Chunklet west;
-        Chunklet east;
-        Chunklet south;
-        Chunklet north;
-        if (this.isChunksInited) {
-            this.isNewGame = false;
+        if (isChunksInited) {
+            isNewGame = false;
             if (GameMode.isMultiplayerMode() && !Multiplayer.instance.isWorldReady && isReady()) {
                 Multiplayer.instance.clientGraphicInited();
             }
-            if (!this.isCancelLoad) {
+            if (!isCancelLoad) {
                 Chunklet c = getChunklet(eye.x, eye.y, eye.z);
                 if (c != null) {
-                    c.drawFlag = this.drawFlag;
-                    this.floodQueue.offer(c);
-                    while (!this.floodQueue.isEmpty()) {
-                        Chunklet c2 = this.floodQueue.poll();
-                        Chunklet[] chunkletArr = this.renderList;
-                        int i = this.renderListSize;
-                        this.renderListSize = i + 1;
-                        chunkletArr[i] = c2;
+                    final Chunklet origin = c;
+                    c.drawFlag = drawFlag;
+                    floodQueue.offer(c);
+                    while (!floodQueue.isEmpty()) {
+                        c = floodQueue.poll();
+
+                        renderList[renderListSize++] = c;
+
+                        // grow
                         if (this.renderListSize >= this.renderList.length) {
                             Chunklet[] nrl = new Chunklet[this.renderList.length * 2];
                             System.arraycopy(this.renderList, 0, nrl, 0, this.renderList.length);
                             this.renderList = nrl;
                         }
-                        if (c2.x <= c.x && !c2.northSheet && (north = getChunklet(c2.x - 16, c2.y, c2.z)) != null && !north.southSheet && north.drawFlag != this.drawFlag && north.intersection(cam.getFrustum()) != Frustum.Result.Miss) {
-                            north.drawFlag = this.drawFlag;
-                            this.floodQueue.offer(north);
+
+                        // floodfill - for each neighbouring chunklet...
+                        // we are not reversing flood direction and we can see
+                        // through that face of this chunk
+                        if (c.x <= origin.x && !c.northSheet) {
+                            Chunklet north = getChunklet(c.x - 16, c.y, c.z);
+                            if (north != null) {
+                                // neighbouring chunk exists
+                                if (!north.southSheet)
+                                // we can see through the traversal face
+                                {
+                                    if (north.drawFlag != drawFlag) {
+                                        // we haven't already visited it in this frame
+                                        // it intersects the frustum
+                                        if (north.intersection(cam.getFrustum()) != Frustum.Result.Miss) {
+                                            north.drawFlag = drawFlag;
+                                            floodQueue.offer(north);
+                                        }
+                                    }
+                                }
+                            }
                         }
-                        if (c2.x >= c.x && !c2.southSheet && (south = getChunklet(c2.x + 16, c2.y, c2.z)) != null && !south.northSheet && south.drawFlag != this.drawFlag && south.intersection(cam.getFrustum()) != Frustum.Result.Miss) {
-                            south.drawFlag = this.drawFlag;
-                            this.floodQueue.offer(south);
+                        if (c.x >= origin.x && !c.southSheet) {
+                            Chunklet south = getChunklet(c.x + 16, c.y, c.z);
+                            if (south != null && !south.northSheet && south.drawFlag != drawFlag && south.intersection(cam.getFrustum()) != Frustum.Result.Miss) {
+                                south.drawFlag = drawFlag;
+                                floodQueue.offer(south);
+                            }
                         }
-                        if (c2.z <= c.z && !c2.eastSheet && (east = getChunklet(c2.x, c2.y, c2.z - 16)) != null && !east.westSheet && east.drawFlag != this.drawFlag && east.intersection(cam.getFrustum()) != Frustum.Result.Miss) {
-                            east.drawFlag = this.drawFlag;
-                            this.floodQueue.offer(east);
+                        if (c.z <= origin.z && !c.eastSheet) {
+                            Chunklet east = getChunklet(c.x, c.y, c.z - 16);
+                            if (east != null && !east.westSheet && east.drawFlag != drawFlag && east.intersection(cam.getFrustum()) != Frustum.Result.Miss) {
+                                east.drawFlag = drawFlag;
+                                floodQueue.offer(east);
+                            }
                         }
-                        if (c2.z >= c.z && !c2.westSheet && (west = getChunklet(c2.x, c2.y, c2.z + 16)) != null && !west.eastSheet && west.drawFlag != this.drawFlag && west.intersection(cam.getFrustum()) != Frustum.Result.Miss) {
-                            west.drawFlag = this.drawFlag;
-                            this.floodQueue.offer(west);
+                        if (c.z >= origin.z && !c.westSheet) {
+                            Chunklet west = getChunklet(c.x, c.y, c.z + 16);
+                            if (west != null && !west.eastSheet && west.drawFlag != drawFlag && west.intersection(cam.getFrustum()) != Frustum.Result.Miss) {
+                                west.drawFlag = drawFlag;
+                                floodQueue.offer(west);
+                            }
                         }
-                        if (c2.y <= c.y && !c2.bottomSheet && (bottom = getChunklet(c2.x, c2.y - 16, c2.z)) != null && !bottom.topSheet && bottom.drawFlag != this.drawFlag && bottom.intersection(cam.getFrustum()) != Frustum.Result.Miss) {
-                            bottom.drawFlag = this.drawFlag;
-                            this.floodQueue.offer(bottom);
+                        if (c.y <= origin.y && !c.bottomSheet) {
+                            Chunklet bottom = getChunklet(c.x, c.y - 16, c.z);
+                            if (bottom != null && !bottom.topSheet && bottom.drawFlag != drawFlag && bottom.intersection(cam.getFrustum()) != Frustum.Result.Miss) {
+                                bottom.drawFlag = drawFlag;
+                                floodQueue.offer(bottom);
+                            }
                         }
-                        if (c2.y >= c.y && !c2.topSheet && (top = getChunklet(c2.x, c2.y + 16, c2.z)) != null && !top.bottomSheet && top.drawFlag != this.drawFlag && top.intersection(cam.getFrustum()) != Frustum.Result.Miss) {
-                            top.drawFlag = this.drawFlag;
-                            this.floodQueue.offer(top);
+                        if (c.y >= origin.y && !c.topSheet) {
+                            Chunklet top = getChunklet(c.x, c.y + 16, c.z);
+                            if (top != null && !top.bottomSheet && top.drawFlag != drawFlag && top.intersection(cam.getFrustum()) != Frustum.Result.Miss) {
+                                top.drawFlag = drawFlag;
+                                floodQueue.offer(top);
+                            }
                         }
                     }
                 }
                 renderedChunklets = 0;
+                // sort chunklets into ascending order of distance from the
+                // eye
                 cs.eye.set(eye);
                 GLUtil.checkGLError();
-                for (int i2 = 0; i2 < this.renderListSize; i2++) {
-                    this.renderList[i2].generateGeometry(false);
+
+                // solid stuff from near to far
+                for (int i = 0; i < renderListSize; i++) {
+                    renderList[i].generateGeometry(false);
                 }
-                for (int i3 = 0; i3 < this.renderListSize; i3++) {
-                    this.renderList[i3].drawSolid(this.renderer);
-                    if (!this.renderList[i3].isEmpty()) {
+                for (int i = 0; i < renderListSize; i++) {
+                    renderList[i].drawSolid(renderer);
+                    if (!renderList[i].isEmpty()) {
                         renderedChunklets++;
                     }
                 }
                 GLUtil.checkGLError();
-                for (int i4 = this.renderListSize - 1; i4 >= 0; i4--) {
-                    this.renderList[i4].drawTransparent(this.renderer);
+
+                // translucent stuff from far to near
+                for (int i = renderListSize - 1; i >= 0; i--) {
+                    renderList[i].drawTransparent(renderer);
                 }
                 GLUtil.checkGLError();
-                if (this.drawOutlines) {
-                    for (int i5 = 0; i5 < this.renderListSize; i5++) {
-                        this.renderList[i5].drawOutline(this.renderer);
+                if (drawOutlines) {
+                    for (int i = 0; i < renderListSize; i++) {
+                        renderList[i].drawOutline(renderer);
                     }
                     GLUtil.checkGLError();
                 }
-                for (int i6 = 0; i6 < this.renderListSize; i6++) {
-                    this.renderList[i6].drawSolid(this.renderer);
-                    if (!this.renderList[i6].isEmpty()) {
+                for (int i = 0; i < renderListSize; i++) {
+                    renderList[i].drawSolid(renderer);
+                    if (!renderList[i].isEmpty()) {
                         renderedChunklets++;
                     }
                 }
-                Clouds.getInstance().draw(this.renderer);
+                Clouds.getInstance().draw(renderer);
                 if (GameMode.isSurvivalMode() && !GameMode.isMultiplayerMode()) {
                     dayNightCircle();
                 }
-                if (this.blockPreview) {
-                    this.renderer.pushMatrix();
-                    this.renderer.translate(this.blockPreviewLocation.x, this.blockPreviewLocation.y, this.blockPreviewLocation.z);
+                if (blockPreview) {
+                    renderer.pushMatrix();
+                    renderer.translate(blockPreviewLocation.x, blockPreviewLocation.y, blockPreviewLocation.z);
                     Byte previewBlockType = getPreviewBlockType();
                     if (DoorBlock.isDoor(previewBlockType)) {
-                        DoorBlock.renderPreview(this, this.renderer);
+                        DoorBlock.renderPreview(this, renderer);
                     } else if (BedBlock.isBed(previewBlockType)) {
-                        BedBlock.renderPreview(this, this.renderer);
+                        BedBlock.renderPreview(this, renderer);
                     } else if (LadderBlock.isLadder(previewBlockType)) {
-                        LadderBlock.renderPreview(this, this.renderer, this.blockPreviewLocation);
-                    } else if (this.breakingShape != null && this.breakingShape.isInBreakingProcess()) {
-                        this.breakingShape.render(this.renderer);
+                        LadderBlock.renderPreview(this, renderer, blockPreviewLocation);
+                    } else if (breakingShape != null && breakingShape.isInBreakingProcess()) {
+                        breakingShape.render(renderer);
                     } else {
-                        this.blockPreviewShape.render(this.renderer);
+                        blockPreviewShape.render(renderer);
                     }
-                    this.renderer.popMatrix();
+                    renderer.popMatrix();
                 }
-                this.renderer.render();
-                for (int i7 = 0; i7 < this.droppableItems.size(); i7++) {
-                    DroppableItem b = this.droppableItems.get(i7);
-                    b.draw(this.renderer, cam);
+                renderer.render();
+                for (int i = 0; i < droppableItems.size(); i++) {
+                    DroppableItem b = droppableItems.get(i);
+                    b.draw(renderer, cam);
                 }
-                for (int i8 = 0; i8 < this.blockParticles.size(); i8++) {
-                    BlockParticle bp = this.blockParticles.get(i8);
-                    bp.draw(this.renderer, cam);
+                for (int i = 0; i < blockParticles.size(); i++) {
+                    BlockParticle bp = blockParticles.get(i);
+                    bp.draw(renderer, cam);
                 }
-                Arrays.fill(this.renderList, null);
-                this.renderListSize = 0;
-                for (int i9 = 0; i9 < this.renderList.length; i9++) {
-                    this.renderList[i9] = null;
-                }
-                this.renderList = new Chunklet[32];
-                this.drawFlag++;
-                this.renderer.render();
+                Arrays.fill(renderList, null);
+                renderListSize = 0;
+                Arrays.fill(renderList, null);
+                renderList = new Chunklet[32];
+                drawFlag++;
+                renderer.render();
             }
         }
     }
 
     public boolean checkChunks() {
         boolean res = true;
-        for (int i = 0; i < this.chunks.length; i++) {
-            for (int j = 0; j < this.chunks[i].length; j++) {
-                if (this.chunks[i][j] == null) {
+        for (int i = 0; i < chunks.length; i++) {
+            for (int j = 0; j < chunks[i].length; j++) {
+                if (chunks[i][j] == null) {
                     res = false;
                 }
             }
         }
-        return res | (this.mapType == -1) | GameMode.isMultiplayerMode();
+        return res | (mapType == -1) | GameMode.isMultiplayerMode();
     }
 
     public void initSunLight() {
@@ -803,17 +888,14 @@ public class World {
                 break;
         }
         if (geomDirty) {
-            Runnable r = new Runnable() {
-                @Override
-                public void run() {
-                    for (int i = 0; i < chunks.length; i++) {
-                        for (int j = 0; j < chunks[i].length; j++) {
-                            Chunk c = chunks[i][j];
-                            if (c != null) {
-                                Chunklet[] arr$ = c.chunklets;
-                                for (Chunklet chunklet : arr$) {
-                                    chunklet.changeSunLight();
-                                }
+            Runnable r = () -> {
+                for (int i = 0; i < chunks.length; i++) {
+                    for (int j = 0; j < chunks[i].length; j++) {
+                        Chunk c = chunks[i][j];
+                        if (c != null) {
+                            Chunklet[] arr$ = c.chunklets;
+                            for (Chunklet chunklet : arr$) {
+                                chunklet.changeSunLight();
                             }
                         }
                     }
@@ -835,8 +917,7 @@ public class World {
 
     private void spawnPassiveMobs(boolean force) {
         updateChunkMobs();
-        Chunk[][] arr$ = this.chunks;
-        for (Chunk[] chunkArray : arr$) {
+        for (Chunk[] chunkArray : chunks) {
             for (Chunk chunk : chunkArray) {
                 if (chunk != null) {
                     chunk.spawnPassiveMobs(force);
@@ -847,8 +928,7 @@ public class World {
 
     private void spawnHostileMobs(boolean force) {
         updateChunkMobs();
-        Chunk[][] arr$ = this.chunks;
-        for (Chunk[] chunkArray : arr$) {
+        for (Chunk[] chunkArray : chunks) {
             for (Chunk chunk : chunkArray) {
                 if (chunk != null) {
                     chunk.spawnHostileMobs(force);
@@ -858,8 +938,7 @@ public class World {
     }
 
     private void updateChunkMobs() {
-        Chunk[][] arr$ = this.chunks;
-        for (Chunk[] chunkArray : arr$) {
+        for (Chunk[] chunkArray : chunks) {
             for (Chunk chunk : chunkArray) {
                 if (chunk != null) {
                     chunk.updateMobs();
@@ -873,11 +952,11 @@ public class World {
     }
 
     public int getSkyColour() {
-        float ratio = this.sunlight / 15.0f;
-        if (this.sunlight <= 10) {
+        float ratio = sunlight / 15.0f;
+        if (sunlight <= 10) {
             ratio = (float) (ratio * 0.6d);
         }
-        if (this.sunlight == 4) {
+        if (sunlight == 4) {
             ratio = (float) (ratio * 0.1d);
         }
         float r = 0.7f * ratio;
@@ -887,7 +966,7 @@ public class World {
     }
 
     public Vector3i getBlockPreviewLocation() {
-        return this.blockPreviewLocation;
+        return blockPreviewLocation;
     }
 
     public Byte getPreviewBlockType() {
@@ -909,7 +988,7 @@ public class World {
     public Byte getBlockTypeAbsolute(int x, int y, int z) {
         Chunk chunk = getChunk(x / 16, z / 16);
         if (chunk != null) {
-            return Byte.valueOf(chunk.blockType(x % 16, y, z % 16));
+            return chunk.blockType(x % 16, y, z % 16);
         }
         return null;
     }
@@ -929,6 +1008,13 @@ public class World {
         return (byte) 0;
     }
 
+    /**
+     * Gets a loaded chunk
+     *
+     * @param x
+     * @param z
+     * @return the so-indexed chunk, or <code>null</code> if it does not exist
+     */
     public Chunk getChunk(int x, int z) {
         int dx = x - this.chunkPosX;
         int dz = z - this.chunkPosZ;
@@ -941,8 +1027,7 @@ public class World {
     }
 
     public Chunk getChunkByPos(int chunkX, int chunkZ) {
-        Chunk[][] arr$ = this.chunks;
-        for (Chunk[] chunkArray : arr$) {
+        for (Chunk[] chunkArray : chunks) {
             for (Chunk chunk : chunkArray) {
                 if (chunk != null && chunk.chunkX == chunkX && chunk.chunkZ == chunkZ) {
                     return chunk;
@@ -952,6 +1037,12 @@ public class World {
         return null;
     }
 
+    /**
+     * @param x
+     * @param y
+     * @param z
+     * @return The chunklet that contains that point
+     */
     public Chunklet getChunklet(float x, float y, float z) {
         Chunk chunk = getChunk((int) FloatMath.floor(x / 16.0f), (int) FloatMath.floor(z / 16.0f));
         if (chunk == null || y < 0.0f || y >= 128.0f) {
@@ -985,6 +1076,13 @@ public class World {
         return blockType(pos.x, pos.y, pos.z);
     }
 
+    /**
+     * @param x
+     * @param y
+     * @param z
+     * @return The type of the block that contains the point, or 0 if the chunk
+     * is not loaded yet
+     */
     public byte blockType(float x, float y, float z) {
         Chunklet c = getChunklet(x, y, z);
         if (c != null) {
@@ -1018,6 +1116,9 @@ public class World {
         return result;
     }
 
+    /**
+     * @return chunk load radius
+     */
     public int getLoadRadius() {
         return this.loadradius;
     }
@@ -1289,8 +1390,7 @@ public class World {
     }
 
     public void updateMobChunks() {
-        Chunk[][] arr$ = this.chunks;
-        for (Chunk[] chunkArray : arr$) {
+        for (Chunk[] chunkArray : chunks) {
             for (Chunk chunk : chunkArray) {
                 if (chunk != null) {
                     chunk.updateMobs();
@@ -1330,11 +1430,7 @@ public class World {
     }
 
     public static class ChunkSorter implements Comparator<Chunklet> {
-        private final Vector3f eye;
-
-        private ChunkSorter() {
-            this.eye = new Vector3f();
-        }
+        private final Vector3f eye = new Vector3f();
 
         @Override
         public int compare(@NonNull Chunklet a, @NonNull Chunklet b) {
