@@ -73,7 +73,7 @@ public class MathUtils {
             }
             add = INV_ATAN2_DIM_MINUS_1;
         }
-        float invDiv = 1.0f / ((x < y ? y : x) * INV_ATAN2_DIM_MINUS_1);
+        float invDiv = 1.0f / ((Math.max(x, y)) * INV_ATAN2_DIM_MINUS_1);
         int xi = (int) (x * invDiv);
         int yi = (int) (y * invDiv);
         return (Atan2.table[(ATAN2_DIM * yi) + xi] + add) * mul;
@@ -123,7 +123,7 @@ public class MathUtils {
         if (value < min) {
             return min;
         }
-        return value > max ? max : value;
+        return Math.min(value, max);
     }
 
     public static short clamp(short value, short min, short max) {
@@ -137,7 +137,7 @@ public class MathUtils {
         if (value < min) {
             return min;
         }
-        return value > max ? max : value;
+        return Math.min(value, max);
     }
 
     public static int floor(float x) {
@@ -269,12 +269,8 @@ public class MathUtils {
                 table[((int) (i2 * MathUtils.degToIndex)) & MathUtils.SIN_MASK] = FloatMath.sin(i2 * 0.017453292f);
             }
         }
-
-        private Sin() {
-        }
     }
 
-    /* loaded from: classes.dex */
     public static class Cos {
         static final float[] table = new float[8192];
 
@@ -285,9 +281,6 @@ public class MathUtils {
             for (int i2 = 0; i2 < 360; i2 += 90) {
                 table[((int) (i2 * MathUtils.degToIndex)) & MathUtils.SIN_MASK] = FloatMath.cos(i2 * 0.017453292f);
             }
-        }
-
-        private Cos() {
         }
     }
 
@@ -302,9 +295,6 @@ public class MathUtils {
                     table[(MathUtils.ATAN2_DIM * j) + i] = (float) Math.atan2(y0, x0);
                 }
             }
-        }
-
-        private Atan2() {
         }
     }
 }

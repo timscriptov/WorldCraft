@@ -15,68 +15,60 @@ public class InventoryItem {
     private final int maxCount;
     private final int maxDurability;
     private final int slot;
-    public boolean isInHotbar;
+    public boolean isInHotbar = false;
     private BlockFactory.Block block;
-    private int count;
+    private int count = 0;
     private int currentDurability;
     private ItemFactory.Item item;
 
     public InventoryItem(@NonNull ItemFactory.Item item, int slot) {
-        this.count = 0;
-        this.isInHotbar = false;
         this.item = item;
-        this.maxCount = item.maxCountInStack;
+        maxCount = item.maxCountInStack;
         this.slot = slot;
-        this.maxDurability = item.durability;
-        this.currentDurability = this.maxDurability;
+        maxDurability = item.durability;
+        currentDurability = maxDurability;
     }
 
     public InventoryItem(@NonNull ItemFactory.Item item, int slot, int durability) {
-        this.count = 0;
-        this.isInHotbar = false;
         this.item = item;
-        this.maxCount = item.maxCountInStack;
+        maxCount = item.maxCountInStack;
         this.slot = slot;
-        this.maxDurability = item.durability;
-        this.currentDurability = durability;
+        maxDurability = item.durability;
+        currentDurability = durability;
     }
 
     public InventoryItem(BlockFactory.Block block, int slot) {
-        this.count = 0;
-        this.isInHotbar = false;
         this.block = block;
-        this.maxCount = 99;
+        maxCount = 99;
         this.slot = slot;
-        this.maxDurability = 1;
-        this.currentDurability = this.maxDurability;
+        maxDurability = 1;
+        currentDurability = maxDurability;
     }
 
     public InventoryItem(byte itemId, int slot, int damage, int count, boolean isInHotbar) {
-        this.count = 0;
-        this.isInHotbar = false;
-        this.item = ItemFactory.Item.getItemByID(itemId);
+        item = ItemFactory.Item.getItemByID(itemId);
         this.slot = slot;
-        this.currentDurability = damage;
-        this.maxDurability = this.item.durability;
+        currentDurability = damage;
+        maxDurability = item.durability;
         this.count = count;
-        this.maxCount = this.item.maxCountInStack;
+        maxCount = item.maxCountInStack;
         this.isInHotbar = isInHotbar;
     }
 
     public InventoryItem clone() {
-        return this.item != null ? new InventoryItem(this.item, this.slot, this.currentDurability) : new InventoryItem(this.block, this.slot);
+        return item != null ? new InventoryItem(item, slot, currentDurability) : new InventoryItem(block, slot);
     }
 
     public int getCount() {
-        return this.count;
+        return count;
     }
 
     public void incCount() {
-        this.count++;
+        count++;
     }
 
     public void decCount() {
-        this.count--;
+        count--;
     }
 
     public void decCount(int count) {
@@ -86,26 +78,26 @@ public class InventoryItem {
     }
 
     public void decDurability() {
-        this.currentDurability--;
+        currentDurability--;
     }
 
     public boolean isTool() {
-        return this.block == null && this.item.isTool();
+        return block == null && item.isTool();
     }
 
     public float getDurabilityRatio() {
-        return (this.currentDurability * 1.0f) / this.maxDurability;
+        return (currentDurability * 1.0f) / maxDurability;
     }
 
     public ItemFactory.Item getItem() {
-        return this.item;
+        return item;
     }
 
     public BlockFactory.Block getBlock() {
-        if (this.block == null) {
-            return this.item.block;
+        if (block == null) {
+            return item.block;
         }
-        return this.block;
+        return block;
     }
 
     public Material getMaterial() {
@@ -113,54 +105,54 @@ public class InventoryItem {
     }
 
     public TexturedShape getItemShape() {
-        this.item = getItem();
-        if (this.item != null) {
-            return this.item.itemShape;
+        item = getItem();
+        if (item != null) {
+            return item.itemShape;
         }
-        if (this.block != null) {
-            if (DoorBlock.isDoor(this.block) || BedBlock.isBed(this.block)) {
-                this.block.blockItemShape.state = ItemFactory.itemState;
+        if (block != null) {
+            if (DoorBlock.isDoor(block) || BedBlock.isBed(block)) {
+                block.blockItemShape.state = ItemFactory.itemState;
             }
-            return this.block.blockItemShape;
+            return block.blockItemShape;
         }
         return null;
     }
 
     public boolean isFull() {
-        return this.count >= this.maxCount;
+        return count >= maxCount;
     }
 
     public boolean isEmpty() {
         if (GameMode.isCreativeMode()) {
             return false;
         }
-        return this.count <= 0 || this.currentDurability <= 0;
+        return count <= 0 || currentDurability <= 0;
     }
 
     public boolean isUseAsFuel() {
-        return this.item.isUseAsFuel();
+        return item.isUseAsFuel();
     }
 
     public boolean isUseAsMaterial() {
-        return this.item.isUseAsMaterials();
+        return item.isUseAsMaterials();
     }
 
     public int getSlot() {
-        return this.slot;
+        return slot;
     }
 
     public byte getItemID() {
-        if (this.item != null) {
-            return this.item.id;
+        if (item != null) {
+            return item.id;
         }
-        if (this.block != null) {
-            return this.block.id;
+        if (block != null) {
+            return block.id;
         }
         return (byte) 0;
     }
 
     public int getCurrentDurability() {
-        return this.currentDurability;
+        return currentDurability;
     }
 
     public boolean isFood() {

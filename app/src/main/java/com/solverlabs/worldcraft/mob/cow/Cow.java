@@ -48,8 +48,8 @@ public class Cow extends Mob {
     }
 
     private void init() {
-        this.mobSize = MOB_SIZE;
-        this.healthPoints = (short) 10;
+        mobSize = MOB_SIZE;
+        healthPoints = (short) 10;
     }
 
     @Override

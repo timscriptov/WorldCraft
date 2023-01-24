@@ -9,7 +9,7 @@ public class CowView extends MobView {
 
     public CowView(Cow cow, State state) {
         super(cow, state);
-        this.mobTexturePack = new MobTexturePack(cow, state);
+        mobTexturePack = new MobTexturePack(cow, state);
     }
 
     @Override
