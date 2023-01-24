@@ -50,8 +50,8 @@ public class NewGameSingleplayerActivity extends CommonActivity {
 
     public void finishActivityAndCloseParent() {
         Intent returnIntent = new Intent();
-        returnIntent.putExtra(SingleplayerActivity.SHOULD_FINISH, true);
-        setResult(-1, returnIntent);
+        returnIntent.putExtra(SinglePlayerActivity.SHOULD_FINISH, true);
+        setResult(RESULT_OK, returnIntent);
         finish();
     }
 

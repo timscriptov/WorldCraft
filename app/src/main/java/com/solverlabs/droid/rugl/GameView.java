@@ -12,7 +12,7 @@ import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
 
 @SuppressLint("ViewConstructor")
-final class GameView extends GLSurfaceView {
+public final class GameView extends GLSurfaceView {
     /**
      * The game
      */

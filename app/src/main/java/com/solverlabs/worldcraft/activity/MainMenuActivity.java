@@ -70,7 +70,7 @@ public class MainMenuActivity extends CommonActivity {
         Button multiplayerButton = findViewById(R.id.multiplayerButton);
         Button optionButton = findViewById(R.id.optionButton);
         singleButton.setOnClickListener(v -> {
-            Intent intent = new Intent(MainMenuActivity.this, SingleplayerActivity.class);
+            Intent intent = new Intent(MainMenuActivity.this, SinglePlayerActivity.class);
             startActivity(intent);
         });
         multiplayerButton.setOnClickListener(v -> {

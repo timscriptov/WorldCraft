@@ -4,8 +4,8 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <include
-        android:id="@+id/list_item_section_text"
-        layout="@android:layout/preference_category" />
+    <TextView
+        style="?android:attr/listSeparatorTextViewStyle"
+        android:id="@+id/title" />
 
 </LinearLayout>

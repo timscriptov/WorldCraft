@@ -43,7 +43,7 @@
             android:label="@string/app_name"
             android:screenOrientation="landscape"/>
         <activity
-            android:name="com.solverlabs.worldcraft.activity.SingleplayerActivity"
+            android:name="com.solverlabs.worldcraft.activity.SinglePlayerActivity"
             android:label="@string/title_activity_singleplayer"
             android:screenOrientation="landscape" />
         <activity

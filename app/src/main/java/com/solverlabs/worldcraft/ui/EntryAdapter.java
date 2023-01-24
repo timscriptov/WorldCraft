@@ -36,7 +36,7 @@ public class EntryAdapter extends ArrayAdapter<OptionItem> {
             v.setOnClickListener(null);
             v.setOnLongClickListener(null);
             v.setLongClickable(false);
-            TextView sectionView = v.findViewById(R.id.list_item_section_text);
+            TextView sectionView = v.findViewById(R.id.title);
             sectionView.setText(si.getTitle());
             return v;
         }
