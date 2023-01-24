@@ -27,8 +27,8 @@ public class CustomTapPad extends TapPad {
         super(x, y, width, height);
         this.font = font;
         if (font != null) {
-            this.textShape = font.buildTextShape(text, Colour.white);
-            this.textShape.translate(x + ((width - font.getStringLength(text)) / 2.0f), y + ((height - font.size) / 2.0f), top ? 0.1f : 0.0f);
+            textShape = font.buildTextShape(text, Colour.white);
+            textShape.translate(x + ((width - font.getStringLength(text)) / 2.0f), y + ((height - font.size) / 2.0f), top ? 0.1f : 0.0f);
         }
         this.x = x;
         this.y = y;
@@ -38,31 +38,31 @@ public class CustomTapPad extends TapPad {
 
     @Override
     public void draw(StackedRenderer sr) {
-        if (this.isVisible) {
-            if (this.outlineWhite == null) {
-                this.outlineWhite = new ColouredShape(ShapeUtil.innerQuad(this.pad.x.getMin(), this.pad.y.getMin(), this.pad.x.getMax(), this.pad.y.getMax(), 5.0f, 0.0f), this.boundsWhiteColour, (State) null);
+        if (isVisible) {
+            if (outlineWhite == null) {
+                outlineWhite = new ColouredShape(ShapeUtil.innerQuad(pad.x.getMin(), pad.y.getMin(), pad.x.getMax(), pad.y.getMax(), 5.0f, 0.0f), boundsWhiteColour, (State) null);
             }
-            if (this.outlineBlack == null) {
-                this.outlineBlack = new ColouredShape(ShapeUtil.innerQuad(this.pad.x.getMin() + 2.5f, this.pad.y.getMin() + 2.5f, this.pad.x.getMax() - 2.5f, this.pad.y.getMax() - 2.5f, this.pad.x.getSpan(), 0.0f), this.boundsBlackColour, (State) null);
+            if (outlineBlack == null) {
+                outlineBlack = new ColouredShape(ShapeUtil.innerQuad(pad.x.getMin() + 2.5f, pad.y.getMin() + 2.5f, pad.x.getMax() - 2.5f, pad.y.getMax() - 2.5f, pad.x.getSpan(), 0.0f), boundsBlackColour, (State) null);
             }
-            this.outlineWhite.render(sr);
-            if (this.touch != null) {
-                this.outlineBlack.colours = ShapeUtil.expand(this.boundsWhiteColour, this.outlineBlack.vertexCount());
+            outlineWhite.render(sr);
+            if (touch != null) {
+                outlineBlack.colours = ShapeUtil.expand(boundsWhiteColour, outlineBlack.vertexCount());
             } else {
-                this.outlineBlack.colours = ShapeUtil.expand(this.boundsBlackColour, this.outlineBlack.vertexCount());
+                outlineBlack.colours = ShapeUtil.expand(boundsBlackColour, outlineBlack.vertexCount());
             }
-            this.outlineBlack.render(sr);
+            outlineBlack.render(sr);
             sr.render();
-            if (this.textShape != null) {
-                this.textShape.render(sr);
+            if (textShape != null) {
+                textShape.render(sr);
             }
         }
     }
 
     public void setText(String text) {
-        if (this.font != null) {
-            this.textShape = this.font.buildTextShape(text, Colour.packFloat(1.0f, 1.0f, 1.0f, 1.0f));
-            this.textShape.translate(this.x + ((this.width - this.font.getStringLength(text)) / 2.0f), this.y + ((this.height - this.font.size) / 2.0f), 0.0f);
+        if (font != null) {
+            textShape = font.buildTextShape(text, Colour.packFloat(1.0f, 1.0f, 1.0f, 1.0f));
+            textShape.translate(x + ((width - font.getStringLength(text)) / 2.0f), y + ((height - font.size) / 2.0f), 0.0f);
         }
     }
 }

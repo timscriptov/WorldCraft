@@ -19,7 +19,7 @@ public class SleepBar extends FadeInOutBar {
 
     @Override
     public void advance(float delta) {
-        setFadingStartedAt(this.player.getKeptDownAt());
+        setFadingStartedAt(player.getKeptDownAt());
         super.advance(delta);
     }
 }

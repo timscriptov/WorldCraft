@@ -46,9 +46,9 @@ public class HealthBar {
 
     public void draw(StackedRenderer sr) {
         byte[] playerHearts = HeartTypesProcessor.getHeartTypes(this.player.getHealthPoints());
-        float offset = (this.bounds.x.getSpan() - 10.0f) / 12.0f;
-        float yPos = this.bounds.y.toValue(0.5f);
-        float xPos = (this.bounds.x.getMin() + 5.0f) - (offset / 2.0f);
+        float offset = (bounds.x.getSpan() - 10.0f) / 12.0f;
+        float yPos = bounds.y.toValue(0.5f);
+        float xPos = (bounds.x.getMin() + 5.0f) - (offset / 2.0f);
         for (byte b : playerHearts) {
             xPos += offset;
             sr.pushMatrix();
@@ -68,26 +68,22 @@ public class HealthBar {
 
     private TexturedShape getHeartTextureRest(byte heartType) {
         switch (heartType) {
-            case EMPTY_HEART:
-                return emptyHeartShape;
             case HALF_HEART:
                 return halfHeartShape;
             case FULL_HEART:
                 return fullHeartShape;
-            default:
+            default: // EMPTY_HEART
                 return emptyHeartShape;
         }
     }
 
     private TexturedShape getHeartTextureActive(byte heartType) {
         switch (heartType) {
-            case EMPTY_HEART:
-                return emptyHeartActiveShape;
             case HALF_HEART:
                 return halfHeartActiveShape;
             case FULL_HEART:
                 return fullHeartActiveShape;
-            default:
+            default: // EMPTY_HEART
                 return emptyHeartActiveShape;
         }
     }

@@ -21,18 +21,18 @@ public class EntryAdapter extends ArrayAdapter<OptionItem> {
         super(context, 0, items);
         this.context = context;
         this.items = items;
-        this.vi = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        vi = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        OptionItem i = this.items.get(position);
-        if (i == null) {
+        OptionItem optionItem = items.get(position);
+        if (optionItem == null) {
             return convertView;
         }
-        if (i.isSection()) {
-            SectionItem si = (SectionItem) i;
-            View v = this.vi.inflate(R.layout.list_item_section, null);
+        if (optionItem.isSection()) {
+            SectionItem si = (SectionItem) optionItem;
+            View v = vi.inflate(R.layout.list_item_section, null);
             v.setOnClickListener(null);
             v.setOnLongClickListener(null);
             v.setLongClickable(false);
@@ -40,21 +40,21 @@ public class EntryAdapter extends ArrayAdapter<OptionItem> {
             sectionView.setText(si.getTitle());
             return v;
         }
-        EntryItem ei = (EntryItem) i;
-        View v2 = this.vi.inflate(R.layout.list_item_entry, null);
-        TextView title = v2.findViewById(R.id.list_item_entry_title);
-        TextView subtitle = v2.findViewById(R.id.list_item_entry_summary);
-        if (ei.hasImage()) {
-            ImageView image = v2.findViewById(R.id.list_item_image);
-            image.setImageResource(ei.resID);
+        EntryItem entryItem = (EntryItem) optionItem;
+        View view = vi.inflate(R.layout.list_item_entry, null);
+        TextView title = view.findViewById(R.id.list_item_entry_title);
+        TextView subtitle = view.findViewById(R.id.list_item_entry_summary);
+        if (entryItem.hasImage()) {
+            ImageView image = view.findViewById(R.id.list_item_image);
+            image.setImageResource(entryItem.resID);
         }
         if (title != null) {
-            title.setText(ei.title);
+            title.setText(entryItem.title);
         }
         if (subtitle != null) {
-            subtitle.setText(ei.subtitle);
-            return v2;
+            subtitle.setText(entryItem.subtitle);
+            return view;
         }
-        return v2;
+        return view;
     }
 }

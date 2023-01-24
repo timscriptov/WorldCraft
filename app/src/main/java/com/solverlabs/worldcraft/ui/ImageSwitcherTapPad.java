@@ -11,16 +11,16 @@ public class ImageSwitcherTapPad extends ImageTapPad {
     public ImageSwitcherTapPad(float x, float y, float width, float height, int w, int h, int w2, int h2) {
         super(x, y, width, height, w, h);
         this.isOn = false;
-        this.shape = ItemFactory.Item.getShape(w2, h2);
-        this.shape.scale(25.0f, 25.0f, 25.0f);
-        this.shape.translate(x + 25.0f, 25.0f + y, 0.0f);
+        shape = ItemFactory.Item.getShape(w2, h2);
+        shape.scale(25.0f, 25.0f, 25.0f);
+        shape.translate(x + 25.0f, 25.0f + y, 0.0f);
     }
 
     @Override
     public void renderShape(StackedRenderer sr) {
-        if (this.isOn) {
-            if (this.shape != null) {
-                this.shape.render(sr);
+        if (isOn) {
+            if (shape != null) {
+                shape.render(sr);
                 return;
             }
             return;
@@ -29,10 +29,10 @@ public class ImageSwitcherTapPad extends ImageTapPad {
     }
 
     public void switchState() {
-        this.isOn = !this.isOn;
+        isOn = !isOn;
     }
 
     public boolean isOn() {
-        return this.isOn;
+        return isOn;
     }
 }

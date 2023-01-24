@@ -10,7 +10,7 @@ public class EntryItem implements OptionItem {
     public EntryItem(String title, String subtitle, int Id, boolean hasImage, int resID) {
         this.title = title;
         this.subtitle = subtitle;
-        this.ID = Id;
+        ID = Id;
         this.hasImage = hasImage;
         this.resID = resID;
     }
@@ -18,8 +18,8 @@ public class EntryItem implements OptionItem {
     public EntryItem(String title, String subtitle, int Id) {
         this.title = title;
         this.subtitle = subtitle;
-        this.ID = Id;
-        this.hasImage = false;
+        ID = Id;
+        hasImage = false;
     }
 
     @Override
@@ -29,6 +29,6 @@ public class EntryItem implements OptionItem {
 
     @Override
     public boolean hasImage() {
-        return this.hasImage;
+        return hasImage;
     }
 }

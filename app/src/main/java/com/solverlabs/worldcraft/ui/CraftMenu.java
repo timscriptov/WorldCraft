@@ -64,11 +64,11 @@ public class CraftMenu implements Touch.TouchListener {
     public CraftMenu(Inventory inventory) {
         this.inventory = inventory;
         initCraftItems(false);
-        this.exitTap = new CustomTapPad(Game.gameWidth - 68.0f, Game.gameHeight - 68.0f, 60.0f, 60.0f, GUI.getFont(), "X");
-        this.exitTapListener = new TapPad.Listener() {
+        exitTap = new CustomTapPad(Game.gameWidth - 68.0f, Game.gameHeight - 68.0f, 60.0f, 60.0f, GUI.getFont(), "X");
+        exitTapListener = new TapPad.Listener() {
             @Override
             public void onTap(TapPad pad) {
-                CraftMenu.this.showOrHide(false);
+                showOrHide(false);
             }
 
             @Override
@@ -83,12 +83,12 @@ public class CraftMenu implements Touch.TouchListener {
             public void onDoubleTap(TapPad pad) {
             }
         };
-        this.exitTap.listener = this.exitTapListener;
-        this.craftTap = new CustomButton(500.0f, 200.0f, 200.0f, 180.0f, DescriptionFactory.emptyText);
-        this.craftTapListener = new TapPad.Listener() {
+        exitTap.listener = exitTapListener;
+        craftTap = new CustomButton(500.0f, 200.0f, 200.0f, 180.0f, DescriptionFactory.emptyText);
+        craftTapListener = new TapPad.Listener() {
             @Override
             public void onTap(TapPad pad) {
-                CraftMenu.this.doCraft();
+                doCraft();
             }
 
             @Override
@@ -103,27 +103,27 @@ public class CraftMenu implements Touch.TouchListener {
             public void onDoubleTap(TapPad pad) {
             }
         };
-        this.craftTap.listener = this.craftTapListener;
-        this.toolsButton = new CustomButton(25.0f, Game.gameHeight - 125.0f, 100.0f, 100.0f, "1");
-        this.toolsButton.drawText = false;
-        this.buttonsGroup.add(this.toolsButton);
-        this.blocksButton = new CustomButton(25.0f, Game.gameHeight - 250.0f, 100.0f, 100.0f, "2");
-        this.blocksButton.drawText = false;
-        this.buttonsGroup.add(this.blocksButton);
-        this.itemsButton = new CustomButton(25.0f, Game.gameHeight - 375.0f, 100.0f, 100.0f, "3");
-        this.itemsButton.drawText = false;
-        this.buttonsGroup.add(this.itemsButton);
-        this.groupButtonListener = new TapPad.Listener() {
+        craftTap.listener = craftTapListener;
+        toolsButton = new CustomButton(25.0f, Game.gameHeight - 125.0f, 100.0f, 100.0f, "1");
+        toolsButton.drawText = false;
+        buttonsGroup.add(toolsButton);
+        blocksButton = new CustomButton(25.0f, Game.gameHeight - 250.0f, 100.0f, 100.0f, "2");
+        blocksButton.drawText = false;
+        buttonsGroup.add(blocksButton);
+        itemsButton = new CustomButton(25.0f, Game.gameHeight - 375.0f, 100.0f, 100.0f, "3");
+        itemsButton.drawText = false;
+        buttonsGroup.add(itemsButton);
+        groupButtonListener = new TapPad.Listener() {
             @Override
             public void onTap(TapPad pad) {
-                for (CustomButton button : CraftMenu.this.buttonsGroup) {
+                for (CustomButton button : buttonsGroup) {
                     button.setSelected(false);
                 }
                 pad.isSelected = true;
                 if (pad instanceof CustomButton) {
-                    CraftMenu.this.activeGroupNumber = Integer.parseInt(((CustomButton) pad).getText());
+                    activeGroupNumber = Integer.parseInt(((CustomButton) pad).getText());
                 }
-                CraftMenu.this.initCraftItems(CraftMenu.this.isWorkBanch);
+                initCraftItems(isWorkBanch);
             }
 
             @Override
@@ -138,31 +138,31 @@ public class CraftMenu implements Touch.TouchListener {
             public void onDoubleTap(TapPad pad) {
             }
         };
-        this.toolsButton.listener = this.groupButtonListener;
-        this.blocksButton.listener = this.groupButtonListener;
-        this.itemsButton.listener = this.groupButtonListener;
+        toolsButton.listener = groupButtonListener;
+        blocksButton.listener = groupButtonListener;
+        itemsButton.listener = groupButtonListener;
     }
 
     public void initCraftItems(boolean isWorkBanch) {
-        this.craftItems.clear();
+        craftItems.clear();
         float y = 402.0f;
         for (int i = 0; i < CraftFactory.CraftItem.values().length; i++) {
             CraftFactory.CraftItem craftItem = CraftFactory.CraftItem.values()[i];
-            if (isWorkBanch && craftItem.getGroup() == this.activeGroupNumber) {
+            if (isWorkBanch && craftItem.getGroup() == activeGroupNumber) {
                 addCraftItem(150.0f, y, craftItem);
                 y -= 70.0f;
-            } else if (!craftItem.isNeedWorkBanch() && craftItem.getGroup() == this.activeGroupNumber) {
+            } else if (!craftItem.isNeedWorkBanch() && craftItem.getGroup() == activeGroupNumber) {
                 addCraftItem(150.0f, y, craftItem);
                 y -= 70.0f;
             }
         }
-        this.craftItems.get(0).isSelected = true;
+        craftItems.get(0).isSelected = true;
     }
 
     private void addCraftItem(float x, float y, CraftFactory.CraftItem craftItem) {
-        CraftMenuTapItem tapItem = new CraftMenuTapItem(craftItem, this.inventory, x, y);
+        CraftMenuTapItem tapItem = new CraftMenuTapItem(craftItem, inventory, x, y);
         tapItem.checkItem();
-        this.craftItems.add(tapItem);
+        craftItems.add(tapItem);
     }
 
     public void doCraft() {
@@ -186,24 +186,24 @@ public class CraftMenu implements Touch.TouchListener {
     }
 
     public void draw(StackedRenderer sr) {
-        if (this.show) {
+        if (show) {
             drawInnerBound(sr);
             drawBound(sr);
-            this.exitTap.draw(sr);
+            exitTap.draw(sr);
             sr.render();
-            this.craftTap.draw(sr);
-            this.toolsButton.draw(sr);
-            drawButtonTitle(sr, this.toolsButton.getX() + (this.toolsButton.getWidth() / 2.0f), this.toolsButton.getY() + (this.toolsButton.getHeight() / 2.0f), ItemFactory.Item.IronPick.itemShape);
-            this.blocksButton.draw(sr);
-            drawButtonTitle(sr, this.blocksButton.getX() + (this.blocksButton.getWidth() / 2.0f), this.blocksButton.getY() + (this.blocksButton.getHeight() / 2.0f), ItemFactory.Item.BrickBlock.itemShape);
-            this.itemsButton.draw(sr);
-            drawButtonTitle(sr, this.itemsButton.getX() + (this.itemsButton.getWidth() / 2.0f), this.itemsButton.getY() + (this.itemsButton.getHeight() / 2.0f), ItemFactory.Item.ItemsLabel.itemShape);
+            craftTap.draw(sr);
+            toolsButton.draw(sr);
+            drawButtonTitle(sr, toolsButton.getX() + (toolsButton.getWidth() / 2.0f), toolsButton.getY() + (toolsButton.getHeight() / 2.0f), ItemFactory.Item.IronPick.itemShape);
+            blocksButton.draw(sr);
+            drawButtonTitle(sr, blocksButton.getX() + (blocksButton.getWidth() / 2.0f), blocksButton.getY() + (blocksButton.getHeight() / 2.0f), ItemFactory.Item.BrickBlock.itemShape);
+            itemsButton.draw(sr);
+            drawButtonTitle(sr, itemsButton.getX() + (itemsButton.getWidth() / 2.0f), itemsButton.getY() + (itemsButton.getHeight() / 2.0f), ItemFactory.Item.ItemsLabel.itemShape);
             drawCraftMaterial(sr);
             drawCraftMaterialCount(sr);
             GLES10.glEnable(3089);
             GLES10.glScissor((int) (150.0f * RATIO_X), (int) (10.0f * RATIO_Y), (int) (400.0f * RATIO_X), (int) (462.0f * RATIO_Y));
-            for (int i = 0; i < this.craftItems.size(); i++) {
-                this.craftItems.get(i).draw(sr, this.touchDelta);
+            for (int i = 0; i < craftItems.size(); i++) {
+                craftItems.get(i).draw(sr, touchDelta);
             }
             sr.render();
             GLES10.glDisable(3089);
@@ -215,40 +215,40 @@ public class CraftMenu implements Touch.TouchListener {
     }
 
     private void drawTitle(StackedRenderer sr) {
-        if (this.titleTextShape == null) {
+        if (titleTextShape == null) {
             Font font = GUI.getFont();
-            this.titleTextShape = font.buildTextShape("Craft", Colour.white);
-            this.titleTextShape.translate(((280.0f - font.getStringLength(TileEntity.FURNACE_ID)) / 2.0f) + 450.0f + 20.0f, (Game.gameHeight - font.size) - 20.0f, 0.0f);
+            titleTextShape = font.buildTextShape("Craft", Colour.white);
+            titleTextShape.translate(((280.0f - font.getStringLength(TileEntity.FURNACE_ID)) / 2.0f) + 450.0f + 20.0f, (Game.gameHeight - font.size) - 20.0f, 0.0f);
             Shape s = ShapeUtil.filledQuad(450.0f, Game.gameHeight - 8.0f, 730.0f, Game.gameHeight - 70.0f, 0.0f);
-            this.fillTitleShape = new ColouredShape(s, Colour.packFloat(0.0f, 0.0f, 0.0f, 0.5f), null);
+            fillTitleShape = new ColouredShape(s, Colour.packFloat(0.0f, 0.0f, 0.0f, 0.5f), null);
         }
-        this.fillTitleShape.render(sr);
+        fillTitleShape.render(sr);
         sr.render();
-        this.titleTextShape.render(sr);
+        titleTextShape.render(sr);
     }
 
     private void drawInnerBound(StackedRenderer sr) {
-        if (this.innerShape == null) {
-            Shape is = ShapeUtil.innerQuad(this.bounds.x.getMin(), this.bounds.y.getMin(), this.bounds.x.getMax(), this.bounds.y.getMax(), this.bounds.y.getSpan(), 0.0f);
-            this.innerShape = new ColouredShape(is, this.innerColour, null);
+        if (innerShape == null) {
+            Shape is = ShapeUtil.innerQuad(bounds.x.getMin(), bounds.y.getMin(), bounds.x.getMax(), bounds.y.getMax(), bounds.y.getSpan(), 0.0f);
+            innerShape = new ColouredShape(is, innerColour, null);
         }
-        this.innerShape.render(sr);
+        innerShape.render(sr);
     }
 
     private void drawBound(StackedRenderer sr) {
-        if (this.boundShape == null) {
-            Shape bs = ShapeUtil.innerQuad(this.bounds.x.getMin(), this.bounds.y.getMin(), this.bounds.x.getMax(), this.bounds.y.getMax(), 8.0f, 0.0f);
-            this.boundShape = new ColouredShape(bs, this.boundsColour, null);
+        if (boundShape == null) {
+            Shape bs = ShapeUtil.innerQuad(bounds.x.getMin(), bounds.y.getMin(), bounds.x.getMax(), bounds.y.getMax(), 8.0f, 0.0f);
+            boundShape = new ColouredShape(bs, boundsColour, null);
         }
-        this.boundShape.render(sr);
+        boundShape.render(sr);
     }
 
     private void drawScissorBound(StackedRenderer sr) {
-        if (this.scissorBoundShape == null) {
+        if (scissorBoundShape == null) {
             Shape bs = ShapeUtil.innerQuad(150.0f, 10.0f, 450.0f, 472.0f, 2.0f, 0.0f);
-            this.scissorBoundShape = new ColouredShape(bs, Colour.black, null);
+            scissorBoundShape = new ColouredShape(bs, Colour.black, null);
         }
-        this.scissorBoundShape.render(sr);
+        scissorBoundShape.render(sr);
     }
 
     private void drawCraftMaterial(StackedRenderer sr) {
@@ -278,16 +278,16 @@ public class CraftMenu implements Touch.TouchListener {
     private void drawCraftMaterialCount(StackedRenderer sr) {
         float xOffset;
         float yOffset;
-        if (this.materialCountShape == null) {
-            this.materialCountShape = new Readout(GUI.getFont(), Colour.white, " ", false, 2, 1);
+        if (materialCountShape == null) {
+            materialCountShape = new Readout(GUI.getFont(), Colour.white, " ", false, 2, 1);
         }
         if (getSelectedItem() != null) {
             CraftFactory.CraftItem craftItem = getSelectedItem().getCraftItem();
             for (int i = 0; i < craftItem.getMaterial().length; i++) {
                 byte itemID = craftItem.getMaterial()[i][0];
-                float totalCount = this.inventory.getItemTotalCount(itemID);
+                float totalCount = inventory.getItemTotalCount(itemID);
                 float neededCount = totalCount + ((craftItem.getMaterial()[i][1] * 1.0f) / 10.0f);
-                this.materialCountShape.updateValue(neededCount);
+                materialCountShape.updateValue(neededCount);
                 if (i < 2) {
                     xOffset = i * 90;
                     yOffset = 0.0f;
@@ -298,11 +298,11 @@ public class CraftMenu implements Touch.TouchListener {
                 sr.pushMatrix();
                 sr.translate(510.0f + xOffset, 295.0f + yOffset, 0.0f);
                 if (totalCount >= craftItem.getMaterial()[i][1]) {
-                    this.materialCountShape.colours = ShapeUtil.expand(Colour.white, this.materialCountShape.vertexCount());
+                    materialCountShape.colours = ShapeUtil.expand(Colour.white, materialCountShape.vertexCount());
                 } else {
-                    this.materialCountShape.colours = ShapeUtil.expand(Colour.darkgrey, this.materialCountShape.vertexCount());
+                    materialCountShape.colours = ShapeUtil.expand(Colour.darkgrey, materialCountShape.vertexCount());
                 }
-                this.materialCountShape.render(sr);
+                materialCountShape.render(sr);
                 sr.popMatrix();
                 sr.render();
             }
@@ -322,28 +322,28 @@ public class CraftMenu implements Touch.TouchListener {
         String description;
         Font font = GUI.getFont();
         if (getSelectedItem() != null && (description = getSelectedItem().getItem().getDescription()) != null && !description.equals(DescriptionFactory.emptyText)) {
-            this.textLayout = new TextLayout(description, font, null, 230.0f, Colour.white);
-            this.textLayout.textShape.scale(1.2f, 1.2f, 1.2f);
-            this.textLayout.textShape.translate(500.0f, 150.0f, 0.0f);
-            this.textLayout.textShape.render(sr);
+            textLayout = new TextLayout(description, font, null, 230.0f, Colour.white);
+            textLayout.textShape.scale(1.2f, 1.2f, 1.2f);
+            textLayout.textShape.translate(500.0f, 150.0f, 0.0f);
+            textLayout.textShape.render(sr);
         }
     }
 
     @Override
     public boolean pointerAdded(Touch.Pointer p) {
-        if (this.touch == null && this.bounds.contains(p.x, p.y) && this.show) {
-            this.touch = p;
-            for (CraftMenuTapItem item : this.craftItems) {
-                item.pointerAdded(this.touch);
+        if (touch == null && bounds.contains(p.x, p.y) && show) {
+            touch = p;
+            for (CraftMenuTapItem item : craftItems) {
+                item.pointerAdded(touch);
             }
-            this.exitTap.pointerAdded(this.touch);
-            this.craftTap.pointerAdded(this.touch);
-            this.toolsButton.pointerAdded(this.touch);
-            this.blocksButton.pointerAdded(this.touch);
-            this.itemsButton.pointerAdded(this.touch);
-            if (this.scissorBound.contains(p.x, p.y)) {
-                this.needToScroll = true;
-                this.prevYpoint = this.touch.y;
+            exitTap.pointerAdded(touch);
+            craftTap.pointerAdded(touch);
+            toolsButton.pointerAdded(touch);
+            blocksButton.pointerAdded(touch);
+            itemsButton.pointerAdded(touch);
+            if (scissorBound.contains(p.x, p.y)) {
+                needToScroll = true;
+                prevYpoint = touch.y;
                 return true;
             }
             return true;
@@ -353,19 +353,19 @@ public class CraftMenu implements Touch.TouchListener {
 
     @Override
     public void pointerRemoved(Touch.Pointer p) {
-        if (this.touch == p && this.touch != null) {
-            for (CraftMenuTapItem item : this.craftItems) {
-                item.pointerRemoved(this.touch);
-                item.translateYOffset(this.touchDelta);
+        if (touch == p && touch != null) {
+            for (CraftMenuTapItem item : craftItems) {
+                item.pointerRemoved(touch);
+                item.translateYOffset(touchDelta);
             }
-            this.exitTap.pointerRemoved(this.touch);
-            this.craftTap.pointerRemoved(this.touch);
-            this.toolsButton.pointerRemoved(this.touch);
-            this.blocksButton.pointerRemoved(this.touch);
-            this.itemsButton.pointerRemoved(this.touch);
-            this.touch = null;
-            this.touchDelta = 0.0f;
-            this.needToScroll = false;
+            exitTap.pointerRemoved(touch);
+            craftTap.pointerRemoved(touch);
+            toolsButton.pointerRemoved(touch);
+            blocksButton.pointerRemoved(touch);
+            itemsButton.pointerRemoved(touch);
+            touch = null;
+            touchDelta = 0.0f;
+            needToScroll = false;
         }
     }
 
@@ -375,68 +375,68 @@ public class CraftMenu implements Touch.TouchListener {
 
     @Nullable
     private CraftMenuTapItem getSelectedItem() {
-        for (int i = 0; i < this.craftItems.size(); i++) {
-            if (this.craftItems.get(i).isSelected) {
-                return this.craftItems.get(i);
+        for (int i = 0; i < craftItems.size(); i++) {
+            if (craftItems.get(i).isSelected) {
+                return craftItems.get(i);
             }
         }
         return null;
     }
 
     public void advance() {
-        if (this.show) {
-            this.exitTap.advance();
-            this.craftTap.advance();
-            this.toolsButton.advance();
-            this.blocksButton.advance();
-            this.itemsButton.advance();
+        if (show) {
+            exitTap.advance();
+            craftTap.advance();
+            toolsButton.advance();
+            blocksButton.advance();
+            itemsButton.advance();
             if (CraftMenuTapItem.isResetFocus) {
-                for (CraftMenuTapItem item : this.craftItems) {
+                for (CraftMenuTapItem item : craftItems) {
                     item.isSelected = false;
                 }
                 CraftMenuTapItem.isResetFocus = false;
             }
-            if (this.needToScroll && this.craftItems.size() > 7) {
-                this.touchDelta = this.touch.y - this.prevYpoint;
+            if (needToScroll && craftItems.size() > 7) {
+                touchDelta = touch.y - prevYpoint;
             }
-            if (!this.craftItems.isEmpty() && this.craftItems.size() > 7) {
+            if (!craftItems.isEmpty() && craftItems.size() > 7) {
                 normalizeScroll();
             }
         }
     }
 
     private void normalizeScroll() {
-        CraftMenuTapItem lastItem = this.craftItems.get(this.craftItems.size() - 1);
+        CraftMenuTapItem lastItem = craftItems.get(craftItems.size() - 1);
         float bottomPoint = lastItem.getY();
-        float topPoint = this.craftItems.get(0).bounds.y.getMax();
-        if (this.touchDelta + topPoint < this.scissorBound.y.getMax()) {
-            this.touchDelta = 0.0f;
-            for (CraftMenuTapItem item : this.craftItems) {
+        float topPoint = craftItems.get(0).bounds.y.getMax();
+        if (touchDelta + topPoint < scissorBound.y.getMax()) {
+            touchDelta = 0.0f;
+            for (CraftMenuTapItem item : craftItems) {
                 item.setYOffset(0.0f);
             }
         }
-        if (this.touchDelta + bottomPoint > this.bounds.y.getMin() && this.craftItems.get(0).getYOffset() != 0.0f) {
-            float yOffset = (70.0f * (this.craftItems.size() - 1)) - 394.0f;
-            this.touchDelta = 0.0f;
-            for (CraftMenuTapItem item2 : this.craftItems) {
+        if (touchDelta + bottomPoint > bounds.y.getMin() && craftItems.get(0).getYOffset() != 0.0f) {
+            float yOffset = (70.0f * (craftItems.size() - 1)) - 394.0f;
+            touchDelta = 0.0f;
+            for (CraftMenuTapItem item2 : craftItems) {
                 item2.setYOffset(yOffset);
             }
         }
     }
 
     public boolean isVisible() {
-        return this.show;
+        return show;
     }
 
     public void setShow(boolean isShow) {
-        this.show = isShow;
-        for (CraftMenuTapItem item : this.craftItems) {
+        show = isShow;
+        for (CraftMenuTapItem item : craftItems) {
             item.setShown(isShow);
         }
     }
 
     public void showOrHide(boolean isWorkBanch) {
-        setShow(!this.show);
+        setShow(!show);
         this.isWorkBanch = isWorkBanch;
         if (isVisible()) {
             initCraftItems(isWorkBanch);

@@ -31,10 +31,10 @@ public class FoodBar {
     }
 
     public void draw(StackedRenderer sr) {
-        float offset = (-(this.bounds.x.getSpan() - 10.0f)) / 12.0f;
-        float yPos = this.bounds.y.toValue(0.5f);
-        float xPos = this.bounds.x.getMax() - ((10.0f + offset) / 2.0f);
-        int foodLevel = this.player.getFoodLevel();
+        float offset = (-(bounds.x.getSpan() - 10.0f)) / 12.0f;
+        float yPos = bounds.y.toValue(0.5f);
+        float xPos = bounds.x.getMax() - ((10.0f + offset) / 2.0f);
+        int foodLevel = player.getFoodLevel();
         for (int i = 0; i < 10; i++) {
             sr.pushMatrix();
             sr.translate(xPos, yPos, 0.0f);

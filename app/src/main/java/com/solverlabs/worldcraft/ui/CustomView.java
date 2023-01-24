@@ -17,41 +17,41 @@ public class CustomView extends ViewGroup {
 
     public CustomView(Context context, String worldName) {
         super(context);
-        this.paint = new Paint();
+        paint = new Paint();
         this.worldName = worldName;
-        this.deleteSave = new Button(context);
-        this.deleteSave.setText("DELETE");
-        addView(this.deleteSave);
+        deleteSave = new Button(context);
+        deleteSave.setText("DELETE");
+        addView(deleteSave);
     }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        this.deleteSave.layout(0, 0, 0, 0);
+        deleteSave.layout(0, 0, 0, 0);
     }
 
     @Override
     protected void onDraw(@NonNull Canvas canvas) {
-        canvas.drawText(this.worldName, 0.0f, 0.0f, this.paint);
+        canvas.drawText(worldName, 0.0f, 0.0f, paint);
     }
 
     @Override
     protected void dispatchDraw(@NonNull Canvas canvas) {
-        canvas.drawText(this.worldName, 0.0f, 0.0f, this.paint);
+        canvas.drawText(worldName, 0.0f, 0.0f, paint);
     }
 
     @Override
     public void draw(@NonNull Canvas canvas) {
         super.draw(canvas);
-        canvas.drawText(this.worldName, 0.0f, 0.0f, this.paint);
+        canvas.drawText(worldName, 0.0f, 0.0f, paint);
     }
 
     public String getWorldName() {
-        return this.worldName;
+        return worldName;
     }
 
     @NonNull
     @Override
     public String toString() {
-        return this.worldName;
+        return worldName;
     }
 }

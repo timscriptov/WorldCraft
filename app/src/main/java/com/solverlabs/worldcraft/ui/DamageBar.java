@@ -15,7 +15,7 @@ public class DamageBar extends FadeInOutBar {
 
     @Override
     public void advance(float delta) {
-        setFadingStartedAt(this.player.getLastDamagedAt());
+        setFadingStartedAt(player.getLastDamagedAt());
         super.advance(delta);
     }
 }

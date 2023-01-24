@@ -79,25 +79,25 @@ public class Interaction implements Touch.TouchListener {
     private Touch.Pointer touch;
 
     public Interaction(Player player, World world, FPSCamera camera, Hand hand, MobPainter mobAggregator, BlockEntityPainter entityPainter, ChatBox chatBox, Context context) {
-        this.creativeModeToolTime = GameMode.isMultiplayerMode() ? 2.4f : 0.6f;
-        this.touch = null;
-        this.stickTouch = null;
-        this.actionDirection = new Vector3f();
-        this.targetValid = false;
-        this.targetBlockLocation = new Vector3i();
-        this.targetBlockSide = BlockFactory.WorldSide.Empty;
-        this.tileEntityLocation = new Vector3i();
-        this.placementTargetBlock = new Vector3i();
-        this.gridIterate = new GridIterate();
-        this.blockBounds = new BoundingCuboid(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-        this.sweptItem = null;
-        this.breakingLocation = new Vector3i();
-        this.breakingProgress = 0.0f;
-        this.justBroken = false;
-        this.touchSticksHeld = false;
-        this.showCraftingTable = false;
-        this.showFurnaceMenu = false;
-        this.showChestMenu = false;
+        creativeModeToolTime = GameMode.isMultiplayerMode() ? 2.4f : 0.6f;
+        touch = null;
+        stickTouch = null;
+        actionDirection = new Vector3f();
+        targetValid = false;
+        targetBlockLocation = new Vector3i();
+        targetBlockSide = BlockFactory.WorldSide.Empty;
+        tileEntityLocation = new Vector3i();
+        placementTargetBlock = new Vector3i();
+        gridIterate = new GridIterate();
+        blockBounds = new BoundingCuboid(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+        sweptItem = null;
+        breakingLocation = new Vector3i();
+        breakingProgress = 0.0f;
+        justBroken = false;
+        touchSticksHeld = false;
+        showCraftingTable = false;
+        showFurnaceMenu = false;
+        showChestMenu = false;
         this.player = player;
         this.world = world;
         this.camera = camera;
@@ -109,52 +109,52 @@ public class Interaction implements Touch.TouchListener {
     }
 
     public void advance(float delta) {
-        this.world.setBlockPlacePreview(false, 0, 0, 0);
-        this.hand.stopStriking();
-        if (this.stickTouch != null) {
-            this.hand.repeatedStrike(false);
-            if (this.touchSticksHeld) {
-                held(this.stickTouch.x, this.stickTouch.y, delta);
-                this.world.setBlockPlacePreview(this.targetValid, this.targetBlockLocation.x, this.targetBlockLocation.y, this.targetBlockLocation.z);
+        world.setBlockPlacePreview(false, 0, 0, 0);
+        hand.stopStriking();
+        if (stickTouch != null) {
+            hand.repeatedStrike(false);
+            if (touchSticksHeld) {
+                held(stickTouch.x, stickTouch.y, delta);
+                world.setBlockPlacePreview(targetValid, targetBlockLocation.x, targetBlockLocation.y, targetBlockLocation.z);
             } else {
-                this.hand.stopStriking();
-                updateTarget(this.stickTouch.x, this.stickTouch.y);
-                this.world.setBlockPlacePreview(this.targetValid, this.targetBlockLocation.x, this.targetBlockLocation.y, this.targetBlockLocation.z);
+                hand.stopStriking();
+                updateTarget(stickTouch.x, stickTouch.y);
+                world.setBlockPlacePreview(targetValid, targetBlockLocation.x, targetBlockLocation.y, targetBlockLocation.z);
             }
         } else {
-            this.breakingProgress = 0.0f;
+            breakingProgress = 0.0f;
         }
-        if (this.player != null && this.player.isReadyToEat()) {
-            this.breakingProgress = 0.0f;
-            if (this.touchSticksHeld) {
-                this.player.eat();
-                this.world.addBlockParticle(this.player.inHand.getItemID(), this.player.position, BlockFactory.WorldSide.Empty);
-                if (System.currentTimeMillis() - this.lastNoiseNotificationAt > 200) {
-                    this.lastNoiseNotificationAt = System.currentTimeMillis();
+        if (player != null && player.isReadyToEat()) {
+            breakingProgress = 0.0f;
+            if (touchSticksHeld) {
+                player.eat();
+                world.addBlockParticle(player.inHand.getItemID(), player.position, BlockFactory.WorldSide.Empty);
+                if (System.currentTimeMillis() - lastNoiseNotificationAt > 200) {
+                    lastNoiseNotificationAt = System.currentTimeMillis();
                     SoundManager.playMaterialSound(Material.FOOD, 0.0f);
                 }
             }
         }
-        if (this.world.breakingShape != null) {
-            this.world.breakingShape.updateBreakingProgress(this.breakingProgress);
+        if (world.breakingShape != null) {
+            world.breakingShape.updateBreakingProgress(breakingProgress);
         }
     }
 
     private InventoryItem activeItem() {
-        return this.player.inHand;
+        return player.inHand;
     }
 
     public void swipeFromHotBar(ItemFactory.Item item, Touch.Pointer sweptTouch) {
-        if (this.touch == null) {
-            this.sweptItem = item;
-            this.touch = sweptTouch;
+        if (touch == null) {
+            sweptItem = item;
+            touch = sweptTouch;
         }
     }
 
     @Override
     public boolean pointerAdded(Touch.Pointer p) {
-        if (this.touch == null) {
-            this.touch = p;
+        if (touch == null) {
+            touch = p;
             return true;
         }
         return false;
@@ -162,25 +162,25 @@ public class Interaction implements Touch.TouchListener {
 
     @Override
     public void pointerRemoved(Touch.Pointer p) {
-        if (this.touch == p) {
-            this.touch = null;
-            if (!this.justBroken) {
+        if (touch == p) {
+            touch = null;
+            if (!justBroken) {
                 action(activeItem(), p.x, p.y);
             }
-            this.sweptItem = null;
-            this.justBroken = false;
+            sweptItem = null;
+            justBroken = false;
         }
     }
 
     @Override
     public void reset() {
-        this.touch = null;
-        this.sweptItem = null;
-        this.justBroken = false;
+        touch = null;
+        sweptItem = null;
+        justBroken = false;
     }
 
     public void setBlockType(int x, int y, int z, int chunkX, int chunkZ, byte blockId, byte blockData, boolean multiplayerSend) {
-        Chunk chunk = this.world.getChunk(chunkX, chunkZ);
+        Chunk chunk = world.getChunk(chunkX, chunkZ);
         if (chunk != null) {
             chunk.setBlockTypeForPosition((chunkX * 16) + x, y, (chunkZ * 16) + z, blockId, blockData, multiplayerSend);
         }
@@ -201,7 +201,7 @@ public class Interaction implements Touch.TouchListener {
         int currChunk = 0;
         int chunkCount = chunks.size();
         for (Chunk chunk : chunks) {
-            this.world.recalculateSkyLight(chunk, 0, 0, 0);
+            world.recalculateSkyLight(chunk, 0, 0, 0);
             incLoadingProgress(((currChunk / chunkCount) * 33.0f) + 33.0f);
             currChunk++;
         }
@@ -210,7 +210,7 @@ public class Interaction implements Touch.TouchListener {
     private void generateChunkletsGeometry(@NonNull Collection<Chunklet> chunklets) {
         int currChunklet = 0;
         int chunkletCount = chunklets.size();
-        boolean updateLoadingDialog = this.world.isLoadingDialogVisible();
+        boolean updateLoadingDialog = world.isLoadingDialogVisible();
         for (Chunklet chunklet : chunklets) {
             if (chunklet != null) {
                 chunklet.geomDirty();
@@ -224,13 +224,13 @@ public class Interaction implements Touch.TouchListener {
     }
 
     private void incLoadingProgress(float progress) {
-        this.world.setLoadingProgressStatus((int) progress, 100);
+        world.setLoadingProgressStatus((int) progress, 100);
     }
 
     public void setBlocks(@NonNull Map<List<Short>, Room.BlockData> blocks) {
         int currChunklet = 0;
         int chunkletCount = blocks.size();
-        boolean updateLoadingDialog = this.world.isLoadingDialogVisible();
+        boolean updateLoadingDialog = world.isLoadingDialogVisible();
         Set<Chunklet> chunkletSet = new HashSet<>();
         for (Map.Entry<List<Short>, Room.BlockData> block : blocks.entrySet()) {
             List<Short> coords = block.getKey();
@@ -241,7 +241,7 @@ public class Interaction implements Touch.TouchListener {
                 short chunkX = coords.get(3);
                 short chunkZ = coords.get(4);
                 Room.BlockData blockData = block.getValue();
-                Chunk chunk = this.world.getChunk(chunkX, chunkZ);
+                Chunk chunk = world.getChunk(chunkX, chunkZ);
                 if (chunk != null) {
                     try {
                         Set<Chunklet> chs = chunk.setBlockTypeWithoutGeometryRecalculate(x, y, z, blockData.blockType, blockData.blockData);
@@ -264,67 +264,67 @@ public class Interaction implements Touch.TouchListener {
     }
 
     public void action(InventoryItem invItem, float x, float y) {
-        Byte targetBlockType = this.world.getBlockTypeAbsolute(this.targetBlockLocation.x, this.targetBlockLocation.y, this.targetBlockLocation.z);
+        Byte targetBlockType = world.getBlockTypeAbsolute(targetBlockLocation.x, targetBlockLocation.y, targetBlockLocation.z);
         if (DoorBlock.isDoor(targetBlockType)) {
-            DoorBlock.actionDoor(targetBlockType, this.world, this.targetBlockLocation);
-            this.hand.strike(true);
+            DoorBlock.actionDoor(targetBlockType, world, targetBlockLocation);
+            hand.strike(true);
         } else if (LadderBlock.isLadder(targetBlockType)) {
-            this.hand.strike(true);
+            hand.strike(true);
         } else if (GameMode.isSurvivalMode() && BedBlock.isBed(targetBlockType)) {
             tryToSleep();
-            this.hand.strike(true);
+            hand.strike(true);
         } else {
             if (targetBlockType != null && GameMode.isSurvivalMode()) {
                 if (targetBlockType == BlockFactory.CRAFTING_TABLE_ID) {
-                    this.showCraftingTable = true;
-                    this.hand.strike(true);
+                    showCraftingTable = true;
+                    hand.strike(true);
                     return;
                 } else if (targetBlockType == BlockFactory.FURNACE_ID || targetBlockType == BlockFactory.FURNACE_ACTIVE_ID) {
-                    this.tileEntityLocation = this.targetBlockLocation;
-                    this.showFurnaceMenu = true;
-                    this.hand.strike(true);
+                    tileEntityLocation = targetBlockLocation;
+                    showFurnaceMenu = true;
+                    hand.strike(true);
                     return;
                 } else if (targetBlockType == BlockFactory.CHEST_ID) {
-                    this.tileEntityLocation = this.targetBlockLocation;
-                    this.showChestMenu = true;
-                    this.hand.strike(true);
+                    tileEntityLocation = targetBlockLocation;
+                    showChestMenu = true;
+                    hand.strike(true);
                     return;
                 }
             }
             if (!Multiplayer.instance.isInMultiplayerMode && targetBlockType != null && targetBlockType == 46) {
-                this.world.activateTNT(this.targetBlockLocation);
-                this.hand.strike(true);
+                world.activateTNT(targetBlockLocation);
+                hand.strike(true);
                 return;
             }
-            Mob mob = this.mobAggregator.getMobOnRay(this.player.position.x, this.player.position.y, this.player.position.z, this.actionDirection.x, this.actionDirection.y, this.actionDirection.z);
+            Mob mob = mobAggregator.getMobOnRay(player.position.x, player.position.y, player.position.z, actionDirection.x, actionDirection.y, actionDirection.z);
             if (mob != null) {
-                this.hand.strike(true);
-                mob.tryAttack(this.player);
+                hand.strike(true);
+                mob.tryAttack(player);
             } else if (invItem != null) {
                 Chunk chunk = updateTarget(x, y);
-                this.hand.strike(false);
-                if (chunk != null && this.targetValid && invItem.getBlock() != null) {
-                    this.blockBounds.set(this.placementTargetBlock.x, this.placementTargetBlock.y, this.placementTargetBlock.z, this.placementTargetBlock.x + 1, this.placementTargetBlock.y + 1, this.placementTargetBlock.z + 1);
+                hand.strike(false);
+                if (chunk != null && targetValid && invItem.getBlock() != null) {
+                    blockBounds.set(placementTargetBlock.x, placementTargetBlock.y, placementTargetBlock.z, placementTargetBlock.x + 1, placementTargetBlock.y + 1, placementTargetBlock.z + 1);
                     if (GameMode.isMultiplayerMode() && Multiplayer.isReadOnly()) {
                         Multiplayer.showReadOnlyRoomModificationDialog();
-                    } else if (!this.player.playerBounds.intersects(this.blockBounds)) {
-                        this.hand.strike(true);
+                    } else if (!player.playerBounds.intersects(blockBounds)) {
+                        hand.strike(true);
                         if (DoorBlock.isDoor(invItem.getItemID())) {
-                            DoorBlock.placeDoor(chunk, this.placementTargetBlock, invItem, this.player);
+                            DoorBlock.placeDoor(chunk, placementTargetBlock, invItem, player);
                         } else if (BedBlock.isBed(invItem.getItemID())) {
-                            BedBlock.placeBed(chunk, this.placementTargetBlock, invItem, this.player);
+                            BedBlock.placeBed(chunk, placementTargetBlock, invItem, player);
                         } else if (LadderBlock.isLadder(invItem.getItemID())) {
                             if (LadderBlock.canSetLadder(targetBlockType)) {
-                                LadderBlock.placeLadder(chunk, this.placementTargetBlock, this.targetBlockSide, invItem, this.player);
+                                LadderBlock.placeLadder(chunk, placementTargetBlock, targetBlockSide, invItem, player);
                             }
                         } else if (targetBlockType != null && targetBlockType == BlockFactory.GRASS_ID) {
-                            chunk.setBlockTypeForPosition(this.targetBlockLocation.x, this.targetBlockLocation.y, this.targetBlockLocation.z, invItem.getItemID(), (byte) 0);
+                            chunk.setBlockTypeForPosition(targetBlockLocation.x, targetBlockLocation.y, targetBlockLocation.z, invItem.getItemID(), (byte) 0);
                         } else {
-                            chunk.setBlockTypeForPosition(this.placementTargetBlock.x, this.placementTargetBlock.y, this.placementTargetBlock.z, invItem.getItemID(), (byte) 0);
+                            chunk.setBlockTypeForPosition(placementTargetBlock.x, placementTargetBlock.y, placementTargetBlock.z, invItem.getItemID(), (byte) 0);
                         }
                         SoundManager.playAppeared(invItem.getMaterial(), 0.0f);
                         if (GameMode.isSurvivalMode()) {
-                            this.player.inventory.decItem(invItem);
+                            player.inventory.decItem(invItem);
                         }
                     }
                 }
@@ -333,25 +333,25 @@ public class Interaction implements Touch.TouchListener {
     }
 
     private void tryToSleep() {
-        float distanceToClosestHostileMob = MobPainter.getDistanceToClosestHostileMob(this.player.position.x, this.player.position.y, this.player.position.z);
+        float distanceToClosestHostileMob = MobPainter.getDistanceToClosestHostileMob(player.position.x, player.position.y, player.position.z);
         if (distanceToClosestHostileMob < MIN_HOSTILE_MOB_DISTANCE_TO_SLEEP) {
-            if (this.chatBox != null) {
-                this.chatBox.addMessage(this.context.getString(R.string.you_may_not_rest_now_there_are_monsters));
+            if (chatBox != null) {
+                chatBox.addMessage(context.getString(R.string.you_may_not_rest_now_there_are_monsters));
             }
-        } else if (!this.world.isNightNow()) {
-            if (this.chatBox != null) {
-                this.chatBox.addMessage(this.context.getString(R.string.you_can_sleep_only_at_night));
+        } else if (!world.isNightNow()) {
+            if (chatBox != null) {
+                chatBox.addMessage(context.getString(R.string.you_can_sleep_only_at_night));
             }
         } else {
-            this.player.setSpawnPosition(getBedHeadBlock());
-            this.player.setKeptDownAt(System.currentTimeMillis());
+            player.setSpawnPosition(getBedHeadBlock());
+            player.setKeptDownAt(System.currentTimeMillis());
         }
     }
 
     @NonNull
     private Vector3i getBedHeadBlock() {
-        Vector3i target = new Vector3i(this.targetBlockLocation);
-        if (BedBlock.isBed(this.world.getBlockTypeAbsolute(this.targetBlockLocation.x + 1, this.targetBlockLocation.y, this.targetBlockLocation.z))) {
+        Vector3i target = new Vector3i(targetBlockLocation);
+        if (BedBlock.isBed(world.getBlockTypeAbsolute(targetBlockLocation.x + 1, targetBlockLocation.y, targetBlockLocation.z))) {
             target.x++;
         }
         target.y++;
@@ -361,88 +361,88 @@ public class Interaction implements Touch.TouchListener {
     public void held(float x, float y, float delta) {
         Vector3i blockLocation;
         Chunk chunk = updateTarget(x, y);
-        if (chunk != null && this.sweptItem == null) {
-            BlockFactory.Block b = BlockFactory.getBlock(chunk.blockTypeForPosition(this.targetBlockLocation.x, this.targetBlockLocation.y, this.targetBlockLocation.z));
+        if (chunk != null && sweptItem == null) {
+            BlockFactory.Block b = BlockFactory.getBlock(chunk.blockTypeForPosition(targetBlockLocation.x, targetBlockLocation.y, targetBlockLocation.z));
             if (GameMode.isMultiplayerMode() && Multiplayer.isReadOnly()) {
                 Multiplayer.showReadOnlyRoomModificationDialog();
-            } else if (this.breakingLocation.equals(this.targetBlockLocation) && b != null) {
+            } else if (breakingLocation.equals(targetBlockLocation) && b != null) {
                 InventoryItem activeItem = activeItem();
                 byte itemID = activeItem == null ? (byte) 0 : activeItem.getItemID();
-                this.hand.repeatedStrike(true);
+                hand.repeatedStrike(true);
                 float time = 0.0f;
                 if (GameMode.isCreativeMode()) {
-                    time = this.creativeModeToolTime;
+                    time = creativeModeToolTime;
                 }
                 if (GameMode.isSurvivalMode()) {
                     time = ((float) DestroyBlockSpeed.getSpeed(b.id, itemID)) / 1000.0f;
                 }
-                this.breakingProgress += delta / time;
-                if (!this.player.isReadyToEat()) {
-                    this.world.addBlockParticle(b.id, new Vector3f(this.targetBlockLocation), this.targetBlockSide);
-                    if (System.currentTimeMillis() - this.lastNoiseNotificationAt > 200) {
-                        this.lastNoiseNotificationAt = System.currentTimeMillis();
+                breakingProgress += delta / time;
+                if (!player.isReadyToEat()) {
+                    world.addBlockParticle(b.id, new Vector3f(targetBlockLocation), targetBlockSide);
+                    if (System.currentTimeMillis() - lastNoiseNotificationAt > 200) {
+                        lastNoiseNotificationAt = System.currentTimeMillis();
                         SoundManager.playHit(b.material, 0.0f);
                     }
                 }
-                if (this.breakingProgress > 1.0f) {
+                if (breakingProgress > 1.0f) {
                     byte blockType = b.id;
                     if (DoorBlock.isDoor(blockType)) {
-                        blockLocation = DoorBlock.getDoorDownBlockLocation(chunk, this.targetBlockLocation);
+                        blockLocation = DoorBlock.getDoorDownBlockLocation(chunk, targetBlockLocation);
                     } else if (BedBlock.isBed(blockType)) {
-                        blockLocation = BedBlock.getBedLeftBlockLocation(chunk, this.targetBlockLocation);
+                        blockLocation = BedBlock.getBedLeftBlockLocation(chunk, targetBlockLocation);
                     } else {
-                        blockLocation = this.targetBlockLocation;
+                        blockLocation = targetBlockLocation;
                     }
-                    this.world.addDroppableItem(b.id, blockLocation);
-                    if ((blockType == BlockFactory.FURNACE_ID || blockType == BlockFactory.FURNACE_ACTIVE_ID) && this.world.getFurnace(blockLocation) != null) {
-                        Furnace furnace = this.world.getFurnace(blockLocation);
+                    world.addDroppableItem(b.id, blockLocation);
+                    if ((blockType == BlockFactory.FURNACE_ID || blockType == BlockFactory.FURNACE_ACTIVE_ID) && world.getFurnace(blockLocation) != null) {
+                        Furnace furnace = world.getFurnace(blockLocation);
                         if (furnace.getCraftedItem() != null) {
-                            this.world.addDroppableItem(furnace.getCraftedItem().getItemID(), blockLocation, furnace.getCraftedItemCount());
+                            world.addDroppableItem(furnace.getCraftedItem().getItemID(), blockLocation, furnace.getCraftedItemCount());
                         }
                         if (furnace.getMaterial() != null) {
-                            this.world.addDroppableItem(furnace.getMaterial().getItemID(), blockLocation, furnace.getMaterialCount());
+                            world.addDroppableItem(furnace.getMaterial().getItemID(), blockLocation, furnace.getMaterialCount());
                         }
                         if (furnace.getFuel() != null) {
-                            this.world.addDroppableItem(furnace.getFuel().getItemID(), blockLocation, furnace.getFuelCount());
+                            world.addDroppableItem(furnace.getFuel().getItemID(), blockLocation, furnace.getFuelCount());
                         }
-                        this.world.removeTileEntity(furnace);
+                        world.removeTileEntity(furnace);
                     }
-                    if (blockType == BlockFactory.CHEST_ID && this.world.getChest(blockLocation) != null) {
-                        Chest chest = this.world.getChest(blockLocation);
+                    if (blockType == BlockFactory.CHEST_ID && world.getChest(blockLocation) != null) {
+                        Chest chest = world.getChest(blockLocation);
                         for (int i = 0; i < chest.getChestItems().size(); i++) {
                             InventoryItem chestItem = chest.getChestItems().get(i);
-                            this.world.addDroppableItem(chestItem.getItemID(), blockLocation, chestItem.getCount());
+                            world.addDroppableItem(chestItem.getItemID(), blockLocation, chestItem.getCount());
                         }
-                        this.world.removeTileEntity(chest);
+                        world.removeTileEntity(chest);
                     }
                     if (DoorBlock.isDoor(blockType)) {
-                        DoorBlock.breakDoor(chunk, this.targetBlockLocation);
+                        DoorBlock.breakDoor(chunk, targetBlockLocation);
                     } else if (BedBlock.isBed(blockType)) {
-                        BedBlock.breakBed(chunk, this.targetBlockLocation, this.player);
+                        BedBlock.breakBed(chunk, targetBlockLocation, player);
                     } else if (LadderBlock.isLadder(blockType)) {
-                        LadderBlock.breakLadder(chunk, this.targetBlockLocation);
+                        LadderBlock.breakLadder(chunk, targetBlockLocation);
                     } else {
-                        chunk.setBlockTypeForPosition(this.targetBlockLocation.x, this.targetBlockLocation.y, this.targetBlockLocation.z, (byte) 0, (byte) 0);
-                        byte type = chunk.blockTypeForPosition(this.targetBlockLocation.x, this.targetBlockLocation.y + 1, this.targetBlockLocation.z);
+                        chunk.setBlockTypeForPosition(targetBlockLocation.x, targetBlockLocation.y, targetBlockLocation.z, (byte) 0, (byte) 0);
+                        byte type = chunk.blockTypeForPosition(targetBlockLocation.x, targetBlockLocation.y + 1, targetBlockLocation.z);
                         if (DoorBlock.isDoor(type)) {
-                            DoorBlock.breakDoor(chunk, new Vector3i(this.targetBlockLocation.x, this.targetBlockLocation.y + 1, this.targetBlockLocation.z));
-                            this.world.addDroppableItem(type, new Vector3i(this.targetBlockLocation.x, this.targetBlockLocation.y + 1, this.targetBlockLocation.z));
+                            DoorBlock.breakDoor(chunk, new Vector3i(targetBlockLocation.x, targetBlockLocation.y + 1, targetBlockLocation.z));
+                            world.addDroppableItem(type, new Vector3i(targetBlockLocation.x, targetBlockLocation.y + 1, targetBlockLocation.z));
                         }
-                        LadderBlock.parentDestroyed(chunk, this, this.world, this.targetBlockLocation);
+                        LadderBlock.parentDestroyed(chunk, this, world, targetBlockLocation);
                     }
-                    this.player.decActiveItemDurability();
-                    this.player.increaseExhaustionLevel(0.025f);
-                    this.hand.stopStriking();
+                    player.decActiveItemDurability();
+                    player.increaseExhaustionLevel(0.025f);
+                    hand.stopStriking();
                     if (b == BlockFactory.Block.Glass) {
                         SoundManager.playDistancedSound(Sounds.GLASS, 0.0f);
                     } else {
                         SoundManager.playBroke(b.material, 0.0f);
                     }
-                    this.justBroken = true;
+                    justBroken = true;
                 }
             } else {
-                this.breakingLocation.set(this.targetBlockLocation);
-                this.breakingProgress = 0.0f;
+                breakingLocation.set(targetBlockLocation);
+                breakingProgress = 0.0f;
             }
         }
     }
@@ -451,43 +451,43 @@ public class Interaction implements Touch.TouchListener {
         Chunklet chunklet;
         float x2 = (Range.toRatio(x, 0.0f, 800.0f) * 2.0f) - 1.0f;
         float y2 = (Range.toRatio(y, 0.0f, 480.0f) * 2.0f) - 1.0f;
-        if (this.lastInteractionX == x2 && this.lastInteractionY == y2) {
+        if (lastInteractionX == x2 && lastInteractionY == y2) {
             return null;
         }
-        this.camera.unProject(x2, y2, this.actionDirection);
-        this.actionDirection.scale(this.range);
-        if (this.world.getChunklet(this.player.position.x + this.actionDirection.x, this.player.position.y + this.actionDirection.y, this.player.position.z + this.actionDirection.z) != null) {
-            if (this.mobAggregator.selectMobOnRay(this.player.position.x, this.player.position.y, this.player.position.z, this.actionDirection.x, this.actionDirection.y, this.actionDirection.z)) {
-                this.targetBlockLocation.set(0, 0, 0);
+        camera.unProject(x2, y2, actionDirection);
+        actionDirection.scale(range);
+        if (world.getChunklet(player.position.x + actionDirection.x, player.position.y + actionDirection.y, player.position.z + actionDirection.z) != null) {
+            if (mobAggregator.selectMobOnRay(player.position.x, player.position.y, player.position.z, actionDirection.x, actionDirection.y, actionDirection.z)) {
+                targetBlockLocation.set(0, 0, 0);
                 return null;
             }
-            this.gridIterate.setSeg(this.player.position.x, this.player.position.y, this.player.position.z, this.player.position.x + this.actionDirection.x, this.player.position.y + this.actionDirection.y, this.player.position.z + this.actionDirection.z);
-            this.targetBlockLocation.set(this.gridIterate.lastGridCoords);
-            this.placementTargetBlock.set(this.gridIterate.lastGridCoords);
-            this.targetValid = false;
+            gridIterate.setSeg(player.position.x, player.position.y, player.position.z, player.position.x + actionDirection.x, player.position.y + actionDirection.y, player.position.z + actionDirection.z);
+            targetBlockLocation.set(gridIterate.lastGridCoords);
+            placementTargetBlock.set(gridIterate.lastGridCoords);
+            targetValid = false;
             do {
-                chunklet = this.world.getChunklet(this.gridIterate.lastGridCoords.x, this.gridIterate.lastGridCoords.y, this.gridIterate.lastGridCoords.z);
+                chunklet = world.getChunklet(gridIterate.lastGridCoords.x, gridIterate.lastGridCoords.y, gridIterate.lastGridCoords.z);
                 if (chunklet != null) {
-                    byte bt = chunklet.parent.blockTypeForPosition(this.gridIterate.lastGridCoords.x, this.gridIterate.lastGridCoords.y, this.gridIterate.lastGridCoords.z);
+                    byte bt = chunklet.parent.blockTypeForPosition(gridIterate.lastGridCoords.x, gridIterate.lastGridCoords.y, gridIterate.lastGridCoords.z);
                     if (bt == 0 || bt == BlockFactory.Block.Water.id || bt == BlockFactory.Block.StillWater.id || isPlayerInTransparentBlock(bt) || BlockFactory.getBlock(bt) == null) {
-                        this.placementTargetBlock.set(this.gridIterate.lastGridCoords);
-                        this.gridIterate.next();
+                        placementTargetBlock.set(gridIterate.lastGridCoords);
+                        gridIterate.next();
                     } else {
-                        this.targetBlockLocation.set(this.gridIterate.lastGridCoords);
-                        this.targetBlockSide = findBlockSide(this.gridIterate.lastGridExit);
-                        this.targetValid = true;
+                        targetBlockLocation.set(gridIterate.lastGridCoords);
+                        targetBlockSide = findBlockSide(gridIterate.lastGridExit);
+                        targetValid = true;
                     }
                 } else {
-                    this.targetValid = false;
-                    this.gridIterate.setDone(true);
+                    targetValid = false;
+                    gridIterate.setDone(true);
                 }
-                if (this.targetValid) {
+                if (targetValid) {
                     break;
                 }
-            } while (!this.gridIterate.isDone());
-            if (this.gridIterate.isDone()) {
-                this.lastInteractionX = x2;
-                this.lastInteractionY = y2;
+            } while (!gridIterate.isDone());
+            if (gridIterate.isDone()) {
+                lastInteractionX = x2;
+                lastInteractionY = y2;
             }
             return chunklet == null ? null : chunklet.parent;
         }
@@ -495,11 +495,11 @@ public class Interaction implements Touch.TouchListener {
     }
 
     private boolean isPlayerInTransparentBlock(byte bt) {
-        Vector3f blockCenter = new Vector3f(this.gridIterate.lastGridCoords);
+        Vector3f blockCenter = new Vector3f(gridIterate.lastGridCoords);
         blockCenter.x += 0.5f;
         blockCenter.y += 0.5f;
         blockCenter.z += 0.5f;
-        float distance = Distance.getDistanceBetweenPoints(this.world.player.position, blockCenter, 999.0f);
+        float distance = Distance.getDistanceBetweenPoints(world.player.position, blockCenter, 999.0f);
         return distance < 1.0f && isTransparentBlock(bt);
     }
 

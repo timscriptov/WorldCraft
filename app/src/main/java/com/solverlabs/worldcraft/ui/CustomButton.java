@@ -29,85 +29,86 @@ public class CustomButton extends TapPad {
 
     public CustomButton(float x, float y, float width, float height, String text) {
         super(x, y, width, height);
-        this.drawText = true;
-        this.isStroke = false;
+        drawText = true;
+        isStroke = false;
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
-        this.font = GUI.getFont();
-        if (this.font != null) {
-            this.textShape = this.font.buildTextShape(text, Colour.white);
-            this.textShape.translate(((width - this.font.getStringLength(text)) / 2.0f) + x, ((height - this.font.size) / 2.0f) + y, 0.0f);
+        font = GUI.getFont();
+        if (font != null) {
+            textShape = font.buildTextShape(text, Colour.white);
+            textShape.translate(((width - font.getStringLength(text)) / 2.0f) + x, ((height - font.size) / 2.0f) + y, 0.0f);
         }
         this.text = text;
     }
 
     @Override
     public void draw(StackedRenderer sr) {
-        if (this.buttonBottomBound == null) {
-            Shape s = ShapeUtil.line(3.0f, 0.0f, 0.0f, this.width, 0.0f);
-            this.buttonUpBound = new ColouredShape(s, Colour.white, null);
-            this.buttonBottomBound = new ColouredShape(s, Colour.darkgrey, null);
-            Shape s2 = ShapeUtil.line(3.0f, 0.0f, 0.0f, 0.0f, this.height);
-            this.buttonLeftBound = new ColouredShape(s2, Colour.withAlphai(Colour.white, CpioConstants.C_IWUSR), null);
-            this.buttonRightBound = new ColouredShape(s2, Colour.withAlphai(Colour.darkgrey, CpioConstants.C_IWUSR), null);
+        if (buttonBottomBound == null) {
+            Shape s = ShapeUtil.line(3.0f, 0.0f, 0.0f, width, 0.0f);
+            buttonUpBound = new ColouredShape(s, Colour.white, null);
+            buttonBottomBound = new ColouredShape(s, Colour.darkgrey, null);
+
+            s = ShapeUtil.line(3.0f, 0.0f, 0.0f, 0.0f, height);
+            buttonLeftBound = new ColouredShape(s, Colour.withAlphai(Colour.white, CpioConstants.C_IWUSR), null);
+            buttonRightBound = new ColouredShape(s, Colour.withAlphai(Colour.darkgrey, CpioConstants.C_IWUSR), null);
         }
         sr.pushMatrix();
-        sr.translate(this.x, this.y, 0.0f);
-        this.buttonBottomBound.render(sr);
-        sr.translate(0.0f, this.height, 0.0f);
-        this.buttonUpBound.render(sr);
+        sr.translate(x, y, 0.0f);
+        buttonBottomBound.render(sr);
+        sr.translate(0.0f, height, 0.0f);
+        buttonUpBound.render(sr);
         sr.popMatrix();
         sr.pushMatrix();
-        sr.translate(this.x, this.y, 0.0f);
-        this.buttonLeftBound.render(sr);
-        sr.translate(this.width, 0.0f, 0.0f);
-        this.buttonRightBound.render(sr);
+        sr.translate(x, y, 0.0f);
+        buttonLeftBound.render(sr);
+        sr.translate(width, 0.0f, 0.0f);
+        buttonRightBound.render(sr);
         sr.popMatrix();
         sr.render();
-        if (this.textShape != null && this.drawText) {
-            this.textShape.render(sr);
+        if (textShape != null && drawText) {
+            textShape.render(sr);
         }
-        if (this.isSelected || this.touch != null) {
+        if (isSelected || touch != null) {
             drawInnerBound(sr);
         }
     }
 
     public float getX() {
-        return this.x;
+        return x;
     }
 
     public float getY() {
-        return this.y;
+        return y;
     }
 
     public float getWidth() {
-        return this.width;
+        return width;
     }
 
     public float getHeight() {
-        return this.height;
+        return height;
     }
 
     public String getText() {
-        return this.text;
+        return text;
     }
 
     private void drawInnerBound(StackedRenderer sr) {
-        if (this.innerShape == null) {
-            if (!this.isStroke) {
-                Shape is = ShapeUtil.innerQuad(this.x, this.y, this.x + this.width, this.y + this.height, this.height, 0.0f);
-                this.innerShape = new ColouredShape(is, Colour.withAlphai(Colour.white, CpioConstants.C_IWUSR), null);
+        if (innerShape == null) {
+            if (!isStroke) {
+                Shape is = ShapeUtil.innerQuad(x, y, x + width, y + height, height, 0.0f);
+                innerShape = new ColouredShape(is, Colour.withAlphai(Colour.white, CpioConstants.C_IWUSR), null);
             } else {
-                Shape is2 = ShapeUtil.innerQuad(this.x, this.y, this.x + this.width, this.y + this.height, 4.0f, 0.0f);
-                this.innerShape = new ColouredShape(is2, Colour.white, null);
+                Shape is2 = ShapeUtil.innerQuad(x, y, x + width, y + height, 4.0f, 0.0f);
+                innerShape = new ColouredShape(is2, Colour.white, null);
             }
         }
-        this.innerShape.render(sr);
+        innerShape.render(sr);
     }
 
     public void setSelected(boolean select) {
-        this.isSelected = select;
+        isSelected = select;
     }
 }

@@ -33,7 +33,7 @@ public class ChatMessage extends TapPad {
 
     public ChatMessage(String title, float x, float y, float width, float height, Font font) {
         super(x, y, width, height);
-        this.currentChatShapeAlpha = TEXT_COLOR_A;
+        currentChatShapeAlpha = TEXT_COLOR_A;
         this.hided = false;
         this.title = title;
         if (font != null) {
@@ -42,12 +42,12 @@ public class ChatMessage extends TapPad {
             this.y = y;
             this.height = height;
             regenerateChatShape(0.0f);
-            this.createdAt = System.currentTimeMillis();
+            createdAt = System.currentTimeMillis();
         }
     }
 
     public void advance(float delta) {
-        this.currentStep = (delta / FADE_OUT_DURATION) * 255.0f;
+        currentStep = (delta / FADE_OUT_DURATION) * 255.0f;
     }
 
     private float convertX(float x) {
@@ -58,41 +58,41 @@ public class ChatMessage extends TapPad {
         this.position = position;
         regenerateChatShape(0.0f);
         synchronized (this) {
-            this.outlineBlack = null;
+            outlineBlack = null;
         }
     }
 
     private void regenerateChatShape(float step) {
-        this.currentChatShapeAlpha -= Math.min(step, this.currentChatShapeAlpha);
-        if (this.currentChatShapeAlpha <= 0.0f) {
-            this.currentChatShapeAlpha = 0.0f;
-            this.hided = true;
+        currentChatShapeAlpha -= Math.min(step, currentChatShapeAlpha);
+        if (currentChatShapeAlpha <= 0.0f) {
+            currentChatShapeAlpha = 0.0f;
+            hided = true;
         }
-        this.chatShape = this.font.buildTextShape(this.title, Colour.packFloat(1.0f, 1.0f, 1.0f, this.currentChatShapeAlpha));
-        this.chatShape.scale(TEXT_SCALE, TEXT_SCALE, TEXT_SCALE);
-        this.chatShape.translate(convertX(this.x), ((this.y + this.height) - this.font.size) + (this.position * (this.height - 5.0f)), 0.0f);
-        float updatedPositionY = this.y + (this.position * (this.height - 5.0f));
-        this.pad.y.set(updatedPositionY, (this.pad.y.getMax() - this.pad.y.getMin()) + updatedPositionY);
+        chatShape = font.buildTextShape(title, Colour.packFloat(1.0f, 1.0f, 1.0f, currentChatShapeAlpha));
+        chatShape.scale(TEXT_SCALE, TEXT_SCALE, TEXT_SCALE);
+        chatShape.translate(convertX(x), ((y + height) - font.size) + (position * (height - 5.0f)), 0.0f);
+        float updatedPositionY = y + (position * (height - 5.0f));
+        pad.y.set(updatedPositionY, (pad.y.getMax() - pad.y.getMin()) + updatedPositionY);
     }
 
     @Override
     public void draw(StackedRenderer sr) {
-        if (!this.hided && this.chatShape != null) {
+        if (!hided && chatShape != null) {
             synchronized (this) {
-                if (this.outlineBlack == null) {
-                    this.outlineBlack = new ColouredShape(ShapeUtil.innerQuad(this.pad.x.getMin() + OUTLINE_BORDER_WIDTH, this.pad.y.getMin() + OUTLINE_BORDER_WIDTH, this.pad.x.getMax() - OUTLINE_BORDER_WIDTH, this.pad.y.getMax() - OUTLINE_BORDER_WIDTH, this.pad.x.getSpan(), 0.0f), Colour.packFloat(0.0f, 0.0f, 0.0f, 0.3f), GLUtil.typicalState);
+                if (outlineBlack == null) {
+                    outlineBlack = new ColouredShape(ShapeUtil.innerQuad(pad.x.getMin() + OUTLINE_BORDER_WIDTH, pad.y.getMin() + OUTLINE_BORDER_WIDTH, pad.x.getMax() - OUTLINE_BORDER_WIDTH, pad.y.getMax() - OUTLINE_BORDER_WIDTH, pad.x.getSpan(), 0.0f), Colour.packFloat(0.0f, 0.0f, 0.0f, 0.3f), GLUtil.typicalState);
                 }
-                if (System.currentTimeMillis() - this.createdAt > TTL) {
-                    regenerateChatShape(this.currentStep / 100.0f);
-                    for (int i = 0; i < this.outlineBlack.colours.length; i++) {
-                        if (this.outlineBlack.colours[i] > 0) {
-                            int alpha = (this.outlineBlack.colours[i] & (-16777216)) >> 24;
-                            this.outlineBlack.colours[i] = (this.outlineBlack.colours[i] & 16777215) | (((int) (alpha - Math.min(this.currentStep, alpha))) << 24);
+                if (System.currentTimeMillis() - createdAt > TTL) {
+                    regenerateChatShape(currentStep / 100.0f);
+                    for (int i = 0; i < outlineBlack.colours.length; i++) {
+                        if (outlineBlack.colours[i] > 0) {
+                            int alpha = (outlineBlack.colours[i] & (-16777216)) >> 24;
+                            outlineBlack.colours[i] = (outlineBlack.colours[i] & 16777215) | (((int) (alpha - Math.min(currentStep, alpha))) << 24);
                         }
                     }
                 }
-                this.outlineBlack.render(sr);
-                this.chatShape.render(sr);
+                outlineBlack.render(sr);
+                chatShape.render(sr);
             }
         }
     }

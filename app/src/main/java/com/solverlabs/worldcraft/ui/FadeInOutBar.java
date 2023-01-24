@@ -32,32 +32,32 @@ public class FadeInOutBar implements Touch.TouchListener {
     }
 
     private void recreateShape() {
-        this.shape = new ColouredShape(ShapeUtil.innerQuad(0.0f, 0.0f, 800.0f, 480.0f, 400.0f, 0.1f), this.color, GLUtil.typicalState);
+        shape = new ColouredShape(ShapeUtil.innerQuad(0.0f, 0.0f, 800.0f, 480.0f, 400.0f, 0.1f), color, GLUtil.typicalState);
     }
 
     public void startFadingNow() {
-        this.startedAt = System.currentTimeMillis();
+        startedAt = System.currentTimeMillis();
     }
 
     public void setFadingStartedAt(long startedAt) {
         this.startedAt = startedAt;
-        if (this.startedAt == 0 && isFirstCircle()) {
+        if (startedAt == 0 && isFirstCircle()) {
             resetFirstCircle();
         }
     }
 
     public void cancel() {
-        this.startedAt = 0L;
+        startedAt = 0L;
     }
 
     public void advance(float delta) {
-        if (this.startedAt + this.duration > System.currentTimeMillis()) {
-            float fdelta = ((float) (System.currentTimeMillis() - this.startedAt)) / ((float) this.duration);
-            if (this.fadingType == FadingType.FadeIn) {
+        if (startedAt + duration > System.currentTimeMillis()) {
+            float fdelta = ((float) (System.currentTimeMillis() - startedAt)) / ((float) duration);
+            if (fadingType == FadingType.FadeIn) {
                 fadeIn(fdelta);
-            } else if (this.fadingType == FadingType.FadeOut) {
+            } else if (fadingType == FadingType.FadeOut) {
                 fadeOut(fdelta);
-            } else if (this.fadingType == FadingType.FadeOutThanFadeIn) {
+            } else if (fadingType == FadingType.FadeOutThanFadeIn) {
                 if (fdelta <= 0.5f) {
                     fadeOut(fdelta * 2.0f);
                 } else {
@@ -65,47 +65,47 @@ public class FadeInOutBar implements Touch.TouchListener {
                 }
             }
             updateShapeAlpha();
-        } else if (this.currentAlpha != 0) {
-            this.currentAlpha = 0;
+        } else if (currentAlpha != 0) {
+            currentAlpha = 0;
             recreateShape();
         }
     }
 
     private void fadeOut(float fdelta) {
-        this.currentAlpha = (int) (this.maxFading * fdelta);
+        currentAlpha = (int) (maxFading * fdelta);
         setFadingType(FadingType.FadeOut);
     }
 
     private void fadeIn(float fdelta) {
-        this.currentAlpha = (int) (this.maxFading - ((int) (this.maxFading * fdelta)));
+        currentAlpha = (int) (maxFading - ((int) (maxFading * fdelta)));
         setFadingType(FadingType.FadeIn);
     }
 
     private void setFadingType(FadingType fadingType) {
-        if (this.lastFadeType != fadingType && this.fadingType == FadingType.FadeOutThanFadeIn && this.onChangedListener != null && this.lastFadeType == FadingType.FadeOut) {
-            this.onChangedListener.fadeOutDone();
+        if (lastFadeType != fadingType && fadingType == FadingType.FadeOutThanFadeIn && onChangedListener != null && lastFadeType == FadingType.FadeOut) {
+            onChangedListener.fadeOutDone();
         }
-        this.lastFadeType = fadingType;
+        lastFadeType = fadingType;
     }
 
     public void draw(StackedRenderer sr) {
-        if (this.currentAlpha > 0) {
-            this.shape.render(sr);
+        if (currentAlpha > 0) {
+            shape.render(sr);
         }
     }
 
     private void updateShapeAlpha() {
-        for (int i = 0; i < this.shape.colours.length; i++) {
-            this.shape.colours[i] = (this.shape.colours[i] & 16777215) | (this.currentAlpha << 24);
+        for (int i = 0; i < shape.colours.length; i++) {
+            shape.colours[i] = (shape.colours[i] & 16777215) | (currentAlpha << ALPHA_OFFSET);
         }
     }
 
     public boolean isFirstCircle() {
-        return this.lastFadeType == FadingType.FadeOut;
+        return lastFadeType == FadingType.FadeOut;
     }
 
     public void resetFirstCircle() {
-        this.lastFadeType = FadingType.FadeIn;
+        lastFadeType = FadingType.FadeIn;
     }
 
     @Override

@@ -99,12 +99,14 @@ public class Hand {
             r.translate(x, y, 0.0f);
             r.rotate(rot, 0.0f, 0.0f, 1.0f);
             r.scale(size, size, 1.0f);
-            if (player.inHand != null) {
-                player.inHand.getItemShape().render(r);
-            } else if (state != null && (!GameMode.isMultiplayerMode() || player.getWorld().isReady())) {
-                TexturedShape hand = SkinGeometryGenerator.getHandShape();
-                hand.state = state;
-                hand.render(r);
+            if (player != null) {
+                if (player.inHand != null) {
+                    player.inHand.getItemShape().render(r);
+                } else if (state != null && (!GameMode.isMultiplayerMode() || player.getWorld().isReady())) {
+                    TexturedShape hand = SkinGeometryGenerator.getHandShape();
+                    hand.state = state;
+                    hand.render(r);
+                }
             }
             r.popMatrix();
         } catch (Throwable t) {

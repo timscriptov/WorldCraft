@@ -15,35 +15,35 @@ public class ImageTapPad extends TapPad {
 
     public ImageTapPad(float x, float y, float width, float height, int w, int h) {
         super(x, y, width, height);
-        this.shape = ItemFactory.Item.getShape(w, h);
-        this.shape.scale(25.0f, 25.0f, 25.0f);
-        this.shape.translate(x + 25.0f, 25.0f + y, 0.0f);
+        shape = ItemFactory.Item.getShape(w, h);
+        shape.scale(25.0f, 25.0f, 25.0f);
+        shape.translate(x + 25.0f, 25.0f + y, 0.0f);
     }
 
     @Override
     public void draw(StackedRenderer sr) {
-        if (this.isVisible) {
-            if (this.outlineWhite == null) {
-                this.outlineWhite = new ColouredShape(ShapeUtil.innerQuad(this.pad.x.getMin(), this.pad.y.getMin(), this.pad.x.getMax(), this.pad.y.getMax(), 5.0f, 0.0f), this.boundsWhiteColour, (State) null);
+        if (isVisible) {
+            if (outlineWhite == null) {
+                outlineWhite = new ColouredShape(ShapeUtil.innerQuad(pad.x.getMin(), pad.y.getMin(), pad.x.getMax(), pad.y.getMax(), 5.0f, 0.0f), boundsWhiteColour, (State) null);
             }
-            if (this.outlineBlack == null) {
-                this.outlineBlack = new ColouredShape(ShapeUtil.innerQuad(this.pad.x.getMin() + 2.5f, this.pad.y.getMin() + 2.5f, this.pad.x.getMax() - 2.5f, this.pad.y.getMax() - 2.5f, this.pad.x.getSpan(), 0.0f), this.boundsBlackColour, (State) null);
+            if (outlineBlack == null) {
+                outlineBlack = new ColouredShape(ShapeUtil.innerQuad(pad.x.getMin() + 2.5f, pad.y.getMin() + 2.5f, pad.x.getMax() - 2.5f, pad.y.getMax() - 2.5f, pad.x.getSpan(), 0.0f), boundsBlackColour, (State) null);
             }
-            this.outlineWhite.render(sr);
-            if (this.touch != null) {
-                this.outlineBlack.colours = ShapeUtil.expand(this.boundsWhiteColour, this.outlineBlack.vertexCount());
+            outlineWhite.render(sr);
+            if (touch != null) {
+                outlineBlack.colours = ShapeUtil.expand(boundsWhiteColour, outlineBlack.vertexCount());
             } else {
-                this.outlineBlack.colours = ShapeUtil.expand(this.boundsBlackColour, this.outlineBlack.vertexCount());
+                outlineBlack.colours = ShapeUtil.expand(boundsBlackColour, outlineBlack.vertexCount());
             }
-            this.outlineBlack.render(sr);
+            outlineBlack.render(sr);
             sr.render();
             renderShape(sr);
         }
     }
 
     public void renderShape(StackedRenderer sr) {
-        if (this.shape != null) {
-            this.shape.render(sr);
+        if (shape != null) {
+            shape.render(sr);
         }
     }
 }

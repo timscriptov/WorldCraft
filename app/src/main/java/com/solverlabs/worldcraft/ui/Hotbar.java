@@ -7,7 +7,6 @@ import com.solverlabs.droid.rugl.gl.StackedRenderer;
 import com.solverlabs.droid.rugl.input.Touch;
 import com.solverlabs.droid.rugl.util.Colour;
 import com.solverlabs.droid.rugl.util.geom.BoundingRectangle;
-import com.solverlabs.droid.rugl.util.math.Range;
 import com.solverlabs.worldcraft.Player;
 import com.solverlabs.worldcraft.inventory.InventoryTapItem;
 

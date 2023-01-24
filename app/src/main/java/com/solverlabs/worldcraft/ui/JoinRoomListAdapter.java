@@ -31,34 +31,34 @@ public class JoinRoomListAdapter extends ArrayAdapter<ObjectCodec.RoomPack> {
 
     public JoinRoomListAdapter(Context context, ArrayList<ObjectCodec.RoomPack> items, byte roomlistType) {
         super(context, 0, items);
-        this.roomlistLoading = false;
-        this.showLoading = true;
-        this.isRoomlistFull = false;
-        this.noItems = false;
-        this.searchValue = null;
+        roomlistLoading = false;
+        showLoading = true;
+        isRoomlistFull = false;
+        noItems = false;
+        searchValue = null;
         init(items, roomlistType);
-        this.vi = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        vi = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         notifyDataSetChanged();
     }
 
     public JoinRoomListAdapter(Context context, ArrayList<ObjectCodec.RoomPack> items, byte roomlistType, String searchValue) {
         this(context, items, roomlistType);
-        this.searchValue = searchValue;
+        searchValue = searchValue;
     }
 
     private void init(ArrayList<ObjectCodec.RoomPack> items, byte roomlistType) {
-        if (this.items == null) {
+        if (items == null) {
             this.items = items;
         } else {
             this.items.clear();
             this.items.addAll(items);
         }
         this.roomlistType = roomlistType;
-        this.isRoomlistFull = false;
-        this.showLoading = true;
-        this.searchValue = null;
-        this.roomlistLoading = false;
-        this.noItems = roomlistType == 0;
+        isRoomlistFull = false;
+        showLoading = true;
+        searchValue = null;
+        roomlistLoading = false;
+        noItems = roomlistType == 0;
         this.items.add(new ObjectCodec.RoomPack());
     }
 
@@ -69,19 +69,19 @@ public class JoinRoomListAdapter extends ArrayAdapter<ObjectCodec.RoomPack> {
 
     @Override
     public boolean isEnabled(int position) {
-        return !this.items.isEmpty() && (position != this.items.size() + (-1) || !this.showLoading);
+        return !items.isEmpty() && (position != items.size() + (-1) || !showLoading);
     }
 
     @SuppressLint("SetTextI18n")
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (this.noItems) {
-            return this.vi.inflate(R.layout.join_room_list_no_items, null);
-        } else if (this.items.isEmpty() || (position == this.items.size() - 1 && this.showLoading)) {
-            return this.vi.inflate(R.layout.join_room_list_loading_item, null);
+        if (noItems) {
+            return vi.inflate(R.layout.join_room_list_no_items, null);
+        } else if (items.isEmpty() || (position == items.size() - 1 && showLoading)) {
+            return vi.inflate(R.layout.join_room_list_loading_item, null);
         } else {
-            View v = this.vi.inflate(R.layout.join_room_list_item, null);
-            ObjectCodec.RoomPack i = this.items.get(position);
+            View v = vi.inflate(R.layout.join_room_list_item, null);
+            ObjectCodec.RoomPack i = items.get(position);
             TextView title = v.findViewById(R.id.join_room_name);
             TextView userCount = v.findViewById(R.id.join_room_user_count);
             ImageView lockImage = v.findViewById(R.id.join_room_lock_image);
@@ -98,16 +98,16 @@ public class JoinRoomListAdapter extends ArrayAdapter<ObjectCodec.RoomPack> {
     }
 
     public boolean isRoomlistLoading() {
-        return this.roomlistLoading;
+        return roomlistLoading;
     }
 
     public void loadRoomlist() {
-        if (!this.isRoomlistFull && !this.roomlistLoading) {
-            this.roomlistLoading = true;
-            if (this.searchValue != null) {
-                Multiplayer.instance.gameClient.roomSearch(this.searchValue, getCount());
+        if (!isRoomlistFull && !roomlistLoading) {
+            roomlistLoading = true;
+            if (searchValue != null) {
+                Multiplayer.instance.gameClient.roomSearch(searchValue, getCount());
             } else {
-                Multiplayer.instance.gameClient.roomList(this.roomlistType, getCount());
+                Multiplayer.instance.gameClient.roomList(roomlistType, getCount());
             }
         }
     }
@@ -115,7 +115,7 @@ public class JoinRoomListAdapter extends ArrayAdapter<ObjectCodec.RoomPack> {
     public void setSearchValue(String searchValue) {
         init(new ArrayList<>(), (byte) 0);
         this.searchValue = searchValue;
-        this.noItems = false;
+        noItems = false;
         notifyDataSetChanged();
         notifyDataSetInvalidated();
     }
@@ -130,14 +130,14 @@ public class JoinRoomListAdapter extends ArrayAdapter<ObjectCodec.RoomPack> {
             return;
         }
         notifyDataSetChanged();
-        this.roomlistLoading = false;
+        roomlistLoading = false;
     }
 
     public void fullRoomlistLoaded() {
         ObjectCodec.RoomPack roomPack;
-        this.roomlistLoading = false;
-        this.isRoomlistFull = true;
-        this.showLoading = false;
+        roomlistLoading = false;
+        isRoomlistFull = true;
+        showLoading = false;
         try {
             if (this.items.size() > 0 && ((roomPack = this.items.get(this.items.size() - 1)) == null || roomPack.id <= 0)) {
                 this.items.remove(this.items.size() - 1);
@@ -146,13 +146,12 @@ public class JoinRoomListAdapter extends ArrayAdapter<ObjectCodec.RoomPack> {
             t.printStackTrace();
         }
         if (this.items.isEmpty()) {
-            this.noItems = true;
+            noItems = true;
             this.items.add(new ObjectCodec.RoomPack());
         }
         notifyDataSetChanged();
     }
 
-    /* loaded from: classes.dex */
     public static class JoinRoomOnScrollListener implements AbsListView.OnScrollListener {
         private final JoinRoomListAdapter adapter;
 
@@ -164,7 +163,7 @@ public class JoinRoomListAdapter extends ArrayAdapter<ObjectCodec.RoomPack> {
         public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
             boolean loadMore = firstVisibleItem != 0 && visibleItemCount != 0 && totalItemCount != 0 && firstVisibleItem + visibleItemCount >= totalItemCount;
             if (loadMore) {
-                this.adapter.loadRoomlist();
+                adapter.loadRoomlist();
             }
         }
 
