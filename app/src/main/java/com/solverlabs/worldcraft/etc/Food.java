@@ -22,18 +22,18 @@ public enum Food {
     }
 
     public byte getId() {
-        return this.id;
+        return id;
     }
 
     public int getFoodPoints() {
-        return this.foodPoints;
+        return foodPoints;
     }
 
     public float getSaturationPoints() {
-        return this.saturationPoints;
+        return saturationPoints;
     }
 
     public float getPoisoningChance() {
-        return this.poisoningChance;
+        return poisoningChance;
     }
 }

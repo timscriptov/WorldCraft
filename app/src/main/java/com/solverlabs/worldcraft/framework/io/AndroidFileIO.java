@@ -12,7 +12,7 @@ import java.io.OutputStream;
 
 public class AndroidFileIO implements FileIO {
     AssetManager assets;
-    String externalStoragePath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator;
+    String externalStoragePath = Environment.getExternalStorageDirectory().getAbsolutePath();
 
     public AndroidFileIO(AssetManager assets) {
         this.assets = assets;
@@ -20,16 +20,16 @@ public class AndroidFileIO implements FileIO {
 
     @Override
     public InputStream readAsset(String fileName) throws IOException {
-        return this.assets.open(fileName);
+        return assets.open(fileName);
     }
 
     @Override
     public InputStream readFile(String fileName) throws IOException {
-        return new FileInputStream(this.externalStoragePath + fileName);
+        return new FileInputStream(new File(externalStoragePath, fileName));
     }
 
     @Override
     public OutputStream writeFile(String fileName) throws IOException {
-        return new FileOutputStream(this.externalStoragePath + fileName);
+        return new FileOutputStream(new File(externalStoragePath, fileName));
     }
 }

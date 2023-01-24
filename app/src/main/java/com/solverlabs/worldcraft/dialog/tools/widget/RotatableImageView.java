@@ -8,33 +8,27 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageView;
 
 public class RotatableImageView extends AppCompatImageView {
-    private int mRotation;
-    private float mXPivot;
-    private float mYPivot;
+    private int mRotation = 0;
+    private float mXPivot = 0.0f;
+    private float mYPivot = 0.0f;
 
     public RotatableImageView(Context context) {
         super(context);
-        this.mRotation = 0;
-        this.mXPivot = 0.0f;
-        this.mYPivot = 0.0f;
     }
 
     public RotatableImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.mRotation = 0;
-        this.mXPivot = 0.0f;
-        this.mYPivot = 0.0f;
     }
 
     public void setRotation(int rotation, float xPivot, float yPivot) {
-        this.mRotation = rotation;
-        this.mXPivot = xPivot;
-        this.mYPivot = yPivot;
+        mRotation = rotation;
+        mXPivot = xPivot;
+        mYPivot = yPivot;
     }
 
     @Override
     public float getRotation() {
-        return this.mRotation;
+        return mRotation;
     }
 
     public void setRotation(int rotation) {
@@ -42,17 +36,17 @@ public class RotatableImageView extends AppCompatImageView {
     }
 
     public float getXPivot() {
-        return this.mXPivot;
+        return mXPivot;
     }
 
     public float getYPivot() {
-        return this.mYPivot;
+        return mYPivot;
     }
 
     @Override
     protected void onDraw(@NonNull Canvas canvas) {
         canvas.save();
-        canvas.rotate(this.mRotation, getWidth() * this.mXPivot, getHeight() * this.mYPivot);
+        canvas.rotate(mRotation, getWidth() * mXPivot, getHeight() * mYPivot);
         super.onDraw(canvas);
         canvas.restore();
     }

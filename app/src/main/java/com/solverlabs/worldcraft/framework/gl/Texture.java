@@ -38,22 +38,22 @@ public class Texture {
     private void load() {
         int[] textureIds = new int[1];
         GLES10.glGenTextures(1, textureIds, 0);
-        this.textureId = textureIds[0];
-        System.out.println("load: " + this.textureId);
+        textureId = textureIds[0];
+        System.out.println("load: " + textureId);
         InputStream in = null;
         try {
             try {
-                InputStream in2 = this.fileIO.readAsset(this.fileName);
+                InputStream in2 = fileIO.readAsset(fileName);
                 Bitmap bitmap = BitmapFactory.decodeStream(in2);
-                if (this.mipmapped) {
+                if (mipmapped) {
                     createMipmaps(bitmap);
                 } else {
-                    GLES10.glBindTexture(3553, this.textureId);
+                    GLES10.glBindTexture(3553, textureId);
                     GLUtils.texImage2D(3553, 0, bitmap, 0);
                     setFilters(9728, 9728);
                     GLES10.glBindTexture(3553, 0);
-                    this.width = bitmap.getWidth();
-                    this.height = bitmap.getHeight();
+                    width = bitmap.getWidth();
+                    height = bitmap.getHeight();
                     bitmap.recycle();
                 }
                 if (in2 != null) {
@@ -78,12 +78,12 @@ public class Texture {
 
     private void createMipmaps(@NonNull Bitmap bitmap) {
         GLES10.glBindTexture(3553, this.textureId);
-        this.width = bitmap.getWidth();
-        this.height = bitmap.getHeight();
+        width = bitmap.getWidth();
+        height = bitmap.getHeight();
         setFilters(9984, 9728);
         int level = 0;
-        int newWidth = this.width;
-        int newHeight = this.height;
+        int newWidth = width;
+        int newHeight = height;
         while (true) {
             GLUtils.texImage2D(3553, level, bitmap, 0);
             newWidth /= 2;
@@ -104,7 +104,7 @@ public class Texture {
     public void reload() {
         load();
         bind();
-        setFilters(this.minFilter, this.magFilter);
+        setFilters(minFilter, magFilter);
         GLES10.glBindTexture(3553, 0);
     }
 
@@ -116,12 +116,12 @@ public class Texture {
     }
 
     public void bind() {
-        GLES10.glBindTexture(3553, this.textureId);
+        GLES10.glBindTexture(3553, textureId);
     }
 
     public void dispose() {
-        GLES10.glBindTexture(3553, this.textureId);
-        int[] textureIds = {this.textureId};
+        GLES10.glBindTexture(3553, textureId);
+        int[] textureIds = {textureId};
         GLES10.glDeleteTextures(1, textureIds, 0);
     }
 }

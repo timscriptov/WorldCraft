@@ -6,7 +6,7 @@ public class Rectangle {
     public float width;
 
     public Rectangle(float x, float y, float width, float height) {
-        this.lowerLeft = new Vector2(x, y);
+        lowerLeft = new Vector2(x, y);
         this.width = width;
         this.height = height;
     }

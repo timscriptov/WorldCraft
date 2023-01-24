@@ -21,78 +21,54 @@ import java.util.Collection;
 public class SwipeView extends HorizontalScrollView {
     private static int DEFAULT_SWIPE_THRESHOLD = 60;
     private final Context mContext;
-    protected boolean mCallScrollToPageInOnLayout;
+    protected boolean mCallScrollToPageInOnLayout = false;
     private int SCREEN_WIDTH;
-    private int mCurrentPage;
-    private boolean mJustInterceptedAndIgnored;
+    private int mCurrentPage = 0;
+    private boolean mJustInterceptedAndIgnored = false;
     private LinearLayout mLinearLayout;
-    private boolean mMostlyScrollingInX;
-    private boolean mMostlyScrollingInY;
+    private boolean mMostlyScrollingInX = false;
+    private boolean mMostlyScrollingInY = false;
     private int mMotionStartX;
     private int mMotionStartY;
-    private OnPageChangedListener mOnPageChangedListener;
+    private OnPageChangedListener mOnPageChangedListener = null;
     private View.OnTouchListener mOnTouchListener;
-    private PageControl mPageControl;
-    private int mPageWidth;
+    private PageControl mPageControl = null;
+    private int mPageWidth = 0;
     private SwipeOnTouchListener mSwipeOnTouchListener;
 
     public SwipeView(Context context) {
         super(context);
-        this.mMostlyScrollingInX = false;
-        this.mMostlyScrollingInY = false;
-        this.mJustInterceptedAndIgnored = false;
-        this.mCallScrollToPageInOnLayout = false;
-        this.mCurrentPage = 0;
-        this.mPageWidth = 0;
-        this.mOnPageChangedListener = null;
-        this.mPageControl = null;
-        this.mContext = context;
+        mContext = context;
         initSwipeView();
     }
 
     public SwipeView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.mMostlyScrollingInX = false;
-        this.mMostlyScrollingInY = false;
-        this.mJustInterceptedAndIgnored = false;
-        this.mCallScrollToPageInOnLayout = false;
-        this.mCurrentPage = 0;
-        this.mPageWidth = 0;
-        this.mOnPageChangedListener = null;
-        this.mPageControl = null;
-        this.mContext = context;
+        mContext = context;
         initSwipeView();
     }
 
     public SwipeView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        this.mMostlyScrollingInX = false;
-        this.mMostlyScrollingInY = false;
-        this.mJustInterceptedAndIgnored = false;
-        this.mCallScrollToPageInOnLayout = false;
-        this.mCurrentPage = 0;
-        this.mPageWidth = 0;
-        this.mOnPageChangedListener = null;
-        this.mPageControl = null;
-        this.mContext = context;
+        mContext = context;
         initSwipeView();
     }
 
     @SuppressLint("ClickableViewAccessibility")
     private void initSwipeView() {
         Log.i("SwipeView", "Initialising SwipeView");
-        this.mLinearLayout = new LinearLayout(this.mContext);
-        this.mLinearLayout.setOrientation(LinearLayout.HORIZONTAL);
-        super.addView(this.mLinearLayout, -1, new FrameLayout.LayoutParams(-1, -1));
+        mLinearLayout = new LinearLayout(mContext);
+        mLinearLayout.setOrientation(LinearLayout.HORIZONTAL);
+        super.addView(mLinearLayout, -1, new FrameLayout.LayoutParams(-1, -1));
         setSmoothScrollingEnabled(true);
         setHorizontalFadingEdgeEnabled(false);
         setHorizontalScrollBarEnabled(false);
-        Display display = ((WindowManager) this.mContext.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-        this.SCREEN_WIDTH = display.getWidth();
-        this.mPageWidth = this.SCREEN_WIDTH;
-        this.mCurrentPage = 0;
-        this.mSwipeOnTouchListener = new SwipeOnTouchListener();
-        super.setOnTouchListener(this.mSwipeOnTouchListener);
+        Display display = ((WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        SCREEN_WIDTH = display.getWidth();
+        mPageWidth = SCREEN_WIDTH;
+        mCurrentPage = 0;
+        mSwipeOnTouchListener = new SwipeOnTouchListener();
+        super.setOnTouchListener(mSwipeOnTouchListener);
     }
 
     @Override
@@ -113,9 +89,9 @@ public class SwipeView extends HorizontalScrollView {
     public void addAllViews(@NonNull Collection<View> viewList) {
         for (View view : viewList) {
             ViewGroup.LayoutParams layoutParams = getChildLayoutParams(view);
-            if (this.mLinearLayout.getChildCount() == 0) {
+            if (mLinearLayout.getChildCount() == 0) {
                 layoutParams = getLeftMargin(layoutParams);
-            } else if (this.mLinearLayout.getChildCount() == viewList.size() - 1) {
+            } else if (mLinearLayout.getChildCount() == viewList.size() - 1) {
                 layoutParams = getRightMargin(layoutParams);
             }
             addView(view, -1, layoutParams);
@@ -137,7 +113,7 @@ public class SwipeView extends HorizontalScrollView {
     }
 
     private int getFirstOrLastMargin() {
-        return (this.SCREEN_WIDTH - this.mPageWidth) / 2;
+        return (SCREEN_WIDTH - mPageWidth) / 2;
     }
 
     @Override
@@ -153,16 +129,16 @@ public class SwipeView extends HorizontalScrollView {
     @NonNull
     private ViewGroup.LayoutParams getChildLayoutParams(@NonNull View child) {
         if (child.getLayoutParams() == null) {
-            return new FrameLayout.LayoutParams(this.mPageWidth, -1);
+            return new FrameLayout.LayoutParams(mPageWidth, -1);
         }
         ViewGroup.LayoutParams params = child.getLayoutParams();
-        params.width = this.mPageWidth;
+        params.width = mPageWidth;
         return params;
     }
 
     @Override
     public void addView(View child, @NonNull ViewGroup.LayoutParams params) {
-        params.width = this.mPageWidth;
+        params.width = mPageWidth;
         addView(child, -1, params);
     }
 
@@ -170,31 +146,31 @@ public class SwipeView extends HorizontalScrollView {
     public void addView(View child, int index, ViewGroup.LayoutParams params) {
         requestLayout();
         invalidate();
-        this.mLinearLayout.addView(child, index, params);
+        mLinearLayout.addView(child, index, params);
     }
 
     @Override
     public void removeAllViews() {
-        this.mLinearLayout.removeAllViews();
+        mLinearLayout.removeAllViews();
         invalidate();
     }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
-        if (this.mCallScrollToPageInOnLayout) {
-            scrollToPage(this.mCurrentPage);
-            this.mCallScrollToPageInOnLayout = false;
+        if (mCallScrollToPageInOnLayout) {
+            scrollToPage(mCurrentPage);
+            mCallScrollToPageInOnLayout = false;
         }
     }
 
     @Override
     public void setOnTouchListener(View.OnTouchListener onTouchListener) {
-        this.mOnTouchListener = onTouchListener;
+        mOnTouchListener = onTouchListener;
     }
 
     public LinearLayout getChildContainer() {
-        return this.mLinearLayout;
+        return mLinearLayout;
     }
 
     public int getSwipeThreshold() {
@@ -206,11 +182,11 @@ public class SwipeView extends HorizontalScrollView {
     }
 
     public int getCurrentPage() {
-        return this.mCurrentPage;
+        return mCurrentPage;
     }
 
     public int getPageCount() {
-        return this.mLinearLayout.getChildCount();
+        return mLinearLayout.getChildCount();
     }
 
     public void scrollToPage(int page) {
@@ -222,29 +198,29 @@ public class SwipeView extends HorizontalScrollView {
     }
 
     private void scrollToPage(int page, boolean smooth) {
-        int oldPage = this.mCurrentPage;
+        int oldPage = mCurrentPage;
         if (page >= getPageCount() && getPageCount() > 0) {
             page--;
         } else if (page < 0) {
             page = 0;
         }
         if (smooth) {
-            smoothScrollTo(this.mPageWidth * page, 0);
+            smoothScrollTo(mPageWidth * page, 0);
         } else {
-            scrollTo(this.mPageWidth * page, 0);
+            scrollTo(mPageWidth * page, 0);
         }
-        this.mCurrentPage = page;
-        if (this.mOnPageChangedListener != null && oldPage != page) {
-            this.mOnPageChangedListener.onPageChanged(oldPage, page);
+        mCurrentPage = page;
+        if (mOnPageChangedListener != null && oldPage != page) {
+            mOnPageChangedListener.onPageChanged(oldPage, page);
         }
-        if (this.mPageControl != null && oldPage != page) {
-            this.mPageControl.setCurrentPage(page);
+        if (mPageControl != null && oldPage != page) {
+            mPageControl.setCurrentPage(page);
         }
-        this.mCallScrollToPageInOnLayout = !this.mCallScrollToPageInOnLayout;
+        mCallScrollToPageInOnLayout = !mCallScrollToPageInOnLayout;
     }
 
     public int setPageWidth(int pageWidth) {
-        this.mPageWidth = pageWidth;
+        mPageWidth = pageWidth;
         return getFirstOrLastMargin();
     }
 
@@ -253,17 +229,17 @@ public class SwipeView extends HorizontalScrollView {
     }
 
     public int getPageWidth() {
-        return this.mPageWidth;
+        return mPageWidth;
     }
 
     public PageControl getPageControl() {
-        return this.mPageControl;
+        return mPageControl;
     }
 
     public void setPageControl(@NonNull PageControl pageControl) {
-        this.mPageControl = pageControl;
+        mPageControl = pageControl;
         pageControl.setPageCount(getPageCount());
-        pageControl.setCurrentPage(this.mCurrentPage);
+        pageControl.setCurrentPage(mCurrentPage);
         pageControl.setOnPageControlClickListener(new PageControl.OnPageControlClickListener() {
             @Override
             public void goForwards() {
@@ -278,44 +254,44 @@ public class SwipeView extends HorizontalScrollView {
     }
 
     public OnPageChangedListener getOnPageChangedListener() {
-        return this.mOnPageChangedListener;
+        return mOnPageChangedListener;
     }
 
     public void setOnPageChangedListener(OnPageChangedListener onPageChangedListener) {
-        this.mOnPageChangedListener = onPageChangedListener;
+        mOnPageChangedListener = onPageChangedListener;
     }
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         boolean result = super.onInterceptTouchEvent(ev);
         if (ev.getAction() == 0) {
-            this.mMotionStartX = (int) ev.getX();
-            this.mMotionStartY = (int) ev.getY();
-            if (!this.mJustInterceptedAndIgnored) {
-                this.mMostlyScrollingInX = false;
-                this.mMostlyScrollingInY = false;
+            mMotionStartX = (int) ev.getX();
+            mMotionStartY = (int) ev.getY();
+            if (!mJustInterceptedAndIgnored) {
+                mMostlyScrollingInX = false;
+                mMostlyScrollingInY = false;
             }
         } else if (ev.getAction() == 2) {
             detectMostlyScrollingDirection(ev);
         }
-        if (this.mMostlyScrollingInY) {
+        if (mMostlyScrollingInY) {
             return false;
         }
-        if (this.mMostlyScrollingInX) {
-            this.mJustInterceptedAndIgnored = true;
+        if (mMostlyScrollingInX) {
+            mJustInterceptedAndIgnored = true;
             return true;
         }
         return result;
     }
 
     private void detectMostlyScrollingDirection(MotionEvent ev) {
-        if (!this.mMostlyScrollingInX && !this.mMostlyScrollingInY) {
-            float xDistance = Math.abs(this.mMotionStartX - ev.getX());
-            float yDistance = Math.abs(this.mMotionStartY - ev.getY());
+        if (!mMostlyScrollingInX && !mMostlyScrollingInY) {
+            float xDistance = Math.abs(mMotionStartX - ev.getX());
+            float yDistance = Math.abs(mMotionStartY - ev.getY());
             if (yDistance > xDistance + 5.0f) {
-                this.mMostlyScrollingInY = true;
+                mMostlyScrollingInY = true;
             } else if (xDistance > yDistance + 5.0f) {
-                this.mMostlyScrollingInX = true;
+                mMostlyScrollingInX = true;
             }
         }
     }
@@ -331,21 +307,21 @@ public class SwipeView extends HorizontalScrollView {
         private boolean mSendingDummyMotionEvent;
 
         private SwipeOnTouchListener() {
-            this.mSendingDummyMotionEvent = false;
-            this.mFirstMotionEvent = true;
+            mSendingDummyMotionEvent = false;
+            mFirstMotionEvent = true;
         }
 
         @SuppressLint("ClickableViewAccessibility")
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-            if (((mOnTouchListener != null && !mJustInterceptedAndIgnored) || (mOnTouchListener != null && this.mSendingDummyMotionEvent)) && mOnTouchListener.onTouch(v, event)) {
+            if (((mOnTouchListener != null && !mJustInterceptedAndIgnored) || (mOnTouchListener != null && mSendingDummyMotionEvent)) && mOnTouchListener.onTouch(v, event)) {
                 if (event.getAction() == 1) {
                     actionUp(event);
                     return true;
                 }
                 return true;
-            } else if (this.mSendingDummyMotionEvent) {
-                this.mSendingDummyMotionEvent = false;
+            } else if (mSendingDummyMotionEvent) {
+                mSendingDummyMotionEvent = false;
                 return false;
             } else {
                 switch (event.getAction()) {
@@ -364,7 +340,7 @@ public class SwipeView extends HorizontalScrollView {
         private boolean actionDown(@NonNull MotionEvent event) {
             mMotionStartX = (int) event.getX();
             mMotionStartY = (int) event.getY();
-            this.mFirstMotionEvent = false;
+            mFirstMotionEvent = false;
             return false;
         }
 
@@ -372,19 +348,19 @@ public class SwipeView extends HorizontalScrollView {
             int newDirection;
             int newDistance = mMotionStartX - ((int) event.getX());
             if (newDistance < 0) {
-                newDirection = this.mDistanceX + 4 <= newDistance ? 1 : -1;
+                newDirection = mDistanceX + 4 <= newDistance ? 1 : -1;
             } else {
-                newDirection = this.mDistanceX + (-4) <= newDistance ? 1 : -1;
+                newDirection = mDistanceX + (-4) <= newDistance ? 1 : -1;
             }
-            if (newDirection != this.mPreviousDirection && !this.mFirstMotionEvent) {
+            if (newDirection != mPreviousDirection && !mFirstMotionEvent) {
                 mMotionStartX = (int) event.getX();
-                this.mDistanceX = mMotionStartX - ((int) event.getX());
+                mDistanceX = mMotionStartX - ((int) event.getX());
             } else {
-                this.mDistanceX = newDistance;
+                mDistanceX = newDistance;
             }
-            this.mPreviousDirection = newDirection;
+            mPreviousDirection = newDirection;
             if (mJustInterceptedAndIgnored) {
-                this.mSendingDummyMotionEvent = true;
+                mSendingDummyMotionEvent = true;
                 dispatchTouchEvent(MotionEvent.obtain(event.getDownTime(), event.getEventTime(), 0, mMotionStartX, mMotionStartY, event.getPressure(), event.getSize(), event.getMetaState(), event.getXPrecision(), event.getYPrecision(), event.getDeviceId(), event.getEdgeFlags()));
                 mJustInterceptedAndIgnored = false;
                 return true;
@@ -397,18 +373,18 @@ public class SwipeView extends HorizontalScrollView {
             float fingerUpPosition = getScrollX();
             float numberOfPages = mLinearLayout.getMeasuredWidth() / mPageWidth;
             float fingerUpPage = fingerUpPosition / mPageWidth;
-            if (this.mPreviousDirection != 1) {
-                if (this.mDistanceX < (-SwipeView.DEFAULT_SWIPE_THRESHOLD)) {
+            if (mPreviousDirection != 1) {
+                if (mDistanceX < (-SwipeView.DEFAULT_SWIPE_THRESHOLD)) {
                     edgePosition = ((int) fingerUpPage) * mPageWidth;
                 } else {
                     edgePosition = Math.round(fingerUpPage) == 0 ? ((int) fingerUpPage) * mPageWidth : mCurrentPage * mPageWidth;
                 }
             } else {
-                edgePosition = this.mDistanceX > SwipeView.DEFAULT_SWIPE_THRESHOLD ? ((float) mCurrentPage) < numberOfPages - 1.0f ? ((int) (fingerUpPage + 1.0f)) * mPageWidth : mCurrentPage * mPageWidth : ((float) Math.round(fingerUpPage)) == numberOfPages - 1.0f ? ((int) (fingerUpPage + 1.0f)) * mPageWidth : mCurrentPage * mPageWidth;
+                edgePosition = mDistanceX > SwipeView.DEFAULT_SWIPE_THRESHOLD ? ((float) mCurrentPage) < numberOfPages - 1.0f ? ((int) (fingerUpPage + 1.0f)) * mPageWidth : mCurrentPage * mPageWidth : ((float) Math.round(fingerUpPage)) == numberOfPages - 1.0f ? ((int) (fingerUpPage + 1.0f)) * mPageWidth : mCurrentPage * mPageWidth;
             }
             smoothScrollToPage(((int) edgePosition) / mPageWidth);
-            this.mFirstMotionEvent = true;
-            this.mDistanceX = 0;
+            mFirstMotionEvent = true;
+            mDistanceX = 0;
             mMostlyScrollingInX = false;
             mMostlyScrollingInY = false;
             return true;

@@ -43,23 +43,23 @@ public class ChestMenu extends CustomMenu {
 
     public ChestMenu(Inventory inventory) {
         super(inventory);
-        this.chestScissorBound = new BoundingRectangle(380.0f, 10.0f, 340.0f, 400.0f);
-        this.inventoryScissorBound = new BoundingRectangle(20.0f, 10.0f, 340.0f, 400.0f);
-        this.chestTapItems = new ArrayList<>();
-        this.inventoryTapItems = new ArrayList<>();
+        chestScissorBound = new BoundingRectangle(380.0f, 10.0f, 340.0f, 400.0f);
+        inventoryScissorBound = new BoundingRectangle(20.0f, 10.0f, 340.0f, 400.0f);
+        chestTapItems = new ArrayList<>();
+        inventoryTapItems = new ArrayList<>();
     }
 
     public void initInventoryItems() {
-        this.inventoryTapItems.clear();
-        if (this.inventory != null) {
-            for (int i = 0; i < this.inventory.getSize(); i++) {
-                this.inventoryTapItems.add(new CustomTapItem(this.inventory.getElement(i)) {
+        inventoryTapItems.clear();
+        if (inventory != null) {
+            for (int i = 0; i < inventory.getSize(); i++) {
+                inventoryTapItems.add(new CustomTapItem(inventory.getElement(i)) {
                     @Override
                     protected void onTap() {
-                        if (chest.addItem(this.item)) {
-                            inventory.decItem(this.item);
+                        if (chest.addItem(item)) {
+                            inventory.decItem(item);
                             initChestItems();
-                            if (this.item.isEmpty()) {
+                            if (item.isEmpty()) {
                                 initInventoryItems();
                             }
                         }
@@ -67,10 +67,10 @@ public class ChestMenu extends CustomMenu {
 
                     @Override
                     protected void onLongPress() {
-                        if (chest.addItem(this.item)) {
-                            inventory.decItem(this.item);
+                        if (chest.addItem(item)) {
+                            inventory.decItem(item);
                             initChestItems();
-                            if (this.item.isEmpty()) {
+                            if (item.isEmpty()) {
                                 initInventoryItems();
                             }
                         }
@@ -81,16 +81,16 @@ public class ChestMenu extends CustomMenu {
     }
 
     public void initChestItems() {
-        this.chestTapItems.clear();
-        if (this.chest != null) {
-            for (int i = 0; i < this.chest.getChestItems().size(); i++) {
-                this.chestTapItems.add(new CustomTapItem(this.chest.getChestItems().get(i)) {
+        chestTapItems.clear();
+        if (chest != null) {
+            for (int i = 0; i < chest.getChestItems().size(); i++) {
+                chestTapItems.add(new CustomTapItem(chest.getChestItems().get(i)) {
                     @Override
                     protected void onTap() {
-                        if (inventory.add(this.item)) {
-                            chest.decItem(this.item);
+                        if (inventory.add(item)) {
+                            chest.decItem(item);
                             initInventoryItems();
-                            if (this.item.isEmpty()) {
+                            if (item.isEmpty()) {
                                 initChestItems();
                             }
                         }
@@ -98,10 +98,10 @@ public class ChestMenu extends CustomMenu {
 
                     @Override
                     protected void onLongPress() {
-                        if (inventory.add(this.item)) {
-                            chest.decItem(this.item);
+                        if (inventory.add(item)) {
+                            chest.decItem(item);
                             initInventoryItems();
-                            if (this.item.isEmpty()) {
+                            if (item.isEmpty()) {
                                 initChestItems();
                             }
                         }
@@ -112,61 +112,61 @@ public class ChestMenu extends CustomMenu {
     }
 
     public void advance() {
-        if (this.show) {
-            this.exitTap.advance();
-            for (int i = 0; i < this.chestTapItems.size(); i++) {
-                this.chestTapItems.get(i).advance();
+        if (show) {
+            exitTap.advance();
+            for (int i = 0; i < chestTapItems.size(); i++) {
+                chestTapItems.get(i).advance();
             }
-            for (int i = 0; i < this.inventoryTapItems.size(); i++) {
-                this.inventoryTapItems.get(i).advance();
+            for (int i = 0; i < inventoryTapItems.size(); i++) {
+                inventoryTapItems.get(i).advance();
             }
-            if (this.needToScrollChest && this.chestTapItems.size() / 4.0f > 4.0f) {
-                this.touchChestDelta = this.touch.y - this.prevChestScrollY;
+            if (needToScrollChest && chestTapItems.size() / 4.0f > 4.0f) {
+                touchChestDelta = touch.y - prevChestScrollY;
             }
-            if (this.needToScrollInv && this.inventoryTapItems.size() / 4.0f > 4.0f) {
-                this.touchInvDelta = this.touch.y - this.prevInvScrollY;
+            if (needToScrollInv && inventoryTapItems.size() / 4.0f > 4.0f) {
+                touchInvDelta = touch.y - prevInvScrollY;
             }
-            if (!this.chestTapItems.isEmpty() && this.chestTapItems.size() / 4.0f > 4.0f) {
+            if (!chestTapItems.isEmpty() && chestTapItems.size() / 4.0f > 4.0f) {
                 normalizeChestScroll();
             }
-            if (!this.inventoryTapItems.isEmpty() && this.inventoryTapItems.size() / 4.0f > 4.0f) {
+            if (!inventoryTapItems.isEmpty() && inventoryTapItems.size() / 4.0f > 4.0f) {
                 normalizeInvScroll();
             }
         }
     }
 
     private void normalizeChestScroll() {
-        CustomTapItem lastItem = this.chestTapItems.get(this.chestTapItems.size() - 1);
+        CustomTapItem lastItem = chestTapItems.get(chestTapItems.size() - 1);
         float bottomPoint = lastItem.getY() + lastItem.getYOffset();
-        float topPoint = this.chestTapItems.get(0).bounds.y.getMax();
-        if (this.touchChestDelta + bottomPoint > this.chestScissorBound.y.getMin()) {
-            float yOffset = (80.0f * MathUtils.roundUp(this.chestTapItems.size() / 4.0f)) - 375.0f;
-            this.touchChestDelta = 0.0f;
-            for (CustomTapItem item : this.chestTapItems) {
+        float topPoint = chestTapItems.get(0).bounds.y.getMax();
+        if (touchChestDelta + bottomPoint > chestScissorBound.y.getMin()) {
+            float yOffset = (80.0f * MathUtils.roundUp(chestTapItems.size() / 4.0f)) - 375.0f;
+            touchChestDelta = 0.0f;
+            for (CustomTapItem item : chestTapItems) {
                 item.setYOffset(yOffset);
             }
         }
-        if (this.touchChestDelta + topPoint < this.chestScissorBound.y.getMax()) {
-            this.touchChestDelta = 0.0f;
-            for (CustomTapItem item2 : this.chestTapItems) {
+        if (touchChestDelta + topPoint < chestScissorBound.y.getMax()) {
+            touchChestDelta = 0.0f;
+            for (CustomTapItem item2 : chestTapItems) {
                 item2.setYOffset(0.0f);
             }
         }
     }
 
     private void normalizeInvScroll() {
-        CustomTapItem lastItem = this.inventoryTapItems.get(this.inventoryTapItems.size() - 1);
+        CustomTapItem lastItem = inventoryTapItems.get(inventoryTapItems.size() - 1);
         float bottomPoint = lastItem.getY() + lastItem.getYOffset();
-        float topPoint = this.inventoryTapItems.get(0).bounds.y.getMax();
-        if (this.touchInvDelta + bottomPoint > this.inventoryScissorBound.y.getMin()) {
-            float yOffset = (80.0f * MathUtils.roundUp(this.inventoryTapItems.size() / 4.0f)) - 375.0f;
-            for (CustomTapItem item : this.inventoryTapItems) {
+        float topPoint = inventoryTapItems.get(0).bounds.y.getMax();
+        if (touchInvDelta + bottomPoint > inventoryScissorBound.y.getMin()) {
+            float yOffset = (80.0f * MathUtils.roundUp(inventoryTapItems.size() / 4.0f)) - 375.0f;
+            for (CustomTapItem item : inventoryTapItems) {
                 item.setYOffset(yOffset);
             }
         }
-        if (this.touchInvDelta + topPoint < this.inventoryScissorBound.y.getMax()) {
-            this.touchInvDelta = 0.0f;
-            for (CustomTapItem item2 : this.inventoryTapItems) {
+        if (touchInvDelta + topPoint < inventoryScissorBound.y.getMax()) {
+            touchInvDelta = 0.0f;
+            for (CustomTapItem item2 : inventoryTapItems) {
                 item2.setYOffset(0.0f);
             }
         }
@@ -174,13 +174,13 @@ public class ChestMenu extends CustomMenu {
 
     @Override
     public void draw(StackedRenderer sr) {
-        if (this.show) {
+        if (show) {
             super.draw(sr);
             drawInventoryItems(sr);
             drawChestItems(sr);
             drawScissorBound(sr);
             drawTitle(sr);
-            this.exitTap.draw(sr);
+            exitTap.draw(sr);
         }
     }
 
@@ -191,15 +191,15 @@ public class ChestMenu extends CustomMenu {
         float y = 365.0f;
         float yOffset = 0.0f;
         int k = 0;
-        for (int i = 0; i < this.inventoryTapItems.size(); i++) {
+        for (int i = 0; i < inventoryTapItems.size(); i++) {
             if (k == 4) {
                 k = 0;
                 yOffset += 1.0f;
                 x = 65.0f;
                 y = 365.0f - (84.0f * yOffset);
             }
-            this.inventoryTapItems.get(i).setPosition(x, y);
-            this.inventoryTapItems.get(i).draw(sr, this.touchInvDelta);
+            inventoryTapItems.get(i).setPosition(x, y);
+            inventoryTapItems.get(i).draw(sr, touchInvDelta);
             x += 84.0f;
             k++;
         }
@@ -214,15 +214,15 @@ public class ChestMenu extends CustomMenu {
         float y = 365.0f;
         float yOffset = 0.0f;
         int k = 0;
-        for (int i = 0; i < this.chestTapItems.size(); i++) {
+        for (int i = 0; i < chestTapItems.size(); i++) {
             if (k == 4) {
                 k = 0;
                 yOffset += 1.0f;
                 x = 425.0f;
                 y = 365.0f - (84.0f * yOffset);
             }
-            this.chestTapItems.get(i).setPosition(x, y);
-            this.chestTapItems.get(i).draw(sr, this.touchChestDelta);
+            chestTapItems.get(i).setPosition(x, y);
+            chestTapItems.get(i).draw(sr, touchChestDelta);
             x += 84.0f;
             k++;
         }
@@ -231,38 +231,38 @@ public class ChestMenu extends CustomMenu {
     }
 
     private void drawScissorBound(StackedRenderer sr) {
-        if (this.inventoryScissorBoundShape == null) {
+        if (inventoryScissorBoundShape == null) {
             Shape bs = ShapeUtil.innerQuad(20.0f, 10.0f, 360.0f, 410.0f, 4.0f, 0.0f);
-            this.inventoryScissorBoundShape = new ColouredShape(bs, Colour.black, (State) null);
+            inventoryScissorBoundShape = new ColouredShape(bs, Colour.black, (State) null);
             Shape bs2 = ShapeUtil.innerQuad(380.0f, 10.0f, 720.0f, 410.0f, 4.0f, 0.0f);
-            this.chestScissorBoundShape = new ColouredShape(bs2, Colour.black, (State) null);
+            chestScissorBoundShape = new ColouredShape(bs2, Colour.black, (State) null);
         }
-        this.inventoryScissorBoundShape.render(sr);
-        this.chestScissorBoundShape.render(sr);
+        inventoryScissorBoundShape.render(sr);
+        chestScissorBoundShape.render(sr);
     }
 
     private void drawTitle(StackedRenderer sr) {
-        if (this.inventoryTextShape == null) {
+        if (inventoryTextShape == null) {
             Font font = GUI.getFont();
-            this.inventoryTextShape = font.buildTextShape("Inventory", Colour.white);
-            this.inventoryTextShape.translate(((340.0f - font.getStringLength(TileEntity.FURNACE_ID)) / 2.0f) + 20.0f, (Game.gameHeight - font.size) - 20.0f, 0.0f);
-            this.chestTextShape = font.buildTextShape(TileEntity.CHEST_ID, Colour.white);
-            this.chestTextShape.translate(((340.0f - font.getStringLength(TileEntity.CHEST_ID)) / 2.0f) + 380.0f, (Game.gameHeight - font.size) - 20.0f, 0.0f);
+            inventoryTextShape = font.buildTextShape("Inventory", Colour.white);
+            inventoryTextShape.translate(((340.0f - font.getStringLength(TileEntity.FURNACE_ID)) / 2.0f) + 20.0f, (Game.gameHeight - font.size) - 20.0f, 0.0f);
+            chestTextShape = font.buildTextShape(TileEntity.CHEST_ID, Colour.white);
+            chestTextShape.translate(((340.0f - font.getStringLength(TileEntity.CHEST_ID)) / 2.0f) + 380.0f, (Game.gameHeight - font.size) - 20.0f, 0.0f);
             Shape s = ShapeUtil.filledQuad(20.0f, Game.gameHeight - 10.0f, 360.0f, Game.gameHeight - 78.0f, 0.0f);
-            this.fillTitleShape = new ColouredShape(s, Colour.packFloat(0.0f, 0.0f, 0.0f, 0.5f), (State) null);
+            fillTitleShape = new ColouredShape(s, Colour.packFloat(0.0f, 0.0f, 0.0f, 0.5f), (State) null);
         }
         sr.pushMatrix();
-        this.fillTitleShape.render(sr);
+        fillTitleShape.render(sr);
         sr.translate(360.0f, 0.0f, 0.0f);
-        this.fillTitleShape.render(sr);
+        fillTitleShape.render(sr);
         sr.popMatrix();
         sr.render();
-        this.inventoryTextShape.render(sr);
-        this.chestTextShape.render(sr);
+        inventoryTextShape.render(sr);
+        chestTextShape.render(sr);
     }
 
     public ArrayList<CustomTapItem> getTapItems() {
-        return this.chestTapItems;
+        return chestTapItems;
     }
 
     public void setChest(Chest chest) {
@@ -270,7 +270,7 @@ public class ChestMenu extends CustomMenu {
     }
 
     public void showOrHide() {
-        setShow(!this.show);
+        setShow(!show);
         if (isVisible()) {
             initInventoryItems();
             initChestItems();
@@ -279,22 +279,22 @@ public class ChestMenu extends CustomMenu {
 
     @Override
     public boolean pointerAdded(Touch.Pointer p) {
-        if (this.touch == null && this.bounds.contains(p.x, p.y) && this.show) {
-            this.touch = p;
-            this.exitTap.pointerAdded(this.touch);
-            if (this.chestScissorBound.contains(p.x, p.y)) {
-                this.needToScrollChest = true;
-                this.prevChestScrollY = this.touch.y;
+        if (touch == null && bounds.contains(p.x, p.y) && show) {
+            touch = p;
+            exitTap.pointerAdded(touch);
+            if (chestScissorBound.contains(p.x, p.y)) {
+                needToScrollChest = true;
+                prevChestScrollY = touch.y;
             }
-            if (this.inventoryScissorBound.contains(p.x, p.y)) {
-                this.needToScrollInv = true;
-                this.prevInvScrollY = this.touch.y;
+            if (inventoryScissorBound.contains(p.x, p.y)) {
+                needToScrollInv = true;
+                prevInvScrollY = touch.y;
             }
-            for (int i = 0; i < this.chestTapItems.size(); i++) {
-                this.chestTapItems.get(i).pointerAdded(this.touch);
+            for (int i = 0; i < chestTapItems.size(); i++) {
+                chestTapItems.get(i).pointerAdded(touch);
             }
-            for (int i2 = 0; i2 < this.inventoryTapItems.size(); i2++) {
-                this.inventoryTapItems.get(i2).pointerAdded(this.touch);
+            for (int i = 0; i < inventoryTapItems.size(); i++) {
+                inventoryTapItems.get(i).pointerAdded(touch);
             }
             return true;
         }
@@ -303,21 +303,21 @@ public class ChestMenu extends CustomMenu {
 
     @Override
     public void pointerRemoved(Touch.Pointer p) {
-        if (this.touch == p && this.touch != null) {
-            this.exitTap.pointerRemoved(this.touch);
-            for (int i = 0; i < this.chestTapItems.size(); i++) {
-                this.chestTapItems.get(i).translateYOffset(this.touchChestDelta);
-                this.chestTapItems.get(i).pointerRemoved(this.touch);
+        if (touch == p && touch != null) {
+            exitTap.pointerRemoved(touch);
+            for (int i = 0; i < chestTapItems.size(); i++) {
+                chestTapItems.get(i).translateYOffset(touchChestDelta);
+                chestTapItems.get(i).pointerRemoved(touch);
             }
-            for (int i2 = 0; i2 < this.inventoryTapItems.size(); i2++) {
-                this.inventoryTapItems.get(i2).translateYOffset(this.touchInvDelta);
-                this.inventoryTapItems.get(i2).pointerRemoved(this.touch);
+            for (int i2 = 0; i2 < inventoryTapItems.size(); i2++) {
+                inventoryTapItems.get(i2).translateYOffset(touchInvDelta);
+                inventoryTapItems.get(i2).pointerRemoved(touch);
             }
-            this.touchChestDelta = 0.0f;
-            this.touchInvDelta = 0.0f;
-            this.needToScrollChest = false;
-            this.needToScrollInv = false;
-            this.touch = null;
+            touchChestDelta = 0.0f;
+            touchInvDelta = 0.0f;
+            needToScrollChest = false;
+            needToScrollInv = false;
+            touch = null;
         }
     }
 

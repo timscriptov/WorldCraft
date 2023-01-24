@@ -17,25 +17,25 @@ public class Attachment {
     private boolean gotHeader;
 
     private boolean checkHeader() throws IllegalArgumentException {
-        if (this.gotHeader) {
+        if (gotHeader) {
             return true;
         }
-        if (this.readBuff.remaining() >= 12) {
-            this.clientId = this.readBuff.getInt();
-            this.payloadSize = this.readBuff.getInt();
-            if (this.payloadSize > 5000) {
-                throw new IllegalArgumentException("Header specifies payload size (" + this.payloadSize + ") greater than MAX_EVENT_SIZE(" + Globals.MAX_EVENT_SIZE + ")");
+        if (readBuff.remaining() >= HEADER_SIZE) {
+            clientId = readBuff.getInt();
+            payloadSize = readBuff.getInt();
+            if (payloadSize > 5000) {
+                throw new IllegalArgumentException("Header specifies payload size (" + payloadSize + ") greater than MAX_EVENT_SIZE(" + Globals.MAX_EVENT_SIZE + ")");
             }
-            this.gotHeader = true;
+            gotHeader = true;
             return true;
         }
         return false;
     }
 
     private boolean checkPayload() {
-        if (this.readBuff.remaining() >= this.payloadSize) {
+        if (readBuff.remaining() >= payloadSize) {
             try {
-                this.readBuff.get(this.payload, 0, this.payloadSize);
+                readBuff.get(payload, 0, payloadSize);
             } catch (BufferUnderflowException e) {
                 log.error("buffer underflow", e);
             }
@@ -49,6 +49,6 @@ public class Attachment {
     }
 
     public void reset() {
-        this.gotHeader = false;
+        gotHeader = false;
     }
 }

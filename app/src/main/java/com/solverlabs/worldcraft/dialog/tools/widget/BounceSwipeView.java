@@ -21,10 +21,10 @@ public class BounceSwipeView extends SwipeView {
     private static final int NUMBER_OF_FRAMES = 4;
     private final Context mContext;
     Handler mEaseAnimationFrameHandler;
-    private boolean mAtEdge;
+    private boolean mAtEdge = false;
     private float mAtEdgePreviousPosition;
     private float mAtEdgeStartPosition;
-    private boolean mBounceEnabled;
+    private boolean mBounceEnabled = true;
     private boolean mBouncingSide;
     private int mCurrentAnimationFrame;
     private View.OnTouchListener mOnTouchListener;
@@ -36,33 +36,29 @@ public class BounceSwipeView extends SwipeView {
 
     public BounceSwipeView(Context context) {
         super(context);
-        this.mAtEdge = false;
-        this.mBounceEnabled = true;
-        this.mContext = context;
+        mContext = context;
         initBounceSwipeView();
     }
 
     public BounceSwipeView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.mAtEdge = false;
-        this.mBounceEnabled = true;
-        this.mContext = context;
+        mContext = context;
         initBounceSwipeView();
     }
 
     public BounceSwipeView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        this.mAtEdge = false;
-        this.mBounceEnabled = true;
-        this.mContext = context;
+        mAtEdge = false;
+        mBounceEnabled = true;
+        mContext = context;
         initBounceSwipeView();
     }
 
     @SuppressLint({"ClickableViewAccessibility", "HandlerLeak"})
     private void initBounceSwipeView() {
         super.setOnTouchListener(new BounceViewOnTouchListener());
-        this.mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this.mContext);
-        this.mEaseAnimationFrameHandler = new Handler() {
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        mEaseAnimationFrameHandler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
                 int newPadding = AnimationUtil.quadraticOutEase(mCurrentAnimationFrame, mPaddingStartValue, -mPaddingChange, 4.0f);
@@ -81,43 +77,43 @@ public class BounceSwipeView extends SwipeView {
 
     @Override
     public void setPadding(int left, int top, int right, int bottom) {
-        this.mPaddingLeft = left;
-        this.mPaddingRight = right;
+        mPaddingLeft = left;
+        mPaddingRight = right;
         super.setPadding(left, top, right, bottom);
     }
 
     @Override
     public void setOnTouchListener(View.OnTouchListener onTouchListener) {
-        this.mOnTouchListener = onTouchListener;
+        mOnTouchListener = onTouchListener;
     }
 
     public boolean getBounceEnabled() {
-        return this.mBounceEnabled;
+        return mBounceEnabled;
     }
 
     public void setBounceEnabled(boolean enabled) {
-        this.mBounceEnabled = enabled;
+        mBounceEnabled = enabled;
     }
 
     public void doBounceBackEaseAnimation() {
-        if (this.mBouncingSide) {
-            this.mPaddingChange = getPaddingLeft() - this.mPaddingLeft;
-            this.mPaddingStartValue = getPaddingLeft();
+        if (mBouncingSide) {
+            mPaddingChange = getPaddingLeft() - mPaddingLeft;
+            mPaddingStartValue = getPaddingLeft();
         } else {
-            this.mPaddingChange = getPaddingRight() - this.mPaddingRight;
-            this.mPaddingStartValue = getPaddingRight();
+            mPaddingChange = getPaddingRight() - mPaddingRight;
+            mPaddingStartValue = getPaddingRight();
         }
-        this.mCurrentAnimationFrame = 0;
-        this.mEaseAnimationFrameHandler.removeMessages(0);
-        this.mEaseAnimationFrameHandler.sendEmptyMessage(0);
+        mCurrentAnimationFrame = 0;
+        mEaseAnimationFrameHandler.removeMessages(0);
+        mEaseAnimationFrameHandler.sendEmptyMessage(0);
     }
 
     public void doAtEdgeAnimation() {
         if (getCurrentPage() == 0) {
-            this.mBouncingSide = true;
+            mBouncingSide = true;
             super.setPadding(getPaddingLeft() + 50, getPaddingTop(), getPaddingRight(), getPaddingBottom());
         } else if (getCurrentPage() == getPageCount() - 1) {
-            this.mBouncingSide = false;
+            mBouncingSide = false;
             super.setPadding(getPaddingLeft(), getPaddingTop(), getPaddingRight() + 50, getPaddingBottom());
             scrollTo(getScrollX() + 50, getScrollY());
         }

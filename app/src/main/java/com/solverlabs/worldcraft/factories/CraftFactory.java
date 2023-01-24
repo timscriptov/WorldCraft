@@ -67,23 +67,23 @@ public class CraftFactory {
         }
 
         public byte getID() {
-            return this.id;
+            return id;
         }
 
         public byte[][] getMaterial() {
-            return this.material;
+            return material;
         }
 
         public int getCount() {
-            return this.count;
+            return count;
         }
 
         public boolean isNeedWorkBanch() {
-            return this.needWorkBanch;
+            return needWorkBanch;
         }
 
         public int getGroup() {
-            return this.group;
+            return group;
         }
     }
 }

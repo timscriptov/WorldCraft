@@ -20,12 +20,12 @@ public class Vector2 {
     }
 
     public Vector2(@NonNull Vector2 other) {
-        this.x = other.x;
-        this.y = other.y;
+        x = other.x;
+        y = other.y;
     }
 
     public Vector2 cpy() {
-        return new Vector2(this.x, this.y);
+        return new Vector2(x, y);
     }
 
     public Vector2 set(float x, float y) {
@@ -35,8 +35,8 @@ public class Vector2 {
     }
 
     public Vector2 set(@NonNull Vector2 other) {
-        this.x = other.x;
-        this.y = other.y;
+        x = other.x;
+        y = other.y;
         return this;
     }
 
@@ -47,8 +47,8 @@ public class Vector2 {
     }
 
     public Vector2 add(@NonNull Vector2 other) {
-        this.x += other.x;
-        this.y += other.y;
+        x += other.x;
+        y += other.y;
         return this;
     }
 
@@ -59,32 +59,32 @@ public class Vector2 {
     }
 
     public Vector2 sub(@NonNull Vector2 other) {
-        this.x -= other.x;
-        this.y -= other.y;
+        x -= other.x;
+        y -= other.y;
         return this;
     }
 
     public Vector2 mul(float scalar) {
-        this.x *= scalar;
-        this.y *= scalar;
+        x *= scalar;
+        y *= scalar;
         return this;
     }
 
     public float len() {
-        return FloatMath.sqrt((this.x * this.x) + (this.y * this.y));
+        return FloatMath.sqrt((x * x) + (y * y));
     }
 
     public Vector2 nor() {
         float len = len();
         if (len != 0.0f) {
-            this.x /= len;
-            this.y /= len;
+            x /= len;
+            y /= len;
         }
         return this;
     }
 
     public float angle() {
-        float angle = ((float) Math.atan2(this.y, this.x)) * TO_DEGREES;
+        float angle = ((float) Math.atan2(y, x)) * TO_DEGREES;
         if (angle < 0.0f) {
             return angle + 360.0f;
         }
@@ -95,16 +95,16 @@ public class Vector2 {
         float rad = angle * TO_RADIANS;
         float cos = FloatMath.cos(rad);
         float sin = FloatMath.sin(rad);
-        float newX = (this.x * cos) - (this.y * sin);
-        float newY = (this.x * sin) + (this.y * cos);
-        this.x = newX;
-        this.y = newY;
+        float newX = (x * cos) - (y * sin);
+        float newY = (x * sin) + (y * cos);
+        x = newX;
+        y = newY;
         return this;
     }
 
     public float dist(@NonNull Vector2 other) {
-        float distX = this.x - other.x;
-        float distY = this.y - other.y;
+        float distX = x - other.x;
+        float distY = y - other.y;
         return FloatMath.sqrt((distX * distX) + (distY * distY));
     }
 
@@ -115,8 +115,8 @@ public class Vector2 {
     }
 
     public float distSquared(@NonNull Vector2 other) {
-        float distX = this.x - other.x;
-        float distY = this.y - other.y;
+        float distX = x - other.x;
+        float distY = y - other.y;
         return (distX * distX) + (distY * distY);
     }
 

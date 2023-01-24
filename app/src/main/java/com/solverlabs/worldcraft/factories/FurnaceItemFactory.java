@@ -76,15 +76,15 @@ public class FurnaceItemFactory {
         }
 
         public byte getId() {
-            return this.id;
+            return id;
         }
 
         public int getBurningTime() {
-            return this.burningTime;
+            return burningTime;
         }
 
         public byte getCraftedItemId() {
-            return this.craftedItemId;
+            return craftedItemId;
         }
     }
 }

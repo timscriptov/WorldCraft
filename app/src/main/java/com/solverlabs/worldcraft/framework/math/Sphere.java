@@ -5,7 +5,7 @@ public class Sphere {
     public float radius;
 
     public Sphere(float x, float y, float z, float radius) {
-        this.center.set(x, y, z);
+        center.set(x, y, z);
         this.radius = radius;
     }
 }

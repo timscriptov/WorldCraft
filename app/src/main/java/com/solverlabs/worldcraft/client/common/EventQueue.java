@@ -11,17 +11,17 @@ public class EventQueue {
     }
 
     public WorldCraftGameEvent deQueue() throws InterruptedException {
-        if (this.events.size() > 0) {
-            return this.events.poll();
+        if (events.size() > 0) {
+            return events.poll();
         }
         return null;
     }
 
     public void enQueue(WorldCraftGameEvent worldCraftGameEvent) {
-        this.events.add(worldCraftGameEvent);
+        events.add(worldCraftGameEvent);
     }
 
     public int size() {
-        return this.events.size();
+        return events.size();
     }
 }

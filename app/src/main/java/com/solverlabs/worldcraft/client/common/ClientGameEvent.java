@@ -23,62 +23,62 @@ public class ClientGameEvent implements GameEvent {
     }
 
     public ClientGameEvent(byte b) {
-        this.eventType = b;
-        this.error = (byte) 0;
+        eventType = b;
+        error = (byte) 0;
     }
 
     public ClientGameEvent(byte b, byte b2) {
         this(b);
-        this.error = b2;
+        error = b2;
     }
 
     public ClientGameEvent(byte b, byte b2, String str) {
         this(b, b2);
-        this.message = str;
+        message = str;
     }
 
     public ClientGameEvent(byte b, String str) {
         this(b);
-        this.message = str;
+        message = str;
     }
 
     public SocketChannel getChannel() {
-        return this.channel;
+        return channel;
     }
 
     public void setChannel(SocketChannel socketChannel) {
-        this.channel = socketChannel;
+        channel = socketChannel;
     }
 
     public byte[] getData() {
-        return this.data;
+        return data;
     }
 
     public void setData(byte[] bArr) {
-        this.data = bArr;
+        data = bArr;
     }
 
     @Override
     public byte getError() {
-        return this.error;
+        return error;
     }
 
     @Override
     public void setError(byte b) {
-        this.error = b;
+        error = b;
     }
 
     public String getMessage() {
-        return this.message;
+        return message;
     }
 
     public void setMessage(String str) {
-        this.message = str;
+        message = str;
     }
 
     @Override
     public Player getPlayer() {
-        return this.player;
+        return player;
     }
 
     @Override
@@ -91,52 +91,52 @@ public class ClientGameEvent implements GameEvent {
 
     @Override
     public int getPlayerId() {
-        return this.playerId;
+        return playerId;
     }
 
     @Override
     public void setPlayerId(int i) {
-        this.playerId = i;
+        playerId = i;
     }
 
     public Set<Integer> getRecipientSet() {
-        return this.recipientSet;
+        return recipientSet;
     }
 
     public void setRecipientSet(Set<Integer> set) {
-        this.recipientSet = set;
+        recipientSet = set;
     }
 
     @Override
     public byte getType() {
-        return this.eventType;
+        return eventType;
     }
 
     @Override
     public void setType(byte b) {
-        this.eventType = b;
+        eventType = b;
     }
 
     public void read(@NonNull ByteBuffer byteBuffer) {
-        this.eventType = byteBuffer.get();
-        this.error = byteBuffer.get();
-        this.playerId = byteBuffer.getInt();
-        this.message = NIOUtils.getStr(byteBuffer);
-        this.data = NIOUtils.getByteArray(byteBuffer);
+        eventType = byteBuffer.get();
+        error = byteBuffer.get();
+        playerId = byteBuffer.getInt();
+        message = NIOUtils.getStr(byteBuffer);
+        data = NIOUtils.getByteArray(byteBuffer);
     }
 
     @NonNull
     public String toString() {
-        return "Event[type:" + (int) this.eventType + ", playerId:" + this.playerId + ", message:" + this.message + "]";
+        return "Event[type:" + (int) eventType + ", playerId:" + playerId + ", message:" + message + "]";
     }
 
     public int write(@NonNull ByteBuffer byteBuffer) {
         int position = byteBuffer.position();
-        byteBuffer.put(this.eventType);
-        byteBuffer.put(this.error);
-        byteBuffer.putInt(this.playerId);
-        NIOUtils.putStr(byteBuffer, this.message);
-        NIOUtils.putByteArray(byteBuffer, this.data);
+        byteBuffer.put(eventType);
+        byteBuffer.put(error);
+        byteBuffer.putInt(playerId);
+        NIOUtils.putStr(byteBuffer, message);
+        NIOUtils.putByteArray(byteBuffer, data);
         return byteBuffer.position() - position;
     }
 }

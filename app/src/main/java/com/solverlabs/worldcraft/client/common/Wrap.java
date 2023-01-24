@@ -14,19 +14,19 @@ public abstract class Wrap implements Runnable, EventHandler {
     private Thread[] workers;
 
     public void handleEvent(WorldCraftGameEvent worldCraftGameEvent) {
-        this.eventQueue.enQueue(worldCraftGameEvent);
+        eventQueue.enQueue(worldCraftGameEvent);
     }
 
     public final void initWrap(int i) {
-        this.shortname = getClass().getName().substring(getClass().getName().lastIndexOf(".") + 1);
-        this.log = WcLog.getLogger(this.shortname);
-        this.log.info("initWrap - " + this.shortname);
-        this.eventQueue = new EventQueue(this.shortname + "-in");
-        this.workers = new Thread[i];
+        shortname = getClass().getName().substring(getClass().getName().lastIndexOf(".") + 1);
+        log = WcLog.getLogger(shortname);
+        log.info("initWrap - " + shortname);
+        eventQueue = new EventQueue(shortname + "-in");
+        workers = new Thread[i];
         for (int i2 = 0; i2 < i; i2++) {
-            this.workers[i2] = new Thread(this, this.shortname + "-" + (i2 + 1));
-            this.workers[i2].setDaemon(true);
-            this.workers[i2].start();
+            workers[i2] = new Thread(this, shortname + "-" + (i2 + 1));
+            workers[i2].setDaemon(true);
+            workers[i2].start();
         }
     }
 
@@ -34,10 +34,10 @@ public abstract class Wrap implements Runnable, EventHandler {
 
     @Override
     public void run() {
-        this.running = true;
-        while (this.running) {
+        running = true;
+        while (running) {
             try {
-                WorldCraftGameEvent deQueue = this.eventQueue.deQueue();
+                WorldCraftGameEvent deQueue = eventQueue.deQueue();
                 if (deQueue != null) {
                     processEvent(deQueue);
                 }
@@ -53,10 +53,10 @@ public abstract class Wrap implements Runnable, EventHandler {
     }
 
     public void shutdown() {
-        this.running = false;
-        if (this.workers != null) {
-            for (int i = 0; i < this.workers.length; i++) {
-                this.workers[i].interrupt();
+        running = false;
+        if (workers != null) {
+            for (int i = 0; i < workers.length; i++) {
+                workers[i].interrupt();
             }
         }
     }

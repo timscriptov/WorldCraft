@@ -21,28 +21,20 @@ public class PageControl extends LinearLayout {
     private Drawable activeDrawable;
     private Drawable inactiveDrawable;
     private ArrayList<ImageView> indicators;
-    private int mCurrentPage;
-    private int mIndicatorSize;
-    private OnPageControlClickListener mOnPageControlClickListener;
-    private int mPageCount;
+    private int mCurrentPage = 0;
+    private int mIndicatorSize = 7;
+    private OnPageControlClickListener mOnPageControlClickListener = null;
+    private int mPageCount = 0;
 
     public PageControl(Context context) {
         super(context);
-        this.mIndicatorSize = 7;
-        this.mPageCount = 0;
-        this.mCurrentPage = 0;
-        this.mOnPageControlClickListener = null;
-        this.mContext = context;
+        mContext = context;
         initPageControl();
     }
 
     public PageControl(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.mIndicatorSize = 7;
-        this.mPageCount = 0;
-        this.mCurrentPage = 0;
-        this.mOnPageControlClickListener = null;
-        this.mContext = context;
+        mContext = context;
     }
 
     @Override
@@ -54,22 +46,22 @@ public class PageControl extends LinearLayout {
     @SuppressLint("ClickableViewAccessibility")
     private void initPageControl() {
         Log.i("PageControl", "Initialising PageControl");
-        this.indicators = new ArrayList<>();
-        this.activeDrawable = new ShapeDrawable();
-        this.inactiveDrawable = new ShapeDrawable();
-        this.activeDrawable.setBounds(0, 0, this.mIndicatorSize, this.mIndicatorSize);
-        this.inactiveDrawable.setBounds(0, 0, this.mIndicatorSize, this.mIndicatorSize);
+        indicators = new ArrayList<>();
+        activeDrawable = new ShapeDrawable();
+        inactiveDrawable = new ShapeDrawable();
+        activeDrawable.setBounds(0, 0, mIndicatorSize, mIndicatorSize);
+        inactiveDrawable.setBounds(0, 0, mIndicatorSize, mIndicatorSize);
         Shape s1 = new OvalShape();
-        s1.resize(this.mIndicatorSize, this.mIndicatorSize);
+        s1.resize(mIndicatorSize, mIndicatorSize);
         Shape s2 = new OvalShape();
-        s2.resize(this.mIndicatorSize, this.mIndicatorSize);
+        s2.resize(mIndicatorSize, mIndicatorSize);
         int[] i = {16842808, 16842810};
-        TypedArray a = this.mContext.getTheme().obtainStyledAttributes(i);
-        ((ShapeDrawable) this.activeDrawable).getPaint().setColor(a.getColor(0, -12303292));
-        ((ShapeDrawable) this.inactiveDrawable).getPaint().setColor(a.getColor(1, -3355444));
-        ((ShapeDrawable) this.activeDrawable).setShape(s1);
-        ((ShapeDrawable) this.inactiveDrawable).setShape(s2);
-        this.mIndicatorSize = (int) (this.mIndicatorSize * getResources().getDisplayMetrics().density);
+        TypedArray a = mContext.getTheme().obtainStyledAttributes(i);
+        ((ShapeDrawable) activeDrawable).getPaint().setColor(a.getColor(0, -12303292));
+        ((ShapeDrawable) inactiveDrawable).getPaint().setColor(a.getColor(1, -3355444));
+        ((ShapeDrawable) activeDrawable).setShape(s1);
+        ((ShapeDrawable) inactiveDrawable).setShape(s2);
+        mIndicatorSize = (int) (mIndicatorSize * getResources().getDisplayMetrics().density);
         setOnTouchListener((View v, MotionEvent event) -> {
             if (mOnPageControlClickListener != null) {
                 if (event.getAction() == 1) {
@@ -96,72 +88,72 @@ public class PageControl extends LinearLayout {
     }
 
     public Drawable getActiveDrawable() {
-        return this.activeDrawable;
+        return activeDrawable;
     }
 
     public void setActiveDrawable(Drawable d) {
-        this.activeDrawable = d;
-        this.indicators.get(this.mCurrentPage).setBackgroundDrawable(this.activeDrawable);
+        activeDrawable = d;
+        indicators.get(mCurrentPage).setBackgroundDrawable(activeDrawable);
     }
 
     public Drawable getInactiveDrawable() {
-        return this.inactiveDrawable;
+        return inactiveDrawable;
     }
 
     public void setInactiveDrawable(Drawable d) {
-        this.inactiveDrawable = d;
-        for (int i = 0; i < this.mPageCount; i++) {
-            this.indicators.get(i).setBackgroundDrawable(this.inactiveDrawable);
+        inactiveDrawable = d;
+        for (int i = 0; i < mPageCount; i++) {
+            indicators.get(i).setBackgroundDrawable(inactiveDrawable);
         }
-        this.indicators.get(this.mCurrentPage).setBackgroundDrawable(this.activeDrawable);
+        indicators.get(mCurrentPage).setBackgroundDrawable(activeDrawable);
     }
 
     public int getPageCount() {
-        return this.mPageCount;
+        return mPageCount;
     }
 
     public void setPageCount(int pageCount) {
-        this.mPageCount = pageCount;
+        mPageCount = pageCount;
         for (int i = 0; i < pageCount; i++) {
-            ImageView imageView = new ImageView(this.mContext);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(this.mIndicatorSize, this.mIndicatorSize);
-            params.setMargins(this.mIndicatorSize / 2, this.mIndicatorSize, this.mIndicatorSize / 2, this.mIndicatorSize);
+            ImageView imageView = new ImageView(mContext);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(mIndicatorSize, mIndicatorSize);
+            params.setMargins(mIndicatorSize / 2, mIndicatorSize, mIndicatorSize / 2, mIndicatorSize);
             imageView.setLayoutParams(params);
-            imageView.setBackgroundDrawable(this.inactiveDrawable);
-            this.indicators.add(imageView);
+            imageView.setBackgroundDrawable(inactiveDrawable);
+            indicators.add(imageView);
             addView(imageView);
         }
     }
 
     public int getCurrentPage() {
-        return this.mCurrentPage;
+        return mCurrentPage;
     }
 
     public void setCurrentPage(int currentPage) {
-        if (currentPage < this.mPageCount) {
-            this.indicators.get(this.mCurrentPage).setBackgroundDrawable(this.inactiveDrawable);
-            this.indicators.get(currentPage).setBackgroundDrawable(this.activeDrawable);
-            this.mCurrentPage = currentPage;
+        if (currentPage < mPageCount) {
+            indicators.get(mCurrentPage).setBackgroundDrawable(inactiveDrawable);
+            indicators.get(currentPage).setBackgroundDrawable(activeDrawable);
+            mCurrentPage = currentPage;
         }
     }
 
     public int getIndicatorSize() {
-        return this.mIndicatorSize;
+        return mIndicatorSize;
     }
 
     public void setIndicatorSize(int indicatorSize) {
-        this.mIndicatorSize = indicatorSize;
-        for (int i = 0; i < this.mPageCount; i++) {
-            this.indicators.get(i).setLayoutParams(new LinearLayout.LayoutParams(this.mIndicatorSize, this.mIndicatorSize));
+        mIndicatorSize = indicatorSize;
+        for (int i = 0; i < mPageCount; i++) {
+            indicators.get(i).setLayoutParams(new LinearLayout.LayoutParams(mIndicatorSize, mIndicatorSize));
         }
     }
 
     public OnPageControlClickListener getOnPageControlClickListener() {
-        return this.mOnPageControlClickListener;
+        return mOnPageControlClickListener;
     }
 
     public void setOnPageControlClickListener(OnPageControlClickListener onPageControlClickListener) {
-        this.mOnPageControlClickListener = onPageControlClickListener;
+        mOnPageControlClickListener = onPageControlClickListener;
     }
 
     public interface OnPageControlClickListener {

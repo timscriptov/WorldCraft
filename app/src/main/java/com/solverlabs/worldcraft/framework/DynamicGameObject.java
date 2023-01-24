@@ -8,7 +8,7 @@ public class DynamicGameObject extends GameObject {
 
     public DynamicGameObject(float x, float y, float width, float height) {
         super(x, y, width, height);
-        this.velocity = new Vector2();
-        this.accel = new Vector2();
+        velocity = new Vector2();
+        accel = new Vector2();
     }
 }

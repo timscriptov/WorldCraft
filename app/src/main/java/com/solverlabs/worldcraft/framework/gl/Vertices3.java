@@ -20,18 +20,18 @@ public class Vertices3 {
         this.hasColor = hasColor;
         this.hasTexCoords = hasTexCoords;
         this.hasNormals = hasNormals;
-        this.vertexSize = ((hasNormals ? 3 : 0) + (hasTexCoords ? 2 : 0) + (hasColor ? 4 : 0) + 3) * 4;
-        this.tmpBuffer = new int[(this.vertexSize * maxVertices) / 4];
-        ByteBuffer buffer = ByteBuffer.allocateDirect(this.vertexSize * maxVertices);
+        vertexSize = ((hasNormals ? 3 : 0) + (hasTexCoords ? 2 : 0) + (hasColor ? 4 : 0) + 3) * 4;
+        tmpBuffer = new int[(vertexSize * maxVertices) / 4];
+        ByteBuffer buffer = ByteBuffer.allocateDirect(vertexSize * maxVertices);
         buffer.order(ByteOrder.nativeOrder());
-        this.vertices = buffer.asIntBuffer();
+        vertices = buffer.asIntBuffer();
         if (maxIndices > 0) {
             ByteBuffer buffer2 = ByteBuffer.allocateDirect((maxIndices * 16) / 8);
             buffer2.order(ByteOrder.nativeOrder());
-            this.indices = buffer2.asShortBuffer();
+            indices = buffer2.asShortBuffer();
             return;
         }
-        this.indices = null;
+        indices = null;
     }
 
     public void setVertices(float[] vertices, int offset, int length, float zoom) {
@@ -40,11 +40,11 @@ public class Vertices3 {
         int i = offset;
         int j = 0;
         while (i < len) {
-            this.tmpBuffer[j] = Float.floatToRawIntBits(vertices[i] * zoom);
+            tmpBuffer[j] = Float.floatToRawIntBits(vertices[i] * zoom);
             i++;
             j++;
         }
-        this.vertices.put(this.tmpBuffer, 0, length);
+        this.vertices.put(tmpBuffer, 0, length);
         this.vertices.flip();
     }
 
@@ -54,11 +54,11 @@ public class Vertices3 {
         int i = offset;
         int j = 0;
         while (i < len) {
-            this.tmpBuffer[j] = Float.floatToRawIntBits(vertices[i]);
+            tmpBuffer[j] = Float.floatToRawIntBits(vertices[i]);
             i++;
             j++;
         }
-        this.vertices.put(this.tmpBuffer, 0, length);
+        this.vertices.put(tmpBuffer, 0, length);
         this.vertices.flip();
     }
 
@@ -69,53 +69,53 @@ public class Vertices3 {
     }
 
     public void bind() {
-        this.vertices.position(0);
-        GLES10.glVertexPointer(3, 5126, this.vertexSize, this.vertices);
-        if (this.hasColor) {
-            this.vertices.position(3);
-            GLES10.glColorPointer(4, 5126, this.vertexSize, this.vertices);
+        vertices.position(0);
+        GLES10.glVertexPointer(3, 5126, vertexSize, vertices);
+        if (hasColor) {
+            vertices.position(3);
+            GLES10.glColorPointer(4, 5126, vertexSize, vertices);
         }
-        if (this.hasTexCoords) {
-            this.vertices.position(this.hasColor ? 7 : 3);
-            GLES10.glTexCoordPointer(2, 5126, this.vertexSize, this.vertices);
+        if (hasTexCoords) {
+            vertices.position(hasColor ? 7 : 3);
+            GLES10.glTexCoordPointer(2, 5126, vertexSize, vertices);
         }
-        if (this.hasNormals) {
+        if (hasNormals) {
             GLES10.glEnableClientState(32885);
             int offset = 3;
-            if (this.hasColor) {
+            if (hasColor) {
                 offset = 3 + 4;
             }
-            if (this.hasTexCoords) {
+            if (hasTexCoords) {
                 offset += 2;
             }
-            this.vertices.position(offset);
-            GLES10.glNormalPointer(5126, this.vertexSize, this.vertices);
+            vertices.position(offset);
+            GLES10.glNormalPointer(5126, vertexSize, vertices);
         }
     }
 
     public void draw(int primitiveType, int offset, int numVertices) {
-        if (this.indices != null) {
-            this.indices.position(offset);
-            GLES10.glDrawElements(primitiveType, numVertices, 5123, this.indices);
+        if (indices != null) {
+            indices.position(offset);
+            GLES10.glDrawElements(primitiveType, numVertices, 5123, indices);
             return;
         }
         GLES10.glDrawArrays(primitiveType, offset, numVertices);
     }
 
     public void unbind() {
-        if (this.hasTexCoords) {
+        if (hasTexCoords) {
         }
-        if (this.hasColor) {
+        if (hasColor) {
         }
-        if (this.hasNormals) {
+        if (hasNormals) {
         }
     }
 
     public int getNumIndices() {
-        return this.indices.limit();
+        return indices.limit();
     }
 
     public int getNumVertices() {
-        return this.vertices.limit() / (this.vertexSize / 4);
+        return vertices.limit() / (vertexSize / 4);
     }
 }

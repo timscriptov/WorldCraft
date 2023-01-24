@@ -46,11 +46,11 @@ public abstract class CustomMenu implements Touch.TouchListener {
 
     public CustomMenu(Inventory inventory) {
         this.inventory = inventory;
-        this.exitTap.listener = this.exitTapListener;
+        exitTap.listener = exitTapListener;
     }
 
     public void draw(StackedRenderer sr) {
-        if (this.show) {
+        if (show) {
             drawInnerBound(sr);
             drawBound(sr);
             sr.render();
@@ -58,26 +58,26 @@ public abstract class CustomMenu implements Touch.TouchListener {
     }
 
     protected void drawInnerBound(StackedRenderer sr) {
-        if (this.innerShape == null) {
-            Shape is = ShapeUtil.innerQuad(this.bounds.x.getMin(), this.bounds.y.getMin(), this.bounds.x.getMax(), this.bounds.y.getMax(), this.bounds.y.getSpan(), 0.0f);
-            this.innerShape = new ColouredShape(is, this.innerColour, null);
+        if (innerShape == null) {
+            Shape is = ShapeUtil.innerQuad(bounds.x.getMin(), bounds.y.getMin(), bounds.x.getMax(), bounds.y.getMax(), bounds.y.getSpan(), 0.0f);
+            innerShape = new ColouredShape(is, innerColour, null);
         }
-        this.innerShape.render(sr);
+        innerShape.render(sr);
     }
 
     protected void drawBound(StackedRenderer sr) {
-        if (this.boundShape == null) {
-            Shape bs = ShapeUtil.innerQuad(this.bounds.x.getMin(), this.bounds.y.getMin(), this.bounds.x.getMax(), this.bounds.y.getMax(), 8.0f, 0.0f);
-            this.boundShape = new ColouredShape(bs, this.boundsColour, null);
+        if (boundShape == null) {
+            Shape bs = ShapeUtil.innerQuad(bounds.x.getMin(), bounds.y.getMin(), bounds.x.getMax(), bounds.y.getMax(), 8.0f, 0.0f);
+            boundShape = new ColouredShape(bs, boundsColour, null);
         }
-        this.boundShape.render(sr);
+        boundShape.render(sr);
     }
 
     public boolean isVisible() {
-        return this.show;
+        return show;
     }
 
     public void setShow(boolean isShow) {
-        this.show = isShow;
+        show = isShow;
     }
 }

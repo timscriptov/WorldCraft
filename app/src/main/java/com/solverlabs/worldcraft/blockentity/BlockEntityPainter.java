@@ -23,10 +23,10 @@ public class BlockEntityPainter {
 
     public void advance(float delta, World world, FPSCamera cam, Player player) {
         try {
-            synchronized (this.entityList) {
-                for (BlockEntity entity : new ArrayList<>(this.entityList)) {
+            synchronized (entityList) {
+                for (BlockEntity entity : new ArrayList<>(entityList)) {
                     if (entity.isDestroyed()) {
-                        this.entityList.remove(entity);
+                        entityList.remove(entity);
                     } else {
                         entity.advance(delta);
                     }
@@ -39,12 +39,12 @@ public class BlockEntityPainter {
 
     public void draw(Vector3f eye, int worldLoadRadius, FPSCamera cam) {
         try {
-            synchronized (this.entityList) {
-                for (BlockEntity entity : new ArrayList<>(this.entityList)) {
-                    entity.draw(this.renderer);
+            synchronized (entityList) {
+                for (BlockEntity entity : new ArrayList<>(entityList)) {
+                    entity.draw(renderer);
                 }
             }
-            this.renderer.render();
+            renderer.render();
             GLUtil.checkGLError();
         } catch (Throwable e) {
             e.printStackTrace();
@@ -53,8 +53,8 @@ public class BlockEntityPainter {
 
     public void add(BlockEntity entity) {
         try {
-            synchronized (this.entityList) {
-                this.entityList.add(entity);
+            synchronized (entityList) {
+                entityList.add(entity);
             }
         } catch (Throwable e) {
             e.printStackTrace();

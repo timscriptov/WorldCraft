@@ -90,35 +90,35 @@ public class TNTBlock implements BlockEntity {
             removeBlock();
         }
         if (detonationType == DetonationDelayType.NORMAL_DELAY) {
-            this.activatedAt = System.currentTimeMillis();
+            activatedAt = System.currentTimeMillis();
         } else if (detonationType == DetonationDelayType.SHORT_DELAY) {
-            this.activatedAt = System.currentTimeMillis() - 3800;
+            activatedAt = System.currentTimeMillis() - 3800;
         }
         SoundManager.playDistancedSound(Sounds.FUSE, 0.0f);
     }
 
     private void removeBlock() {
-        this.world.setBlockType(this.position.x, this.position.y, this.position.z, (byte) 0);
+        world.setBlockType(position.x, position.y, position.z, (byte) 0);
     }
 
     @Override
     public void advance(float delta) {
         if (!hasToBeExploded()) {
-            this.activeTexShape = getActiveTexShape();
-        } else if (!this.isActivated) {
-            this.isActivated = true;
-            Explosion.explode(this.world, this.position, POWER, this);
+            activeTexShape = getActiveTexShape();
+        } else if (!isActivated) {
+            isActivated = true;
+            Explosion.explode(world, position, POWER, this);
         }
     }
 
     private boolean hasToBeExploded() {
-        long activeTime = System.currentTimeMillis() - this.activatedAt;
+        long activeTime = System.currentTimeMillis() - activatedAt;
         return activeTime / 1000 > 4;
     }
 
     private TexturedShape getActiveTexShape() {
         int state;
-        long activeTime = System.currentTimeMillis() - this.activatedAt;
+        long activeTime = System.currentTimeMillis() - activatedAt;
         switch ((int) (activeTime / 1000)) {
             case 0:
             case 1:
@@ -140,10 +140,10 @@ public class TNTBlock implements BlockEntity {
 
     @Override
     public void draw(StackedRenderer renderer) {
-        if (!this.exploded && this.activeTexShape != null) {
+        if (!exploded && activeTexShape != null) {
             renderer.pushMatrix();
-            renderer.translate(this.position.x, this.position.y, this.position.z);
-            this.activeTexShape.render(renderer);
+            renderer.translate(position.x, position.y, position.z);
+            activeTexShape.render(renderer);
             renderer.popMatrix();
             renderer.render();
         }
@@ -151,7 +151,7 @@ public class TNTBlock implements BlockEntity {
 
     @Override
     public boolean isDestroyed() {
-        return this.exploded;
+        return exploded;
     }
 
     public void setExploded(boolean exploded) {
