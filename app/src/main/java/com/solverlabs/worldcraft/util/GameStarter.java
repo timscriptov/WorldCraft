@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import com.solverlabs.droid.rugl.util.WorldUtils;
 import com.solverlabs.worldcraft.GameMode;
 import com.solverlabs.worldcraft.MyApplication;
+import com.solverlabs.worldcraft.activity.MainMenuActivity;
 import com.solverlabs.worldcraft.activity.WorldCraftActivity;
 import com.solverlabs.worldcraft.factories.DescriptionFactory;
 
@@ -38,11 +39,11 @@ public class GameStarter {
 
     private static String getMapTypeName(int mapType) {
         switch (mapType) {
-            case 0:
+            case MainMenuActivity.MAP_TYPE_RANDOM:
                 return "random";
-            case 1:
+            case MainMenuActivity.MAP_TYPE_FLAT:
                 return "flat";
-            default:
+            default: // MAP_TYPE_PREDEFINED
                 return DescriptionFactory.emptyText;
         }
     }

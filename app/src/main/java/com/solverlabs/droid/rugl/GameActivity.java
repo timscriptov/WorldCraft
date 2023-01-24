@@ -50,13 +50,13 @@ public abstract class GameActivity extends CommonActivity implements Runnable {
     protected AlertDialog readOnlyMapNotificationDialog;
     private GameView gameView;
 
-/**
- * Call this in your {@link #onCreate(android.os.Bundle)}
- * implementation
- *
- * @param game
- */
-public void start(Game game) {
+    /**
+     * Call this in your {@link #onCreate(android.os.Bundle)}
+     * implementation
+     *
+     * @param game
+     */
+    public void start(Game game) {
         this.game = game;
         ResourceLoader.start(getResources());
         setContentView(R.layout.activity_game);
@@ -70,9 +70,8 @@ public void start(Game game) {
      * Displays a short message to the user
      *
      * @param message
-     * @param longShow
-     *           <code>true</code> for {@link Toast#LENGTH_LONG},
-     *           <code>false</code> for {@link Toast#LENGTH_SHORT}
+     * @param longShow <code>true</code> for {@link Toast#LENGTH_LONG},
+     *                 <code>false</code> for {@link Toast#LENGTH_SHORT}
      */
     public void showToast(final String message, final boolean longShow) {
         runOnUiThread(() -> {
@@ -262,7 +261,7 @@ public void start(Game game) {
             dialog.dismiss();
             showSaveWorldDialog();
         });
-       builder.show();
+        builder.show();
     }
 
     public void sendChatMessage(@NonNull final EditText msg) {

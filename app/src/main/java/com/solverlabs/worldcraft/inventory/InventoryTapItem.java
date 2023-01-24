@@ -4,7 +4,6 @@ import com.solverlabs.droid.rugl.geom.ColouredShape;
 import com.solverlabs.droid.rugl.geom.Shape;
 import com.solverlabs.droid.rugl.geom.ShapeUtil;
 import com.solverlabs.droid.rugl.gl.StackedRenderer;
-import com.solverlabs.droid.rugl.gl.State;
 import com.solverlabs.droid.rugl.input.Touch;
 import com.solverlabs.droid.rugl.text.Readout;
 import com.solverlabs.droid.rugl.util.Colour;

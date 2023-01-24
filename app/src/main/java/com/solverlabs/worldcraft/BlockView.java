@@ -110,7 +110,7 @@ public class BlockView {
                     e.printStackTrace();
                 }
             }
-            GLES10.glClear( GLES10.GL_COLOR_BUFFER_BIT |GLES10. GL_DEPTH_BUFFER_BIT );
+            GLES10.glClear(GLES10.GL_COLOR_BUFFER_BIT | GLES10.GL_DEPTH_BUFFER_BIT);
             cam.setPosition(player.position.x, player.position.y, player.position.z);
             world.draw(player.position, cam);
             charactersPainter.draw(player.position, world.loadradius, cam);

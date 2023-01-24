@@ -22,16 +22,16 @@ public class FallDetector {
             return 0;
         }
         int fellBlockCount = 0;
-        if (position.y < this.position.y && this.startFallPositionY == 0.0f) {
-            this.startFallPositionY = this.position.y;
-        } else if (this.startFallPositionY != 0.0f && (onGround || position.y == this.position.y)) {
-            if (this.startFallPositionY - position.y > 0.0f) {
-                fellBlockCount = (int) Math.abs(position.y - this.startFallPositionY);
+        if (position.y < this.position.y && startFallPositionY == 0.0f) {
+            startFallPositionY = this.position.y;
+        } else if (startFallPositionY != 0.0f && (onGround || position.y == this.position.y)) {
+            if (startFallPositionY - position.y > 0.0f) {
+                fellBlockCount = (int) Math.abs(position.y - startFallPositionY);
             }
-            this.startFallPositionY = 0.0f;
+            startFallPositionY = 0.0f;
         }
         this.position.set(position.x, position.y, position.z);
-        if (!this.damagable.isDead()) {
+        if (!damagable.isDead()) {
             fell(fellBlockCount);
             return fellBlockCount;
         }
@@ -40,7 +40,7 @@ public class FallDetector {
 
     private void fell(int blockCount) {
         if (blockCount > 3) {
-            this.damagable.takeDamage(blockCount - 3);
+            damagable.takeDamage(blockCount - 3);
         }
     }
 
