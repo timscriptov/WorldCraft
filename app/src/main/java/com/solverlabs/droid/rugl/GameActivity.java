@@ -22,7 +22,7 @@ import com.solverlabs.worldcraft.Enemy;
 import com.solverlabs.worldcraft.GameMode;
 import com.solverlabs.worldcraft.R;
 import com.solverlabs.worldcraft.SoundManager;
-import com.solverlabs.worldcraft.activity.CommonActivity;
+import com.solverlabs.worldcraft.activity.BaseActivity;
 import com.solverlabs.worldcraft.factories.DescriptionFactory;
 import com.solverlabs.worldcraft.multiplayer.Multiplayer;
 import com.solverlabs.worldcraft.multiplayer.dialogs.PopupDialog;
@@ -40,7 +40,7 @@ import java.util.TreeSet;
  * {@link #onCreate(android.os.Bundle)} or nothing will happen.
  * Handles starting the {@link ResourceLoader} and key input
  */
-public abstract class GameActivity extends CommonActivity implements Runnable {
+public abstract class GameActivity extends BaseActivity implements Runnable {
     private static final String CHAT_COMMAND_HOME = "/home";
     /**
      * The {@link Game}
@@ -305,26 +305,26 @@ public abstract class GameActivity extends CommonActivity implements Runnable {
     public void onPause() {
         super.onPause();
         dismissLoadingDialog();
-        if (this.gameView != null) {
-            this.gameView.onPause();
+        if (gameView != null) {
+            gameView.onPause();
         }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if (this.gameView != null) {
-            this.gameView.onResume();
+        if (gameView != null) {
+            gameView.onResume();
         }
-        if (this.game != null) {
-            this.game.resetTouches();
+        if (game != null) {
+            game.resetTouches();
         }
     }
 
     @Override
     public boolean onKeyDown(int keyCode, @NonNull KeyEvent event) {
         BlockView p;
-        if (event.getRepeatCount() == 0 && this.gameView != null && this.gameView.game != null && (p = this.gameView.game.getBlockView()) != null) {
+        if (event.getRepeatCount() == 0 && gameView != null && gameView.game != null && (p = gameView.game.getBlockView()) != null) {
             if (keyCode == 4 && (p instanceof BlockView)) {
                 showGameMenuDialog();
             } else {
@@ -337,7 +337,7 @@ public abstract class GameActivity extends CommonActivity implements Runnable {
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         BlockView p;
-        if (this.gameView != null && this.gameView.game != null && (p = this.gameView.game.getBlockView()) != null) {
+        if (gameView != null && gameView.game != null && (p = gameView.game.getBlockView()) != null) {
             p.onKeyUp(keyCode, event);
             return true;
         }

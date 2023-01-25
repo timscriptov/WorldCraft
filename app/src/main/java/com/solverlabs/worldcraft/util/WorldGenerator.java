@@ -1,20 +1,17 @@
 package com.solverlabs.worldcraft.util;
 
-import android.app.Activity;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.solverlabs.droid.rugl.util.WorldUtils;
 import com.solverlabs.worldcraft.World;
-import com.solverlabs.worldcraft.activity.MainMenuActivity;
+import com.solverlabs.worldcraft.activity.MainActivity;
 import com.solverlabs.worldcraft.factories.DescriptionFactory;
 import com.solverlabs.worldcraft.nbt.Tag;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 
 public class WorldGenerator {
     public static final String BUILD_VERSION = "BuildVersion";
@@ -59,7 +56,7 @@ public class WorldGenerator {
         tags[4] = createPlayerTag();
         tags[5] = new Tag(Tag.Type.TAG_Int, GAME_TYPE, mode == Mode.CREATIVE ? 1 : 0);
         tags[6] = new Tag(Tag.Type.TAG_Int, MAP_TYPE, mapType);
-        tags[7] = new Tag(Tag.Type.TAG_String, BUILD_VERSION, MainMenuActivity.version + "_J");
+        tags[7] = new Tag(Tag.Type.TAG_String, BUILD_VERSION, MainActivity.version + "_J");
         tags[8] = new Tag(Tag.Type.TAG_End, null, null);
         Tag dataTag = new Tag(Tag.Type.TAG_Compound, "Data", tags);
         return new Tag(Tag.Type.TAG_Compound, DescriptionFactory.emptyText,

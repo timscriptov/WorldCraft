@@ -11,7 +11,7 @@ import com.solverlabs.worldcraft.util.GameStarter
 import com.solverlabs.worldcraft.util.KeyboardUtils
 import com.solverlabs.worldcraft.util.WorldGenerator
 
-class NewGameSingleplayerActivity : CommonActivity() {
+class NewGameSingleplayerActivity : BaseActivity() {
     private lateinit var binding: ActivityNewGameSingleplayerBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -24,7 +24,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
 
-class SinglePlayerActivity : CommonActivity(), RemoveMapListener {
+class SinglePlayerActivity : BaseActivity(), RemoveMapListener {
     private lateinit var binding: SingleplayerBinding
     private lateinit var worldListAdapter: ItemAdapter<WorldListAdapter>
     private lateinit var fastApkAdapter: FastAdapter<WorldListAdapter>
