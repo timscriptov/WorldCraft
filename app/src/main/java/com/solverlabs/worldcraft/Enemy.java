@@ -127,26 +127,26 @@ public class Enemy implements Comparable<Enemy> {
     }
 
     public void onMovement(Camera camera) {
-        long timeDiff = System.currentTimeMillis() - this.lastMoveTime;
-        this.lastMoveTime = System.currentTimeMillis();
+        long timeDiff = System.currentTimeMillis() - lastMoveTime;
+        lastMoveTime = System.currentTimeMillis();
         if (timeDiff < 50) {
-            this.moveEndTime += timeDiff;
+            moveEndTime += timeDiff;
             setTarget(camera);
             return;
         }
         if (timeDiff > MIN_ACTION_TIME) {
-            timeDiff = this.avgMoveDiffTime;
+            timeDiff = avgMoveDiffTime;
         } else {
-            this.avgMoveDiffTime = (this.avgMoveDiffTime + timeDiff) / 2;
+            avgMoveDiffTime = (avgMoveDiffTime + timeDiff) / 2;
         }
-        this.moveStartTime = System.currentTimeMillis();
-        this.moveEndTime = this.moveStartTime + timeDiff + (3 * this.avgMoveDiffTime);
+        moveStartTime = System.currentTimeMillis();
+        moveEndTime = moveStartTime + timeDiff + (3 * avgMoveDiffTime);
         setTarget(camera);
     }
 
     public void onAction(byte actionType) {
-        this.lastActionType = actionType;
-        this.lastActionTime = System.currentTimeMillis();
+        lastActionType = actionType;
+        lastActionTime = System.currentTimeMillis();
         invalidateGeometry();
     }
 
@@ -155,8 +155,8 @@ public class Enemy implements Comparable<Enemy> {
         updateVisibility(worldLoadRadius, cam);
         if (visibilityChanged()) {
             advanceGeometry(delta, cam);
-        } else if (this.currVisible) {
-            if (!this.isGeometryDirty) {
+        } else if (currVisible) {
+            if (!isGeometryDirty) {
                 rotateNameShape(cam);
                 advancePosition();
                 return;
@@ -168,82 +168,82 @@ public class Enemy implements Comparable<Enemy> {
     }
 
     private void advanceGeometry(float delta, FPSCamera cam) {
-        this.isGeometryDirty = false;
+        isGeometryDirty = false;
         advancePosition();
         advanceHandLegDueWalkAngle(delta);
         advanceActionHandMovement(delta);
-        if (this.isGeometryDirty || this.forceUpdateGeometry) {
-            updateGeometry(cam, this.forceUpdateGeometry);
-            this.forceUpdateGeometry = false;
+        if (isGeometryDirty || forceUpdateGeometry) {
+            updateGeometry(cam, forceUpdateGeometry);
+            forceUpdateGeometry = false;
         }
     }
 
     private boolean visibilityChanged() {
-        return this.prevVisible != this.currVisible;
+        return prevVisible != currVisible;
     }
 
     private void updateVisibility(int worldLoadRadius, FPSCamera cam) {
-        this.prevVisible = this.currVisible;
-        this.currVisible = isVisible(worldLoadRadius, cam);
+        prevVisible = currVisible;
+        currVisible = isVisible(worldLoadRadius, cam);
     }
 
     public void render(Renderer r, FPSCamera cam) {
-        if (this.eye != null && this.at != null) {
-            if (this.head != null) {
-                this.head.render(r);
+        if (eye != null && at != null) {
+            if (head != null) {
+                head.render(r);
             }
-            if (this.body != null) {
-                this.body.render(r);
+            if (body != null) {
+                body.render(r);
             }
-            if (this.leftHand != null) {
-                this.leftHand.render(r);
+            if (leftHand != null) {
+                leftHand.render(r);
             }
-            if (this.rightHand != null) {
-                this.rightHand.render(r);
+            if (rightHand != null) {
+                rightHand.render(r);
             }
-            if (this.leftLeg != null) {
-                this.leftLeg.render(r);
+            if (leftLeg != null) {
+                leftLeg.render(r);
             }
-            if (this.rightLeg != null) {
-                this.rightLeg.render(r);
+            if (rightLeg != null) {
+                rightLeg.render(r);
             }
-            if (this.nameShape != null) {
-                this.nameShape.render(r);
+            if (nameShape != null) {
+                nameShape.render(r);
             }
         }
     }
 
     private void updateGeometry(FPSCamera cam, boolean requireMovementDrawing, boolean forceDraw) {
-        float y = this.eye.y + 0.1875f;
-        generateHead(this.head, y, requireMovementDrawing);
-        generateBody(this.body, y - 0.1875f, requireMovementDrawing);
-        generateHand(this.leftHand, y - 0.1875f, LEFT_HAND_X_OFFSET, true, this.handLegWalkAngle, requireMovementDrawing);
-        generateHand(this.rightHand, y - 0.1875f, 0.1875f, false, -this.handLegWalkAngle, requireMovementDrawing);
-        generateLeg(this.leftLeg, y - LEG_Y_OFFSET, LEFT_LEG_X_OFFSET, -this.handLegWalkAngle, requireMovementDrawing);
-        generateLeg(this.rightLeg, y - LEG_Y_OFFSET, 0.0f, this.handLegWalkAngle, requireMovementDrawing);
+        float y = eye.y + 0.1875f;
+        generateHead(head, y, requireMovementDrawing);
+        generateBody(body, y - 0.1875f, requireMovementDrawing);
+        generateHand(leftHand, y - 0.1875f, LEFT_HAND_X_OFFSET, true, handLegWalkAngle, requireMovementDrawing);
+        generateHand(rightHand, y - 0.1875f, 0.1875f, false, -handLegWalkAngle, requireMovementDrawing);
+        generateLeg(leftLeg, y - LEG_Y_OFFSET, LEFT_LEG_X_OFFSET, -handLegWalkAngle, requireMovementDrawing);
+        generateLeg(rightLeg, y - LEG_Y_OFFSET, 0.0f, handLegWalkAngle, requireMovementDrawing);
         updateNameShape(cam, requireMovementDrawing || forceDraw);
     }
 
     private void rotateNameShape(@NonNull FPSCamera cam) {
-        if (cam.getHeading() != this.prevCamHeading) {
+        if (cam.getHeading() != prevCamHeading) {
             updateNameShape(cam, requireMovementDrawing());
-            this.prevCamHeading = cam.getHeading();
+            prevCamHeading = cam.getHeading();
         }
     }
 
     private void updateNameShape(FPSCamera cam, boolean requireMovementDrawing) {
         try {
-            this.nameShape.reset();
+            nameShape.reset();
             if (requireMovementDrawing) {
                 float angle = Range.wrap(cam.getHeading(), 0.0f, 6.2831855f) + 3.1415927f;
-                if (this.nameShape.getLastRotateAngle() == angle) {
-                    this.nameShape.restoreCheckpoint();
+                if (nameShape.getLastRotateAngle() == angle) {
+                    nameShape.restoreCheckpoint();
                 } else {
-                    this.nameShape.rotateYByOne(angle);
-                    this.nameShape.checkpoint();
+                    nameShape.rotateYByOne(angle);
+                    nameShape.checkpoint();
                 }
             }
-            this.nameShape.translate(this.eye.x, this.eye.y + 0.6f, this.eye.z);
+            nameShape.translate(eye.x, eye.y + 0.6f, eye.z);
         } catch (NullPointerException e) {
             initNameShape();
         }
@@ -251,31 +251,31 @@ public class Enemy implements Comparable<Enemy> {
 
     private void generateHead(TexturedShape s, float y, boolean requireMovementDrawing) {
         if (s != null) {
-            if (s.getLastRotateAngle() == this.angle) {
+            if (s.getLastRotateAngle() == angle) {
                 s.restoreCheckpoint();
             } else {
                 s.reset();
-                if (requireMovementDrawing && this.angle != 0.0f) {
-                    s.rotateYByOne(this.angle);
+                if (requireMovementDrawing && angle != 0.0f) {
+                    s.rotateYByOne(angle);
                     s.checkpoint();
                 }
             }
-            s.translate(this.eye.x, y, this.eye.z);
+            s.translate(eye.x, y, eye.z);
         }
     }
 
     private void generateBody(TexturedShape s, float y, boolean requireMovementDrawing) {
         if (s != null) {
-            if (s.getLastRotateAngle() == this.angle) {
+            if (s.getLastRotateAngle() == angle) {
                 s.restoreCheckpoint();
             } else {
                 s.reset();
-                if (requireMovementDrawing && this.angle != 0.0f) {
-                    s.rotateYByOne(this.angle);
+                if (requireMovementDrawing && angle != 0.0f) {
+                    s.rotateYByOne(angle);
                     s.checkpoint();
                 }
             }
-            s.translate(this.eye.x, y, this.eye.z);
+            s.translate(eye.x, y, eye.z);
         }
     }
 
@@ -283,19 +283,19 @@ public class Enemy implements Comparable<Enemy> {
         if (s != null) {
             s.reset();
             if (requireMovementDrawing) {
-                if ((isActionHand && this.actionHandMovementAngle == 0.0f && moveBodyAngle != 0.0f) || (!isActionHand && moveBodyAngle != 0.0f)) {
+                if ((isActionHand && actionHandMovementAngle == 0.0f && moveBodyAngle != 0.0f) || (!isActionHand && moveBodyAngle != 0.0f)) {
                     moveHandLeg(s, moveBodyAngle);
-                } else if (isActionHand && this.actionHandMovementAngle != 0.0f) {
+                } else if (isActionHand && actionHandMovementAngle != 0.0f) {
                     s.translate(0.0f, -0.5625f, -0.09375f);
-                    s.rotateXByOne(-this.actionHandMovementAngle);
+                    s.rotateXByOne(-actionHandMovementAngle);
                     s.translate(0.0f, HAND_ACTION_Y_OFFSET, 0.09375f);
                 }
             }
             s.translate(xOffset, -0.5625f, -0.09375f);
             if (requireMovementDrawing) {
-                s.rotateYByOne(this.angle);
+                s.rotateYByOne(angle);
             }
-            s.translate(this.eye.x, y, this.eye.z);
+            s.translate(eye.x, y, eye.z);
         }
     }
 
@@ -307,9 +307,9 @@ public class Enemy implements Comparable<Enemy> {
             }
             s.translate(xOffset, -0.5625f, -0.09375f);
             if (requireMovementDrawing) {
-                s.rotateYByOne(this.angle);
+                s.rotateYByOne(angle);
             }
-            s.translate(this.eye.x, y, this.eye.z);
+            s.translate(eye.x, y, eye.z);
         }
     }
 
@@ -327,7 +327,7 @@ public class Enemy implements Comparable<Enemy> {
     private void advancePosition() {
         if (isWalking() && requireMovementDrawing()) {
             updatePosition();
-        } else if (!this.targetReached) {
+        } else if (!targetReached) {
             jumpToTarget();
         }
     }
@@ -353,115 +353,115 @@ public class Enemy implements Comparable<Enemy> {
     }
 
     private void updateActionHandMovementAngle(float delta) {
-        this.actionHandMovementAngle += this.actionHandMovementMultiplyParam * 3.0f * delta * 1.5707964f;
-        if (this.actionHandMovementMultiplyParam == 1.0f && this.actionHandMovementAngle > 1.5707964f) {
-            this.actionHandMovementAngle = 3.1415927f - this.actionHandMovementAngle;
-            this.actionHandMovementMultiplyParam = -1.0f;
-        } else if (this.actionHandMovementMultiplyParam == -1.0f && this.actionHandMovementAngle < MIN_ACTION_ANGLE) {
-            this.actionHandMovementAngle = 1.0471976f - this.actionHandMovementAngle;
-            this.actionHandMovementMultiplyParam = 1.0f;
+        actionHandMovementAngle += actionHandMovementMultiplyParam * 3.0f * delta * 1.5707964f;
+        if (actionHandMovementMultiplyParam == 1.0f && actionHandMovementAngle > 1.5707964f) {
+            actionHandMovementAngle = 3.1415927f - actionHandMovementAngle;
+            actionHandMovementMultiplyParam = -1.0f;
+        } else if (actionHandMovementMultiplyParam == -1.0f && actionHandMovementAngle < MIN_ACTION_ANGLE) {
+            actionHandMovementAngle = 1.0471976f - actionHandMovementAngle;
+            actionHandMovementMultiplyParam = 1.0f;
         }
         invalidateGeometry();
     }
 
     private void updateHandLegWalkAngle(float delta) {
-        this.handLegWalkAngle += this.legMultiplyParam * 2.0f * delta * MAX_LEG_ANGLE;
-        if (this.legMultiplyParam == 1.0f && this.handLegWalkAngle > MAX_LEG_ANGLE) {
-            this.handLegWalkAngle = 1.5707964f - this.handLegWalkAngle;
-            this.legMultiplyParam = -1.0f;
-        } else if (this.legMultiplyParam == -1.0f && this.handLegWalkAngle < -0.7853982f) {
-            this.handLegWalkAngle = (-1.5707964f) - this.handLegWalkAngle;
-            this.legMultiplyParam = 1.0f;
+        handLegWalkAngle += legMultiplyParam * 2.0f * delta * MAX_LEG_ANGLE;
+        if (legMultiplyParam == 1.0f && handLegWalkAngle > MAX_LEG_ANGLE) {
+            handLegWalkAngle = 1.5707964f - handLegWalkAngle;
+            legMultiplyParam = -1.0f;
+        } else if (legMultiplyParam == -1.0f && handLegWalkAngle < -0.7853982f) {
+            handLegWalkAngle = (-1.5707964f) - handLegWalkAngle;
+            legMultiplyParam = 1.0f;
         }
         invalidateGeometry();
     }
 
     private void updatePosition() {
-        float timeDiff = ((float) (System.currentTimeMillis() - this.moveStartTime)) / ((float) (this.moveEndTime - this.moveStartTime));
-        setPosition(((this.targetEye.x - this.eye.x) * timeDiff) + this.eye.x, ((this.targetEye.y - this.eye.y) * timeDiff) + this.eye.y, ((this.targetEye.z - this.eye.z) * timeDiff) + this.eye.z, ((this.targetAt.x - this.at.x) * timeDiff) + this.at.x, ((this.targetAt.y - this.at.y) * timeDiff) + this.at.y, ((this.targetAt.z - this.at.z) * timeDiff) + this.at.z);
+        float timeDiff = ((float) (System.currentTimeMillis() - moveStartTime)) / ((float) (moveEndTime - moveStartTime));
+        setPosition(((targetEye.x - eye.x) * timeDiff) + eye.x, ((targetEye.y - eye.y) * timeDiff) + eye.y, ((targetEye.z - eye.z) * timeDiff) + eye.z, ((targetAt.x - at.x) * timeDiff) + at.x, ((targetAt.y - at.y) * timeDiff) + at.y, ((targetAt.z - at.z) * timeDiff) + at.z);
     }
 
     private synchronized void setPosition(float eyeX, float eyeY, float eyeZ, float atX, float atY, float atZ) {
-        this.eye.x = eyeX;
-        this.eye.y = eyeY;
-        this.eye.z = eyeZ;
-        this.at.x = atX;
-        this.at.y = atY;
-        this.at.z = atZ;
-        this.angle = getAngle(this.at.x, this.at.y, this.at.z);
+        eye.x = eyeX;
+        eye.y = eyeY;
+        eye.z = eyeZ;
+        at.x = atX;
+        at.y = atY;
+        at.z = atZ;
+        angle = getAngle(at.x, at.y, at.z);
         updateTargetReached();
         invalidateGeometry();
     }
 
     private synchronized void setTarget(@NonNull Camera camera) {
-        this.targetEye.x = camera.position.x;
-        this.targetEye.y = camera.position.y;
-        this.targetEye.z = camera.position.z;
-        this.targetAt.x = camera.at.x;
-        this.targetAt.y = camera.at.y;
-        this.targetAt.z = camera.at.z;
+        targetEye.x = camera.position.x;
+        targetEye.y = camera.position.y;
+        targetEye.z = camera.position.z;
+        targetAt.x = camera.at.x;
+        targetAt.y = camera.at.y;
+        targetAt.z = camera.at.z;
         updateTargetReached();
         invalidateGeometry();
     }
 
     private void updateTargetReached() {
-        this.targetReached = Math.abs(this.eye.x - this.targetEye.x) < MIN_POINT_DIFF && Math.abs(this.eye.y - this.targetEye.y) < MIN_POINT_DIFF && Math.abs(this.eye.z - this.targetEye.z) < MIN_POINT_DIFF && Math.abs(this.at.x - this.targetAt.x) < MIN_POINT_DIFF && Math.abs(this.at.y - this.targetAt.y) < MIN_POINT_DIFF && Math.abs(this.at.z - this.targetAt.z) < MIN_POINT_DIFF;
+        targetReached = Math.abs(eye.x - targetEye.x) < MIN_POINT_DIFF && Math.abs(eye.y - targetEye.y) < MIN_POINT_DIFF && Math.abs(eye.z - targetEye.z) < MIN_POINT_DIFF && Math.abs(at.x - targetAt.x) < MIN_POINT_DIFF && Math.abs(at.y - targetAt.y) < MIN_POINT_DIFF && Math.abs(at.z - targetAt.z) < MIN_POINT_DIFF;
     }
 
     private void jumpToTarget() {
-        setPosition(this.targetEye.x, this.targetEye.y, this.targetEye.z, this.targetAt.x, this.targetAt.y, this.targetAt.z);
+        setPosition(targetEye.x, targetEye.y, targetEye.z, targetAt.x, targetAt.y, targetAt.z);
     }
 
     private boolean isWalking() {
-        return !this.targetReached && System.currentTimeMillis() < this.moveEndTime;
+        return !targetReached && System.currentTimeMillis() < moveEndTime;
     }
 
     private boolean isActionHandMoving() {
-        return this.lastActionType == 2 || System.currentTimeMillis() - this.lastActionTime < MIN_ACTION_TIME;
+        return lastActionType == 2 || System.currentTimeMillis() - lastActionTime < MIN_ACTION_TIME;
     }
 
     private void resetActionHandAngle() {
-        if (this.actionHandMovementAngle != 0.0f) {
-            this.actionHandMovementAngle = 0.0f;
+        if (actionHandMovementAngle != 0.0f) {
+            actionHandMovementAngle = 0.0f;
             invalidateGeometry();
         }
     }
 
     private void resetHandLegWalkAngle() {
-        if (this.handLegWalkAngle != 0.0f) {
-            this.handLegWalkAngle = 0.0f;
+        if (handLegWalkAngle != 0.0f) {
+            handLegWalkAngle = 0.0f;
             invalidateGeometry();
         }
     }
 
     private void updateGeometry(FPSCamera cam, boolean forceDraw) {
-        if (this.head == null) {
-            this.head = SkinGeometryGenerator.createHeadShape(this.skin);
-            this.body = SkinGeometryGenerator.createBodyShape(this.skin);
-            this.rightHand = SkinGeometryGenerator.createHandShape(this.skin);
-            this.leftHand = SkinGeometryGenerator.createHandShape(this.skin);
-            this.rightLeg = SkinGeometryGenerator.createLegShape(this.skin);
-            this.leftLeg = SkinGeometryGenerator.createLegShape(this.skin);
+        if (head == null) {
+            head = SkinGeometryGenerator.createHeadShape(skin);
+            body = SkinGeometryGenerator.createBodyShape(skin);
+            rightHand = SkinGeometryGenerator.createHandShape(skin);
+            leftHand = SkinGeometryGenerator.createHandShape(skin);
+            rightLeg = SkinGeometryGenerator.createLegShape(skin);
+            leftLeg = SkinGeometryGenerator.createLegShape(skin);
         }
-        if (this.nameShape == null) {
+        if (nameShape == null) {
             initNameShape();
         }
         updateGeometry(cam, requireMovementDrawing(), forceDraw);
     }
 
     private void initNameShape() {
-        this.nameShape = createPlayerNameShape();
+        nameShape = createPlayerNameShape();
     }
 
     @Nullable
     private TextShape createPlayerNameShape() {
         Font font = CharactersPainter.font;
-        if (this.name == null || font == null) {
+        if (name == null || font == null) {
             return null;
         }
-        TextShape shape = font.buildTextShape(this.name, Colour.packFloat(1.0f, 1.0f, 1.0f, 1.0f));
+        TextShape shape = font.buildTextShape(name, Colour.packFloat(1.0f, 1.0f, 1.0f, 1.0f));
         shape.scale(0.008f, 0.008f, 0.008f);
-        shape.translate((-(font.getStringLength(this.name) / 2.0f)) * 0.008f, 0.0f, 0.0f);
+        shape.translate((-(font.getStringLength(name) / 2.0f)) * 0.008f, 0.0f, 0.0f);
         shape.backup();
         return shape;
     }
@@ -472,7 +472,7 @@ public class Enemy implements Comparable<Enemy> {
 
     private boolean isInFrustrum(FPSCamera cam) {
         try {
-            return cam.getFrustum().sphereIntersects(this.eye.x, this.eye.y, this.eye.z, 1.0f) != Frustum.Result.Miss;
+            return cam.getFrustum().sphereIntersects(eye.x, eye.y, eye.z, 1.0f) != Frustum.Result.Miss;
         } catch (NullPointerException e) {
             return false;
         }
@@ -481,15 +481,15 @@ public class Enemy implements Comparable<Enemy> {
     private void updateDistance() {
         try {
             Vector3f playerEye = Multiplayer.instance.movementHandler.getEye();
-            this.distance = FloatMath.sqrt((float) (Math.pow(this.eye.x - playerEye.x, 2.0d) + Math.pow(this.eye.y - playerEye.y, 2.0d) + Math.pow(this.eye.z - playerEye.z, 2.0d)));
+            distance = FloatMath.sqrt((float) (Math.pow(eye.x - playerEye.x, 2.0d) + Math.pow(eye.y - playerEye.y, 2.0d) + Math.pow(eye.z - playerEye.z, 2.0d)));
         } catch (NullPointerException e) {
-            this.distance = 1000.0f;
+            distance = 1000.0f;
         }
     }
 
     private boolean isRenderable(int loadradius) {
         float visibleRadius = Math.min(loadradius << 4, BlockFactory.state.fog.end);
-        return this.distance < visibleRadius;
+        return distance < visibleRadius;
     }
 
     public boolean requireMovementDrawing() {
@@ -498,34 +498,34 @@ public class Enemy implements Comparable<Enemy> {
 
     @Override
     public int compareTo(Enemy another) {
-        if (this.name != null) {
-            return this.name.compareTo(another.name);
+        if (name != null) {
+            return name.compareTo(another.name);
         }
         return 0;
     }
 
     @NonNull
     public String toString() {
-        return "Enemy[id: " + this.id + ", name: " + this.name + ", skin: " + (int) this.skin;
+        return "Enemy[id: " + id + ", name: " + name + ", skin: " + (int) skin;
     }
 
     public void invalidate() {
         invalidateShapes();
         invalidateGeometry();
-        this.forceUpdateGeometry = true;
+        forceUpdateGeometry = true;
     }
 
     private void invalidateGeometry() {
-        this.isGeometryDirty = true;
+        isGeometryDirty = true;
     }
 
     private void invalidateShapes() {
-        this.head = null;
-        this.body = null;
-        this.rightHand = null;
-        this.leftHand = null;
-        this.rightLeg = null;
-        this.leftLeg = null;
-        this.nameShape = null;
+        head = null;
+        body = null;
+        rightHand = null;
+        leftHand = null;
+        rightLeg = null;
+        leftLeg = null;
+        nameShape = null;
     }
 }

@@ -77,9 +77,10 @@ class WorldListAdapter : AbstractItem<WorldListAdapter.ViewHolder>() {
         }
         holder.deleteWorldView.setOnClickListener {
             holder.itemView.parent?.takeIf { it is RecyclerView }?.let { view ->
-                val position = (view as RecyclerView)
-                    .getChildAdapterPosition(holder.itemView)
-                mRemoveMapListener?.removeWorld(position, worldInfo)
+                val position = (view as RecyclerView).getChildAdapterPosition(holder.itemView)
+                worldInfo?.let { worldInfo ->
+                    mRemoveMapListener?.removeWorld(position, worldInfo)
+                }
             }
         }
     }

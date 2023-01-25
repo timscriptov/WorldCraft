@@ -6,9 +6,7 @@ import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.DisplayMetrics
-import android.widget.Button
 import android.widget.EditText
-import android.widget.TextView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.solverlabs.droid.rugl.res.ResourceLoader
 import com.solverlabs.worldcraft.GameMode
@@ -100,7 +98,7 @@ class MainActivity : BaseActivity() {
     }
 
     override fun onPause() {
-        if (!GameMode.isMultiplayerMode()) {
+        if (!GameMode.isMultiplayerMode) {
             activityHelper.onPause()
         }
         super.onPause()

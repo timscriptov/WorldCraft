@@ -151,7 +151,7 @@ class Game(
             lastLogic = now
             view.draw()
             if (view.isWorldReady) {
-                if (!GameMode.isMultiplayerMode() || Multiplayer.instance.isWorldReady) {
+                if (!GameMode.isMultiplayerMode || Multiplayer.instance.isWorldReady) {
                     if (view.world.isChunksInited) {
                         (gameActivity as WorldCraftActivity).dismissAllLoadingDialogs()
                     }
