@@ -4,22 +4,22 @@ plugins {
 }
 
 android {
-    namespace 'com.solverlabs.worldcraft'
+    namespace 'com.mcal.worldcraft'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.solverlabs.worldcraft"
+        applicationId "com.mcal.worldcraft"
         minSdk 21
         targetSdk 33
-        versionCode 60
-        versionName "2.8.7"
+        versionCode 10
+        versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -32,6 +32,12 @@ android {
     }
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
+        exclude 'lint-baseline.xml'
+    }
+    lint {
+        checkReleaseBuilds = false
+        //If you want to continue even if errors found use following line
+        abortOnError = false
     }
     buildFeatures {
         viewBinding true
@@ -42,7 +48,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.appcompat:appcompat:1.6.0'
-    implementation 'com.google.android.material:material:1.7.0'
+    implementation 'com.google.android.material:material:1.8.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
 
