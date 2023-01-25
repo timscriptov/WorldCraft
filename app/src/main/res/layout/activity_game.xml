@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <com.solverlabs.droid.rugl.GameView
+    <com.mcal.droid.rugl.GameView
         android:id="@+id/gameViewWithoutBanner"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

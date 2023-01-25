@@ -11,7 +11,7 @@
         android:gravity="center"
         android:orientation="horizontal">
 
-        <com.solverlabs.worldcraft.dialog.component.MolotButton
+        <com.mcal.worldcraft.dialog.component.MolotButton
             android:id="@+id/back_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -20,7 +20,7 @@
             android:text="@string/back"
             android:textSize="@dimen/main_menu_button_text_size" />
 
-        <com.solverlabs.worldcraft.dialog.component.MolotTextView
+        <com.mcal.worldcraft.dialog.component.MolotTextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/main_menu_margin"
@@ -52,7 +52,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/world_creative" />
 
-            <com.solverlabs.worldcraft.dialog.component.MolotButton
+            <com.mcal.worldcraft.dialog.component.MolotButton
                 android:id="@+id/start_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -71,7 +71,7 @@
             android:orientation="vertical"
             android:padding="8dp">
 
-            <com.solverlabs.worldcraft.dialog.component.MolotEditText
+            <com.mcal.worldcraft.dialog.component.MolotEditText
                 android:id="@+id/world_name_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -81,7 +81,7 @@
 
                 <requestFocus />
 
-            </com.solverlabs.worldcraft.dialog.component.MolotEditText>
+            </com.mcal.worldcraft.dialog.component.MolotEditText>
 
             <TextView
                 android:layout_width="match_parent"

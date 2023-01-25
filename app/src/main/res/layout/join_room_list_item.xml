@@ -18,7 +18,7 @@
         android:contentDescription="@string/lock_image"
         android:fadingEdge="horizontal" />
 
-    <com.solverlabs.worldcraft.dialog.component.MolotTextView
+    <com.mcal.worldcraft.dialog.component.MolotTextView
         android:id="@+id/join_room_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -27,7 +27,7 @@
         android:textColor="@color/room_name_text_color"
         android:textSize="@dimen/room_name_text_size" />
 
-    <com.solverlabs.worldcraft.dialog.component.MolotTextView
+    <com.mcal.worldcraft.dialog.component.MolotTextView
         android:id="@+id/join_room_user_count"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -37,7 +37,7 @@
         android:textColor="@color/room_info_text_color"
         android:textSize="@dimen/room_info_text_size" />
 
-    <com.solverlabs.worldcraft.dialog.component.MolotTextView
+    <com.mcal.worldcraft.dialog.component.MolotTextView
         android:id="@+id/join_room_raiting"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

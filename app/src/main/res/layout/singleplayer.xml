@@ -13,7 +13,7 @@
         android:gravity="center"
         android:orientation="horizontal">
 
-        <com.solverlabs.worldcraft.dialog.component.MolotButton
+        <com.mcal.worldcraft.dialog.component.MolotButton
             android:id="@+id/back_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -22,7 +22,7 @@
             android:text="@string/back"
             android:textSize="@dimen/main_menu_button_text_size" />
 
-        <com.solverlabs.worldcraft.dialog.component.MolotTextView
+        <com.mcal.worldcraft.dialog.component.MolotTextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/main_menu_margin"
@@ -34,7 +34,7 @@
             android:text="@string/select_world"
             android:textSize="@dimen/title_text_size" />
 
-        <com.solverlabs.worldcraft.dialog.component.MolotButton
+        <com.mcal.worldcraft.dialog.component.MolotButton
             android:id="@+id/create_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

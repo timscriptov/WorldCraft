@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:gravity="bottom|center_horizontal">
 
-        <com.solverlabs.worldcraft.dialog.component.MolotTextView
+        <com.mcal.worldcraft.dialog.component.MolotTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/main_menu_margin"
@@ -39,7 +39,7 @@
             android:gravity="center"
             android:weightSum="2">
 
-            <com.solverlabs.worldcraft.dialog.component.MolotButton
+            <com.mcal.worldcraft.dialog.component.MolotButton
                 android:id="@+id/back_button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -78,7 +78,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <com.solverlabs.worldcraft.dialog.component.MolotButton
+                <com.mcal.worldcraft.dialog.component.MolotButton
                     android:id="@+id/searchButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -87,7 +87,7 @@
                     android:text="@string/search"
                     android:textSize="@dimen/main_menu_button_text_size" />
 
-                <com.solverlabs.worldcraft.dialog.component.MolotEditText
+                <com.mcal.worldcraft.dialog.component.MolotEditText
                     android:id="@+id/searchText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

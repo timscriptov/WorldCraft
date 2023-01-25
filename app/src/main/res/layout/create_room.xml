@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:gravity="bottom|center_horizontal">
 
-        <com.solverlabs.worldcraft.dialog.component.MolotTextView
+        <com.mcal.worldcraft.dialog.component.MolotTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/main_menu_margin"
@@ -43,7 +43,7 @@
             android:orientation="horizontal"
             android:weightSum="2">
 
-            <com.solverlabs.worldcraft.dialog.component.MolotButton
+            <com.mcal.worldcraft.dialog.component.MolotButton
                 android:id="@+id/back_button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -53,7 +53,7 @@
                 android:text="@string/back"
                 android:textSize="@dimen/main_menu_button_text_size" />
 
-            <com.solverlabs.worldcraft.dialog.component.MolotButton
+            <com.mcal.worldcraft.dialog.component.MolotButton
                 android:id="@+id/start_button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -89,7 +89,7 @@
             android:orientation="vertical"
             android:padding="@dimen/create_game_padding">
 
-            <com.solverlabs.worldcraft.dialog.component.MolotEditText
+            <com.mcal.worldcraft.dialog.component.MolotEditText
                 android:id="@+id/room_name_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/create_game_element_height"
@@ -98,9 +98,9 @@
                 android:textSize="@dimen/create_game_text_size">
 
                 <requestFocus />
-            </com.solverlabs.worldcraft.dialog.component.MolotEditText>
+            </com.mcal.worldcraft.dialog.component.MolotEditText>
 
-            <com.solverlabs.worldcraft.dialog.component.MolotEditText
+            <com.mcal.worldcraft.dialog.component.MolotEditText
                 android:id="@+id/room_password_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/create_game_element_height"
@@ -116,7 +116,7 @@
                 android:layout_marginBottom="@dimen/create_game_margin_bottom"
                 android:textSize="@dimen/create_game_text_size" />
 
-            <com.solverlabs.worldcraft.dialog.component.MolotCheckBox
+            <com.mcal.worldcraft.dialog.component.MolotCheckBox
                 android:id="@+id/read_only_checkbox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
