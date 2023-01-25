@@ -6,14 +6,14 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <Button
+    <com.solverlabs.worldcraft.dialog.component.MolotButton
         android:id="@+id/quitButton"
         android:layout_width="match_parent"
         android:background="@drawable/ic_button_selector"
         android:layout_height="wrap_content"
         android:text="@string/quit_to_title" />
 
-    <Button
+    <com.solverlabs.worldcraft.dialog.component.MolotButton
         android:id="@+id/backButton"
         android:layout_marginTop="8dp"
         android:layout_width="match_parent"
@@ -21,11 +21,12 @@
         android:layout_height="wrap_content"
         android:text="@string/back_to_game" />
 
-    <Button
+    <com.solverlabs.worldcraft.dialog.component.MolotButton
         android:id="@+id/playerListButton"
         android:layout_marginTop="8dp"
         android:layout_width="match_parent"
         android:background="@drawable/ic_button_selector"
         android:layout_height="wrap_content"
         android:text="@string/player_list" />
+
 </LinearLayout>

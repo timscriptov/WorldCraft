@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="game_mode">
+        <item>Random Map</item>
+        <item>Flat Map</item>
+    </string-array>
+
+    <string-array name="world_type">
+        <item>Creative</item>
+        <item>Survival</item>
+    </string-array>
+</resources>

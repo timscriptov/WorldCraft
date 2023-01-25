@@ -23,62 +23,30 @@ public class WorldGenerator {
     public static final String MAP_TYPE = "MapType";
 
     @Nullable
-    public static String generateRandomMap(Activity activity, String worldName, int mapType, @NonNull Mode mode) {
-        if (mode.equals(Mode.SURVIVAL)) {
-            mapType = 0;
-        }
+    public static String generateRandomMap(String worldName, int mapType, @NonNull Mode mode) {
         int i = 0;
         String path = DescriptionFactory.emptyText;
-        File dir = new File(WorldUtils.WORLD_DIR, worldName);
-        if (dir.exists()) {
+        File worldDir = new File(WorldUtils.WORLD_DIR, worldName);
+        if (worldDir.exists()) {
             do {
-                dir = new File(WorldUtils.WORLD_DIR, worldName + i);
+                worldDir = new File(WorldUtils.WORLD_DIR, worldName + i);
                 i++;
-            } while (dir.exists());
-            File dir2 = dir;
-            try {
-                dir2.mkdirs();
-                WorldUtils.addWorld(dir2);
-                File file = new File(dir2, World.LEVEL_DAT_FILE_NAME);
-                file.createNewFile();
-                path = file.getParent();
-                OutputStream os = new FileOutputStream(file);
-                try {
-                    Tag levelTag = createLevelTag(mode, mapType);
-                    levelTag.writeTo(os, true);
-                    File dir3 = new File(dir2, World.REGION_DIR_NAME);
-                    try {
-                        dir3.mkdir();
-                        new File(dir3, "r.0.0.mcr").createNewFile();
-                    } catch (IOException e) {
-                        return path;
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return path;
+            } while (worldDir.exists());
         }
         try {
-            File dir22 = dir;
-            dir22.mkdirs();
-            WorldUtils.addWorld(dir22);
-            File file2 = new File(dir22, World.LEVEL_DAT_FILE_NAME);
-            file2.createNewFile();
-            path = file2.getParent();
-            OutputStream os2 = new FileOutputStream(file2);
-            Tag levelTag2 = createLevelTag(mode, mapType);
-            levelTag2.writeTo(os2, true);
-            File dir32 = new File(dir22, World.REGION_DIR_NAME);
-            dir32.mkdir();
-            new File(dir32, "r.0.0.mcr").createNewFile();
-            return path;
+            worldDir.mkdirs();
+            WorldUtils.addWorld(worldDir);
+            final File levelDatFile = new File(worldDir, World.LEVEL_DAT_FILE_NAME);
+            levelDatFile.createNewFile();
+            path = levelDatFile.getParent();
+            createLevelTag(mode, mapType).writeTo(new FileOutputStream(levelDatFile), true);
+            final File regionDir = new File(worldDir, World.REGION_DIR_NAME);
+            regionDir.mkdir();
+            new File(regionDir, "r.0.0.mcr").createNewFile();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return path;
     }
 
     @NonNull
@@ -94,11 +62,8 @@ public class WorldGenerator {
         tags[7] = new Tag(Tag.Type.TAG_String, BUILD_VERSION, MainMenuActivity.version + "_J");
         tags[8] = new Tag(Tag.Type.TAG_End, null, null);
         Tag dataTag = new Tag(Tag.Type.TAG_Compound, "Data", tags);
-        return new Tag(Tag.Type.TAG_Compound,
-                DescriptionFactory.emptyText,
-                new Tag[]{dataTag,
-                        new Tag(Tag.Type.TAG_End, null, null)
-                }
+        return new Tag(Tag.Type.TAG_Compound, DescriptionFactory.emptyText,
+                new Tag[]{dataTag, new Tag(Tag.Type.TAG_End, null, null)}
         );
     }
 

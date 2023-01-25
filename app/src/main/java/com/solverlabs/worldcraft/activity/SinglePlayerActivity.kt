@@ -38,7 +38,7 @@ class SinglePlayerActivity : CommonActivity(), RemoveMapListener {
         binding.backButton.setOnClickListener { finish() }
         binding.createButton.setOnClickListener {
             val intent = Intent(this@SinglePlayerActivity, NewGameSingleplayerActivity::class.java)
-            startActivityForResult(intent, RESULT_FIRST_USER)
+            startActivity(intent)
         }
     }
 
@@ -65,7 +65,7 @@ class SinglePlayerActivity : CommonActivity(), RemoveMapListener {
     }
 
     private fun initWorldList() {
-        worldListAdapter = ItemAdapter<WorldListAdapter>()
+        worldListAdapter = ItemAdapter()
         fastApkAdapter = FastAdapter.with(worldListAdapter)
 
         binding.recyclerView.apply {
@@ -73,22 +73,22 @@ class SinglePlayerActivity : CommonActivity(), RemoveMapListener {
             adapter = fastApkAdapter
         }
 
-        val worlds = WorldUtils.getWorldListSortedByLastModification(this@SinglePlayerActivity)
-        worlds.forEach { world ->
-            println(world.toString())
-            worldListAdapter.add(
-                WorldListAdapter()
-                    .withId(world.modifiedAt)
-                    .withListener(this)
-                    .withIcon(if (world.isCreative) R.drawable.world_creative else R.drawable.world_survival)
-                    .withWorldName(world.name)
-                    .withGameTime(
-                        DateFormat.format("MM/dd/yyyy hh:mmaa", world.modifiedAt).toString()
-                    )
-                    .withGameMode(if (world.isCreative) "Creative" else "Survival")
-                    .withWorldInfo(world)
-            )
-        }
+        WorldUtils.getWorldListSortedByLastModification(this)
+            .forEach { world ->
+                println(world.toString())
+                worldListAdapter.add(
+                    WorldListAdapter()
+                        .withId(world.modifiedAt)
+                        .withListener(this)
+                        .withIcon(if (world.isCreative) R.drawable.world_creative else R.drawable.world_survival)
+                        .withWorldName(world.name)
+                        .withGameTime(
+                            DateFormat.format("MM/dd/yyyy hh:mmaa", world.modifiedAt).toString()
+                        )
+                        .withGameMode(if (world.isCreative) "Creative" else "Survival")
+                        .withWorldInfo(world)
+                )
+            }
 
         fastApkAdapter.onClickListener =
             { _: View?, _: IAdapter<WorldListAdapter>, mainMenuItem: WorldListAdapter, _: Int ->

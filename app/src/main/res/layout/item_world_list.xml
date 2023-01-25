@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/Widget.Material3.CardView.Filled"
@@ -8,20 +8,20 @@
     android:layout_marginStart="4dp"
     android:layout_marginTop="4dp"
     android:layout_marginEnd="4dp"
-    app:strokeColor="@android:color/transparent"
-    app:strokeWidth="1dp">
+    android:background="@drawable/ic_dialog_background">
 
     <LinearLayout
         android:id="@+id/main_menu_container"
         android:layout_width="match_parent"
-        android:layout_height="72dp"
+        android:padding="4dp"
+        android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="horizontal">
 
         <ImageView
             android:id="@+id/menu_icon"
-            android:layout_width="72dp"
-            android:layout_height="72dp"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
             android:scaleType="centerCrop"
             tools:src="@drawable/world_survival"/>
 
@@ -68,4 +68,4 @@
 
     </LinearLayout>
 
-</com.google.android.material.card.MaterialCardView>
+</LinearLayout>
