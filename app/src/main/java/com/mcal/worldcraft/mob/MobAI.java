@@ -5,7 +5,7 @@ import androidx.annotation.NonNull;
 import com.mcal.worldcraft.Player;
 import com.mcal.worldcraft.math.MathUtils;
 import com.mcal.worldcraft.mob.zombie.Zombie;
-import com.mcal.worldcraft.util.RandomUtil;
+import com.mcal.worldcraft.utils.RandomUtil;
 
 public class MobAI {
     private static final int ANGLE_TO_FOLLOW_PLAYER_UPDATE_TIMEOUT = 700;

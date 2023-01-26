@@ -13,7 +13,7 @@ import com.mcal.worldcraft.srv.client.base.GameClient;
 import com.mcal.worldcraft.srv.domain.Camera;
 import com.mcal.worldcraft.srv.domain.Player;
 import com.mcal.worldcraft.ui.Interaction;
-import com.mcal.worldcraft.util.Properties;
+import com.mcal.worldcraft.utils.Properties;
 
 import java.util.ArrayList;
 import java.util.Collection;

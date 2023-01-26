@@ -5,7 +5,7 @@ import androidx.annotation.NonNull;
 import com.mcal.droid.rugl.util.geom.Vector3f;
 import com.mcal.worldcraft.factories.DescriptionFactory;
 import com.mcal.worldcraft.nbt.Tag;
-import com.mcal.worldcraft.util.Distance;
+import com.mcal.worldcraft.utils.Distance;
 
 import java.util.Map;
 

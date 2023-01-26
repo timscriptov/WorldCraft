@@ -9,7 +9,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.mcal.worldcraft.material.Material;
-import com.mcal.worldcraft.util.RandomUtil;
+import com.mcal.worldcraft.utils.RandomUtil;
 
 import java.util.HashMap;
 

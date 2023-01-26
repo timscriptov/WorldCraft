@@ -6,8 +6,8 @@ import androidx.annotation.NonNull;
 
 import com.mcal.droid.rugl.util.WorldUtils;
 import com.mcal.worldcraft.srv.compress.DirectoryTarCompressor;
-import com.mcal.worldcraft.util.HttpPostBodyUtil2;
-import com.mcal.worldcraft.util.Properties;
+import com.mcal.worldcraft.utils.HttpPostBodyUtil2;
+import com.mcal.worldcraft.utils.Properties;
 
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.http.Header;

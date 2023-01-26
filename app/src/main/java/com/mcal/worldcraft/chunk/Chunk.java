@@ -18,7 +18,7 @@ import com.mcal.worldcraft.mob.MobFactory;
 import com.mcal.worldcraft.mob.MobPainter;
 import com.mcal.worldcraft.multiplayer.Multiplayer;
 import com.mcal.worldcraft.nbt.Tag;
-import com.mcal.worldcraft.util.RandomUtil;
+import com.mcal.worldcraft.utils.RandomUtil;
 
 import org.apache.commons.compress.archivers.cpio.CpioConstants;
 

@@ -4,7 +4,7 @@ import android.util.Log;
 
 import com.mcal.droid.rugl.util.WorldUtils;
 import com.mcal.worldcraft.World;
-import com.mcal.worldcraft.util.Properties;
+import com.mcal.worldcraft.utils.Properties;
 
 import org.apache.commons.compress.utils.IOUtils;
 

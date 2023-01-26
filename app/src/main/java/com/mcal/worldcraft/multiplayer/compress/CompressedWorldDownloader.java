@@ -8,7 +8,7 @@ import androidx.annotation.NonNull;
 import com.mcal.droid.rugl.util.WorldUtils;
 import com.mcal.worldcraft.srv.compress.DirectoryTarDecompressor;
 import com.mcal.worldcraft.srv.compress.GzipDecompressor;
-import com.mcal.worldcraft.util.Properties;
+import com.mcal.worldcraft.utils.Properties;
 
 import org.apache.commons.compress.utils.IOUtils;
 import org.apache.http.Header;

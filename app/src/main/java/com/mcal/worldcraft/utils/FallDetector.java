@@ -1,4 +1,4 @@
-package com.mcal.worldcraft.util;
+package com.mcal.worldcraft.utils;
 
 import com.mcal.droid.rugl.util.geom.Vector3f;
 import com.mcal.worldcraft.domain.Damagable;

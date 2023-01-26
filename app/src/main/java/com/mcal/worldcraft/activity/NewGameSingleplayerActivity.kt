@@ -7,9 +7,9 @@ import android.widget.Spinner
 import com.mcal.worldcraft.MyApplication
 import com.mcal.worldcraft.R
 import com.mcal.worldcraft.databinding.ActivityNewGameSingleplayerBinding
-import com.mcal.worldcraft.util.GameStarter
-import com.mcal.worldcraft.util.KeyboardUtils
-import com.mcal.worldcraft.util.WorldGenerator
+import com.mcal.worldcraft.utils.GameStarter
+import com.mcal.worldcraft.utils.KeyboardUtils
+import com.mcal.worldcraft.utils.WorldGenerator
 
 class NewGameSingleplayerActivity : BaseActivity() {
     private lateinit var binding: ActivityNewGameSingleplayerBinding

@@ -22,8 +22,8 @@ import com.mcal.worldcraft.nbt.RegionFileCache
 import com.mcal.worldcraft.nbt.Tag
 import com.mcal.worldcraft.nbt.TagLoader
 import com.mcal.worldcraft.ui.CustomProgressDialog
-import com.mcal.worldcraft.util.GameTime
-import com.mcal.worldcraft.util.WorldGenerator
+import com.mcal.worldcraft.utils.GameTime
+import com.mcal.worldcraft.utils.WorldGenerator
 import org.apache.commons.compress.archivers.cpio.CpioConstants
 import java.io.File
 import java.util.concurrent.CountDownLatch

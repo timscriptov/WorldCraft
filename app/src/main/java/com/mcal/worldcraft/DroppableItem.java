@@ -21,8 +21,8 @@ import com.mcal.worldcraft.chunk.Chunklet;
 import com.mcal.worldcraft.factories.BlockFactory;
 import com.mcal.worldcraft.factories.ItemFactory;
 import com.mcal.worldcraft.skin.geometry.Parallelepiped;
-import com.mcal.worldcraft.util.GameTime;
-import com.mcal.worldcraft.util.RandomUtil;
+import com.mcal.worldcraft.utils.GameTime;
+import com.mcal.worldcraft.utils.RandomUtil;
 
 public class DroppableItem {
     private static final float BLOCK_SIZE = 0.2f;

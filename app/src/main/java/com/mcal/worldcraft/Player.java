@@ -26,8 +26,8 @@ import com.mcal.worldcraft.math.MathUtils;
 import com.mcal.worldcraft.multiplayer.Multiplayer;
 import com.mcal.worldcraft.nbt.Tag;
 import com.mcal.worldcraft.ui.GUI;
-import com.mcal.worldcraft.util.FallDetector;
-import com.mcal.worldcraft.util.GameTime;
+import com.mcal.worldcraft.utils.FallDetector;
+import com.mcal.worldcraft.utils.GameTime;
 
 import java.util.ArrayList;
 

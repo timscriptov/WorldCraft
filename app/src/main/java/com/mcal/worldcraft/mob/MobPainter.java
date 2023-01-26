@@ -14,7 +14,7 @@ import com.mcal.worldcraft.mob.sheep.Sheep;
 import com.mcal.worldcraft.mob.sheep.SheepFactory;
 import com.mcal.worldcraft.mob.zombie.Zombie;
 import com.mcal.worldcraft.mob.zombie.ZombieFactory;
-import com.mcal.worldcraft.util.RandomUtil;
+import com.mcal.worldcraft.utils.RandomUtil;
 
 import java.util.ArrayList;
 import java.util.Iterator;

@@ -42,8 +42,8 @@ import com.mcal.worldcraft.mob.MobFactory;
 import com.mcal.worldcraft.multiplayer.Multiplayer;
 import com.mcal.worldcraft.multiplayer.util.WorldCopier;
 import com.mcal.worldcraft.nbt.Tag;
-import com.mcal.worldcraft.util.GameTime;
-import com.mcal.worldcraft.util.WorldGenerator;
+import com.mcal.worldcraft.utils.GameTime;
+import com.mcal.worldcraft.utils.WorldGenerator;
 
 import java.io.File;
 import java.io.FileOutputStream;

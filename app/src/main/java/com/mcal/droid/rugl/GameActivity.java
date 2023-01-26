@@ -28,7 +28,7 @@ import com.mcal.worldcraft.multiplayer.Multiplayer;
 import com.mcal.worldcraft.multiplayer.dialogs.PopupDialog;
 import com.mcal.worldcraft.multiplayer.util.TextUtils;
 import com.mcal.worldcraft.ui.ChatBox;
-import com.mcal.worldcraft.util.KeyboardUtils;
+import com.mcal.worldcraft.utils.KeyboardUtils;
 
 import java.util.ArrayList;
 import java.util.Set;

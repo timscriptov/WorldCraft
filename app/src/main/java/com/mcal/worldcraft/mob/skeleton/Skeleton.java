@@ -6,7 +6,7 @@ import com.mcal.worldcraft.material.Material;
 import com.mcal.worldcraft.mob.Mob;
 import com.mcal.worldcraft.mob.MobSize;
 import com.mcal.worldcraft.mob.TexturedBlockProperties;
-import com.mcal.worldcraft.util.RandomUtil;
+import com.mcal.worldcraft.utils.RandomUtil;
 
 import java.util.HashMap;
 

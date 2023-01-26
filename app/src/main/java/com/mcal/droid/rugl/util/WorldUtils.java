@@ -12,8 +12,8 @@ import com.mcal.worldcraft.R;
 import com.mcal.worldcraft.World;
 import com.mcal.worldcraft.nbt.Tag;
 import com.mcal.worldcraft.nbt.TagLoader;
-import com.mcal.worldcraft.util.Properties;
-import com.mcal.worldcraft.util.WorldGenerator;
+import com.mcal.worldcraft.utils.Properties;
+import com.mcal.worldcraft.utils.WorldGenerator;
 
 import org.jetbrains.annotations.Contract;
 

@@ -35,7 +35,7 @@ import com.mcal.worldcraft.mob.Mob;
 import com.mcal.worldcraft.mob.MobPainter;
 import com.mcal.worldcraft.multiplayer.Multiplayer;
 import com.mcal.worldcraft.srv.domain.Room;
-import com.mcal.worldcraft.util.Distance;
+import com.mcal.worldcraft.utils.Distance;
 
 import java.util.Collection;
 import java.util.HashSet;

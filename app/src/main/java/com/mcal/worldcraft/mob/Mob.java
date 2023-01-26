@@ -17,9 +17,9 @@ import com.mcal.worldcraft.domain.Damagable;
 import com.mcal.worldcraft.factories.BlockFactory;
 import com.mcal.worldcraft.material.Material;
 import com.mcal.worldcraft.math.MathUtils;
-import com.mcal.worldcraft.util.Distance;
-import com.mcal.worldcraft.util.FallDetector;
-import com.mcal.worldcraft.util.RandomUtil;
+import com.mcal.worldcraft.utils.Distance;
+import com.mcal.worldcraft.utils.FallDetector;
+import com.mcal.worldcraft.utils.RandomUtil;
 
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;

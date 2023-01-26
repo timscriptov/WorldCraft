@@ -1,4 +1,4 @@
-package com.mcal.worldcraft.util;
+package com.mcal.worldcraft.utils;
 
 import android.content.Context;
 import android.view.View;

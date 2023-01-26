@@ -16,8 +16,8 @@ import com.mcal.worldcraft.factories.BlockFactory;
 import com.mcal.worldcraft.material.Material;
 import com.mcal.worldcraft.mob.Mob;
 import com.mcal.worldcraft.mob.MobFactory;
-import com.mcal.worldcraft.util.Distance;
-import com.mcal.worldcraft.util.RandomUtil;
+import com.mcal.worldcraft.utils.Distance;
+import com.mcal.worldcraft.utils.RandomUtil;
 
 import org.jetbrains.annotations.Contract;
 

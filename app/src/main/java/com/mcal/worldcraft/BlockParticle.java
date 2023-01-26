@@ -18,7 +18,7 @@ import com.mcal.droid.rugl.util.Trig;
 import com.mcal.droid.rugl.util.math.Range;
 import com.mcal.worldcraft.factories.BlockFactory;
 import com.mcal.worldcraft.factories.ItemFactory;
-import com.mcal.worldcraft.util.RandomUtil;
+import com.mcal.worldcraft.utils.RandomUtil;
 
 import java.util.Random;
 

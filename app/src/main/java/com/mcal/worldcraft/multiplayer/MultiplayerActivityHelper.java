@@ -29,9 +29,9 @@ import com.mcal.worldcraft.srv.domain.Camera;
 import com.mcal.worldcraft.srv.domain.Player;
 import com.mcal.worldcraft.srv.domain.Room;
 import com.mcal.worldcraft.srv.util.ObjectCodec;
-import com.mcal.worldcraft.util.GameStarter;
-import com.mcal.worldcraft.util.Properties;
-import com.mcal.worldcraft.util.WorldGenerator;
+import com.mcal.worldcraft.utils.GameStarter;
+import com.mcal.worldcraft.utils.Properties;
+import com.mcal.worldcraft.utils.WorldGenerator;
 
 import java.util.ArrayList;
 import java.util.Collection;

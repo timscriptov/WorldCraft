@@ -15,7 +15,7 @@ import com.mcal.worldcraft.R
 import com.mcal.worldcraft.databinding.ActivityMainBinding
 import com.mcal.worldcraft.factories.DescriptionFactory
 import com.mcal.worldcraft.multiplayer.MultiplayerActivityHelper
-import com.mcal.worldcraft.util.KeyboardUtils
+import com.mcal.worldcraft.utils.KeyboardUtils
 
 class MainActivity : BaseActivity() {
     private var displayHeight = 0

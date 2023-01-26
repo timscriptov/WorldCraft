@@ -14,8 +14,8 @@ import com.mcal.worldcraft.MyApplication
 import com.mcal.worldcraft.R
 import com.mcal.worldcraft.adapters.WorldListAdapter
 import com.mcal.worldcraft.databinding.SingleplayerBinding
-import com.mcal.worldcraft.util.GameStarter
-import com.mcal.worldcraft.util.WorldGenerator
+import com.mcal.worldcraft.utils.GameStarter
+import com.mcal.worldcraft.utils.WorldGenerator
 import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.IAdapter
 import com.mikepenz.fastadapter.adapters.ItemAdapter

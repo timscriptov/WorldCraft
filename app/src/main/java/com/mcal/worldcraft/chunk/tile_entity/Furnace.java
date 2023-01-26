@@ -8,7 +8,7 @@ import com.mcal.worldcraft.factories.FurnaceItemFactory;
 import com.mcal.worldcraft.factories.ItemFactory;
 import com.mcal.worldcraft.inventory.InventoryItem;
 import com.mcal.worldcraft.nbt.Tag;
-import com.mcal.worldcraft.util.GameTime;
+import com.mcal.worldcraft.utils.GameTime;
 
 public class Furnace extends TileEntity {
     private static final long PROCESS_ONE_BLOCK_TIME = 10000;
