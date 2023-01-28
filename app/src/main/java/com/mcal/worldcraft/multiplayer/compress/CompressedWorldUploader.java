@@ -6,7 +6,6 @@ import androidx.annotation.NonNull;
 
 import com.mcal.droid.rugl.util.WorldUtils;
 import com.mcal.worldcraft.srv.compress.DirectoryTarCompressor;
-import com.mcal.worldcraft.utils.HttpPostBodyUtil2;
 import com.mcal.worldcraft.utils.Properties;
 
 import org.apache.commons.compress.archivers.ArchiveException;
@@ -79,7 +78,7 @@ public class CompressedWorldUploader {
             } catch (ArchiveException e) {
                 e.printStackTrace();
             }
-            entity.addPart(PARAM_UPLOAD_TOKEN, new StringBody(this.uploadToken, HttpPostBodyUtil2.DEFAULT_TEXT_CONTENT_TYPE, StandardCharsets.UTF_8));
+            entity.addPart(PARAM_UPLOAD_TOKEN, new StringBody(this.uploadToken, "text/plain", StandardCharsets.UTF_8));
             entity.addPart(PARAM_FILE, new GzipEntity(tempWorldTar));
             httppost.setEntity(entity);
             HttpResponse response = client.execute(httppost);
