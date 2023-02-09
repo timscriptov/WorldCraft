@@ -31,8 +31,9 @@ android {
         jvmTarget = '1.8'
     }
     packagingOptions {
-        exclude 'META-INF/DEPENDENCIES'
-        exclude 'lint-baseline.xml'
+        resources {
+            excludes += ['META-INF/DEPENDENCIES', 'lint-baseline.xml']
+        }
     }
     lint {
         checkReleaseBuilds = false
