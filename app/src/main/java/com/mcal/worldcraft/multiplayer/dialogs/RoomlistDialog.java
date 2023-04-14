@@ -15,7 +15,6 @@ import androidx.appcompat.app.AlertDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.mcal.droid.rugl.util.WorldUtils;
 import com.mcal.worldcraft.R;
-import com.mcal.worldcraft.activity.OptionActivity;
 import com.mcal.worldcraft.factories.DescriptionFactory;
 import com.mcal.worldcraft.srv.util.ObjectCodec;
 import com.mcal.worldcraft.ui.JoinRoomListAdapter;
@@ -146,10 +145,10 @@ public class RoomlistDialog extends Dialog {
         final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
         final EditText password = new EditText(getContext());
         password.setInputType(129);
-        builder.setTitle("Enter password").setView(password).setPositiveButton(OptionActivity.OK, (dialog, id) -> {
+        builder.setTitle("Enter password").setView(password).setPositiveButton(android.R.string.ok, (dialog, id) -> {
             hideKeyBoard(password);
             onJoinRoom(password.getText().toString());
-        }).setNegativeButton(OptionActivity.CANCEL, (dialog, id) -> dialog.dismiss());
+        }).setNegativeButton(android.R.string.cancel, (dialog, id) -> dialog.dismiss());
         passwordDialog = builder.create();
         passwordDialog.show();
     }

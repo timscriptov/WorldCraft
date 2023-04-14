@@ -20,8 +20,8 @@ import androidx.annotation.NonNull;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.mcal.worldcraft.Enemy;
+import com.mcal.worldcraft.Persistence;
 import com.mcal.worldcraft.R;
-import com.mcal.worldcraft.activity.OptionActivity;
 import com.mcal.worldcraft.factories.DescriptionFactory;
 import com.mcal.worldcraft.multiplayer.Multiplayer;
 
@@ -83,7 +83,7 @@ public class ReportAbuseDialog {
             final PlayerListItem[] playerItems = new PlayerListItem[sortedEnemies.size()];
             int index = 0;
             for (Enemy enemy : sortedEnemies) {
-                playerItems[index] = new PlayerListItem(OptionActivity.getSkinResID(enemy.skin), enemy.name);
+                playerItems[index] = new PlayerListItem(Persistence.getSkinResID(enemy.skin), enemy.name);
                 index++;
             }
             final PlayerAdapter adapter = new PlayerAdapter(this.context, R.layout.report_abuse_player_list_item, playerItems);

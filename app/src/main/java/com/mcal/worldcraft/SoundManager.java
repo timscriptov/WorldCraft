@@ -84,7 +84,7 @@ public class SoundManager {
     }
 
     public static void playSound(int sound) {
-        playSound(sound, 1.0f, 1.0f);
+        playSound(sound, NORMAL_VOLUME, NORMAL_SPEED);
     }
 
     public static void playSound(int sound, float volume, float speed) {
@@ -130,11 +130,11 @@ public class SoundManager {
     }
 
     public static void playHit(Material material, float distance) {
-        playMaterialRandomSound(material, 0.2f, HIT_BLOCK_SPEED, distance);
+        playMaterialRandomSound(material, HIT_BLOCK_VOLUME, HIT_BLOCK_SPEED, distance);
     }
 
     public static void playStep(Material material, float distance) {
-        playMaterialRandomSound(material, STEP_BLOCK_VOLUME, 1.0f, distance);
+        playMaterialRandomSound(material, STEP_BLOCK_VOLUME, STEP_BLOCK_SPEED, distance);
     }
 
     public static void playBroke(Material material, float distance) {
@@ -146,7 +146,7 @@ public class SoundManager {
     }
 
     public static void playMaterialSound(Material material, float distance) {
-        playMaterialRandomSound(material, 1.0f, 1.0f, distance);
+        playMaterialRandomSound(material, NORMAL_VOLUME, NORMAL_SPEED, distance);
     }
 
     private static void playMaterialRandomSound(Material material, float volume, float speed, float distance) {
@@ -162,11 +162,11 @@ public class SoundManager {
     }
 
     public static void playDistancedSound(int sound, float distance) {
-        playDistancedSound(sound, 1.0f, 1.0f, distance);
+        playDistancedSound(sound, NORMAL_VOLUME, NORMAL_SPEED, distance);
     }
 
     public static void playDistancedSound(int[] sound, float distance) {
-        playDistancedSound(getRandomSound(sound), 1.0f, 1.0f, distance);
+        playDistancedSound(getRandomSound(sound), NORMAL_VOLUME, NORMAL_SPEED, distance);
     }
 
     private static void playDistancedSound(int sound, float volume, float speed, float distance) {

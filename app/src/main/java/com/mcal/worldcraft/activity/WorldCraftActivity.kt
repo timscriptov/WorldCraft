@@ -120,8 +120,10 @@ class WorldCraftActivity : GameActivity() {
     }
 
     private fun showProgressDialog() {
-        if (loadingProgressDialog == null) {
-            loadingProgressDialog = object : CustomProgressDialog(this) {
+        var dialog = loadingProgressDialog
+        if (dialog == null) {
+            dialog = object : CustomProgressDialog(this) {
+                @Deprecated("Deprecated in Java")
                 override fun onBackPressed() {
                     world?.setCancel(true)
                     finish()
@@ -131,9 +133,9 @@ class WorldCraftActivity : GameActivity() {
                     world?.setCancel(true)
                     finish()
                 }
-            }
+            }.also { loadingProgressDialog = it }
         }
-        loadingProgressDialog!!.show()
+        dialog.show()
     }
 
     fun dismissAllLoadingDialogs() {
@@ -180,10 +182,10 @@ class WorldCraftActivity : GameActivity() {
                     p.x = (tl[0].value as Double).toFloat()
                     p.y = (tl[1].value as Double).toFloat()
                     p.z = (tl[2].value as Double).toFloat()
-                    val rotaionTag = playerTag.findTagByName("Rotation")
+                    val rotationTag = playerTag.findTagByName("Rotation")
                     val rotation = Vector2f()
-                    if (rotaionTag != null) {
-                        val tl2 = rotaionTag.value as Array<Tag>
+                    if (rotationTag != null) {
+                        val tl2 = rotationTag.value as Array<Tag>
                         rotation.x = (tl2[0].value as Float)
                         rotation.y = (tl2[1].value as Float)
                         if (rotation.y > 1.5707964f || rotation.y < -1.5707964f) {

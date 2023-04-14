@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
 
-import com.mcal.worldcraft.activity.OptionActivity;
 import com.mcal.worldcraft.factories.DescriptionFactory;
 
 import java.lang.reflect.Field;
@@ -20,7 +19,7 @@ public class CustomProgressDialog extends ProgressDialog {
         setMessage("Loading chunks");
         setCancelable(true);
         setProgress(0);
-        setButton(OptionActivity.CANCEL, (dialog, which) -> buttonClick());
+        setButton(context.getString(android.R.string.cancel), (dialog, which) -> buttonClick());
     }
 
     public void updateMax(int loadLimit) {

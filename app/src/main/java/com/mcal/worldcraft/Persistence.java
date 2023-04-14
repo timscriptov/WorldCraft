@@ -119,6 +119,52 @@ public class Persistence {
         putString(USER_NAME_KEY, playerName);
     }
 
+    public static int getSkinResID(int skinType) {
+        switch (skinType) {
+            case 0:
+                return R.drawable.man1;
+            case 1:
+                return R.drawable.man2;
+            case 2:
+                return R.drawable.man3;
+            case 3:
+                return R.drawable.man4;
+            case 4:
+                return R.drawable.man5;
+            case 5:
+                return R.drawable.man6;
+            case 6:
+                return R.drawable.man7;
+            case 7:
+                return R.drawable.man8;
+            case 8:
+                return R.drawable.man9;
+            case 9:
+                return R.drawable.man10;
+            case 10:
+                return R.drawable.woman1;
+            case 11:
+                return R.drawable.woman2;
+            case 12:
+                return R.drawable.woman3;
+            case 13:
+                return R.drawable.woman4;
+            case 14:
+                return R.drawable.woman5;
+            case 15:
+                return R.drawable.woman6;
+            case 16:
+                return R.drawable.woman7;
+            case 17:
+                return R.drawable.woman8;
+            case 18:
+                return R.drawable.woman9;
+            case 19:
+                return R.drawable.woman10;
+            default:
+                return R.drawable.man1;
+        }
+    }
     public short getPlayerSkin() {
         return getShort(USER_SKIN_KEY, USER_SKIN_DEFAULT_VALUE);
     }
