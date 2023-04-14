@@ -17,7 +17,7 @@
 ![chest][8]
 ![craft][9]
 
-[1]: https://github.com/TimScriptov/WorldCraft/blob/master/ART/screenshots/ui/main.jpeg
+[1]: https://github.com/TimScriptov/WorldCraft/ART/screenshots/ui/main.jpeg
 [2]: https://github.com/TimScriptov/WorldCraft/blob/master/ART/screenshots/ui/settings.jpeg
 [3]: https://github.com/TimScriptov/WorldCraft/blob/master/ART/screenshots/ui/world_list.jpeg
 [4]: https://github.com/TimScriptov/WorldCraft/blob/master/ART/screenshots/ui/create_world.jpeg
