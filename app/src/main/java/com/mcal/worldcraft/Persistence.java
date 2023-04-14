@@ -10,6 +10,8 @@ public class Persistence {
     private static final String FIRST_TIME_STARTED_KEY = "isFirstTimeStarted";
     private static final float FOG_DISTANCE_DEFAULT_VALUE = 30.0f;
     private static final String FOG_DISTANCE_KEY = "fog_distance";
+    private static final boolean SHOW_FPS_DEFAULT_VALUE = false;
+    private static final String SHOW_FPS_KEY = "show_fps";
     private static final boolean INVERT_Y_DEFAULT_VALUE = false;
     private static final String INVERT_Y_KEY = "invert_y";
     private static final String PREFERENCE_STORAGE_NAME = "WRLD_PREF";
@@ -195,6 +197,14 @@ public class Persistence {
 
     public void setInvertY(boolean isInvertY) {
         putBoolean(INVERT_Y_KEY, isInvertY);
+    }
+
+    public boolean isShowFPS() {
+        return getBoolean(SHOW_FPS_KEY, SHOW_FPS_DEFAULT_VALUE);
+    }
+
+    public void setShowFPS(boolean isInvertY) {
+        putBoolean(SHOW_FPS_KEY, isInvertY);
     }
 
     public boolean isFirstTimeStarted() {

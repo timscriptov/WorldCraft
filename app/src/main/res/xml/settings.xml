@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <androidx.preference.PreferenceCategory android:title="Multiplayer">
 
@@ -30,10 +29,14 @@
     <androidx.preference.PreferenceCategory android:title="Graphics">
 
         <androidx.preference.EditTextPreference
-            android:defaultValue="false"
+            android:defaultValue="30.0"
             android:key="fog_distance"
-            android:title="Fog distance"
-            app:defaultValue="30.0" />
+            android:title="Fog distance" />
+
+        <androidx.preference.SwitchPreference
+            android:defaultValue="false"
+            android:key="show_fps"
+            android:title="Show FPS" />
 
     </androidx.preference.PreferenceCategory>
 

@@ -117,6 +117,9 @@ public class BlockView {
             entityPainter.draw(player.position, world.loadradius, cam);
             mobAggregator.draw(player.position, world.loadradius, cam);
             gui.draw();
+            if (Persistence.getInstance().isShowFPS()) {
+                drawFPS();
+            }
             lastDrawAt = System.currentTimeMillis();
         } catch (OutOfMemoryError e2) {
             complete = true;
@@ -141,12 +144,12 @@ public class BlockView {
         lastFpss[9] = fpsVar;
     }
 
-    private void drawFPS() {
+    public void drawFPS() {
         long drawDuration = System.currentTimeMillis() - lastDrawAt;
         fpsVar = drawDuration == 0 ? 99L : 1000 / drawDuration;
         setLastFps(fpsVar);
         fpsShape = GUI.getFont().buildTextShape("fps:  " + fpsAvg(), Colour.packFloat(1.0f, 1.0f, 1.0f, 1.0f));
-        fpsShape.translate(100.0f, 100.0f, 0.0f);
+        fpsShape.translate(100.0f, Game.gameHeight - 37.0f, 0.0f);
         fpsShape.render(r);
         r.render();
     }

@@ -42,6 +42,13 @@ class SettingsFragment : PreferenceFragmentCompat(),
                     }
                     true
                 }
+            findPreference<SwitchPreference>("show_fps")?.onPreferenceChangeListener =
+                Preference.OnPreferenceChangeListener { _, newValue ->
+                    if (newValue is Boolean) {
+                        Persistence.getInstance().isShowFPS = newValue
+                    }
+                    true
+                }
             findPreference<SwitchPreference>("enable_sound")?.onPreferenceChangeListener =
                 Preference.OnPreferenceChangeListener { _, newValue ->
                     if (newValue is Boolean) {
