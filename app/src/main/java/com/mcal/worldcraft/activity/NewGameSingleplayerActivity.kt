@@ -5,17 +5,17 @@ import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import com.mcal.worldcraft.R
-import com.mcal.worldcraft.databinding.ActivityNewGameSingleplayerBinding
+import com.mcal.worldcraft.databinding.ActivityNewGameSinglePlayerBinding
 import com.mcal.worldcraft.utils.GameStarter
 import com.mcal.worldcraft.utils.KeyboardUtils
 import com.mcal.worldcraft.utils.WorldGenerator
 
 class NewGameSinglePlayerActivity : BaseActivity() {
-    private lateinit var binding: ActivityNewGameSingleplayerBinding
+    private lateinit var binding: ActivityNewGameSinglePlayerBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityNewGameSingleplayerBinding.inflate(layoutInflater)
+        binding = ActivityNewGameSinglePlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         val worldNameView = binding.worldNameEditText

@@ -12,7 +12,7 @@ import com.mcal.droid.rugl.util.WorldUtils
 import com.mcal.droid.rugl.util.WorldUtils.WorldInfo
 import com.mcal.worldcraft.R
 import com.mcal.worldcraft.adapters.WorldListAdapter
-import com.mcal.worldcraft.databinding.SingleplayerBinding
+import com.mcal.worldcraft.databinding.ActivitySinglePlayerBinding
 import com.mcal.worldcraft.utils.GameStarter
 import com.mcal.worldcraft.utils.WorldGenerator
 import com.mikepenz.fastadapter.FastAdapter
@@ -24,13 +24,13 @@ import kotlinx.coroutines.launch
 import java.io.File
 
 class SinglePlayerActivity : BaseActivity(), RemoveMapListener {
-    private lateinit var binding: SingleplayerBinding
+    private lateinit var binding: ActivitySinglePlayerBinding
     private lateinit var worldListAdapter: ItemAdapter<WorldListAdapter>
     private lateinit var fastApkAdapter: FastAdapter<WorldListAdapter>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = SingleplayerBinding.inflate(layoutInflater)
+        binding = ActivitySinglePlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         initWorldList()

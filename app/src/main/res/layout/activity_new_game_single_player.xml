@@ -40,10 +40,10 @@
         android:orientation="horizontal">
 
         <LinearLayout
+            style="@style/CardViewTheme"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@drawable/ic_dialog_background"
             android:orientation="vertical"
             android:padding="8dp">
 
@@ -64,10 +64,10 @@
         </LinearLayout>
 
         <LinearLayout
+            style="@style/CardViewTheme"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@drawable/ic_dialog_background"
             android:orientation="vertical"
             android:padding="8dp">
 
@@ -90,10 +90,10 @@
 
             <Spinner
                 android:id="@+id/world_type"
+                style="@style/CardViewTheme"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/create_game_margin_bottom"
-                android:background="@drawable/ic_dialog_background"
                 android:entries="@array/world_type"
                 android:textSize="@dimen/create_game_text_size" />
 
@@ -104,10 +104,10 @@
 
             <Spinner
                 android:id="@+id/map_type_spinner"
+                style="@style/CardViewTheme"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/create_game_margin_bottom"
-                android:background="@drawable/ic_dialog_background"
                 android:entries="@array/game_mode"
                 android:textSize="@dimen/create_game_text_size" />
 
