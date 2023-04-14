@@ -47,7 +47,7 @@
             android:label="@string/title_activity_singleplayer"
             android:screenOrientation="landscape" />
         <activity
-            android:name="com.mcal.worldcraft.activity.NewGameSingleplayerActivity"
+            android:name="com.mcal.worldcraft.activity.NewGameSinglePlayerActivity"
             android:label="@string/title_activity_new_game_singleplayer"
             android:screenOrientation="landscape" />
     </application>

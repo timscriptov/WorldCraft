@@ -10,7 +10,7 @@ import com.mcal.worldcraft.utils.GameStarter
 import com.mcal.worldcraft.utils.KeyboardUtils
 import com.mcal.worldcraft.utils.WorldGenerator
 
-class NewGameSingleplayerActivity : BaseActivity() {
+class NewGameSinglePlayerActivity : BaseActivity() {
     private lateinit var binding: ActivityNewGameSingleplayerBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {

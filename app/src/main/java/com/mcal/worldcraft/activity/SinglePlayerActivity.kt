@@ -36,7 +36,7 @@ class SinglePlayerActivity : BaseActivity(), RemoveMapListener {
         initWorldList()
         binding.backButton.setOnClickListener { finish() }
         binding.createButton.setOnClickListener {
-            val intent = Intent(this@SinglePlayerActivity, NewGameSingleplayerActivity::class.java)
+            val intent = Intent(this@SinglePlayerActivity, NewGameSinglePlayerActivity::class.java)
             startActivity(intent)
         }
     }
