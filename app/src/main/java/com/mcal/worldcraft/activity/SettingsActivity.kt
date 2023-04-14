@@ -13,11 +13,13 @@ class SettingsActivity : AppCompatActivity() {
         val settingsBinding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(settingsBinding.root)
         setSupportActionBar(settingsBinding.toolbar)
-        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-        supportFragmentManager
-            .beginTransaction()
-            .add(settingsBinding.frameContainer.id, SettingsFragment())
-            .commit()
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        if (supportFragmentManager.findFragmentById(settingsBinding.frameContainer.id) == null) {
+            supportFragmentManager
+                .beginTransaction()
+                .add(settingsBinding.frameContainer.id, SettingsFragment())
+                .commit()
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

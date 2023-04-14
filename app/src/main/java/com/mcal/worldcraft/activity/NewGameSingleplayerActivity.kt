@@ -30,9 +30,9 @@ class NewGameSingleplayerActivity : BaseActivity() {
         binding.backButton.setOnClickListener { onBackPressed() }
 
         binding.startButton.setOnClickListener {
-            KeyboardUtils.hideKeyboard(this@NewGameSingleplayerActivity, worldNameView)
+            KeyboardUtils.hideKeyboard(this, worldNameView)
             GameStarter.startGame(
-                this@NewGameSingleplayerActivity,
+                this,
                 worldNameView.text.toString(),
                 true,
                 mapTypeSpinner.selectedItemPosition,
@@ -44,26 +44,28 @@ class NewGameSingleplayerActivity : BaseActivity() {
     }
 
     private fun finishActivityAndCloseParent() {
-        val intent = Intent()
-        intent.putExtra(SinglePlayerActivity.SHOULD_FINISH, true)
-        setResult(RESULT_OK, intent)
+        setResult(RESULT_OK, Intent().apply {
+            putExtra(SinglePlayerActivity.SHOULD_FINISH, true)
+        })
         finish()
     }
 
     private fun initMapTypeDropDownMenu(dropDownMenu: Spinner) {
-        val list = ArrayList<String>()
-        list.add(getString(R.string.random_map))
-        list.add(getString(R.string.flat_map))
-        ArrayAdapter(this, R.layout.spinner_item, list).apply {
+        ArrayAdapter(
+            this,
+            R.layout.spinner_item,
+            arrayListOf(getString(R.string.random_map), getString(R.string.flat_map))
+        ).apply {
             setDropDownViewResource(R.layout.spinner_dropdown_item)
         }.also { dropDownMenu.adapter = it }
     }
 
     private fun initGameMode(dropDownMenu: Spinner) {
-        val list = ArrayList<String>()
-        list.add("Creative")
-        list.add("Survival")
-        ArrayAdapter(this, R.layout.spinner_item, list).apply {
+        ArrayAdapter(
+            this,
+            R.layout.spinner_item,
+            arrayListOf("Creative", "Survival")
+        ).apply {
             setDropDownViewResource(R.layout.spinner_dropdown_item)
         }.also { dropDownMenu.adapter = it }
     }

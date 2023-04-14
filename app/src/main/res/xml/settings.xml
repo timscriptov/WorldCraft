@@ -10,7 +10,9 @@
             android:title="Username" />
 
         <androidx.preference.ListPreference
-            android:defaultValue="false"
+            android:defaultValue="0"
+            android:entries="@array/skin"
+            android:entryValues="@array/skin_values"
             android:key="user_skin"
             android:title="Skin" />
 

@@ -41,11 +41,14 @@ class SinglePlayerActivity : BaseActivity(), RemoveMapListener {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
-        if (requestCode == RESULT_FIRST_USER && resultCode == RESULT_OK && data.getBooleanExtra(
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        @Suppress("DEPRECATION")
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == RESULT_FIRST_USER && resultCode == RESULT_OK && data?.getBooleanExtra(
                 SHOULD_FINISH,
                 false
-            )
+            ) == true
         ) {
             finish()
         }

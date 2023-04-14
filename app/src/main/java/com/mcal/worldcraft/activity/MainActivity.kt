@@ -2,7 +2,6 @@ package com.mcal.worldcraft.activity
 
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.widget.EditText
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -22,13 +21,11 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-        title = "WorldCraft"
         Persistence.initPersistence(this)
         activityHelper = MultiplayerActivityHelper(this)
         ResourceLoader.start(resources)
         binding.singlePlyerButton.setOnClickListener {
-            val intent = Intent(this@MainActivity, SinglePlayerActivity::class.java)
+            val intent = Intent(this, SinglePlayerActivity::class.java)
             startActivity(intent)
         }
         binding.multiplayerButton.setOnClickListener {
@@ -40,8 +37,8 @@ class MainActivity : BaseActivity() {
         }
         binding.optionButton.setOnClickListener {
             Persistence.getInstance().isFirstTimeStarted = false
-            val i = Intent(this, SettingsActivity::class.java)
-            startActivity(i)
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
         }
     }
 

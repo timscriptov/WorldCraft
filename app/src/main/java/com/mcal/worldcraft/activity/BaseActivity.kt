@@ -1,11 +1,11 @@
 package com.mcal.worldcraft.activity
 
-import android.app.Activity
 import android.media.AudioManager
 import android.os.Bundle
 import android.view.KeyEvent
+import androidx.appcompat.app.AppCompatActivity
 
-open class BaseActivity : Activity() {
+open class BaseActivity : AppCompatActivity() {
     private lateinit var audio: AudioManager
 
     public override fun onCreate(savedInstanceState: Bundle?) {
