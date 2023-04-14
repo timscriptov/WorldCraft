@@ -2,6 +2,8 @@ package com.mcal.droid.rugl.texture;
 
 import android.graphics.Point;
 
+import androidx.annotation.NonNull;
+
 import com.mcal.droid.rugl.gl.State;
 import com.mcal.droid.rugl.gl.enums.MinFilter;
 import com.mcal.droid.rugl.gl.facets.TextureState;
@@ -46,7 +48,7 @@ public class Texture {
      * @param topRight
      * @param source
      */
-    Texture(TextureFactory.GLTexture parent, Vector2f bottomLeft, Vector2f topRight, Image source) {
+    Texture(@NonNull TextureFactory.GLTexture parent, Vector2f bottomLeft, Vector2f topRight, Image source) {
         this.parent = parent;
         origin = bottomLeft;
         extent = Vector2f.sub(topRight, bottomLeft, null);
@@ -63,7 +65,7 @@ public class Texture {
      *
      * @param parent
      */
-    Texture(TextureFactory.GLTexture parent) {
+    Texture(@NonNull TextureFactory.GLTexture parent) {
         this.parent = parent;
         origin = new Vector2f(0, 0);
         extent = new Vector2f(1, 1);
@@ -82,7 +84,7 @@ public class Texture {
      * @param state
      * @return The altered state
      */
-    public State applyTo(State state) {
+    public State applyTo(@NonNull State state) {
         if (state.texture.id != parent.id()) {
             state = state.with(state.texture.with(parent.id()));
         }
@@ -137,7 +139,7 @@ public class Texture {
      * @return The texture coordinates in terms of the containing
      * openGL texture
      */
-    public Vector2f getTexCoords(Vector2f coords, Vector2f dest) {
+    public Vector2f getTexCoords(@NonNull Vector2f coords, Vector2f dest) {
         return getTexCoords(coords.x, coords.y, dest);
     }
 

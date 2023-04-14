@@ -2,6 +2,8 @@ package com.mcal.droid.rugl.texture;
 
 import android.opengl.GLES10;
 
+import androidx.annotation.NonNull;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -66,6 +68,7 @@ public abstract class Image {
      * @return An {@link Image}
      * @throws IOException
      */
+    @NonNull
     public static Image loadImage(final String fileName) throws IOException {
         final RandomAccessFile raf = new RandomAccessFile(fileName, "r");
         final FileChannel ch = raf.getChannel();

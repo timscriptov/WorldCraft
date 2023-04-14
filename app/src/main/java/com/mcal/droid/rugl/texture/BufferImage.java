@@ -2,6 +2,8 @@ package com.mcal.droid.rugl.texture;
 
 import android.opengl.GLES10;
 
+import androidx.annotation.NonNull;
+
 import com.mcal.droid.rugl.gl.BufferUtils;
 import com.mcal.droid.rugl.gl.GLUtil;
 
@@ -39,7 +41,7 @@ public class BufferImage extends Image {
      *
      * @param input contains the image data
      */
-    public BufferImage(ByteBuffer input) {
+    public BufferImage(@NonNull ByteBuffer input) {
         super(input.getInt(), input.getInt(), Format.values()[input.getInt()]);
 
         data = input.slice();
@@ -74,7 +76,7 @@ public class BufferImage extends Image {
      *
      * @param output The buffer to write to
      */
-    public void write(ByteBuffer output) {
+    public void write(@NonNull ByteBuffer output) {
         output.putInt(width);
         output.putInt(height);
         output.putInt(format.ordinal());

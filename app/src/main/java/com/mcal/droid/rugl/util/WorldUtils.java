@@ -27,7 +27,6 @@ import java.util.Stack;
 import java.util.TreeSet;
 
 public class WorldUtils {
-    private static final String WORLDS_HOME = "games/worldcraft/";
     private static final ArrayList<File> worlds = new ArrayList<>();
     private static final ArrayList<File> creativeModeWorlds = new ArrayList<>();
     private static final ArrayList<File> survivalModeWorlds = new ArrayList<>();
@@ -56,7 +55,7 @@ public class WorldUtils {
         }
     }
 
-    private static File getWorldDir(@NonNull Context context) throws StorageNotFoundException {
+    private static File getWorldDir(@NonNull Context context) {
         return context.getExternalFilesDir(null);
     }
 
