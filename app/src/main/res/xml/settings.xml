@@ -40,7 +40,7 @@
     <androidx.preference.PreferenceCategory android:title="Sound">
 
         <androidx.preference.SwitchPreference
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:key="enable_sound"
             android:title="Enable sound" />
 

@@ -6,17 +6,12 @@ import android.content.SharedPreferences;
 import com.mcal.worldcraft.factories.DescriptionFactory;
 
 public class Persistence {
-    private static final String BANNER_REMOVED_KEY = "IS_BANNER_REMOVED";
-    private static final int ENTER_COUNT_DEFAULT_VALUE = 0;
-    private static final String ENTER_COUNT_KEY = "enter_count";
     private static final boolean FIRST_TIME_STARTED_DEFAULT_VALUE = true;
     private static final String FIRST_TIME_STARTED_KEY = "isFirstTimeStarted";
     private static final float FOG_DISTANCE_DEFAULT_VALUE = 30.0f;
     private static final String FOG_DISTANCE_KEY = "fog_distance";
     private static final boolean INVERT_Y_DEFAULT_VALUE = false;
     private static final String INVERT_Y_KEY = "invert_y";
-    private static final int LOAD_RADIUS_DEFAULT_VALUE = 2;
-    private static final String LOAD_RADIUS_KEY = "load_radius";
     private static final String PREFERENCE_STORAGE_NAME = "WRLD_PREF";
     private static final boolean SOUND_ENABLED_DEFAULT_VALUE = true;
     private static final String SOUND_ENABLED_KEY = "sound_enabled";
@@ -125,7 +120,7 @@ public class Persistence {
     }
 
     public short getPlayerSkin() {
-        return getShort(USER_SKIN_KEY, 0);
+        return getShort(USER_SKIN_KEY, USER_SKIN_DEFAULT_VALUE);
     }
 
     public void setPlayerSkin(short playerSkin) {
@@ -133,19 +128,11 @@ public class Persistence {
     }
 
     public boolean isSoundEnabled() {
-        return getBoolean(SOUND_ENABLED_KEY, true);
+        return getBoolean(SOUND_ENABLED_KEY, SOUND_ENABLED_DEFAULT_VALUE);
     }
 
     public void setSoundEnabled(boolean isSoundEnabled) {
         putBoolean(SOUND_ENABLED_KEY, isSoundEnabled);
-    }
-
-    public int getLoadRadius() {
-        return getInt(LOAD_RADIUS_KEY, 2);
-    }
-
-    public void setLoadRadius(int loadRadius) {
-        putInt(LOAD_RADIUS_KEY, loadRadius);
     }
 
     public float getFogDistance() {
@@ -157,31 +144,15 @@ public class Persistence {
     }
 
     public boolean isInvertY() {
-        return getBoolean(INVERT_Y_KEY, false);
+        return getBoolean(INVERT_Y_KEY, INVERT_Y_DEFAULT_VALUE);
     }
 
     public void setInvertY(boolean isInvertY) {
         putBoolean(INVERT_Y_KEY, isInvertY);
     }
 
-    public int getEnterCount() {
-        return getInt(ENTER_COUNT_KEY, 0);
-    }
-
-    public void setEnterCount(int enterCount) {
-        putInt(ENTER_COUNT_KEY, enterCount);
-    }
-
-    public boolean isBannerRemoved() {
-        return getBoolean(BANNER_REMOVED_KEY, false);
-    }
-
-    public void setBannerRemoved(boolean isBannerRemoved) {
-        putBoolean(BANNER_REMOVED_KEY, isBannerRemoved);
-    }
-
     public boolean isFirstTimeStarted() {
-        return getBoolean(FIRST_TIME_STARTED_KEY, true);
+        return getBoolean(FIRST_TIME_STARTED_KEY, FIRST_TIME_STARTED_DEFAULT_VALUE);
     }
 
     public void setFirstTimeStarted(boolean isFirstTimeStarted) {
