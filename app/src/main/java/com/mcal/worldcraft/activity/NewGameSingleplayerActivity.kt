@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Spinner
-import com.mcal.worldcraft.MyApplication
 import com.mcal.worldcraft.R
 import com.mcal.worldcraft.databinding.ActivityNewGameSingleplayerBinding
 import com.mcal.worldcraft.utils.GameStarter
@@ -33,7 +32,6 @@ class NewGameSingleplayerActivity : BaseActivity() {
         binding.startButton.setOnClickListener {
             KeyboardUtils.hideKeyboard(this@NewGameSingleplayerActivity, worldNameView)
             GameStarter.startGame(
-                (application as MyApplication),
                 this@NewGameSingleplayerActivity,
                 worldNameView.text.toString(),
                 true,

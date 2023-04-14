@@ -20,7 +20,7 @@ public class Persistence {
     private static final String PREFERENCE_STORAGE_NAME = "WRLD_PREF";
     private static final boolean SOUND_ENABLED_DEFAULT_VALUE = true;
     private static final String SOUND_ENABLED_KEY = "sound_enabled";
-    private static final String USER_NAME_DEFAULT_VALUE = "Johny";
+    private static final String USER_NAME_DEFAULT_VALUE = "Steve";
     private static final String USER_NAME_KEY = "user_name";
     private static final int USER_SKIN_DEFAULT_VALUE = 0;
     private static final String USER_SKIN_KEY = "user_skin";

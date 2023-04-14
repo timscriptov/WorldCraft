@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="main_menu_button_text_size">30dp</dimen>
+    <dimen name="main_menu_button_text_size">30sp</dimen>
     <dimen name="main_menu_margin">10dp</dimen>
     <dimen name="title_text_size">40dp</dimen>
     <dimen name="info_block_margin_top">10dp</dimen>

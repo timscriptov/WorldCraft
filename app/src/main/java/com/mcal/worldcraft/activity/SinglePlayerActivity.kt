@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mcal.droid.rugl.util.WorldUtils
 import com.mcal.droid.rugl.util.WorldUtils.WorldInfo
-import com.mcal.worldcraft.MyApplication
 import com.mcal.worldcraft.R
 import com.mcal.worldcraft.adapters.WorldListAdapter
 import com.mcal.worldcraft.databinding.SingleplayerBinding
@@ -54,7 +53,6 @@ class SinglePlayerActivity : BaseActivity(), RemoveMapListener {
 
     private fun onItemClick(worldInfo: WorldInfo) {
         GameStarter.startGame(
-            (application as MyApplication),
             this,
             worldInfo.file.absolutePath,
             false,

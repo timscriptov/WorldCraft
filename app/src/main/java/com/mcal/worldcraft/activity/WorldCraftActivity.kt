@@ -30,9 +30,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 class WorldCraftActivity : GameActivity() {
-    private lateinit var application: MyApplication
     private var bw: BlockView? = null
-    private var deathMenuDialog: DeathMenuDialog? = null
     private var isResumingGame = false
     private var loadingProgressDialog: ProgressDialog? = null
     private var resumeDialog: ProgressDialog? = null
@@ -40,7 +38,6 @@ class WorldCraftActivity : GameActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        application = applicationContext as MyApplication
         window.addFlags(CpioConstants.C_IWUSR)
 
         intent.extras?.let { extras ->
@@ -66,7 +63,6 @@ class WorldCraftActivity : GameActivity() {
     }
 
     override fun onPause() {
-        clearReferences()
         world?.save()
         isResumingGame = true
         if (loadingProgressDialog != null) {
@@ -79,14 +75,7 @@ class WorldCraftActivity : GameActivity() {
         super.onPause()
     }
 
-    private fun clearReferences() {
-        if (application.isCurrentActivity(this)) {
-            application.currentActivity = null
-        }
-    }
-
     override fun onResume() {
-        application.currentActivity = this
         if (isResumingGame) {
             isResumingGame = false
             if (isMultiplayerMode) {
@@ -145,14 +134,6 @@ class WorldCraftActivity : GameActivity() {
             }
         }
         loadingProgressDialog!!.show()
-    }
-
-    fun dismissProgressDialog() {
-        loadingProgressDialog!!.dismiss()
-    }
-
-    fun dismissResumeDialog() {
-        resumeDialog?.dismiss()
     }
 
     fun dismissAllLoadingDialogs() {
@@ -267,13 +248,10 @@ class WorldCraftActivity : GameActivity() {
 
                         override fun showDeathMenu(player: Player) {
                             runOnUiThread {
-                                val dialog = deathMenuDialog
-                                if (dialog == null || !dialog.isVisible) {
-                                    deathMenuDialog = DeathMenuDialog(
-                                        this@WorldCraftActivity,
-                                        player
-                                    ).apply { show() }
-                                }
+                                DeathMenuDialog(
+                                    this@WorldCraftActivity,
+                                    player
+                                ).show()
                             }
                         }
                     }.also { world ->

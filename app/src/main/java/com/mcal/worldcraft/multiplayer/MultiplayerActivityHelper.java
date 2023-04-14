@@ -12,7 +12,6 @@ import androidx.annotation.NonNull;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.mcal.droid.rugl.util.WorldUtils;
 import com.mcal.droid.rugl.util.geom.Vector3f;
-import com.mcal.worldcraft.MyApplication;
 import com.mcal.worldcraft.Persistence;
 import com.mcal.worldcraft.R;
 import com.mcal.worldcraft.factories.DescriptionFactory;
@@ -583,7 +582,7 @@ public class MultiplayerActivityHelper implements AndroidClient.MultiplayerListe
 
     public void startGameActivity() {
         activity.runOnUiThread(() -> {
-            GameStarter.startGame((MyApplication) activity.getApplication(), activity, null, false, 0, WorldGenerator.Mode.CREATIVE);
+            GameStarter.startGame(activity, null, false, 0, WorldGenerator.Mode.CREATIVE);
         });
     }
 }

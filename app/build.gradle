@@ -47,10 +47,11 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.core:core-ktx:1.9.0'
-    implementation 'androidx.appcompat:appcompat:1.6.0'
+    implementation 'androidx.core:core-ktx:1.10.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.8.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.preference:preference-ktx:1.2.0'
 
 
     implementation "com.mikepenz:fastadapter:5.7.0"
@@ -58,7 +59,7 @@ dependencies {
 
     implementation 'javax.vecmath:vecmath:1.5.2'
     implementation 'org.apache.httpcomponents:httpclient:4.5.14'
-    implementation 'org.apache.httpcomponents:httpmime:4.5.6'
+    implementation 'org.apache.httpcomponents:httpmime:4.5.14'
 
     implementation 'org.apache.commons:commons-compress:1.22'
 //    implementation 'org.jboss.netty:netty:3.2.10.Final'

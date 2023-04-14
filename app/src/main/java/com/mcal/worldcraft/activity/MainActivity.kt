@@ -3,34 +3,23 @@ package com.mcal.worldcraft.activity
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.ActivityInfo
-import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.DisplayMetrics
 import android.widget.EditText
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mcal.droid.rugl.res.ResourceLoader
 import com.mcal.worldcraft.GameMode
 import com.mcal.worldcraft.Persistence
-import com.mcal.worldcraft.R
 import com.mcal.worldcraft.databinding.ActivityMainBinding
 import com.mcal.worldcraft.factories.DescriptionFactory
 import com.mcal.worldcraft.multiplayer.MultiplayerActivityHelper
 import com.mcal.worldcraft.utils.KeyboardUtils
 
 class MainActivity : BaseActivity() {
-    private var displayHeight = 0
-    private var displayWidth = 0
-
     private lateinit var activityHelper: MultiplayerActivityHelper
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        DisplayMetrics().also { displaymetrics ->
-            displayWidth = displaymetrics.widthPixels
-            displayHeight = displaymetrics.heightPixels
-        }
-
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
@@ -38,25 +27,6 @@ class MainActivity : BaseActivity() {
         Persistence.initPersistence(this)
         activityHelper = MultiplayerActivityHelper(this)
         ResourceLoader.start(resources)
-        initButtons()
-        initVersion()
-    }
-
-    private fun initVersion() {
-        binding.versionTextView.text = versionName
-    }
-
-    private val versionName: String
-        get() = try {
-            val pInfo = packageManager.getPackageInfo(packageName, 0)
-            version = pInfo.versionName
-            getString(R.string.version, pInfo.versionName)
-        } catch (e: PackageManager.NameNotFoundException) {
-            e.printStackTrace()
-            DescriptionFactory.emptyText
-        }
-
-    private fun initButtons() {
         binding.singlePlyerButton.setOnClickListener {
             val intent = Intent(this@MainActivity, SinglePlayerActivity::class.java)
             startActivity(intent)
@@ -70,26 +40,27 @@ class MainActivity : BaseActivity() {
         }
         binding.optionButton.setOnClickListener {
             Persistence.getInstance().isFirstTimeStarted = false
-            val i = Intent(this, OptionActivity::class.java)
+            val i = Intent(this, SettingsActivity::class.java)
             startActivity(i)
         }
     }
 
     private fun showChangeNameDialog() {
-        val name = EditText(this)
-        name.hint = Persistence.getInstance().playerName
+        val name = EditText(this).apply {
+            hint = Persistence.getInstance().playerName
+        }
         KeyboardUtils.hideKeyboardOnEnter(this, name)
 
-        val dialog = MaterialAlertDialogBuilder(this)
-        dialog.setTitle("Please enter your name for multiplayer! You can change your name in option menu")
-        dialog.setView(name).setPositiveButton("OK") { _: DialogInterface?, _: Int ->
-            Persistence.getInstance().apply {
-                playerName = name.text.toString()
-                isFirstTimeStarted = false
+        MaterialAlertDialogBuilder(this).apply {
+            setTitle("Please enter your name for multiplayer! You can change your name in option menu")
+            setView(name).setPositiveButton("OK") { _: DialogInterface?, _: Int ->
+                Persistence.getInstance().apply {
+                    playerName = name.text.toString()
+                    isFirstTimeStarted = false
+                }
+                activityHelper.startMultiplayer()
             }
-            activityHelper.startMultiplayer()
-        }
-        dialog.show()
+        }.show()
     }
 
     override fun onResume() {

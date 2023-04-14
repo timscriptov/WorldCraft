@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.preference.PreferenceCategory android:title="Multiplayer">
+
+        <androidx.preference.EditTextPreference
+            android:defaultValue="Steve"
+            android:key="user_name"
+            android:title="Username" />
+
+        <androidx.preference.ListPreference
+            android:defaultValue="false"
+            android:key="user_skin"
+            android:title="Skin" />
+
+    </androidx.preference.PreferenceCategory>
+
+    <androidx.preference.PreferenceCategory android:title="Control">
+
+        <androidx.preference.SwitchPreference
+            android:defaultValue="false"
+            android:key="invert_y"
+            android:title="Invert Y-axis" />
+
+    </androidx.preference.PreferenceCategory>
+
+    <androidx.preference.PreferenceCategory android:title="Graphics">
+
+        <androidx.preference.EditTextPreference
+            android:defaultValue="false"
+            android:key="fog_distance"
+            android:title="Fog distance"
+            app:defaultValue="30.0" />
+
+    </androidx.preference.PreferenceCategory>
+
+    <androidx.preference.PreferenceCategory android:title="Sound">
+
+        <androidx.preference.SwitchPreference
+            android:defaultValue="false"
+            android:key="enable_sound"
+            android:title="Enable sound" />
+
+    </androidx.preference.PreferenceCategory>
+
+</androidx.preference.PreferenceScreen>
