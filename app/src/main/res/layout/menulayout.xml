@@ -7,19 +7,19 @@
     android:padding="16dp">
 
     <com.mcal.worldcraft.dialog.component.MolotButton
-        android:id="@+id/quitButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/ic_button_selector"
-        android:text="@string/quit_to_title" />
-
-    <com.mcal.worldcraft.dialog.component.MolotButton
         android:id="@+id/backButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:background="@drawable/ic_button_selector"
         android:text="@string/back_to_game" />
+
+    <com.mcal.worldcraft.dialog.component.MolotButton
+        android:id="@+id/quitButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ic_button_selector"
+        android:text="@string/quit_to_title" />
 
     <com.mcal.worldcraft.dialog.component.MolotButton
         android:id="@+id/playerListButton"
