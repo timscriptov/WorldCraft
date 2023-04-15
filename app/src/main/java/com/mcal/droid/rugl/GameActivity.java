@@ -36,7 +36,7 @@ import java.util.TreeSet;
 
 /**
  * Handy activity that can be simply subclassed. Just remember to call
- * {@link #start(Game, String)} in your
+ * {@link #start(Game)} in your
  * {@link #onCreate(android.os.Bundle)} or nothing will happen.
  * Handles starting the {@link ResourceLoader} and key input
  */
@@ -288,7 +288,7 @@ public abstract class GameActivity extends BaseActivity implements Runnable {
         final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
         final EditText msg = new EditText(this);
         msg.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ChatBox.getMaxChatMessageLength())});
-        builder.setTitle(R.string.your_message).setView(msg).setPositiveButton(android.R.string.ok, (dialog, id) -> sendChatMessage(msg)).setNegativeButton(R.string.cancel, (dialog, id) -> dialog.dismiss());
+        builder.setTitle(R.string.your_message).setView(msg).setPositiveButton(android.R.string.ok, (dialog, id) -> sendChatMessage(msg)).setNegativeButton(android.R.string.cancel, (dialog, id) -> dialog.dismiss());
         final AlertDialog alert = builder.create();
         msg.setOnEditorActionListener((v, actionId, event) -> {
             if (event == null || event.getKeyCode() != 66) {

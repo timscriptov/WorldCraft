@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="title_color">#ffffff</color>
-    <color name="map_name_color">#000000</color>
-    <color name="map_property_color">#353535</color>
     <color name="room_name_text_color">#363636</color>
     <color name="room_info_text_color">#585858</color>
 </resources>

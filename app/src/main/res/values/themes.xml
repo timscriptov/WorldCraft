@@ -5,9 +5,19 @@
         <item name="android:windowFullscreen">true</item>
         <item name="android:fitsSystemWindows">true</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="materialAlertDialogTheme">@style/DialogBackgroundTheme</item>
+        <item name="alertDialogTheme">@style/DialogBackgroundTheme</item>
+        <item name="android:alertDialogTheme">@style/DialogBackgroundTheme</item>
+
+        <item name="dialogTheme">@style/DialogBackgroundTheme</item>
+        <item name="android:dialogTheme">@style/DialogBackgroundTheme</item>
     </style>
 
     <style name="CardViewTheme">
         <item name="android:background">@drawable/ic_dialog_background</item>
+    </style>
+
+    <style name="DialogBackgroundTheme">
+        <item name="android:windowBackground">@drawable/ic_dialog_background</item>
     </style>
 </resources>
