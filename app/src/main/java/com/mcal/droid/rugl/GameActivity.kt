@@ -8,7 +8,10 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.*
+import android.widget.ArrayAdapter
+import android.widget.EditText
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mcal.droid.rugl.res.ResourceLoader
@@ -18,6 +21,7 @@ import com.mcal.worldcraft.R
 import com.mcal.worldcraft.SoundManager
 import com.mcal.worldcraft.activity.BaseActivity
 import com.mcal.worldcraft.databinding.MenulayoutBinding
+import com.mcal.worldcraft.databinding.PlayerlistBinding
 import com.mcal.worldcraft.factories.DescriptionFactory
 import com.mcal.worldcraft.multiplayer.Multiplayer
 import com.mcal.worldcraft.multiplayer.dialogs.PopupDialog
@@ -88,18 +92,18 @@ abstract class GameActivity : BaseActivity() {
     }
 
     fun showGameMenuDialog() {
-        val view = MenulayoutBinding.inflate(LayoutInflater.from(this))
-        val playersList = view.playerListButton
+        val binding = MenulayoutBinding.inflate(LayoutInflater.from(this))
+        val playersList = binding.playerListButton
         val dialog = MaterialAlertDialogBuilder(this).apply {
             setTitle("Game menu")
-            setView(view.root)
+            setView(binding.root)
         }.create()
         if (isMultiplayerMode) {
             playersList.visibility = View.VISIBLE
         } else {
             playersList.visibility = View.GONE
         }
-        view.quitButton.setOnClickListener {
+        binding.quitButton.setOnClickListener {
             if (isMultiplayerMode) {
                 showLikeDialog()
             } else {
@@ -108,7 +112,7 @@ abstract class GameActivity : BaseActivity() {
             SoundManager.stopAllSounds()
             dialog.dismiss()
         }
-        view.backButton.setOnClickListener { dialog.dismiss() }
+        binding.backButton.setOnClickListener { dialog.dismiss() }
         playersList.setOnClickListener {
             showPlayerList()
             dialog.dismiss()
@@ -117,10 +121,11 @@ abstract class GameActivity : BaseActivity() {
     }
 
     private fun showPlayerList() {
-        val view = View.inflate(this, R.layout.playerlist, null)
-        val builder = MaterialAlertDialogBuilder(this)
-        builder.setView(view)
-        builder.setTitle("Player list       Room name:  " + Multiplayer.instance.roomName)
+        val binding = PlayerlistBinding.inflate(LayoutInflater.from(this))
+        val builder = MaterialAlertDialogBuilder(this).apply {
+            setTitle("Player list       Room name:  " + Multiplayer.instance.roomName)
+            setView(binding.root)
+        }
         val list = ArrayList<String>()
         list.add(Multiplayer.instance.playerName + "   (you)")
         val sortedEnemies: Set<Enemy> = TreeSet(Multiplayer.getEnemiesCopy())
@@ -128,7 +133,7 @@ abstract class GameActivity : BaseActivity() {
             list.add(enemy.name)
         }
         val dialog = builder.create()
-        view.findViewById<ListView>(R.id.playerListView).apply {
+        binding.playerListView.apply {
             adapter = ArrayAdapter(
                 this@GameActivity,
                 R.layout.custom_list_content,
@@ -136,8 +141,7 @@ abstract class GameActivity : BaseActivity() {
                 list
             )
         }
-        val cancelButton = view.findViewById<Button>(R.id.cancel)
-        cancelButton.setOnClickListener { dialog.dismiss() }
+        binding.cancel.setOnClickListener { dialog.dismiss() }
         dialog.show()
     }
 
@@ -164,9 +168,10 @@ abstract class GameActivity : BaseActivity() {
     private fun dismissLoadingDialog() {
         try {
             runOnUiThread {
-                val dialog = loadingDialog
-                if (dialog != null && !dialog.isShowing) {
-                    dialog.dismiss()
+                loadingDialog?.let { dialog ->
+                    if (!dialog.isShowing) {
+                        dialog.dismiss()
+                    }
                 }
             }
         } catch (e: Exception) {
