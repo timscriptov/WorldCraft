@@ -108,6 +108,10 @@ public class Tag {
                 if (!(value instanceof Tag[]))
                     throw new IllegalArgumentException();
                 break;
+            case TAG_Int_Array:
+                if (!(value instanceof int[]))
+                    throw new IllegalArgumentException();
+                break;
             default:
                 throw new IllegalArgumentException();
         }
@@ -480,6 +484,13 @@ public class Tag {
                     }
                 }
                 break;
+            case TAG_Int_Array:
+                final int[] ints = (int[]) value;
+                dos.writeInt(ints.length);
+                for (int i = 0; i < ints.length; i++) {
+                    dos.writeInt(ints[i]);
+                }
+                break;
         }
     }
 
@@ -497,8 +508,9 @@ public class Tag {
         final String name = t.getName();
         indent(indent);
         System.out.print(getTypeString(t.getType()));
-        if (name != null)
+        if (name != null) {
             System.out.print("(\"" + t.getName() + "\")");
+        }
         if (type == Type.TAG_Byte_Array) {
             final byte[] b = (byte[]) t.getValue();
             System.out.println(": [" + b.length + " bytes]");
@@ -519,8 +531,12 @@ public class Tag {
                 print(st, indent + 1);
             indent(indent);
             System.out.println("}");
-        } else
+        } else if (type == Type.TAG_Int_Array) {
+            final int[] b = (int[]) t.getValue();
+            System.out.println(": [" + b.length + " int]");
+        } else {
             System.out.println(": " + t.getValue());
+        }
     }
 
     @NonNull
@@ -543,6 +559,7 @@ public class Tag {
 
         return buff.toString();
     }
+
 
     /**
      * Enum for the tag types.
@@ -569,6 +586,8 @@ public class Tag {
         /***/
         TAG_List,
         /***/
-        TAG_Compound
+        TAG_Compound,
+        /***/
+        TAG_Int_Array
     }
 }
