@@ -112,6 +112,10 @@ public class Tag {
                 if (!(value instanceof int[]))
                     throw new IllegalArgumentException();
                 break;
+            case TAG_Long_Array:
+                if (!(value instanceof long[]))
+                    throw new IllegalArgumentException();
+                break;
             default:
                 throw new IllegalArgumentException();
         }
@@ -487,8 +491,15 @@ public class Tag {
             case TAG_Int_Array:
                 final int[] ints = (int[]) value;
                 dos.writeInt(ints.length);
-                for (int i = 0; i < ints.length; i++) {
-                    dos.writeInt(ints[i]);
+                for (int anInt : ints) {
+                    dos.writeInt(anInt);
+                }
+                break;
+            case TAG_Long_Array:
+                final long[] longs = (long[]) value;
+                dos.writeInt(longs.length);
+                for (long aLong : longs) {
+                    dos.writeLong(aLong);
                 }
                 break;
         }
@@ -533,7 +544,10 @@ public class Tag {
             System.out.println("}");
         } else if (type == Type.TAG_Int_Array) {
             final int[] b = (int[]) t.getValue();
-            System.out.println(": [" + b.length + " int]");
+            System.out.println(": [" + b.length + " ints]");
+        } else if (type == Type.TAG_Long_Array) {
+            final long[] b = (long[]) t.getValue();
+            System.out.println(": [" + b.length + " longs]");
         } else {
             System.out.println(": " + t.getValue());
         }
@@ -588,6 +602,8 @@ public class Tag {
         /***/
         TAG_Compound,
         /***/
-        TAG_Int_Array
+        TAG_Int_Array,
+        /***/
+        TAG_Long_Array
     }
 }
