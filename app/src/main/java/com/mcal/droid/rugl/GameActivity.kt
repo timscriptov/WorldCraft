@@ -227,31 +227,33 @@ abstract class GameActivity : BaseActivity() {
         runOnUiThread {
             var dialog = readOnlyMapNotificationDialog
             if (dialog == null || !dialog.isShowing) {
-                val input = EditText(this@GameActivity)
-                input.setHint(R.string.world_name)
-                input.setText(Multiplayer.instance.roomName)
+                val input = EditText(this@GameActivity).apply {
+                    setHint(R.string.world_name)
+                    setText(Multiplayer.instance.roomName)
+                }
                 KeyboardUtils.hideKeyboardOnEnter(this@GameActivity, input)
-                val builder = MaterialAlertDialogBuilder(this)
-                builder.setTitle(R.string.save_world)
-                builder.setMessage(stringId)
-                builder.setView(input)
-                builder.setCancelable(false)
-                builder.setPositiveButton(R.string.save_world) { _: DialogInterface?, _: Int ->
-                    val worldName = input.text.toString()
-                    if (DescriptionFactory.emptyText != worldName && "null" != worldName) {
-                        saveWorld(worldName)
-                        hideKeyBoard(input)
-                        return@setPositiveButton
+
+                dialog = MaterialAlertDialogBuilder(this).apply {
+                    setTitle(R.string.save_world)
+                    setMessage(stringId)
+                    setView(input)
+                    setCancelable(false)
+                    setPositiveButton(R.string.save_world) { _: DialogInterface?, _: Int ->
+                        val worldName = input.text.toString()
+                        if (DescriptionFactory.emptyText != worldName && "null" != worldName) {
+                            saveWorld(worldName)
+                            hideKeyBoard(input)
+                            return@setPositiveButton
+                        }
+                        Toast.makeText(this@GameActivity, R.string.wrong_world_name, Toast.LENGTH_LONG)
+                            .show()
                     }
-                    Toast.makeText(this@GameActivity, R.string.wrong_world_name, Toast.LENGTH_LONG)
-                        .show()
-                }
-                builder.setNeutralButton(noButtonResourseId) { _: DialogInterface?, _: Int ->
-                    if (completePhaseOnNoClick) {
-                        completeCurrentPhase(false)
+                    setNeutralButton(noButtonResourseId) { _: DialogInterface?, _: Int ->
+                        if (completePhaseOnNoClick) {
+                            completeCurrentPhase(false)
+                        }
                     }
-                }
-                dialog = builder.create().also {
+                }.create().also {
                     readOnlyMapNotificationDialog = it
                 }
                 dialog.window?.setSoftInputMode(2)

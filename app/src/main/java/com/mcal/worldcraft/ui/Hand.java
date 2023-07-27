@@ -1,5 +1,6 @@
 package com.mcal.worldcraft.ui;
 
+import com.mcal.droid.rugl.Game;
 import com.mcal.droid.rugl.geom.TexturedShape;
 import com.mcal.droid.rugl.gl.GLUtil;
 import com.mcal.droid.rugl.gl.StackedRenderer;
@@ -23,7 +24,7 @@ public class Hand {
     private static final int FOOD_SIZE_STRIKE = 300;
     private static State state = GLUtil.typicalState.with(MinFilter.NEAREST, MagFilter.NEAREST);
     private final Player player;
-    public Vector2f restPos = new Vector2f(700.0f, 60.0f);
+    public Vector2f restPos = new Vector2f(Game.gameWidth - DEFAULT_SIZE /*700.0f*/, 60.0f);
     public Vector2f strikePos = new Vector2f(510.0f, 40.0f);
     public Vector2f foodPosRest = new Vector2f(400.0f, 70.0f);
     public Vector2f foodPosStrike = new Vector2f(375.0f, 40.0f);

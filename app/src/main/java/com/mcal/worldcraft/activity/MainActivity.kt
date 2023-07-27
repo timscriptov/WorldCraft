@@ -15,18 +15,20 @@ import com.mcal.worldcraft.utils.KeyboardUtils
 
 class MainActivity : BaseActivity() {
     private lateinit var activityHelper: MultiplayerActivityHelper
-    private lateinit var binding: ActivityMainBinding
+    private val binding by lazy(LazyThreadSafetyMode.NONE) {
+        ActivityMainBinding.inflate(
+            layoutInflater
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         Persistence.initPersistence(this)
         activityHelper = MultiplayerActivityHelper(this)
         ResourceLoader.start(resources)
         binding.singlePlyerButton.setOnClickListener {
-            val intent = Intent(this, SinglePlayerActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, SinglePlayerActivity::class.java))
         }
         binding.multiplayerButton.setOnClickListener {
             if (Persistence.getInstance().isFirstTimeStarted) {
@@ -37,8 +39,7 @@ class MainActivity : BaseActivity() {
         }
         binding.optionButton.setOnClickListener {
             Persistence.getInstance().isFirstTimeStarted = false
-            val intent = Intent(this, SettingsActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, SettingsActivity::class.java))
         }
     }
 

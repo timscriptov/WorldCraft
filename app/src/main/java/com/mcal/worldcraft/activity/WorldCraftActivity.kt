@@ -42,7 +42,7 @@ class WorldCraftActivity : GameActivity() {
 
         intent.extras?.let { extras ->
             val isNewGame = extras.getBoolean("isNewGame")
-            val gameMode = extras["gameMode"] as WorldGenerator.Mode?
+            val gameMode = extras["gameMode"] as WorldGenerator.Mode
 
             Touch.resetTouch()
             initSoundManager()
@@ -275,8 +275,7 @@ class WorldCraftActivity : GameActivity() {
                                 world.initSunLight()
                             }
                             initFog()
-                            val game = Game(this@WorldCraftActivity, null, blockView)
-                            start(game)
+                            start(Game(this@WorldCraftActivity, null, blockView))
                         }
                     }
 

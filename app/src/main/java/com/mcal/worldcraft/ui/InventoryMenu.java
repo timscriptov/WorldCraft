@@ -23,7 +23,7 @@ import java.util.ArrayList;
 public class InventoryMenu implements Touch.TouchListener {
     private final Player player;
     private final ArrayList<InventoryTapItem> renderItemsList = new ArrayList<>();
-    public BoundingRectangle bounds = new BoundingRectangle(55.0f, 100.0f, 675.0f, 320.0f);
+    public BoundingRectangle bounds = new BoundingRectangle(55.0f, 100.0f, Game.gameWidth - 100.0f/*675.0f*/, Game.gameHeight - 200.0f/*320.0f*/);
     public int boundsColour = Colour.packFloat(1.0f, 1.0f, 1.0f, 1.0f);
     public int arrowColour = Colour.packFloat(1.0f, 1.0f, 1.0f, 1.0f);
     public int innerColour = Colour.packInt(148, 134, 123, 255);

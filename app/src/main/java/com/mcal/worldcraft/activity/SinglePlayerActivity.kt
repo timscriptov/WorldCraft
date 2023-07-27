@@ -24,13 +24,16 @@ import kotlinx.coroutines.launch
 import java.io.File
 
 class SinglePlayerActivity : BaseActivity(), RemoveMapListener {
-    private lateinit var binding: ActivitySinglePlayerBinding
+    private val binding by lazy(LazyThreadSafetyMode.NONE) {
+        ActivitySinglePlayerBinding.inflate(
+            layoutInflater
+        )
+    }
     private lateinit var worldListAdapter: ItemAdapter<WorldListAdapter>
     private lateinit var fastApkAdapter: FastAdapter<WorldListAdapter>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivitySinglePlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         initWorldList()

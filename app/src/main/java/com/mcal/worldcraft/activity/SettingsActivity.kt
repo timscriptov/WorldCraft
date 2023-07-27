@@ -8,16 +8,21 @@ import com.mcal.worldcraft.fragments.SettingsFragment
 
 
 class SettingsActivity : AppCompatActivity() {
+    private val binding by lazy(LazyThreadSafetyMode.NONE) {
+        ActivitySettingsBinding.inflate(
+            layoutInflater
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val settingsBinding = ActivitySettingsBinding.inflate(layoutInflater)
-        setContentView(settingsBinding.root)
-        setSupportActionBar(settingsBinding.toolbar)
+        setContentView(binding.root)
+        setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        if (supportFragmentManager.findFragmentById(settingsBinding.frameContainer.id) == null) {
+        if (supportFragmentManager.findFragmentById(binding.frameContainer.id) == null) {
             supportFragmentManager
                 .beginTransaction()
-                .add(settingsBinding.frameContainer.id, SettingsFragment())
+                .add(binding.frameContainer.id, SettingsFragment())
                 .commit()
         }
     }

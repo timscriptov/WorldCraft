@@ -24,7 +24,8 @@ import javax.microedition.khronos.opengles.GL10
  * @author ryanm
  */
 class Game(
-    val gameActivity: GameActivity, private val requiredVersion: GLVersion?,
+    val gameActivity: GameActivity,
+    private val requiredVersion: GLVersion?,
     /**
      * @return the current phase
      */
@@ -113,6 +114,8 @@ class Game(
     ) {
         screenWidth = width
         screenHeight = height
+        gameWidth = width.toFloat()
+        gameHeight = height.toFloat()
         GLUtil.scaledOrtho(gameWidth, gameHeight, screenWidth, screenHeight, -1f, 1f)
         Log.i(RUGL_TAG, "Surface changed $width x $height")
         GLUtil.checkGLError()

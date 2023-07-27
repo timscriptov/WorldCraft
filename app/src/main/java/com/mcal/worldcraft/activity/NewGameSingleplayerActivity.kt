@@ -11,11 +11,14 @@ import com.mcal.worldcraft.utils.KeyboardUtils
 import com.mcal.worldcraft.utils.WorldGenerator
 
 class NewGameSinglePlayerActivity : BaseActivity() {
-    private lateinit var binding: ActivityNewGameSinglePlayerBinding
+    private val binding by lazy(LazyThreadSafetyMode.NONE) {
+        ActivityNewGameSinglePlayerBinding.inflate(
+            layoutInflater
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityNewGameSinglePlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         val worldNameView = binding.worldNameEditText

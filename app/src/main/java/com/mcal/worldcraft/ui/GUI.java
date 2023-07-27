@@ -120,7 +120,7 @@ public class GUI {
             chestMenu = new ChestMenu(player.inventory);
         }
         initListeners();
-        menuTap = new CustomTapPad(720.0f, 430.0f, 80.0f, radius, font, "Menu");
+        menuTap = new CustomTapPad(Game.gameWidth - 80.0f /*720.0f*/, Game.gameHeight - radius/*430.0f*/, 80.0f, radius, font, "Menu");
         menuTap.listener = exitTapListener;
         if (GameMode.isMultiplayerMode()) {
             reportAbuseTap = new CustomTapPad(540.0f, 430.0f, 180.0f, radius, font, Multiplayer.isRoomOwner() ? BAN_PLAYER : REPORT_ABUSE);
@@ -140,7 +140,7 @@ public class GUI {
             leaveBedTap = new CustomTapPad(190.0f, 90.0f, 420.0f, 90.0f, font, "Leave bed", true);
             leaveBedTap.listener = leaveBedTapListener;
         }
-        jumpTap = new CustomTapPad(700.0f, 0.0f, 100.0f, 90.0f, font, "JUMP");
+        jumpTap = new CustomTapPad(Game.gameWidth - 100.0f /*700.0f*/, 0.0f, 100.0f, 90.0f, font, "JUMP");
         jumpTap.listener = player.jumpCrouchListener;
         blockMenuTap.listener = selectBlocksListener;
         initWidgets();
